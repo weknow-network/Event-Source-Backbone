@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Weknow.EventSource.Backbone.Contracts</name>
+    </assembly>
+    <members>
+        <member name="T:Weknow.EventSource.Backbone.Ackable`1">
+            <summary>
+            Represent acknowledge-able instance.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,System.Func{`0,System.Threading.Tasks.Task})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.Ackable`1"/> class.
+            </summary>
+            <param name="item">The item.</param>
+            <param name="ackAsync">The acknowledge handle (callback).</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Item">
+            <summary>
+            Gets the item data.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ackable`1.AckAsync">
+            <summary>
+            Send Acknowledge (some queue type [like event sourcing] 
+            keep the item in the queue until it processed,
+            the acknowledge will notify it that it can be delete).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.AckableCollection`1">
+            <summary>
+            Represent acknowledge-able instance.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.#ctor(System.Int32,System.Func{System.Collections.Generic.IEnumerable{`0},System.Threading.Tasks.Task})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.Ackable`1" /> class.
+            </summary>
+            <param name="count">
+            The count of the items.
+            will propagate acknowledge after count times of acknowledges.
+            </param>
+            <param name="ackAsync">The acknowledge handle (callback).</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.AddItem(`0)">
+            <summary>
+            Gets the item data.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.AckCallbackAsync(`0)">
+            <summary>
+            Acknowledge callback.
+            </summary>
+            <param name="item">The item.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Announcement`1">
+            <summary>
+            Represent command or occurrence.
+            Which is ready to consume.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor">
+            <summary>
+            Only for serialization.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Initializes a new instance of the <see cref="!:MessageIntent&lt;T&gt;" /> class.
+            </summary>
+            <param name="meta">The metadata.</param>
+            <param name="personalData">The personal data.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Meta">
+            <summary>
+            Gets the metadata.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Data">
+            <summary>
+            Gets or sets the data.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.AnnouncementMetadata">
+            <summary>
+            Represent metadata of message (command / event) metadata of
+            a communication channel (Pub/Sub, Event Source, REST, GraphQL).
+            It represent the operation's intent or represent event.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.AnnouncementMetadata.Empty">
+            <summary>
+            The empty
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.#ctor">
+            <summary>
+            Only for serialization support.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.#ctor(System.String,System.String,System.String,System.String,System.String,System.Nullable{System.DateTimeOffset},System.Nullable{System.TimeSpan})">
+            <summary>
+            Initializes a new instance of the <see cref="!:MessageIntentMetadata" /> class.
+            </summary>
+            <param name="intent">Represent logical intention of command/notification.
+            Either represent intention for action (command)
+            or type of occurrence (notification)</param>
+            <param name="channel">The communication channel used to handle this event.</param>
+            <param name="dataType">Type of the data.</param>
+            <param name="segmentedBy">The segmented by.</param>
+            <param name="messageId">The message identifier.</param>
+            <param name="dispatchTime">The dispatch time.</param>
+            <param name="duration">The duration.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.MessageId">
+            <summary>
+            The message identifier.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Intent">
+            <summary>        
+            Represent logical intention of command/notification.
+            Either represent intention for action (command)
+            or type of occurrence (notification).
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.DataType">
+            <summary>        
+            The type of the announcement's data.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.SegmentedBy">
+            <summary>        
+            Indicate the segment provider used for the announcement segmentation.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.DispatchTime">
+            <summary>
+            The sending time.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Duration">
+            <summary>
+            Time pass between sending to consuming of the message.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Channel">
+            <summary>
+            Represent the communication channel which the message came from.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.Equals(System.Object)">
+            <summary>
+            Determines whether the specified object is equal to the current object.
+            </summary>
+            <param name="obj">The object to compare with the current object.</param>
+            <returns>
+              <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.Equals(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+              <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.op_Equality(Weknow.EventSource.Backbone.AnnouncementMetadata,Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Implements the operator ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.op_Inequality(Weknow.EventSource.Backbone.AnnouncementMetadata,Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Implements the operator !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.AnnouncementRaw">
+            <summary>
+            Non-generics form of announcement representation,
+            used to transfer data via channels.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.AnnouncementRaw.Empty">
+            <summary>
+            The empty
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementRaw.#ctor">
+            <summary>
+            Only for serialization support.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementRaw.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.AnnouncementRaw" /> class.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="segments">The segments.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.Metadata">
+            <summary>
+            Gets or sets the metadata.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.Segments">
+            <summary>
+            Gets or sets the segments.
+            Segmentation is done at the sending side, 
+            by Segmentation provider which can be register in order
+            to segments different parts of the messages.
+            The motivation of segmentation can come from regulation like
+            GDPR (right to erasure: https://gdpr-info.eu/).
+            </summary>
+            <example>
+            Segmentation provider can split the message 
+            into personal and non-personal segments.
+            </example>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.InterceptedData">
+            <summary>
+            Gets or sets the mapping of data which 
+            was created by interceptors on the send side
+            and should be evaluate by the interceptor at consume side.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.BuildRaw">
+            <summary>
+            Builds consumer for non-specialized announcements.
+            This is perfect for scenarios like storing backups in blobs like S3.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer3Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumerCustomBuilder.CustomSource(System.String)">
+            <summary>
+            Custom source.
+            </summary>
+            <param name="customSource">The custom source should be used carefully,
+            and only when the data shouldn't be sequence with other sources.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+            <typeparam name="T">The type of the sending data</typeparam>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer4Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+            <typeparam name="T">The type of the sending data</typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer4Builder`1.Build">
+            <summary>
+            Builds producer instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder.CustomSource(System.String)">
+            <summary>
+            Custom source.
+            </summary>
+            <param name="customSource">The custom source should be used carefully,
+            and only when the data shouldn't be sequence with other sources.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder">
+            <summary>
+            Event Source Consumer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder.WithOptions(Weknow.EventSource.Backbone.Building.EventSourceOptions)">
+            <summary>
+            Gets the main event source.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerBuilder.WithOptions(Weknow.EventSource.Backbone.Building.EventSourceOptions)">
+            <summary>
+            Gets the main event source.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducer`1">
+            <summary>
+            Event Source producer.
+            </summary>
+            <typeparam name="T">type of the segment's data.</typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducer`1.SendAsync(`0,System.String)">
+            <summary>
+            Posts a message to the given channel.
+            </summary>
+            <param name="segmentData">The message to publish into specific segment.</param>
+            <param name="overrideIntent">
+            When not null will override the default intent (as set in the builder)
+            </param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

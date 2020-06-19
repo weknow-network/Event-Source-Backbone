@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;ProjRef</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Weknow</Authors>
+    <Company>Weknow</Company>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>.\Weknow.EventSource.Backbone.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
+    <PackageReference Include="Weknow.Pkg.ChannelPatterns.RedisProviderCommon" Version="1.0.97" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
