@@ -2,9 +2,14 @@ using FakeItEasy;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+
+using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -15,75 +20,228 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IEventSourceProducerBuilder _builder = A.Fake<IEventSourceProducerBuilder>();
+        private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
+        private readonly IProducerRawInterceptor _rawInterceptor = A.Fake<IProducerRawInterceptor>();
+        private readonly IProducerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerRawAsyncInterceptor>();
+        private readonly IProducerInterceptor<User> _interceptor = A.Fake<IProducerInterceptor<User>>();
+        private readonly IProducerAsyncInterceptor<User> _asyncInterceptor = A.Fake<IProducerAsyncInterceptor<User>>();
+        private readonly IProducerSegmenationProvider<User> _segmentor = A.Fake<IProducerSegmenationProvider<User>>();
+
+        #region Ctor
 
         public EventSourceApiProducerDesignTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
 
-        [Fact]
-        public async Task Build_Personal_Producer_Test()
-        {
-            //IEventSourceProducer<User> producer =
-            //    _builder.Main
-            //        // .setting
-            //        .Version("V1-test")
-            //        // TODO .Action("RegisterUser", "V1-test")
-            //        .MapPersonalSegment<User>()
-            //        .Build();
+        #endregion // Ctor
 
-            //await producer.SendAsync(new User());
-        }
+        #region Build_Default_Producer_Test
 
         [Fact]
-        public async Task Build_Custom_Personal_Producer_Test()
+        public async Task Build_Default_Producer_Test()
         {
-            //IEventSourceProducer<User> producer =
-            //_builder.CustomSource("custom")
-            //    .Version("V1-test")
-            //    .MapPersonalSegment<User>()
-            //    .Build();
+            IEventSourceProducer<User> producer =
+                _builder
+                        .ForType<User>("ADD_USER")
+                        .Build();
 
-            //await producer.SendAsync(new User());
+            await producer.SendAsync(new User());
+            await producer.SendAsync(new User(), "UPD_USER");
         }
+
+        #endregion // Build_Default_Producer_Test
+
+        #region Build_Serializer_Producer_Test
 
         [Fact]
-        public async Task Build_Custom_Anonymous_Producer_Test()
+        public async Task Build_Serializer_Producer_Test()
         {
-            //IEventSourceProducer<Interaction> producer =
-            //_builder.Main   
-            //    .Version("V1-test")
-            //    .MapAnonymousSegment<Interaction>()
-            //    .Build();
+            var option = new EventSourceOptions(_serializer);
+            IEventSourceProducer<User> producer =
+                _builder.WithOptions(option)
+                        .ForType<User>("ADD_USER")
+                        .Build();
 
-            //// TODO: SendAnonymousAsync
-            //await producer.SendAsync(new Interaction());
+            await producer.SendAsync(new User());
         }
+
+        #endregion // Build_Serializer_Producer_Test
+
+        #region Build_Interceptor_Producer_Test
 
         [Fact]
-        public async Task Build_Personal_Anonymous_Producer_Test()
+        public async Task Build_Interceptor_Producer_Test()
         {
-            //IEventSourceProducer<User, Interaction> producer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        .MapPersonalSegment<User>()
-            //        .MapAnonymousSegment<Interaction>()
-            //        .Build();
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .AddInterceptor(_rawInterceptor)
+                        .ForType<User>("ADD_USER")
+                        .Build();
 
-            //await producer.SendAsync(new User(), new Interaction());
+            await producer.SendAsync(new User());
         }
+
+        #endregion // Build_Interceptor_Producer_Test
+
+        #region Build_AsyncInterceptor_Producer_Test
 
         [Fact]
-        public async Task Build_Anonymous_Personal_Producer_Test()
+        public async Task Build_AsyncInterceptor_Producer_Test()
         {
-            //IEventSourceProducer<User, Interaction> producer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        .MapAnonymousSegment<Interaction>()
-            //        .MapPersonalSegment<User>()
-            //        .Build();
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .AddAsyncInterceptor(_rawAsyncInterceptor)
+                        .ForType<User>("ADD_USER")
+                        .Build();
 
-            //await producer.SendAsync(new User(), new Interaction());
+            await producer.SendAsync(new User());
         }
+
+        #endregion // Build_AsyncInterceptor_Producer_Test
+
+        #region Build_LambdaInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_LambdaInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .AddInterceptor(meta => ("TEST_INTERCEPTOR", 
+                                                    Encoding.UTF8.GetBytes("Some data")))
+                        .ForType<User>("ADD_USER")
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_LambdaInterceptor_Producer_Test
+
+        #region Build_LambdaAsyncInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_LambdaAsyncInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder
+                        .AddAsyncInterceptor(async meta =>
+                            {
+                                await Task.Delay(1);
+                                return ("TEST_INTERCEPTOR",
+                                        Encoding.UTF8.GetBytes("Some data"));
+                            })
+                        .ForType<User>("ADD_USER")
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_LambdaAsyncInterceptor_Producer_Test
+
+        #region Build_LambdaTypedInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_LambdaTypedInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddInterceptor((meta, user) => ("TEST_INTERCEPTOR",
+                                                    Encoding.UTF8.GetBytes($"Some data of {user.Eracure.Name}")))
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_LambdaTypedInterceptor_Producer_Test
+
+        #region Build_LambdaTypedAsyncInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_LambdaTypedAsyncInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddAsyncInterceptor(async (meta, user) =>
+                        {
+                            await Task.Delay(1);
+                            return ("TEST_INTERCEPTOR",
+                                    Encoding.UTF8.GetBytes($"Some data of {user.Eracure.Name}"));
+                        })
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_LambdaTypedAsyncInterceptor_Producer_Test
+
+        #region Build_TypedInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_TypedInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddInterceptor(_interceptor)
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_TypedInterceptor_Producer_Test
+
+        #region Build_TypedAsyncInterceptor_Producer_Test
+
+        [Fact]
+        public async Task Build_TypedAsyncInterceptor_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddAsyncInterceptor(_asyncInterceptor)
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_TypedAsyncInterceptor_Producer_Test
+
+        #region Build_Segmentation_Producer_Test
+
+        [Fact]
+        public async Task Build_Segmentation_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddSegmenationProvider(_segmentor)
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_Segmentation_Producer_Test
+
+        #region Build_LambdaSegmentation_Producer_Test
+
+        [Fact]
+        public async Task Build_LambdaSegmentation_Producer_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder    
+                        .ForType<User>("ADD_USER")
+                        .AddSegmenationProvider((user, serializer) =>
+                                    ImmutableDictionary<string, ReadOnlyMemory<byte>>
+                                            .Empty
+                                            .Add("Personal", serializer.Serialize(user.Eracure))
+                                            .Add("Open", serializer.Serialize(user.Details)))
+                        .Build();
+
+            await producer.SendAsync(new User());
+        }
+
+        #endregion // Build_LambdaSegmentation_Producer_Test
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace Weknow.EventSource.Backbone.Building
+namespace Weknow.EventSource.Backbone
 {
     public interface IDataSerializer
     {

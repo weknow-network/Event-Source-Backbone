@@ -12,16 +12,21 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     /// <typeparam name="T">The type of the sending data</typeparam>
-    public interface IEventSourceProducer3Builder<T>
-        where T : notnull
+    public interface IEventSourceProducer3Builder<T>:
+                                IEventSourceProducer4Builder<T>
+                            where T : notnull
     {
         IEventSourceProducer3Builder<T> AddInterceptor(
-            Func<AnnouncementMetadata, T, (string key, string value)> intercept);
+                    IProducerInterceptor<T> intercept);
+        IEventSourceProducer3Builder<T> AddInterceptor(
+            Func<AnnouncementMetadata, T, (string key, ReadOnlyMemory<byte> value)> intercept);
         IEventSourceProducer3Builder<T> AddAsyncInterceptor(
-            Func<AnnouncementMetadata, T, ValueTask<(string key, string value)>> intercept);
+                    IProducerAsyncInterceptor<T> intercept);
+        IEventSourceProducer3Builder<T> AddAsyncInterceptor(
+            Func<AnnouncementMetadata, T, ValueTask<(string key, ReadOnlyMemory<byte> value)>> intercept);
        
         IEventSourceProducer4Builder<T> AddSegmenationProvider(
-            ISegmenationProducerProvider<T> segmentationProvider);
+            IProducerSegmenationProvider<T> segmentationProvider);
         IEventSourceProducer4Builder<T> AddSegmenationProvider(
             Func<T, 
                 IDataSerializer,

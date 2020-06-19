@@ -12,11 +12,42 @@ namespace Weknow.EventSource.Backbone.Building
     /// </summary>
     public interface IEventSourceConsumer2Builder
     {
+        /// <summary>
+        /// Adds the raw interceptor.
+        /// Intercept the consumer side execution before de-serialization.
+        /// </summary>
+        /// <param name="intercept">The intercept.</param>
+        /// <returns></returns>
         IEventSourceConsumer2Builder AddInterceptor(
-            Func<AnnouncementRaw, (string key, string value)> intercept);
+            Action<AnnouncementRaw, ReadOnlyMemory<byte>> intercept);
+        /// <summary>
+        /// Adds the raw interceptor.
+        /// Intercept the consumer side execution before de-serialization.
+        /// </summary>
+        /// <param name="interceptor">The intercept.</param>
+        /// <returns></returns>
+        IEventSourceProducer2Builder AddInterceptor(
+                                IConsumerRawInterceptor interceptor);
+
+        /// <summary>
+        /// Adds the raw interceptor.
+        /// Intercept the consumer side execution before de-serialization.
+        /// </summary>
+        /// <param name="intercept">The intercept.</param>
+        /// <returns></returns>
+        IEventSourceConsumer2Builder AddAsyncInterceptor(
+            Func<AnnouncementRaw, ReadOnlyMemory<byte>, Task> intercept);
+        /// <summary>
+        /// Adds the raw interceptor.
+        /// Intercept the consumer side execution before de-serialization.
+        /// </summary>
+        /// <param name="interceptor">The intercept.</param>
+        /// <returns></returns>
+        IEventSourceProducer2Builder AddAsyncInterceptor(
+                                IConsumerRawAsyncInterceptor interceptor);
 
         IEventSourceConsumer3Builder<T> ForType<T>(
-                        ISegmenationConsumerProvider<T> segmentationProvider,
+                        IConsumerSegmenationProvider<T> segmentationProvider,
                         params string[] intents)
                      where T : notnull;
 
@@ -28,7 +59,7 @@ namespace Weknow.EventSource.Backbone.Building
                      where T : notnull;
 
         IEventSourceConsumer3Builder<T> ForType<T>(
-                        ISegmenationConsumerProvider<T> segmentationProvider,
+                        IConsumerSegmenationProvider<T> segmentationProvider,
                         Func<AnnouncementMetadata, bool> filter)
                      where T : notnull;
 
