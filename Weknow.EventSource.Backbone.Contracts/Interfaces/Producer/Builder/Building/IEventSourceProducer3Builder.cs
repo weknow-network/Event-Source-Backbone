@@ -18,12 +18,8 @@ namespace Weknow.EventSource.Backbone.Building
     {
         IEventSourceProducer3Builder<T> AddInterceptor(
                     IProducerInterceptor<T> intercept);
-        IEventSourceProducer3Builder<T> AddInterceptor(
-            Func<AnnouncementMetadata, T, (string key, ReadOnlyMemory<byte> value)> intercept);
         IEventSourceProducer3Builder<T> AddAsyncInterceptor(
                     IProducerAsyncInterceptor<T> intercept);
-        IEventSourceProducer3Builder<T> AddAsyncInterceptor(
-            Func<AnnouncementMetadata, T, ValueTask<(string key, ReadOnlyMemory<byte> value)>> intercept);
        
         IEventSourceProducer4Builder<T> AddSegmenationProvider(
             IProducerSegmenationProvider<T> segmentationProvider);

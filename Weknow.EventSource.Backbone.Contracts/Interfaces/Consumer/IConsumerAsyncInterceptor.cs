@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -9,18 +10,19 @@ namespace Weknow.EventSource.Backbone
     /// flowing auth context or traces, producing metrics, etc.
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IInterceptorName" />
-    public interface IConsumerRawInterceptor :
-                                        IInterceptorName
+    public interface IConsumerAsyncInterceptor<T>:
+                                IInterceptorName
+                            where T: notnull
     {
         /// <summary>
         /// Interception operation.
         /// </summary>
-        /// <param name="metadata">The metadata.</param>
+        /// <param name="announcement"></param>
         /// <param name="interceptorData">
         /// The interceptor data which sets on the 
         /// producer stage of the interception.</param>
-        void Intercept(
-                    AnnouncementMetadata metadata,
+        Task InterceptAsync(
+                    Announcement<T> announcement,
                     ReadOnlyMemory<byte> interceptorData);
     }
 }

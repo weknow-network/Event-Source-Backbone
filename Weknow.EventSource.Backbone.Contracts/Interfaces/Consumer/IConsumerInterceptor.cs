@@ -9,18 +9,19 @@ namespace Weknow.EventSource.Backbone
     /// flowing auth context or traces, producing metrics, etc.
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IInterceptorName" />
-    public interface IConsumerRawInterceptor :
-                                        IInterceptorName
+    public interface IConsumerInterceptor<T>:
+                                    IInterceptorName
+                                where T : notnull
     {
         /// <summary>
         /// Interception operation.
         /// </summary>
-        /// <param name="metadata">The metadata.</param>
+        /// <param name="announcement"></param>
         /// <param name="interceptorData">
         /// The interceptor data which sets on the 
         /// producer stage of the interception.</param>
         void Intercept(
-                    AnnouncementMetadata metadata,
-                    ReadOnlyMemory<byte> interceptorData);
+                   Announcement<T> announcement,
+                   ReadOnlyMemory<byte> interceptorData);
     }
 }

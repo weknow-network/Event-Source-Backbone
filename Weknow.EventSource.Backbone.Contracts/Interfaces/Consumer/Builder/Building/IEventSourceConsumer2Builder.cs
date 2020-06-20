@@ -16,35 +16,19 @@ namespace Weknow.EventSource.Backbone.Building
         /// Adds the raw interceptor.
         /// Intercept the consumer side execution before de-serialization.
         /// </summary>
-        /// <param name="intercept">The intercept.</param>
+        /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
         IEventSourceConsumer2Builder AddInterceptor(
-            Action<AnnouncementRaw, ReadOnlyMemory<byte>> intercept);
-        /// <summary>
-        /// Adds the raw interceptor.
-        /// Intercept the consumer side execution before de-serialization.
-        /// </summary>
-        /// <param name="interceptor">The intercept.</param>
-        /// <returns></returns>
-        IEventSourceProducer2Builder AddInterceptor(
-                                IConsumerRawInterceptor interceptor);
+                                IConsumerRawInterceptor interceptorData);
 
         /// <summary>
         /// Adds the raw interceptor.
         /// Intercept the consumer side execution before de-serialization.
         /// </summary>
-        /// <param name="intercept">The intercept.</param>
+        /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
         IEventSourceConsumer2Builder AddAsyncInterceptor(
-            Func<AnnouncementRaw, ReadOnlyMemory<byte>, Task> intercept);
-        /// <summary>
-        /// Adds the raw interceptor.
-        /// Intercept the consumer side execution before de-serialization.
-        /// </summary>
-        /// <param name="interceptor">The intercept.</param>
-        /// <returns></returns>
-        IEventSourceProducer2Builder AddAsyncInterceptor(
-                                IConsumerRawAsyncInterceptor interceptor);
+                                IConsumerRawAsyncInterceptor interceptorData);
 
         IEventSourceConsumer3Builder<T> ForType<T>(
                         IConsumerSegmenationProvider<T> segmentationProvider,

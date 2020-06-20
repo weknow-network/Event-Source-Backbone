@@ -13,11 +13,9 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IEventSourceConsumer3Builder<T> 
         where T: notnull
     {
-        IEventSourceConsumer3Builder<T> AddInterceptor(
-            Action<Announcement<T>> intercept);
+        IEventSourceConsumer3Builder<T> AddInterceptor(IConsumerInterceptor<T> interceptor);
 
-        IEventSourceConsumer3Builder<T> AddAsyncInterceptor(
-            Func<Announcement<T>, ValueTask> intercept);
+        IEventSourceConsumer3Builder<T> AddAsyncInterceptor(IConsumerAsyncInterceptor<T> interceptor);
 
         ISourceBlock<Ackable<Announcement<T>>> Build();
     }

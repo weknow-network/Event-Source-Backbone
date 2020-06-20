@@ -13,12 +13,8 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IEventSourceProducer2Builder
     {
         IEventSourceProducer2Builder AddInterceptor(
-            Func<AnnouncementMetadata, (string key, ReadOnlyMemory<byte> value)> intercept);
-        IEventSourceProducer2Builder AddInterceptor(
                                 IProducerRawInterceptor interceptor);
 
-        IEventSourceProducer2Builder AddAsyncInterceptor(
-            Func<AnnouncementMetadata, ValueTask<(string key, ReadOnlyMemory<byte> value)>> intercept);
         IEventSourceProducer2Builder AddAsyncInterceptor(
                                 IProducerRawAsyncInterceptor interceptor);
 

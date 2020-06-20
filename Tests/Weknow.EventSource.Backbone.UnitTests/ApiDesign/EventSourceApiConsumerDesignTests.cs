@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
+using Weknow.EventSource.Backbone.UnitTests.Entities;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,47 +18,108 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IEventSourceConsumerBuilder _builder = A.Fake<IEventSourceConsumerBuilder>();
+        private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
+        private readonly IConsumerRawInterceptor _rawInterceptor = A.Fake<IConsumerRawInterceptor>();
+        private readonly IConsumerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerRawAsyncInterceptor>();
+        private readonly IConsumerInterceptor<User> _interceptor = A.Fake<IConsumerInterceptor<User>>();
+        private readonly IConsumerAsyncInterceptor<User> _asyncInterceptor = A.Fake<IConsumerAsyncInterceptor<User>>();
+        private readonly IConsumerSegmenationProvider<User> _segmentor = A.Fake<IConsumerSegmenationProvider<User>>();
 
         public EventSourceConsumerApiDesignTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
 
-        [Fact]
-        public void Build_Raw_Consumerr_Test()
-        {
-            //ISourceBlock<Ackable<AnnouncementRaw>> consumer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        .BuildRaw();
-        }
+        #region Build_Raw_Consumer_Test
 
         [Fact]
-        public void Build_Personal_Consumer_Test()
+        public void Build_Raw_Consumer_Test()
         {
-            //ISourceBlock<Ackable<Announcement<User>>> consumer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        .BuildPersonal<User>();
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                _builder.BuildRaw();
         }
 
-        [Fact]
-        public void Build_Anonymous_Consumer_Test()
-        {
-            //ISourceBlock<Ackable<AnonymousAnnouncement<Interaction>>> consumer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        // TODO: .Filter(m => m.ActionType == "RegisterUser")
-            //        .BuildAnonymous<Interaction>();
-        }
+        #endregion // Build_Raw_Consumer_Test        
+
+        #region Build_Serializer_Consumer_Test
 
         [Fact]
-        public void Build_Consumer_Test()
+        public void Build_Serializer_Consumer_Test()
         {
-            //ISourceBlock<Ackable<Announcement<User, Interaction>>> consumer =
-            //    _builder.Main
-            //        .Version("V1-test")
-            //        .Build<User, Interaction>();
+            var option = new EventSourceOptions(_serializer);
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                            _builder
+                                .WithOptions(option)
+                                .BuildRaw();
         }
+
+        #endregion // Build_Serializer_Consumer_Test        
+
+        #region Build_Raw_Interceptor_Consumer_Test
+
+        [Fact]
+        public void Build_Raw_Interceptor_Consumer_Test()
+        {
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                _builder
+                    .AddInterceptor(_rawInterceptor)
+                    .BuildRaw();
+        }
+
+        #endregion // Build_Raw_Interceptor_Consumer_Test        
+
+        #region Build_Raw_AsyncInterceptor_Consumer_Test
+
+        [Fact]
+        public void Build_Raw_AsyncInterceptor_Consumer_Test()
+        {
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                _builder
+                    .AddAsyncInterceptor(_rawAsyncInterceptor)
+                    .BuildRaw();
+        }
+
+        #endregion // Build_Raw_AsyncInterceptor_Consumer_Test        
+
+        #region Build_Typed_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>(_segmentor, "ADD_USER")
+                    .Build();
+        }
+
+        #endregion // Build_Typed_Consumer_Test        
+
+        #region Build_Typed_Interceptor_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_Interceptor_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>(_segmentor, "ADD_USER")
+                    .AddInterceptor(_interceptor)
+                    .Build();
+        }
+
+        #endregion // Build_Typed_Interceptor_Consumer_Test        
+
+        #region Build_Typed_AsyncInterceptor_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_AsyncInterceptor_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>(_segmentor, "ADD_USER")
+                    .AddAsyncInterceptor(_asyncInterceptor)
+                    .Build();
+        }
+
+        #endregion // Build_Typed_AsyncInterceptor_Consumer_Test        
     }
 }

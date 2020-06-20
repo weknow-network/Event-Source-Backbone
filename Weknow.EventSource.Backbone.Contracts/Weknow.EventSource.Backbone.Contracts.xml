@@ -252,6 +252,22 @@
             Event Source producer builder.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddInterceptor(Weknow.EventSource.Backbone.IConsumerRawInterceptor)">
+            <summary>
+            Adds the raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddAsyncInterceptor(Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor)">
+            <summary>
+            Adds the raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.BuildRaw">
             <summary>
             Builds consumer for non-specialized announcements.
@@ -313,9 +329,84 @@
             Event Source Consumer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder.WithOptions(Weknow.EventSource.Backbone.Building.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Gets the main event source.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1.InterceptAsync(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="announcement"></param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor`1">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor`1.Intercept(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="announcement"></param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerRawInterceptor">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerRawInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IInterceptorName.InterceptorName">
+            <summary>
+            Unique name which represent the correlation
+            between the producer and consumer interceptor.
+            It's recommended to use URL format.
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IEventSourceProducerBuilder">
@@ -323,7 +414,7 @@
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerBuilder.WithOptions(Weknow.EventSource.Backbone.Building.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Gets the main event source.
             </summary>
@@ -343,6 +434,72 @@
             When not null will override the default intent (as set in the builder)
             </param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerAsyncInterceptor`1">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor`1.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="announcement">The announcement.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor`1">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerInterceptor`1.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="announcement">The announcement.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerRawInterceptor">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerRawInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
         </member>
     </members>
 </doc>
