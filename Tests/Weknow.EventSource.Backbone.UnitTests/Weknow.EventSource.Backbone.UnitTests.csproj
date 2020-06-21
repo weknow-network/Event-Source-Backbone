@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
+    <ProjectReference Include="..\..\Consumers\Weknow.EventSource.Backbone.Consumers\Weknow.EventSource.Backbone.Consumers.csproj" />
+    <ProjectReference Include="..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
+    <ProjectReference Include="..\..\Producers\Weknow.EventSource.Backbone.Producers\Weknow.EventSource.Backbone.Producers.csproj" />
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>

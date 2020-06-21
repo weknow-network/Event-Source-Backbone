@@ -20,10 +20,13 @@
     <DocumentationFile>.\Weknow.EventSource.Backbone.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.1" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.0.1" />
+    <PackageReference Include="Weknow.EventSource.Backbone" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
-    <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
+    <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
+    <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Weknow.EventSource.Backbone.Producers.Contracts</name>
+    </assembly>
+    <members>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+            <typeparam name="T">The type of the sending data</typeparam>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer4Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+            <typeparam name="T">The type of the sending data</typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer4Builder`1.Build">
+            <summary>
+            Builds producer instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder.CustomSource(System.String)">
+            <summary>
+            Custom source.
+            </summary>
+            <param name="customSource">The custom source should be used carefully,
+            and only when the data shouldn't be sequence with other sources.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider`1">
+            <summary>
+            Responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider`1.Classify(`0,Weknow.EventSource.Backbone.IDataSerializer)">
+            <summary>
+            Classifies instance into different segments.
+            Segments is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="producedData"></param>
+            <param name="serializer"></param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+            <summary>
+            Gets the main event source.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducer`1">
+            <summary>
+            Event Source producer.
+            </summary>
+            <typeparam name="T">type of the segment's data.</typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducer`1.SendAsync(`0,System.String)">
+            <summary>
+            Posts a message to the given channel.
+            </summary>
+            <param name="segmentData">The message to publish into specific segment.</param>
+            <param name="overrideIntent">
+            When not null will override the default intent (as set in the builder)
+            </param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerAsyncInterceptor`1">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor`1.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="announcement">The announcement.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor`1">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerInterceptor`1.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="announcement">The announcement.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerRawInterceptor">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerRawInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+    </members>
+</doc>

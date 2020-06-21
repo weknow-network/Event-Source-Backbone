@@ -94,6 +94,58 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build_Typed_Consumer_Test        
 
+        #region Build_Typed_Lambda_Segmentation_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_Lambda_Segmentation_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>((segments, serializer) => 
+                                new User
+                                {
+                                    Eracure = serializer.Deserialize<User.Personal>(segments["Eracure"]),
+                                    Details = serializer.Deserialize<User.Anonymous>(segments["Open"])
+                                }, "ADD_USER")
+                    .Build();
+        }
+
+        #endregion // Build_Typed_Lambda_Segmentation_Consumer_Test        
+
+        #region Build_Typed_Filter_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_Filter_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>(
+                            _segmentor, 
+                            meta => meta.DataType == nameof(User))
+                    .Build();
+        }
+
+        #endregion // Build_Typed_CBuild_Typed_Filter_Consumer_Testonsumer_Test        
+
+        #region Build_Typed_Lambda_Segmentation_Filter_Consumer_Test
+
+        [Fact]
+        public void Build_Typed_Lambda_Segmentation_Filter_Consumer_Test()
+        {
+            ISourceBlock<Ackable<Announcement<User>>> consumer =
+                _builder
+                    .ForType<User>((segments, serializer) => 
+                                new User
+                                {
+                                    Eracure = serializer.Deserialize<User.Personal>(segments["Eracure"]),
+                                    Details = serializer.Deserialize<User.Anonymous>(segments["Open"])
+                                },
+                                meta => meta.DataType == nameof(User))
+                    .Build();
+        }
+
+        #endregion // Build_Typed_Lambda_Segmentation_Filter_Consumer_Test        
+
         #region Build_Typed_Interceptor_Consumer_Test
 
         [Fact]

@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Weknow.EventSource.Backbone.Consumers.Contracts</name>
+    </assembly>
+    <members>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddInterceptor(Weknow.EventSource.Backbone.IConsumerRawInterceptor)">
+            <summary>
+            Adds the raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddAsyncInterceptor(Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor)">
+            <summary>
+            Adds the raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.BuildRaw">
+            <summary>
+            Builds consumer for non-specialized announcements.
+            This is perfect for scenarios like storing backups in blobs like S3.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer3Builder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumerCustomBuilder.CustomSource(System.String)">
+            <summary>
+            Custom source.
+            </summary>
+            <param name="customSource">The custom source should be used carefully,
+            and only when the data shouldn't be sequence with other sources.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder">
+            <summary>
+            Event Source Consumer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+            <summary>
+            Gets the main event source.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerSegmenationProvider`1">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmenationProvider`1.Unclassify(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},Weknow.EventSource.Backbone.IDataSerializer)">
+            <summary>
+            Unclassify segmented data into an instance.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segments">Segments form of the original message.</param>
+            <param name="serializer">The serializer.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1.InterceptAsync(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="announcement"></param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor`1">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor`1.Intercept(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="announcement"></param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerRawInterceptor">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerRawInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+    </members>
+</doc>
