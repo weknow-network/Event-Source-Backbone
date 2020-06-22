@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Install dependencies
-      run: dotnet restore --configuration ProjRef
+      run: dotnet restore /property:Configuration=ProjRef
     - name: Build
       run: dotnet build --configuration ProjRef --no-restore
     - name: Test
