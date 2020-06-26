@@ -120,6 +120,14 @@
             The message identifier.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Flags">
+            <summary>
+            Gets or sets
+            Represent hints for event execution.
+            Some execution content (like reconstruction) might like to ignore
+            event with specific flags.
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Intent">
             <summary>        
             Represent logical intention of command/notification.
@@ -245,6 +253,13 @@
             Gets or sets the mapping of data which 
             was created by interceptors on the send side
             and should be evaluate by the interceptor at consume side.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventFlags">
+            <summary>
+            Represent hints for event execution.
+            Some execution content (like reconstruction) might like to ignore
+            event with specific flags.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IInterceptorName.InterceptorName">

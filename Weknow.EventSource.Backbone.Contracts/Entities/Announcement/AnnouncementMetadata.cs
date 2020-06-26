@@ -81,6 +81,24 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // MessageId
 
+        #region Flags
+
+        private EventFlags _flags;
+        /// <summary>
+        /// Gets or sets
+        /// Represent hints for event execution.
+        /// Some execution content (like reconstruction) might like to ignore
+        /// event with specific flags.
+        /// </summary>
+        public EventFlags Flags
+        {
+            get => _flags;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _flags = value;
+        }
+
+        #endregion Flags 
+
         #region Intent
 
         private string _intent = string.Empty;
@@ -196,6 +214,7 @@ namespace Weknow.EventSource.Backbone
 
         #region Equality
 
+
         /// <summary>
         /// Determines whether the specified object is equal to the current object.
         /// </summary>
@@ -219,6 +238,7 @@ namespace Weknow.EventSource.Backbone
         {
             return other != null &&
                    _messageId == other._messageId &&
+                   _flags == other._flags &&
                    _intent == other._intent &&
                    _dataType == other._dataType &&
                    _segmentedBy == other._segmentedBy &&
@@ -235,7 +255,7 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(_messageId, _intent, _dataType, _segmentedBy, _dispatchTime, _duration, _channel);
+            return HashCode.Combine(_messageId, _flags, _intent, _dataType, _segmentedBy, _dispatchTime, _duration, _channel);
         }
 
         /// <summary>

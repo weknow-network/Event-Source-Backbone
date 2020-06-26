@@ -9,11 +9,91 @@
             Event Source producer builder.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder.AddInterceptor(Weknow.EventSource.Backbone.IProducerRawInterceptor)">
+            <summary>
+            Adds Producer interceptor (stage = after serialization).
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder.AddAsyncInterceptor(Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor)">
+            <summary>
+            Adds Producer interceptor (stage = after serialization).
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder.ForEventType``1(System.String)">
+            <summary>
+            Define the Producer for payload type and default eventName.
+            </summary>
+            <typeparam name="T">The payload type</typeparam>
+            <param name="defaultEventName">The event name is the operation key.
+            It can stand for itself for simple event or be associate with typed payload.
+            It's recommended not to use the payload type as the event name, 
+            because the payload type should be change on each breaking change of the type
+            in order to support multi versions.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer2Builder.ForEventType(System.String)">
+            <summary>
+            Define the Producer with default eventName.
+            </summary>
+            <param name="defaultEventName">The event name is the operation key.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1">
             <summary>
             Event Source producer builder.
             </summary>
             <typeparam name="T">The type of the sending data</typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1.AddInterceptor(Weknow.EventSource.Backbone.IProducerInterceptor{`0})">
+            <summary>
+            Adds interceptor for the serialized-type.
+            </summary>
+            <param name="intercept">The intercept.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1.AddAsyncInterceptor(Weknow.EventSource.Backbone.IProducerAsyncInterceptor{`0})">
+            <summary>
+            Adds interceptor for the serialized-type.
+            </summary>
+            <param name="intercept">The intercept.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1.AddSegmentationProvider(Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider{`0})">
+            <summary>
+            Adds segmentation provider.
+            Responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducer3Builder`1.AddSegmentationProvider(System.Func{`0,Weknow.EventSource.Backbone.IDataSerializer,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}})">
+            <summary>
+            Adds segmentation provider.
+            Responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceProducer4Builder`1">
             <summary>
@@ -32,13 +112,15 @@
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder.CustomSource(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceProducerCustomBuilder.ChangeChannel(System.String)">
             <summary>
-            Custom source.
+            Custom channel will replace the default channel.
+            It should be used carefully for isolated domain,
+            Make sure the data sequence don't have to be synchronize with other channels.
             </summary>
-            <param name="customSource">The custom source should be used carefully,
-            and only when the data shouldn't be sequence with other sources.</param>
+            <param name="name">The channel name.</param>
             <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider`1">
             <summary>

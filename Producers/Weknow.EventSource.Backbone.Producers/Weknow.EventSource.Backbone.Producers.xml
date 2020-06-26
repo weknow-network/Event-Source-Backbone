@@ -4,5 +4,232 @@
         <name>Weknow.EventSource.Backbone.Producers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder"/> class.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.#ctor(Weknow.EventSource.Backbone.EventSourceProducerBuilder,System.String,Weknow.EventSource.Backbone.EventSourceOptions,System.Collections.Immutable.IImmutableQueue{Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder" /> class.
+            </summary>
+            <param name="copyFrom">The copy from.</param>
+            <param name="channel">The event source channel name.</param>
+            <param name="options">The options.</param>
+            <param name="interceptor">The interceptor.</param>
+            <param name="defaultEventName">Default name of the event.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#IEventSourceProducerBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+            <summary>
+            Gets the main event source.
+            </summary>
+            <param name="options"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#Building#IEventSourceProducer2Builder#AddAsyncInterceptor(Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor)">
+            <summary>
+            Adds the asynchronous interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#Building#IEventSourceProducer2Builder#AddInterceptor(Weknow.EventSource.Backbone.IProducerRawInterceptor)">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#Building#IEventSourceProducerCustomBuilder#ChangeChannel(System.String)">
+            <summary>
+            Custom channel will replace the default channel.
+            It should be used carefully for isolated domain,
+            Make sure the data sequence don't have to be synchronize with other channels.
+            </summary>
+            <param name="channelName">The channel name.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#Building#IEventSourceProducer2Builder#ForEventType``1(System.String)">
+            <summary>
+            Define the Producer for payload type and default eventName.
+            </summary>
+            <typeparam name="T">The payload type</typeparam>
+            <param name="defaultEventName">The event name is the operation key.
+            It can stand for itself for simple event or be associate with typed payload.
+            It's recommended not to use the payload type as the event name, 
+            because the payload type should be change on each breaking change of the type
+            in order to support multi versions.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#Building#IEventSourceProducer2Builder#ForEventType(System.String)">
+            <summary>
+            Define the Producer with default eventName.
+            </summary>
+            <param name="defaultEventName">The event name is the operation key.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder.ToRawAsyncInterceptor">
+            <summary>
+            Wrap sync interceptor as async interceptor
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IProducerRawAsyncInterceptor" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.ToRawAsyncInterceptor.#ctor(Weknow.EventSource.Backbone.IProducerRawInterceptor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder.ToRawAsyncInterceptor"/> class.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceProducerBuilder.ToRawAsyncInterceptor.InterceptorName">
+            <summary>
+            Unique name which represent the correlation
+            between the producer and consumer interceptor.
+            It's recommended to use URL format.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.ToRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>
+            Data which will be available to the
+            consumer stage of the interception.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.#ctor(Weknow.EventSource.Backbone.EventSourceProducerBuilder,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder"/> class.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.#ctor(Weknow.EventSource.Backbone.EventSourceProducerBuilder{`0},System.Collections.Immutable.IImmutableQueue{Weknow.EventSource.Backbone.IProducerAsyncInterceptor{`0}},System.Collections.Immutable.IImmutableQueue{Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider{`0}})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder" /> class.
+            </summary>
+            <param name="copyFrom">The copy from.</param>
+            <param name="typedInterceptor">The typed interceptor.</param>
+            <param name="segmentations">The segmentations.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.Weknow#EventSource#Backbone#Building#IEventSourceProducer3Builder{T}#AddAsyncInterceptor(Weknow.EventSource.Backbone.IProducerAsyncInterceptor{`0})">
+            <summary>
+            Adds the asynchronous interceptor.
+            </summary>
+            <param name="intercept">The intercept.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.Weknow#EventSource#Backbone#Building#IEventSourceProducer3Builder{T}#AddInterceptor(Weknow.EventSource.Backbone.IProducerInterceptor{`0})">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="intercept">The intercept.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.Weknow#EventSource#Backbone#Building#IEventSourceProducer3Builder{T}#AddSegmentationProvider(Weknow.EventSource.Backbone.Building.IProducerSegmenationProvider{`0})">
+            <summary>
+            Adds segmentation provider.
+            Responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationProvider"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.Weknow#EventSource#Backbone#Building#IEventSourceProducer3Builder{T}#AddSegmentationProvider(System.Func{`0,Weknow.EventSource.Backbone.IDataSerializer,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}})">
+            <summary>
+            Adds segmentation provider.
+            Responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationProviderExpression"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor">
+            <summary>
+            Wrap sync interceptor as async interceptor
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor.#ctor(Weknow.EventSource.Backbone.IProducerInterceptor{`0})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor"/> class.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor.InterceptorName">
+            <summary>
+            Unique name which represent the correlation
+            between the producer and consumer interceptor.
+            It's recommended to use URL format.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="announcement">The announcement.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToSegmenationProvider">
+            <summary>
+            Wrap segmentation provider.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToSegmenationProvider.#ctor(System.Func{`0,Weknow.EventSource.Backbone.IDataSerializer,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToAsyncInterceptor" /> class.
+            </summary>
+            <param name="segmentationProvider">The segmentation provider.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder`1.ToSegmenationProvider.Classify(`0,Weknow.EventSource.Backbone.IDataSerializer)">
+            <summary>
+            Classifies instance into different segments.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="producedData"></param>
+            <param name="serializer"></param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
     </members>
 </doc>

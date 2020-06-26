@@ -13,12 +13,14 @@ namespace Weknow.EventSource.Backbone.Building
         : IEventSourceProducer2Builder
     {
         /// <summary>
-        /// Custom source.
+        /// Custom channel will replace the default channel.
+        /// It should be used carefully for isolated domain,
+        /// Make sure the data sequence don't have to be synchronize with other channels.
         /// </summary>
-        /// <param name="customSource">The custom source should be used carefully,
-        /// and only when the data shouldn't be sequence with other sources.</param>
+        /// <param name="name">The channel name.</param>
         /// <returns></returns>
-        IEventSourceProducer2Builder CustomSource(
-                                    string customSource);
+        /// <exception cref="NotImplementedException"></exception>
+        IEventSourceProducer2Builder ChangeChannel(
+                                    string name);
     }
 }

@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         {
             IEventSourceProducer<User> producer =
                 _builder
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .Build();
 
             await producer.SendAsync(new User());
@@ -60,7 +60,7 @@ namespace Weknow.EventSource.Backbone
             var option = new EventSourceOptions(_serializer);
             IEventSourceProducer<User> producer =
                 _builder.WithOptions(option)
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .Build();
 
             await producer.SendAsync(new User());
@@ -76,7 +76,7 @@ namespace Weknow.EventSource.Backbone
             IEventSourceProducer<User> producer =
                 _builder    
                         .AddInterceptor(_rawInterceptor)
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .Build();
 
             await producer.SendAsync(new User());
@@ -92,7 +92,7 @@ namespace Weknow.EventSource.Backbone
             IEventSourceProducer<User> producer =
                 _builder    
                         .AddAsyncInterceptor(_rawAsyncInterceptor)
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .Build();
 
             await producer.SendAsync(new User());
@@ -107,7 +107,7 @@ namespace Weknow.EventSource.Backbone
         {
             IEventSourceProducer<User> producer =
                 _builder    
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .AddInterceptor(_interceptor)
                         .Build();
 
@@ -123,7 +123,7 @@ namespace Weknow.EventSource.Backbone
         {
             IEventSourceProducer<User> producer =
                 _builder    
-                        .ForType<User>("ADD_USER")
+                        .ForEventType<User>("ADD_USER")
                         .AddAsyncInterceptor(_asyncInterceptor)
                         .Build();
 
@@ -139,8 +139,8 @@ namespace Weknow.EventSource.Backbone
         {
             IEventSourceProducer<User> producer =
                 _builder    
-                        .ForType<User>("ADD_USER")
-                        .AddSegmenationProvider(_segmentor)
+                        .ForEventType<User>("ADD_USER")
+                        .AddSegmentationProvider(_segmentor)
                         .Build();
 
             await producer.SendAsync(new User());
@@ -155,8 +155,8 @@ namespace Weknow.EventSource.Backbone
         {
             IEventSourceProducer<User> producer =
                 _builder    
-                        .ForType<User>("ADD_USER")
-                        .AddSegmenationProvider((user, serializer) =>
+                        .ForEventType<User>("ADD_USER")
+                        .AddSegmentationProvider((user, serializer) =>
                                     ImmutableDictionary<string, ReadOnlyMemory<byte>>
                                             .Empty
                                             .Add("Personal", serializer.Serialize(user.Eracure))
