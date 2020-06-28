@@ -22,7 +22,6 @@
             <param name="channel">The event source channel name.</param>
             <param name="options">The options.</param>
             <param name="interceptor">The interceptor.</param>
-            <param name="defaultEventName">Default name of the event.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventSourceProducerBuilder.Weknow#EventSource#Backbone#IEventSourceProducerBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>

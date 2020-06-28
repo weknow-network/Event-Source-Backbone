@@ -164,6 +164,18 @@
             Gets the main event source.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+            <summary>
+            Choose the communication channel provider.
+            </summary>
+            <param name="channel">The channel provider.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IEventSourceProducer`1">
             <summary>
             Event Source producer.
@@ -196,6 +208,19 @@
             <param name="announcement">The announcement.</param>
             <returns>Data which will be available to the 
             consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerChannelProvider">
+            <summary>
+            Channel provider responsible for passing the actual message 
+            from producer to consumer. 
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerChannelProvider.SendAsync(Weknow.EventSource.Backbone.AnnouncementRaw)">
+            <summary>
+            Sends raw announcement.
+            </summary>
+            <param name="payload">The raw announcement data.</param>
+            <returns>The announcement id</returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor`1">
             <summary>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Weknow.EventSource.Backbone.UnitTests.Entities
+﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public class User
     {

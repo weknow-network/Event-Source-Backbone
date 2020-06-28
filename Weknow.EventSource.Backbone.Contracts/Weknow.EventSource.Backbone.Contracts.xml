@@ -262,6 +262,27 @@
             event with specific flags.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
+            <summary>
+            Enable to replace the default serialization
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IDataSerializer.Serialize``1(``0)">
+            <summary>
+            Serialize item.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="item">The item.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IDataSerializer.Deserialize``1(System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Deserialize  data.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="serializedData">The serialized data.</param>
+            <returns></returns>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.IInterceptorName.InterceptorName">
             <summary>
             Unique name which represent the correlation

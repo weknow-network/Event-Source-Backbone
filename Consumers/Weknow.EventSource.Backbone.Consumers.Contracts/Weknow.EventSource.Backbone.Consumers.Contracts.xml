@@ -55,6 +55,18 @@
             Gets the main event source.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceConsumerChannelBuilder">
+            <summary>
+            Event Source Consumer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+            <summary>
+            Choose the communication channel provider.
+            </summary>
+            <param name="channel">The channel provider.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerSegmenationProvider`1">
             <summary>
             Responsible of building instance from segmented data.
@@ -103,6 +115,12 @@
             <param name="interceptorData">
             The interceptor data which sets on the 
             producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerChannelProvider">
+            <summary>
+            Channel provider responsible for passing the actual message 
+            from producer to consumer. 
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor`1">
             <summary>

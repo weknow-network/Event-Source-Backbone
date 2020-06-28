@@ -1,11 +1,7 @@
 using FakeItEasy;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -19,7 +15,8 @@ namespace Weknow.EventSource.Backbone
     public class EventSourceApiProducerDesignTests
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly IEventSourceProducerBuilder _builder = A.Fake<IEventSourceProducerBuilder>();
+        private readonly IEventSourceProducerChannelBuilder _builder = A.Fake<IEventSourceProducerChannelBuilder>();
+        private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
         private readonly IProducerRawInterceptor _rawInterceptor = A.Fake<IProducerRawInterceptor>();
         private readonly IProducerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerRawAsyncInterceptor>();
@@ -42,7 +39,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_Default_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder
+                _builder.UseChannel(_channel)
                         .ForEventType<User>("ADD_USER")
                         .Build();
 
@@ -52,6 +49,19 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build_Default_Producer_Test
 
+        #region Build_Raw_Producer_WithTestChannel_Test
+
+        [Fact]
+        public void Build_Raw_Producer_WithTestChannel_Test()
+        {
+            IEventSourceProducer<User> producer =
+                _builder.UsTestProducerChannel()
+                        .ForEventType<User>("ADD_USER")
+                        .Build();
+        }
+
+        #endregion // Build_Raw_Producer_WithTestChannel_Test        
+
         #region Build_Serializer_Producer_Test
 
         [Fact]
@@ -59,7 +69,8 @@ namespace Weknow.EventSource.Backbone
         {
             var option = new EventSourceOptions(_serializer);
             IEventSourceProducer<User> producer =
-                _builder.WithOptions(option)
+                _builder.UseChannel(_channel)
+                        .WithOptions(option)
                         .ForEventType<User>("ADD_USER")
                         .Build();
 
@@ -74,7 +85,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_Interceptor_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .AddInterceptor(_rawInterceptor)
                         .ForEventType<User>("ADD_USER")
                         .Build();
@@ -90,7 +101,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_AsyncInterceptor_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .AddAsyncInterceptor(_rawAsyncInterceptor)
                         .ForEventType<User>("ADD_USER")
                         .Build();
@@ -106,7 +117,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_TypedInterceptor_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .ForEventType<User>("ADD_USER")
                         .AddInterceptor(_interceptor)
                         .Build();
@@ -122,7 +133,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_TypedAsyncInterceptor_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .ForEventType<User>("ADD_USER")
                         .AddAsyncInterceptor(_asyncInterceptor)
                         .Build();
@@ -138,7 +149,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_Segmentation_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .ForEventType<User>("ADD_USER")
                         .AddSegmentationProvider(_segmentor)
                         .Build();
@@ -154,7 +165,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_LambdaSegmentation_Producer_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder    
+                _builder.UseChannel(_channel)
                         .ForEventType<User>("ADD_USER")
                         .AddSegmentationProvider((user, serializer) =>
                                     ImmutableDictionary<string, ReadOnlyMemory<byte>>

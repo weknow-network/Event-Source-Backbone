@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -38,7 +35,6 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The event source channel name.</param>
         /// <param name="options">The options.</param>
         /// <param name="interceptor">The interceptor.</param>
-        /// <param name="defaultEventName">Default name of the event.</param>
         private EventSourceProducerBuilder(
                     EventSourceProducerBuilder copyFrom,
                     string? channel = null,
