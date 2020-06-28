@@ -44,7 +44,7 @@ namespace Weknow.EventSource.Backbone
         public void Build_Raw_Consumer_WithTestChannel_Test()
         {
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
-                _builder.UsTestConsumerChannel()
+                _builder.UseTestConsumerChannel()
                         .BuildRaw();
         }
 

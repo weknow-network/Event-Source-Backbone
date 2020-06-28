@@ -55,7 +55,7 @@ namespace Weknow.EventSource.Backbone
         public void Build_Raw_Producer_WithTestChannel_Test()
         {
             IEventSourceProducer<User> producer =
-                _builder.UsTestProducerChannel()
+                _builder.UseTestProducerChannel()
                         .ForEventType<User>("ADD_USER")
                         .Build();
         }
