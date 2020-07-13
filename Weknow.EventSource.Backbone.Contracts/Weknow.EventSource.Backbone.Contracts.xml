@@ -11,8 +11,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,System.Func{`0,System.Threading.Tasks.Task})">
             <summary>
-            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.Ackable`1"/> class.
-            </summary>
+            Initializes a new instance        /// </summary>
             <param name="item">The item.</param>
             <param name="ackAsync">The acknowledge handle (callback).</param>
         </member>
@@ -36,8 +35,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.#ctor(System.Int32,System.Func{System.Collections.Generic.IEnumerable{`0},System.Threading.Tasks.Task})">
             <summary>
-            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.Ackable`1" /> class.
-            </summary>
+            Initializes a new instance        /// </summary>
             <param name="count">
             The count of the items.
             will propagate acknowledge after count times of acknowledges.
@@ -69,8 +67,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
             <summary>
-            Initializes a new instance of the <see cref="!:MessageIntent&lt;T&gt;" /> class.
-            </summary>
+            Initializes a new instance        /// </summary>
             <param name="meta">The metadata.</param>
             <param name="personalData">The personal data.</param>
         </member>
@@ -103,8 +100,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.#ctor(System.String,System.String,System.String,System.String,System.String,System.Nullable{System.DateTimeOffset},System.Nullable{System.TimeSpan})">
             <summary>
-            Initializes a new instance of the <see cref="!:MessageIntentMetadata" /> class.
-            </summary>
+            Initializes a new instance        /// </summary>
             <param name="intent">Represent logical intention of command/notification.
             Either represent intention for action (command)
             or type of occurrence (notification)</param>
@@ -224,8 +220,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.AnnouncementRaw.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
             <summary>
-            Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.AnnouncementRaw" /> class.
-            </summary>
+            Initializes a new instance        /// </summary>
             <param name="metadata">The metadata.</param>
             <param name="segments">The segments.</param>
         </member>

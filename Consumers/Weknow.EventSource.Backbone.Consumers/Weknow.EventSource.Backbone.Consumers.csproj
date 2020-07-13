@@ -28,5 +28,8 @@
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interceptors\" />
+  </ItemGroup>
 
 </Project>

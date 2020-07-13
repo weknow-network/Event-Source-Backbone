@@ -31,5 +31,8 @@
     <ProjectReference Include="..\..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+  </ItemGroup>
 
 </Project>

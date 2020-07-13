@@ -31,8 +31,7 @@ namespace Weknow.EventSource.Backbone
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageIntentMetadata" /> class.
-        /// </summary>
+        /// Initializes a new instance        /// </summary>
         /// <param name="intent">Represent logical intention of command/notification.
         /// Either represent intention for action (command)
         /// or type of occurrence (notification)</param>

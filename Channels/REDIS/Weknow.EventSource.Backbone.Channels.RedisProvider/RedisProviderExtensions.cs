@@ -1,19 +1,37 @@
-﻿using System;
+﻿using StackExchange.Redis;
+
+using System;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     public static class RedisProviderExtensions
     {
 
-        public static IEventSourceConsumerBuilder UsTestConsumerChannel(
-                            this IEventSourceConsumerChannelBuilder builder)
+        /// <summary>
+        /// Uses REDIS consumer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static IEventSourceConsumerBuilder UseRedisConsumerChannel(
+                            this IEventSourceConsumerChannelBuilder builder,
+                            ConfigurationOptions configuration)
         {
             throw new NotImplementedException();
             //return builder.UseChannel(_channel);
         }
 
-        public static IEventSourceProducerBuilder UsTestProducerChannel(
-                            this IEventSourceProducerChannelBuilder builder)
+        /// <summary>
+        /// Uses REDIS producer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static IEventSourceProducerOptionsBuilder UseRedisProducerChannel(
+                            this IEventSourceProducerChannelBuilder builder,
+                            ConfigurationOptions configuration)
         {
             throw new NotImplementedException();
             //return builder.UseChannel(_channel);

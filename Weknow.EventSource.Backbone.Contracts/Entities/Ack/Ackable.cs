@@ -13,8 +13,7 @@ namespace Weknow.EventSource.Backbone
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Ackable{T}"/> class.
-        /// </summary>
+        /// Initializes a new instance        /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="ackAsync">The acknowledge handle (callback).</param>
         public Ackable(

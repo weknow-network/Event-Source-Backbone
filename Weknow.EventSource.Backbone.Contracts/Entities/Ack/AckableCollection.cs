@@ -21,8 +21,7 @@ namespace Weknow.EventSource.Backbone
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Ackable{T}" /> class.
-        /// </summary>
+        /// Initializes a new instance        /// </summary>
         /// <param name="count">
         /// The count of the items.
         /// will propagate acknowledge after count times of acknowledges.

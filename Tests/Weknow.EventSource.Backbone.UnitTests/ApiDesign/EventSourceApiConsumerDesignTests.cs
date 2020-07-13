@@ -26,17 +26,35 @@ namespace Weknow.EventSource.Backbone
             _outputHelper = outputHelper;
         }
 
-        #region Build_Raw_Consumer_Test
+        #region Build_Raw_Consumer_Direct_Test
 
         [Fact]
-        public void Build_Raw_Consumer_Test()
+        public void Build_Raw_Consumer_Direct_Test()
         {
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
                 _builder.UseChannel(_channel)
+                        .Shard("ORDER-AHS7821X")
+                        .BuildRaw();
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                _builder.UseChannel(_channel)
+                        .Group("ORDERS")
                         .BuildRaw();
         }
 
-        #endregion // Build_Raw_Consumer_Test        
+        #endregion // Build_Raw_Consumer_Direct_Test        
+
+        #region Build_Raw_Consumer_ByTags_Test
+
+        [Fact]
+        public void Build_Raw_Consumer_ByTags_Test()
+        {
+            ISourceBlock<Ackable<AnnouncementRaw>> consumer =
+                _builder.UseChannel(_channel)
+                        //-----.RegisterTags("ORDERS", "SHIPMENTS")
+                        .BuildRaw();
+        }
+
+        #endregion // Build_Raw_Consumer_ByTags_Test        
 
         #region Build_Raw_Consumer_WithTestChannel_Test
 
@@ -45,6 +63,7 @@ namespace Weknow.EventSource.Backbone
         {
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
                 _builder.UseTestConsumerChannel()
+                        .FromShard("ORDER-AHS7821X")
                         .BuildRaw();
         }
 
@@ -59,6 +78,7 @@ namespace Weknow.EventSource.Backbone
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
                             _builder.UseChannel(_channel)
                                     .WithOptions(option)
+                                    .FromShard("ORDER-AHS7821X")
                                     .BuildRaw();
         }
 
@@ -71,7 +91,7 @@ namespace Weknow.EventSource.Backbone
         {
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
                 _builder.UseChannel(_channel)
-                        .AddInterceptor(_rawInterceptor)
+                        .RegisterInterceptor(_rawInterceptor)
                         .BuildRaw();
         }
 
@@ -84,7 +104,7 @@ namespace Weknow.EventSource.Backbone
         {
             ISourceBlock<Ackable<AnnouncementRaw>> consumer =
                 _builder.UseChannel(_channel)
-                        .AddAsyncInterceptor(_rawAsyncInterceptor)
+                        .RegisterAsyncInterceptor(_rawAsyncInterceptor)
                         .BuildRaw();
         }
 

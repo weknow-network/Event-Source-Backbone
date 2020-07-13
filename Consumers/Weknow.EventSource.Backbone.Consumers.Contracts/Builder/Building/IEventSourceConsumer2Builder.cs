@@ -10,21 +10,21 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IEventSourceConsumer2Builder
     {
         /// <summary>
-        /// Adds the raw interceptor.
+        /// Register raw interceptor.
         /// Intercept the consumer side execution before de-serialization.
         /// </summary>
         /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
-        IEventSourceConsumer2Builder AddInterceptor(
+        IEventSourceConsumer2Builder RegisterInterceptor(
                                 IConsumerRawInterceptor interceptorData);
 
         /// <summary>
-        /// Adds the raw interceptor.
+        /// Register raw interceptor.
         /// Intercept the consumer side execution before de-serialization.
         /// </summary>
         /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
-        IEventSourceConsumer2Builder AddAsyncInterceptor(
+        IEventSourceConsumer2Builder RegisterAsyncInterceptor(
                                 IConsumerRawAsyncInterceptor interceptorData);
 
         IEventSourceConsumer3Builder<T> ForType<T>(

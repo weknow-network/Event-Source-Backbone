@@ -1,20 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
-
-// TODO: get IEventSourceProducerFactory for the actual implementation
 
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public class EventSourceProducerBuilder : IEventSourceProducerBuilder
+    public class EventSourceProducerBuilder : IEventSourceProducerOptionsBuilder
     {
         private readonly EventSourceOptions _options = EventSourceOptions.Empty;
-        private readonly IImmutableQueue<IProducerRawAsyncInterceptor> _interceptor =
+        private readonly IImmutableQueue<IProducerRawAsyncInterceptor> _rawInterceptor =
                                         ImmutableQueue<IProducerRawAsyncInterceptor>.Empty;
         private readonly string channel = "main";
 
@@ -43,7 +42,7 @@ namespace Weknow.EventSource.Backbone
         {
             this.channel = channel ?? copyFrom.channel;
             _options = options ?? copyFrom._options;
-            _interceptor = interceptor ?? copyFrom._interceptor;
+            _rawInterceptor = interceptor ?? copyFrom._rawInterceptor;
         }
 
         #endregion // Ctor
@@ -56,7 +55,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IEventSourceProducerCustomBuilder IEventSourceProducerBuilder.WithOptions(
+        IEventSourceProducerSpecializeBuilder IEventSourceProducerOptionsBuilder.WithOptions(
                                                     EventSourceOptions options)
         {
             return new EventSourceProducerBuilder(this, options: options);
@@ -71,12 +70,12 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="interceptor">The interceptor.</param>
         /// <returns></returns>
-        IEventSourceProducer2Builder IEventSourceProducer2Builder.AddAsyncInterceptor(
+        IEventSourceProducerSpecializeBuilder IEventSourceProducerSpecializeBuilder.AddAsyncInterceptor(
                                                     IProducerRawAsyncInterceptor interceptor)
         {
             return new EventSourceProducerBuilder(
                 this,
-                interceptor: _interceptor.Enqueue(interceptor));
+                interceptor: _rawInterceptor.Enqueue(interceptor));
         }
 
         #endregion // AddAsyncInterceptor
@@ -89,34 +88,16 @@ namespace Weknow.EventSource.Backbone
         /// <param name="interceptor">The interceptor.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IEventSourceProducer2Builder IEventSourceProducer2Builder.AddInterceptor(
+        IEventSourceProducerSpecializeBuilder IEventSourceProducerSpecializeBuilder.AddInterceptor(
                                                     IProducerRawInterceptor interceptor)
         {
             var asyncInterceptor = new ToRawAsyncInterceptor(interceptor);
             return new EventSourceProducerBuilder(
                 this,
-                interceptor: _interceptor.Enqueue(asyncInterceptor));
+                interceptor: _rawInterceptor.Enqueue(asyncInterceptor));
         }
 
         #endregion // AddInterceptor
-
-        #region ChangeChannel
-
-        /// <summary>
-        /// Custom channel will replace the default channel.
-        /// It should be used carefully for isolated domain,
-        /// Make sure the data sequence don't have to be synchronize with other channels.
-        /// </summary>
-        /// <param name="channelName">The channel name.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        IEventSourceProducer2Builder IEventSourceProducerCustomBuilder.ChangeChannel(
-                                                    string channelName)
-        {
-            return new EventSourceProducerBuilder(this, channel: channelName);
-        }
-
-        #endregion // ChangeChannel
 
         #region ForEventType
 
@@ -131,7 +112,7 @@ namespace Weknow.EventSource.Backbone
         /// in order to support multi versions.
         /// </param>
         /// <returns></returns>
-        IEventSourceProducer3Builder<T> IEventSourceProducer2Builder.ForEventType<T>(
+        IEventSourceProducerDecoratorBuilder<T> IEventSourceProducerSpecializeBuilder.ForEventType<T>(
                                                             string defaultEventName)
         {
             return new EventSourceProducerBuilder<T>(this, defaultEventName);
@@ -142,7 +123,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="defaultEventName">The event name is the operation key.</param>
         /// <returns></returns>
-        IEventSourceProducer3Builder<string> IEventSourceProducer2Builder.ForEventType(
+        IEventSourceProducerDecoratorBuilder<string> IEventSourceProducerSpecializeBuilder.ForEventType(
                                                             string defaultEventName)
         {
             return new EventSourceProducerBuilder<string>(this, defaultEventName);
@@ -209,13 +190,13 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public class EventSourceProducerBuilder<T> : IEventSourceProducer3Builder<T>
+    public class EventSourceProducerBuilder<T> : IEventSourceProducerDecoratorBuilder<T>
         where T:notnull
     {
         private readonly EventSourceProducerBuilder _basedOn;
         private readonly string _defaultEventName;
-        private readonly IImmutableQueue<IProducerAsyncInterceptor<T>> _typedInterceptor =
-                                        ImmutableQueue<IProducerAsyncInterceptor<T>>.Empty;
+        private readonly IImmutableQueue<IProducerAsyncDecorator<T>> _typedInterceptor =
+                                        ImmutableQueue<IProducerAsyncDecorator<T>>.Empty;
         private readonly IImmutableQueue<IProducerSegmenationProvider<T>> _segmentations =
                                         ImmutableQueue<IProducerSegmenationProvider<T>>.Empty;
 
@@ -240,7 +221,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="segmentations">The segmentations.</param>
         public EventSourceProducerBuilder(
                     EventSourceProducerBuilder<T> copyFrom,
-                    IImmutableQueue<IProducerAsyncInterceptor<T>>? typedInterceptor = null,
+                    IImmutableQueue<IProducerAsyncDecorator<T>>? typedInterceptor = null,
                     IImmutableQueue<IProducerSegmenationProvider<T>>? segmentations = null)
         {
             _basedOn = copyFrom._basedOn;
@@ -258,10 +239,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="intercept">The intercept.</param>
         /// <returns></returns>
-        IEventSourceProducer3Builder<T> IEventSourceProducer3Builder<T>.AddAsyncInterceptor(
-                                                    IProducerAsyncInterceptor<T> intercept)
+        IEventSourceProducerDecoratorBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddAsyncInterceptor(
+                                                    IProducerAsyncDecorator<T> intercept)
         {
-            IImmutableQueue<IProducerAsyncInterceptor<T>> interceptors = 
+            IImmutableQueue<IProducerAsyncDecorator<T>> interceptors = 
                                             _typedInterceptor.Enqueue(intercept);
             return new EventSourceProducerBuilder<T>(this, typedInterceptor: interceptors);
         }
@@ -276,11 +257,11 @@ namespace Weknow.EventSource.Backbone
         /// <param name="intercept">The intercept.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IEventSourceProducer3Builder<T> IEventSourceProducer3Builder<T>.AddInterceptor(
-                                                    IProducerInterceptor<T> intercept)
+        IEventSourceProducerDecoratorBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddInterceptor(
+                                                    IProducerDecorator<T> intercept)
         {
-            IProducerAsyncInterceptor<T> asyncInterceptor = new ToAsyncInterceptor(intercept);
-            IImmutableQueue<IProducerAsyncInterceptor<T>> interceptors = 
+            IProducerAsyncDecorator<T> asyncInterceptor = new ToAsyncInterceptor(intercept);
+            IImmutableQueue<IProducerAsyncDecorator<T>> interceptors = 
                                             _typedInterceptor.Enqueue(asyncInterceptor);
             return new EventSourceProducerBuilder<T>(this, typedInterceptor: interceptors);
         }
@@ -305,7 +286,7 @@ namespace Weknow.EventSource.Backbone
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        IEventSourceProducer4Builder<T> IEventSourceProducer3Builder<T>.AddSegmentationProvider(
+        IEventSourceProducerFinalBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddSegmentationProvider(
                                                             IProducerSegmenationProvider<T> segmentationProvider)
         {
             var segmentations = _segmentations.Enqueue(segmentationProvider);
@@ -328,7 +309,7 @@ namespace Weknow.EventSource.Backbone
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        IEventSourceProducer4Builder<T> IEventSourceProducer3Builder<T>.AddSegmentationProvider(
+        IEventSourceProducerFinalBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddSegmentationProvider(
                                                             Func<T, IDataSerializer, ImmutableDictionary<string, ReadOnlyMemory<byte>>> segmentationProviderExpression)
         {
             IProducerSegmenationProvider<T> segmentationProvider = new ToSegmenationProvider(segmentationProviderExpression);
@@ -338,8 +319,49 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // AddSegmentationProvider
 
-        // TBD: how to choose specific implementation (configuration: UseRedis?)
-        IEventSourceProducer<T> IEventSourceProducer4Builder<T>.Build()
+        /// <summary>
+        /// Builds producer instance.
+        /// </summary>
+        /// <param name="sourceShard">Specify the event source shard.
+        /// Shard it a unique source name
+        /// for specific message channeling (routing).</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        IEventSourceProducer<T> IEventSourceProducerFinalBuilder<T>.Build(string sourceShard)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Adds tags.
+        /// Attach channel's tags which enable the consumer
+        /// to get data from multiple sources.
+        /// For example: assuming that each order flow is written to
+        /// unique source.
+        /// Tagging it with ORDER tag enables consumer
+        /// to consume all orders flow (consume from multiple sources).
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        IEventSourceProducerDecoratorBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddTags(params string[] tags)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Adds tags.
+        /// Attach channel's tags which enable the consumer
+        /// to get data from multiple sources.
+        /// For example: assuming that each order flow is written to
+        /// unique source.
+        /// Tagging it with ORDER tag enables consumer
+        /// to consume all orders flow (consume from multiple sources).
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        IEventSourceProducerDecoratorBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddTags(IEnumerable[] tags)
         {
             throw new NotImplementedException();
         }
@@ -349,9 +371,9 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Wrap sync interceptor as async interceptor
         /// </summary>
-        private class ToAsyncInterceptor : IProducerAsyncInterceptor<T>
+        private class ToAsyncInterceptor : IProducerAsyncDecorator<T>
         {
-            private readonly IProducerInterceptor<T> _interceptor;
+            private readonly IProducerDecorator<T> _interceptor;
 
             #region Ctor
 
@@ -359,7 +381,7 @@ namespace Weknow.EventSource.Backbone
             /// Initializes a new instance of the <see cref="ToAsyncInterceptor"/> class.
             /// </summary>
             /// <param name="interceptor">The interceptor.</param>
-            public ToAsyncInterceptor(IProducerInterceptor<T> interceptor)
+            public ToAsyncInterceptor(IProducerDecorator<T> interceptor)
             {
                 _interceptor = interceptor;
             }

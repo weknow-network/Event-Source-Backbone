@@ -30,8 +30,7 @@ namespace Weknow.EventSource.Backbone
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnnouncementRaw" /> class.
-        /// </summary>
+        /// Initializes a new instance        /// </summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="segments">The segments.</param>
         public AnnouncementRaw(

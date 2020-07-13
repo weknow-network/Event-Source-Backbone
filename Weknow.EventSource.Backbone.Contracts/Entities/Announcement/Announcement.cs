@@ -24,8 +24,7 @@ namespace Weknow.EventSource.Backbone
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageIntent{T}" /> class.
-        /// </summary>
+        /// Initializes a new instance        /// </summary>
         /// <param name="meta">The metadata.</param>
         /// <param name="personalData">The personal data.</param>
         public Announcement(

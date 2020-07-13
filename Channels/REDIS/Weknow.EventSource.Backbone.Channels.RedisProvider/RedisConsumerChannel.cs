@@ -6,39 +6,46 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     public class RedisConsumerChannel : IConsumerChannelProvider
     {
+        #region Ctor
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
         public RedisConsumerChannel()
         {
 
         }
 
-        public Task Completion => throw new NotImplementedException();
+        #endregion // Ctor
 
-        public void Complete()
+        Task IDataflowBlock.Completion => throw new NotImplementedException();
+
+        void IDataflowBlock.Complete()
         {
             throw new NotImplementedException();
         }
 
-        public Ackable<AnnouncementRaw> ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target, out bool messageConsumed)
+        Ackable<AnnouncementRaw> ISourceBlock<Ackable<AnnouncementRaw>>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target, out bool messageConsumed)
         {
             throw new NotImplementedException();
         }
 
-        public void Fault(Exception exception)
+        void IDataflowBlock.Fault(Exception exception)
         {
             throw new NotImplementedException();
         }
 
-        public IDisposable LinkTo(ITargetBlock<Ackable<AnnouncementRaw>> target, DataflowLinkOptions linkOptions)
+        IDisposable ISourceBlock<Ackable<AnnouncementRaw>>.LinkTo(ITargetBlock<Ackable<AnnouncementRaw>> target, DataflowLinkOptions linkOptions)
         {
             throw new NotImplementedException();
         }
 
-        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
+        void ISourceBlock<Ackable<AnnouncementRaw>>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
         {
             throw new NotImplementedException();
         }
 
-        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
+        bool ISourceBlock<Ackable<AnnouncementRaw>>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
         {
             throw new NotImplementedException();
         }
