@@ -6,7 +6,7 @@
     public interface IEventSourceProducerSpecializeBuilder
     {
         /// <summary>
-        /// <![CDATA[ Define the Producer for specific events sequence.
+        /// <![CDATA[ Ceate Producer proxy for specific events sequence.
         /// Event sequence define by an interface which declare the 
         /// operations which in time will be serialized into event's
         /// messages.
@@ -18,7 +18,7 @@
         /// </summary>
         /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
         /// <returns></returns>
-        IEventSourceProducerDecoratorBuilder<T> ForEventsSequence<T>()
+        T Build<T>()
             where T: class;
     }
 }

@@ -14,6 +14,6 @@ namespace Weknow.EventSource.Backbone.Building
         /// <summary>
         /// Attach configuration.
         /// </summary>
-        IEventSourceConsumer2Builder WithOptions(EventSourceOptions options);
+        IEventSourceConsumerPartitionBuilder WithOptions(EventSourceOptions options);
     }
 }

@@ -10,6 +10,8 @@ using Weknow.EventSource.Backbone.UnitTests.Entities;
 using Xunit;
 using Xunit.Abstractions;
 
+using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 namespace Weknow.EventSource.Backbone
 {
     public class EventSourceApiProducerDesignTests
@@ -20,6 +22,9 @@ namespace Weknow.EventSource.Backbone
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
         private readonly IProducerRawInterceptor _rawInterceptor = A.Fake<IProducerRawInterceptor>();
         private readonly IProducerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerRawAsyncInterceptor>();
+        private readonly IProducerAsyncSegmenationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmenationStrategy>();
+        private readonly IProducerSegmenationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmenationStrategy>();
+        private readonly IProducerSegmenationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmenationStrategy>();
 
         #region Ctor
 
@@ -39,26 +44,50 @@ namespace Weknow.EventSource.Backbone
                 _builder.UseChannel(_channel)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .ForEventsSequence<ISequenceOperations>();
+                        .AddInterceptor(_rawAsyncInterceptor);
 
             var producerB =
                 _builder.UseTestProducerChannel()
                         .Partition("NGOs")
                         .Shard("NGO #2782228")
-                        .ForEventsSequence<ISequenceOperations>();
+                        .UseSegmentation(_segmentationStrategy);
 
             var producerC =
                 _builder.UseChannel(_channel)
                         .Partition("Fans")
                         .Shard("Geek: @someone")
-                        .ForEventsSequence<ISequenceOperations>();
+                        .UseSegmentation<User>((segments, operation, user, opt) =>
+                        {
+                            var personal = opt.Serializer.Serialize(user.Eracure);
+                            var open = opt.Serializer.Serialize(user.Details);
+
+                            segments = segments.Add(nameof(personal), personal);
+                            segments =segments.Add(nameof(open), open);
+
+                            return segments;
+                        })
+                        .UseSegmentation<int>((segments, operation, id, opt) =>
+                        {
+                            var data = opt.Serializer.Serialize(id);
+                            switch (operation)
+                            {
+                                case nameof(ISequenceOperations.LoginAsync):
+                                    segments = segments.Add("log-in", data);
+                                    break;
+                                case nameof(ISequenceOperations.EarseAsync):
+                                    segments = segments.Add("clean", data);
+                                    break;
+                            }
+
+                            return segments;
+                        });                        ;
 
 
-            ISequenceOperations producer = _builder
-                                                    .Merge(producerA, producerB, producerC)
-                                                    .AddSegmentationProvider((opt, store) =>
-                                                        new SequenceOperationsSegmentation(opt, store))
-                                                    .Build();
+            ISequenceOperations producer =
+                                    _builder
+                                        .Merge(producerA, producerB, producerC)
+                                        .UseSegmentation(_postSegmentationStrategy)
+                                        .Build<ISequenceOperations>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -79,8 +108,7 @@ namespace Weknow.EventSource.Backbone
                         .WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .ForEventsSequence<ISequenceOperations>()
-                        .Build();
+                        .Build<ISequenceOperations>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -99,9 +127,10 @@ namespace Weknow.EventSource.Backbone
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .AddInterceptor(_rawInterceptor)
-                        .AddAsyncInterceptor(_rawAsyncInterceptor)
-                        .ForEventsSequence<ISequenceOperations>()
-                        .Build();
+                        .AddInterceptor(_rawAsyncInterceptor)
+                        .UseSegmentation(_segmentationStrategy)
+                        .UseSegmentation(_otherSegmentationStrategy)
+                        .Build<ISequenceOperations>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

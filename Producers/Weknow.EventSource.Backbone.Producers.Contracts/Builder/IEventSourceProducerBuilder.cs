@@ -20,15 +20,13 @@ namespace Weknow.EventSource.Backbone
         /// Merges multiple channels of same contract into single
         /// producer for broadcasting messages via all channels.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="first">The first channel.</param>
         /// <param name="second">The second channel.</param>
         /// <param name="others">The others channels.</param>
         /// <returns></returns>
-        IEventSourceProducerDecoratorBuilder<T> Merge<T>(
-            IEventSourceProducerDecoratorBuilder<T> first,
-            IEventSourceProducerDecoratorBuilder<T> second,
-            params IEventSourceProducerDecoratorBuilder<T>[] others)
-            where T: class;
+        IEventSourceProducerHooksBuilder Merge(
+            IEventSourceProducerHooksBuilder first,
+            IEventSourceProducerHooksBuilder second,
+            params IEventSourceProducerHooksBuilder[] others);
     }
 }

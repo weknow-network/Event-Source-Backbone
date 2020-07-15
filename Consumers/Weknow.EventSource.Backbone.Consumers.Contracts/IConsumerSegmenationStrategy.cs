@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -10,13 +11,12 @@ namespace Weknow.EventSource.Backbone
     /// keys represent the different segments 
     /// and the value represent serialized form of the segment's data.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <example>
     /// Examples for segments can be driven from regulation like
     /// GDPR (personal, non-personal data),
     /// Technical vs Business aspects, etc.
     /// </example>
-    public interface IConsumerSegmenationProvider<T> where T : notnull
+    public interface IConsumerSegmenationStrategy
     {
         /// <summary>
         /// Unclassify segmented data into an instance.
@@ -25,16 +25,25 @@ namespace Weknow.EventSource.Backbone
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
         /// </summary>
-        /// <param name="segments">Segments form of the original message.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns></returns>
+        /// <param name="segments">The segments which was collect so far.
+        /// It start as Empty and flow though all the registered segmentation strategies.</param>
+        /// <param name="operation">The operation's key which represent the method call at the
+        /// producer proxy.
+        /// This way you can segment same type into different slot.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// Materialization of the segments.
+        /// </returns>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        T Unclassify(
-                ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
-                IDataSerializer serializer);
+        (bool, T) TryUnclassify<T>(
+                Segments segments,
+                string operation,
+                string argumentName,
+                EventSourceOptions options);
     }
 }

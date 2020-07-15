@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// Shard is a unique source name 
         /// which used for direct message channeling (routing).</param>
         /// <returns></returns>
-        IEventSourceConsumer2Builder FromShard(string sourceShard);
+        IEventSourceConsumerHooksBuilder FromShard(string sourceShard);
 
         /// <summary>
         /// Register tag's channels, enable the consumer
@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        IEventSourceConsumer2Builder RegisterTags(
+        IEventSourceConsumerHooksBuilder RegisterTags(
             params string[] tags);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        IEventSourceConsumer2Builder RegisterTags(
+        IEventSourceConsumerHooksBuilder RegisterTags(
             IEnumerable[] tags);
     }
 }

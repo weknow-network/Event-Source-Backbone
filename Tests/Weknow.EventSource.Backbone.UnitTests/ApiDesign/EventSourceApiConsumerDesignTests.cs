@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
         private readonly IConsumerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerRawAsyncInterceptor>();
         private readonly IConsumerInterceptor<User> _interceptor = A.Fake<IConsumerInterceptor<User>>();
         private readonly IConsumerAsyncInterceptor<User> _asyncInterceptor = A.Fake<IConsumerAsyncInterceptor<User>>();
-        private readonly IConsumerSegmenationProvider<User> _segmentor = A.Fake<IConsumerSegmenationProvider<User>>();
+        private readonly IConsumerSegmenationStrategy<User> _segmentor = A.Fake<IConsumerSegmenationStrategy<User>>();
 
         public EventSourceConsumerApiDesignTests(ITestOutputHelper outputHelper)
         {

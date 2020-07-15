@@ -197,8 +197,8 @@ namespace Weknow.EventSource.Backbone
         private readonly string _defaultEventName;
         private readonly IImmutableQueue<IProducerAsyncDecorator<T>> _typedInterceptor =
                                         ImmutableQueue<IProducerAsyncDecorator<T>>.Empty;
-        private readonly IImmutableQueue<IProducerSegmenationProvider<T>> _segmentations =
-                                        ImmutableQueue<IProducerSegmenationProvider<T>>.Empty;
+        private readonly IImmutableQueue<IProducerSegmenationStrategy<T>> _segmentations =
+                                        ImmutableQueue<IProducerSegmenationStrategy<T>>.Empty;
 
         #region Ctor
 
@@ -222,7 +222,7 @@ namespace Weknow.EventSource.Backbone
         public EventSourceProducerBuilder(
                     EventSourceProducerBuilder<T> copyFrom,
                     IImmutableQueue<IProducerAsyncDecorator<T>>? typedInterceptor = null,
-                    IImmutableQueue<IProducerSegmenationProvider<T>>? segmentations = null)
+                    IImmutableQueue<IProducerSegmenationStrategy<T>>? segmentations = null)
         {
             _basedOn = copyFrom._basedOn;
             _defaultEventName = copyFrom._defaultEventName;
@@ -287,7 +287,7 @@ namespace Weknow.EventSource.Backbone
         /// Technical vs Business aspects, etc.
         /// </example>
         IEventSourceProducerFinalBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddSegmentationProvider(
-                                                            IProducerSegmenationProvider<T> segmentationProvider)
+                                                            IProducerSegmenationStrategy<T> segmentationProvider)
         {
             var segmentations = _segmentations.Enqueue(segmentationProvider);
             return new EventSourceProducerBuilder<T>(this, segmentations: segmentations);
@@ -312,7 +312,7 @@ namespace Weknow.EventSource.Backbone
         IEventSourceProducerFinalBuilder<T> IEventSourceProducerDecoratorBuilder<T>.AddSegmentationProvider(
                                                             Func<T, IDataSerializer, ImmutableDictionary<string, ReadOnlyMemory<byte>>> segmentationProviderExpression)
         {
-            IProducerSegmenationProvider<T> segmentationProvider = new ToSegmenationProvider(segmentationProviderExpression);
+            IProducerSegmenationStrategy<T> segmentationProvider = new ToSegmenationProvider(segmentationProviderExpression);
             var segmentations = _segmentations.Enqueue(segmentationProvider);
             return new EventSourceProducerBuilder<T>(this, segmentations: segmentations);
         }
@@ -425,7 +425,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Wrap segmentation provider.
         /// </summary>
-        private class ToSegmenationProvider : IProducerSegmenationProvider<T>
+        private class ToSegmenationProvider : IProducerSegmenationStrategy<T>
         {
             private readonly Func<T, IDataSerializer, ImmutableDictionary<string, ReadOnlyMemory<byte>>> _segmentationProvider;
 

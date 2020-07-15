@@ -76,8 +76,8 @@ namespace Weknow.EventSource.Backbone.Settings
         private readonly string _defaultEventName;
         private readonly IImmutableQueue<IProducerAsyncDecorator<T>> _typedInterceptor =
                                         ImmutableQueue<IProducerAsyncDecorator<T>>.Empty;
-        private readonly IImmutableQueue<IProducerSegmenationProvider<T>> _segmentations =
-                                        ImmutableQueue<IProducerSegmenationProvider<T>>.Empty;
+        private readonly IImmutableQueue<IProducerSegmenationStrategy<T>> _segmentations =
+                                        ImmutableQueue<IProducerSegmenationStrategy<T>>.Empty;
 
     }
 }
