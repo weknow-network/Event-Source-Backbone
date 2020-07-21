@@ -8,6 +8,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IEventSourceConsumerHooksBuilder
+        : IEventSourceConsumerPartitionBuilder
     {
         /// <summary>
         /// Register raw interceptor.
@@ -24,10 +25,39 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder RegisterAsyncInterceptor(
+        IEventSourceConsumerHooksBuilder RegisterInterceptor(
                                 IConsumerRawAsyncInterceptor interceptorData);
+
+        /// <summary>
+        /// Responsible of building instance from segmented data.
+        /// Segmented data is how the producer sending its raw data to
+        /// the consumer. It's in a form of dictionary when
+        /// keys represent the different segments
+        /// and the value represent serialized form of the segment's data.
+        /// </summary>
+        /// <param name="segmenationStrategy">The segmentation strategy.</param>
+        /// <returns></returns>
+        /// <example>
+        /// Examples for segments can be driven from regulation like
+        /// GDPR (personal, non-personal data),
+        /// Technical vs Business aspects, etc.
+        /// </example>
         IEventSourceConsumerHooksBuilder UseSegmentationStrategy(
                                 IConsumerSegmenationStrategy segmenationStrategy);
+        /// <summary>
+        /// Responsible of building instance from segmented data.
+        /// Segmented data is how the producer sending its raw data to
+        /// the consumer. It's in a form of dictionary when
+        /// keys represent the different segments
+        /// and the value represent serialized form of the segment's data.
+        /// </summary>
+        /// <param name="segmenationStrategy">The segmentation strategy.</param>
+        /// <returns></returns>
+        /// <example>
+        /// Examples for segments can be driven from regulation like
+        /// GDPR (personal, non-personal data),
+        /// Technical vs Business aspects, etc.
+        /// </example>
         IEventSourceConsumerHooksBuilder UseSegmentationStrategy(
                                 IConsumerAsyncSegmenationStrategy segmenationStrategy);
 
@@ -64,11 +94,11 @@ namespace Weknow.EventSource.Backbone.Building
         //                Func<AnnouncementMetadata, bool> filter)
         //             where T : notnull;
 
-        /// <summary>
-        /// Builds consumer for non-specialized announcements.
-        /// This is perfect for scenarios like storing backups in blobs like S3.
-        /// </summary>
-        /// <returns></returns>
-        ISourceBlock<Ackable<AnnouncementRaw>> BuildRaw();
+        ///// <summary>
+        ///// Builds consumer for non-specialized announcements.
+        ///// This is perfect for scenarios like storing backups in blobs like S3.
+        ///// </summary>
+        ///// <returns></returns>
+        //ISourceBlock<Ackable<AnnouncementRaw>> BuildRaw();
     }
 }

@@ -71,10 +71,10 @@ namespace Weknow.EventSource.Backbone
                             var data = opt.Serializer.Serialize(id);
                             switch (operation)
                             {
-                                case nameof(ISequenceOperations.LoginAsync):
+                                case nameof(ISequenceOperationsProducer.LoginAsync):
                                     segments = segments.Add("log-in", data);
                                     break;
-                                case nameof(ISequenceOperations.EarseAsync):
+                                case nameof(ISequenceOperationsProducer.EarseAsync):
                                     segments = segments.Add("clean", data);
                                     break;
                             }
@@ -83,11 +83,11 @@ namespace Weknow.EventSource.Backbone
                         });                        ;
 
 
-            ISequenceOperations producer =
+            ISequenceOperationsProducer producer =
                                     _builder
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
-                                        .Build<ISequenceOperations>();
+                                        .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -103,12 +103,12 @@ namespace Weknow.EventSource.Backbone
         {
             var option = new EventSourceOptions(_serializer);
 
-            ISequenceOperations producer =
+            ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
                         .WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Build<ISequenceOperations>();
+                        .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -122,7 +122,7 @@ namespace Weknow.EventSource.Backbone
         [Fact]
         public async Task Build_Interceptor_Producer_Test()
         {
-            ISequenceOperations producer =
+            ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
@@ -130,7 +130,7 @@ namespace Weknow.EventSource.Backbone
                         .AddInterceptor(_rawAsyncInterceptor)
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
-                        .Build<ISequenceOperations>();
+                        .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

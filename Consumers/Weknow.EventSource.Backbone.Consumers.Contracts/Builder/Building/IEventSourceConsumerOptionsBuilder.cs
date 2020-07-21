@@ -9,11 +9,11 @@ namespace Weknow.EventSource.Backbone.Building
     /// Enable configuration.
     /// </summary>
     public interface IEventSourceConsumerOptionsBuilder
-        : IEventSourceConsumerFilterBuilder
+        : IEventSourceConsumerHooksBuilder
     {
         /// <summary>
         /// Attach configuration.
         /// </summary>
-        IEventSourceConsumerPartitionBuilder WithOptions(EventSourceOptions options);
+        IEventSourceConsumerHooksBuilder WithOptions(EventSourceConsumerOptions options);
     }
 }

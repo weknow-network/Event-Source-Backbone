@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class Ackable<T>
     {
-        private readonly Func<T, Task> _ack;
+        private readonly Func<ValueTask> _ack;
 
         #region Ctor
 
@@ -18,7 +18,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="ackAsync">The acknowledge handle (callback).</param>
         public Ackable(
             T item, 
-            Func<T, Task> ackAsync)
+            Func<ValueTask> ackAsync)
         {
             Item = item;
             _ack = ackAsync;
@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         /// the acknowledge will notify it that it can be delete).
         /// </summary>
         /// <returns></returns>
-        public Task AckAsync() => _ack(Item);
+        public ValueTask AckAsync() => _ack();
 
         #endregion // AckAsync
     }

@@ -7,9 +7,10 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceConsumerShardBuilder :
-        IEventSourceConsumerHooksBuilder
+    public interface IEventSourceConsumerShardBuilder:
+        IEventSourceConsumerBuilder
     {
+
         /// <summary>
         /// Shard key represent physical sequence.
         /// On the consumer side shard is optional
@@ -21,6 +22,6 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="shardKey">The shard key.</param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder Shard(string shardKey);
+        IEventSourceConsumerBuilder Shard(string shardKey);
     }
 }

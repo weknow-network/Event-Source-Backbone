@@ -2,7 +2,7 @@
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
-    public interface ISequenceOperations
+    public interface ISequenceOperationsProducer
     {
         ValueTask RegisterAsync(User user);
         ValueTask UpdateAsync(User user);
