@@ -20,11 +20,11 @@ namespace Weknow.EventSource.Backbone
         private readonly IEventSourceProducerChannelBuilder _builder = A.Fake<IEventSourceProducerChannelBuilder>();
         private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
-        private readonly IProducerRawInterceptor _rawInterceptor = A.Fake<IProducerRawInterceptor>();
-        private readonly IProducerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerRawAsyncInterceptor>();
-        private readonly IProducerAsyncSegmenationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmenationStrategy>();
-        private readonly IProducerSegmenationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmenationStrategy>();
-        private readonly IProducerSegmenationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmenationStrategy>();
+        private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
+        private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
+        private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
+        private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
+        private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
 
         #region Ctor
 
@@ -55,32 +55,32 @@ namespace Weknow.EventSource.Backbone
             var producerC =
                 _builder.UseChannel(_channel)
                         .Partition("Fans")
-                        .Shard("Geek: @someone")
-                        .UseSegmentation<User>((segments, operation, user, opt) =>
-                        {
-                            var personal = opt.Serializer.Serialize(user.Eracure);
-                            var open = opt.Serializer.Serialize(user.Details);
+                        .Shard("Geek: @someone");
+                        //.UseSegmentation<User>((segments, operation, user, opt) =>
+                        //{
+                        //    var personal = opt.Serializer.Serialize(user.Eracure);
+                        //    var open = opt.Serializer.Serialize(user.Details);
 
-                            segments = segments.Add(nameof(personal), personal);
-                            segments =segments.Add(nameof(open), open);
+                        //    segments = segments.Add(nameof(personal), personal);
+                        //    segments =segments.Add(nameof(open), open);
 
-                            return segments;
-                        })
-                        .UseSegmentation<int>((segments, operation, id, opt) =>
-                        {
-                            var data = opt.Serializer.Serialize(id);
-                            switch (operation)
-                            {
-                                case nameof(ISequenceOperationsProducer.LoginAsync):
-                                    segments = segments.Add("log-in", data);
-                                    break;
-                                case nameof(ISequenceOperationsProducer.EarseAsync):
-                                    segments = segments.Add("clean", data);
-                                    break;
-                            }
+                        //    return segments;
+                        //})
+                        //.UseSegmentation<int>((segments, operation, id, opt) =>
+                        //{
+                        //    var data = opt.Serializer.Serialize(id);
+                        //    switch (operation)
+                        //    {
+                        //        case nameof(ISequenceOperationsProducer.LoginAsync):
+                        //            segments = segments.Add("log-in", data);
+                        //            break;
+                        //        case nameof(ISequenceOperationsProducer.EarseAsync):
+                        //            segments = segments.Add("clean", data);
+                        //            break;
+                        //    }
 
-                            return segments;
-                        });                        ;
+                        //    return segments;
+                        //});                        ;
 
 
             ISequenceOperationsProducer producer =

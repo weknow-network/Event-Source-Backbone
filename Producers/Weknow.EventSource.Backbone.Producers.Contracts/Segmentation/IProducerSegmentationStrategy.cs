@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
-namespace Weknow.EventSource.Backbone
+namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
-    /// Responsible of building instance from segmented data.
-    /// Segmented data is how the producer sending its raw data to 
+    /// Responsible of splitting an instance into segments.
+    /// Segments is how the producer sending its raw data to 
     /// the consumer. It's in a form of dictionary when 
     /// keys represent the different segments 
     /// and the value represent serialized form of the segment's data.
@@ -16,34 +17,39 @@ namespace Weknow.EventSource.Backbone
     /// GDPR (personal, non-personal data),
     /// Technical vs Business aspects, etc.
     /// </example>
-    public interface IConsumerSegmenationStrategy
+    public interface IProducerSegmentationStrategy
     {
         /// <summary>
-        /// Unclassify segmented data into an instance.
+        /// Classifies instance into different segments.
         /// Segments is how the producer sending its raw data to
         /// the consumer. It's in a form of dictionary when
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="segments">The segments which was collect so far.
         /// It start as Empty and flow though all the registered segmentation strategies.</param>
         /// <param name="operation">The operation's key which represent the method call at the
         /// producer proxy.
         /// This way you can segment same type into different slot.</param>
         /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="producedData">The produced data.</param>
         /// <param name="options">The options.</param>
         /// <returns>
-        /// Materialization of the segments.
+        /// bytes for each segment or
+        /// Empty if don't responsible for segmentation of the type.
         /// </returns>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        (bool, T) TryUnclassify<T>(
-                Segments segments,
-                string operation,
-                string argumentName,
-                EventSourceOptions options);
+        Segments Classify<T>(
+                        Segments segments,
+                        string operation,
+                        string argumentName,
+                        T producedData,
+                        EventSourceOptions options)
+                    where T : notnull;
     }
 }

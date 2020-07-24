@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
-namespace Weknow.EventSource.Backbone.Building
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible of splitting an instance into segments.
@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// GDPR (personal, non-personal data),
     /// Technical vs Business aspects, etc.
     /// </example>
-    public interface IProducerAsyncSegmenationStrategy
+    public interface IProducerAsyncSegmentationStrategy
     {
         /// <summary>
         /// Classifies instance into different segments.

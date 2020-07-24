@@ -1,12 +1,13 @@
-﻿
-using Weknow.EventSource.Backbone.Building;
+﻿using System;
+using System.Collections.Immutable;
+using System.Threading.Tasks.Dataflow;
 
-namespace Weknow.EventSource.Backbone
+namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
-    /// Enable configuration.
+    /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceProducerPartitionBuilder
+    public interface IConsumerPartitionBuilder
     {
         /// <summary>
         /// Partition key represent logical group of 
@@ -20,8 +21,8 @@ namespace Weknow.EventSource.Backbone
         /// central place without affecting sequence of specific order 
         /// flow or limiting the throughput.
         /// </summary>
-        /// <param name="partitionKey">The partition key.</param>
+        /// <param name="partition">The partition key.</param>
         /// <returns></returns>
-        IEventSourceProducerShardBuilder Partition(string partitionKey);
+        IConsumerShardBuilder Partition(string partition);
     }
 }

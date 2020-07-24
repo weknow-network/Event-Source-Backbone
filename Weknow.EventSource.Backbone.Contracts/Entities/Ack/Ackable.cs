@@ -8,20 +8,28 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class Ackable<T>
     {
-        private readonly Func<ValueTask> _ack;
-
         #region Ctor
+
+        /// <summary>
+        /// Prevents a default instance.
+        /// </summary>
+        [Obsolete("Use other constructors (this one exists to enable de-serialization)", true)]
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        private Ackable()
+        {
+        }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         /// <summary>
         /// Initializes a new instance        /// </summary>
         /// <param name="item">The item.</param>
-        /// <param name="ackAsync">The acknowledge handle (callback).</param>
+        /// <param name="ack">The acknowledge handle (callback).</param>
         public Ackable(
-            T item, 
-            Func<ValueTask> ackAsync)
+            T item,
+            IAck ack)
         {
             Item = item;
-            _ack = ackAsync;
+            _ack = ack;
         }
 
         #endregion // Ctor
@@ -35,16 +43,22 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Item
 
-        #region AckAsync
+        #region Ack
 
+        private IAck _ack;
         /// <summary>
         /// Send Acknowledge (some queue type [like event sourcing] 
         /// keep the item in the queue until it processed,
         /// the acknowledge will notify it that it can be delete).
         /// </summary>
         /// <returns></returns>
-        public ValueTask AckAsync() => _ack();
+        public IAck Ack
+        {
+            get => _ack;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _ack = value;
+        }
 
-        #endregion // AckAsync
+        #endregion Ack 
     }
 }

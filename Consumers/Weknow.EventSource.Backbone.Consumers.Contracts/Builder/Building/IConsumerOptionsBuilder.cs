@@ -8,12 +8,12 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Enable configuration.
     /// </summary>
-    public interface IEventSourceConsumerOptionsBuilder
-        : IEventSourceConsumerHooksBuilder
+    public interface IConsumerOptionsBuilder
+        : IConsumerHooksBuilder
     {
         /// <summary>
         /// Attach configuration.
         /// </summary>
-        IEventSourceConsumerHooksBuilder WithOptions(EventSourceConsumerOptions options);
+        IConsumerHooksBuilder WithOptions(EventSourceConsumerOptions options);
     }
 }

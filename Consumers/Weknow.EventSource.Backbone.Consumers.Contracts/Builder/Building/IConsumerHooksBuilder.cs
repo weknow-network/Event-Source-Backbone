@@ -7,8 +7,8 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceConsumerHooksBuilder
-        : IEventSourceConsumerPartitionBuilder
+    public interface IConsumerHooksBuilder
+        : IConsumerPartitionBuilder
     {
         /// <summary>
         /// Register raw interceptor.
@@ -16,8 +16,8 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder RegisterInterceptor(
-                                IConsumerRawInterceptor interceptorData);
+        IConsumerHooksBuilder RegisterInterceptor(
+                                IConsumerInterceptor interceptorData);
 
         /// <summary>
         /// Register raw interceptor.
@@ -25,8 +25,8 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder RegisterInterceptor(
-                                IConsumerRawAsyncInterceptor interceptorData);
+        IConsumerHooksBuilder RegisterInterceptor(
+                                IConsumerAsyncInterceptor interceptorData);
 
         /// <summary>
         /// Responsible of building instance from segmented data.
@@ -35,15 +35,15 @@ namespace Weknow.EventSource.Backbone.Building
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
         /// </summary>
-        /// <param name="segmenationStrategy">The segmentation strategy.</param>
+        /// <param name="segmentationStrategy">The segmentation strategy.</param>
         /// <returns></returns>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        IEventSourceConsumerHooksBuilder UseSegmentationStrategy(
-                                IConsumerSegmenationStrategy segmenationStrategy);
+        IConsumerHooksBuilder RegisterSegmentationStrategy(
+                                IConsumerSegmentationStrategy segmentationStrategy);
         /// <summary>
         /// Responsible of building instance from segmented data.
         /// Segmented data is how the producer sending its raw data to
@@ -51,15 +51,15 @@ namespace Weknow.EventSource.Backbone.Building
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
         /// </summary>
-        /// <param name="segmenationStrategy">The segmentation strategy.</param>
+        /// <param name="segmentationStrategy">The segmentation strategy.</param>
         /// <returns></returns>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        IEventSourceConsumerHooksBuilder UseSegmentationStrategy(
-                                IConsumerAsyncSegmenationStrategy segmenationStrategy);
+        IConsumerHooksBuilder RegisterSegmentationStrategy(
+                                IConsumerAsyncSegmentationStrategy segmentationStrategy);
 
         // TODO: move partition & shard to the end
         // TODO: Build<T>(Func<Meta = partition + shard, T>)
@@ -71,7 +71,7 @@ namespace Weknow.EventSource.Backbone.Building
         //// void BuildAutoDiscover<T>();
         //void Build<T>(Func<Meta, T> factory, string partition, string? shard = null);
         //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                IConsumerSegmenationProvider<T> segmentationProvider,
+        //                IConsumerSegmentationProvider<T> segmentationProvider,
         //                params string[] intents)
         //             where T : notnull;
 
@@ -83,7 +83,7 @@ namespace Weknow.EventSource.Backbone.Building
         //             where T : notnull;
 
         //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                IConsumerSegmenationProvider<T> segmentationProvider,
+        //                IConsumerSegmentationProvider<T> segmentationProvider,
         //                Func<AnnouncementMetadata, bool> filter)
         //             where T : notnull;
 

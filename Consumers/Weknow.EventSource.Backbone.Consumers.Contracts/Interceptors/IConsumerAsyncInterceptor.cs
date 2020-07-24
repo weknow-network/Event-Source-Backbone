@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// flowing auth context or traces, producing metrics, etc.
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IInterceptorName" />
-    public interface IConsumerRawAsyncInterceptor :
+    public interface IConsumerAsyncInterceptor :
                                         IInterceptorName
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="interceptorData">
         /// The interceptor data which sets on the 
         /// producer stage of the interception.</param>
-        Task InterceptAsync(
+        ValueTask InterceptAsync(
                    AnnouncementMetadata metadata,
                    ReadOnlyMemory<byte> interceptorData);
     }

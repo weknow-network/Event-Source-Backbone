@@ -2,6 +2,8 @@
 
 using System;
 
+using Weknow.EventSource.Backbone.Building;
+
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     public static class RedisProviderExtensions
@@ -14,8 +16,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="configuration">The configuration.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IEventSourceConsumerBuilder UseRedisConsumerChannel(
-                            this IEventSourceConsumerChannelBuilder builder,
+        public static IConsumerOptionsBuilder UseRedisConsumerChannel(
+                            this IConsumerChannelBuilder builder,
                             ConfigurationOptions configuration)
         {
             throw new NotImplementedException();
@@ -29,7 +31,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="configuration">The configuration.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IEventSourceProducerOptionsBuilder UseRedisProducerChannel(
+        public static IProducerOptionsBuilder UseRedisProducerChannel(
                             this IEventSourceProducerChannelBuilder builder,
                             ConfigurationOptions configuration)
         {

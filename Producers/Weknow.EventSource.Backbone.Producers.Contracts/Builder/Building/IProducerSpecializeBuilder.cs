@@ -3,7 +3,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceProducerSpecializeBuilder
+    public interface IProducerSpecializeBuilder
     {
         /// <summary>
         /// <![CDATA[ Ceate Producer proxy for specific events sequence.

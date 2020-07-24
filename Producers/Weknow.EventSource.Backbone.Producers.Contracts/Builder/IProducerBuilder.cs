@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IEventSourceProducerOptionsBuilder UseChannel(
+        IProducerOptionsBuilder UseChannel(
             IProducerChannelProvider channel);
 
         /// <summary>
@@ -24,9 +24,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="second">The second channel.</param>
         /// <param name="others">The others channels.</param>
         /// <returns></returns>
-        IEventSourceProducerHooksBuilder Merge(
-            IEventSourceProducerHooksBuilder first,
-            IEventSourceProducerHooksBuilder second,
-            params IEventSourceProducerHooksBuilder[] others);
+        IProducerHooksBuilder Merge(
+            IProducerHooksBuilder first,
+            IProducerHooksBuilder second,
+            params IProducerHooksBuilder[] others);
     }
 }

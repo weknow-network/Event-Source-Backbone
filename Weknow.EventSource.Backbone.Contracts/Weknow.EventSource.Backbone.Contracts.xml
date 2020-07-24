@@ -9,18 +9,23 @@
             Represent acknowledge-able instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,System.Func{`0,System.Threading.Tasks.Task})">
+        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor">
+            <summary>
+            Prevents a default instance.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,Weknow.EventSource.Backbone.IAck)">
             <summary>
             Initializes a new instance        /// </summary>
             <param name="item">The item.</param>
-            <param name="ackAsync">The acknowledge handle (callback).</param>
+            <param name="ack">The acknowledge handle (callback).</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Ackable`1.Item">
             <summary>
             Gets the item data.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.AckAsync">
+        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Ack">
             <summary>
             Send Acknowledge (some queue type [like event sourcing] 
             keep the item in the queue until it processed,
@@ -28,58 +33,18 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.AckableCollection`1">
+        <member name="T:Weknow.EventSource.Backbone.IAck">
             <summary>
-            Represent acknowledge-able instance.
+            Represent acknowledge trigger which will 
+            set the status on the event as done or release 
+            it for re-consuming.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.#ctor(System.Int32,System.Func{System.Collections.Generic.IEnumerable{`0},System.Threading.Tasks.Task})">
+        <member name="M:Weknow.EventSource.Backbone.IAck.RevokeAfter(System.TimeSpan)">
             <summary>
-            Initializes a new instance        /// </summary>
-            <param name="count">
-            The count of the items.
-            will propagate acknowledge after count times of acknowledges.
-            </param>
-            <param name="ackAsync">The acknowledge handle (callback).</param>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.AddItem(`0)">
-            <summary>
-            Gets the item data.
+            Revokes the operation if not completed after a duration.
             </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AckableCollection`1.AckCallbackAsync(`0)">
-            <summary>
-            Acknowledge callback.
-            </summary>
-            <param name="item">The item.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.Announcement`1">
-            <summary>
-            Represent command or occurrence.
-            Which is ready to consume.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor">
-            <summary>
-            Only for serialization.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
-            <summary>
-            Initializes a new instance        /// </summary>
-            <param name="meta">The metadata.</param>
-            <param name="personalData">The personal data.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Meta">
-            <summary>
-            Gets the metadata.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Data">
-            <summary>
-            Gets or sets the data.
-            </summary>
+            <param name="timeout">The timeout.</param>
         </member>
         <member name="T:Weknow.EventSource.Backbone.AnnouncementMetadata">
             <summary>
@@ -257,6 +222,30 @@
             event with specific flags.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.ShardMetadata">
+            <summary>
+            Represent metadata of message (command / event) metadata of
+            a communication channel (Pub/Sub, Event Source, REST, GraphQL).
+            It represent the operation's intent or represent event.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
+            <summary>
+            Gets the max batch size of reading messages per shard.
+            The framework won't proceed to the next batch until all messages
+            in the batch complete (or timeout when it set to acknowledge on timeout).
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.TimeoutBehavior">
+            <summary>
+            Define the behavior of the framework on timeout.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.MaxDegreeOfParallelism">
+            <summary>
+            Reduce the maximum concurrency level.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
             <summary>
             Enable to replace the default serialization
@@ -283,6 +272,43 @@
             Unique name which represent the correlation
             between the producer and consumer interceptor.
             It's recommended to use URL format.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Ack">
+            <summary>
+            Will acknowledge the messages on timeout.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Replay">
+            <summary>
+            Will replay the messages on timeout.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Announcement`1">
+            <summary>
+            Represent command or occurrence.
+            Which is ready to consume.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor">
+            <summary>
+            Only for serialization.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
+            <summary>
+            Initializes a new instance        /// </summary>
+            <param name="meta">The metadata.</param>
+            <param name="personalData">The personal data.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Meta">
+            <summary>
+            Gets the metadata.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Data">
+            <summary>
+            Gets or sets the data.
             </summary>
         </member>
     </members>

@@ -13,11 +13,11 @@ namespace Weknow.EventSource.Backbone
     public class EventSourceConsumerApiDesignTests
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly IEventSourceConsumerChannelBuilder _builder = A.Fake<IEventSourceConsumerChannelBuilder>();
+        private readonly IConsumerChannelBuilder _builder = A.Fake<IConsumerChannelBuilder>();
         private readonly IConsumerChannelProvider _channel = A.Fake<IConsumerChannelProvider>();
-        private readonly IConsumerAsyncSegmenationStrategy _segmentation = A.Fake<IConsumerAsyncSegmenationStrategy>();
-        private readonly IConsumerRawInterceptor _rawInterceptor = A.Fake<IConsumerRawInterceptor>();
-        private readonly IConsumerRawAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerRawAsyncInterceptor>();
+        private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
+        private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
+        private readonly IConsumerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerAsyncInterceptor>();
         private readonly EventSourceConsumerOptions _options = A.Fake<EventSourceConsumerOptions>();
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
@@ -36,7 +36,7 @@ namespace Weknow.EventSource.Backbone
                         .WithOptions(_options)
                         .RegisterInterceptor(_rawAsyncInterceptor)
                         .RegisterInterceptor(_rawInterceptor)
-                        .UseSegmentationStrategy(_segmentation)
+                        .RegisterSegmentationStrategy(_segmentation)
                         .Partition("ORDERS")
                         // .Shard("ORDER-AHS7821X")
                         .Subscribe(meta => _subscriber);

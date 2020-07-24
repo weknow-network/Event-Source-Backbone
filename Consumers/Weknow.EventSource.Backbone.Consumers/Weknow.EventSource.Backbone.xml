@@ -4,5 +4,242 @@
         <name>Weknow.EventSource.Backbone.Consumers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerBuilder">
+            <summary>
+            Event Source consumer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Weknow.EventSource.Backbone.ConsumerBuilder"/> class from being created.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.#ctor(Weknow.EventSource.Backbone.ConsumerParameters)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="parameters">The parameters.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerChannelBuilder#UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+            <summary>
+            Choose the communication channel provider.
+            </summary>
+            <param name="channel">The channel provider.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+            <summary>
+            Attach configuration.
+            </summary>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerPartitionBuilder#Partition(System.String)">
+            <summary>
+            Partition key represent logical group of
+            event source shards.
+            For example assuming each ORDERING flow can have its
+            own messaging sequence, yet can live concurrency with
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order
+            flow or limiting the throughput.
+            </summary>
+            <param name="partition">The partition key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Shard(System.String)">
+            <summary>
+            Shard key represent physical sequence.
+            On the consumer side shard is optional
+            for listening on a physical source rather on the entire partition.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its
+            own messaging sequence, in this case you can split each
+            ORDER into different shard and gain performance bust..
+            </summary>
+            <param name="shard">The shard key.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
+            <summary>
+            Registers the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+            <summary>
+            Registers the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor">
+            <summary>
+            Initializes a new instance.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.EventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="copyFrom">The copy from.</param>
+            <param name="channel">The channel.</param>
+            <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
+            <param name="options">The options.</param>
+            <param name="segmentationStrategies">The segmentation strategies.</param>
+            <param name="interceptors">The interceptors.</param>
+            <param name="routes">The routes.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+            <summary>
+            Withes the channel.
+            </summary>
+            <param name="channel">The channel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+            <summary>
+            Withes the options.
+            </summary>
+            <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithPartition(System.String)">
+            <summary>
+            Withes the partition.
+            </summary>
+            <param name="partition">The partition.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithShard(System.String)">
+            <summary>
+            Withes the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">
+            <summary>
+            Adds the route.
+            </summary>
+            <param name="route">The route.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddSegmentation(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+            <summary>
+            Adds the segmentation.
+            </summary>
+            <param name="segmentation">The segmentation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Channel">
+            <summary>
+            Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Partition">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <value>
+            The partition.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Shard">
+            <summary>
+            Shard key represent physical sequence.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Options">
+            <summary>
+            Gets the configuration.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.SegmentationStrategies">
+            <summary>
+            Segmentation responsible of splitting an instance into segments.
+            Segments is how the Consumer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Interceptors">
+            <summary>
+            Consumer interceptors (Timing: after serialization).
+            </summary>
+            <value>
+            The interceptors.
+            </value>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.ConsumerParameters.Routes">
+            <summary>
+            Routes are sub-pipelines are results of merge operation
+            which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
     </members>
 </doc>

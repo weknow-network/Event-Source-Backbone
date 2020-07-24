@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceConsumerFilterBuilder
+    public interface IConsumerFilterBuilder
     {
         /// <summary>
         /// Register raw interceptor.
@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// Shard is a unique source name 
         /// which used for direct message channeling (routing).</param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder FromShard(string sourceShard);
+        IConsumerHooksBuilder FromShard(string sourceShard);
 
         /// <summary>
         /// Register tag's channels, enable the consumer
@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder RegisterTags(
+        IConsumerHooksBuilder RegisterTags(
             params string[] tags);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        IEventSourceConsumerHooksBuilder RegisterTags(
+        IConsumerHooksBuilder RegisterTags(
             IEnumerable[] tags);
     }
 }

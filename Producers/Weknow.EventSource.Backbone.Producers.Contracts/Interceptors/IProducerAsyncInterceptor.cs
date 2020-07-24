@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// flowing auth context or traces, producing metrics, etc.
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IInterceptorName" />
-    public interface IProducerRawAsyncInterceptor :
+    public interface IProducerAsyncInterceptor :
                                         IInterceptorName
     {
         /// <summary>

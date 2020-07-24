@@ -4,85 +4,193 @@
         <name>Weknow.EventSource.Backbone.Consumers.Contracts</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder">
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerBuilder">
             <summary>
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddInterceptor(Weknow.EventSource.Backbone.IConsumerRawInterceptor)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerBuilder.Subscribe``1(System.Func{Weknow.EventSource.Backbone.ShardMetadata,``0})">
             <summary>
-            Adds the raw interceptor.
-            Intercept the consumer side execution before de-serialization.
-            </summary>
-            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.AddAsyncInterceptor(Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor)">
-            <summary>
-            Adds the raw interceptor.
-            Intercept the consumer side execution before de-serialization.
-            </summary>
-            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumer2Builder.BuildRaw">
-            <summary>
-            Builds consumer for non-specialized announcements.
-            This is perfect for scenarios like storing backups in blobs like S3.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.IEventSourceConsumer3Builder`1">
-            <summary>
-            Event Source producer builder.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IEventSourceConsumerCustomBuilder.CustomSource(System.String)">
-            <summary>
-            Custom source.
-            </summary>
-            <param name="customSource">The custom source should be used carefully,
-            and only when the data shouldn't be sequence with other sources.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder">
-            <summary>
-            Event Source Consumer builder.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
-            <summary>
-            Gets the main event source.
-            </summary>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IEventSourceConsumerChannelBuilder">
-            <summary>
-            Event Source Consumer builder.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceConsumerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
-            <summary>
-            Choose the communication channel provider.
-            </summary>
-            <param name="channel">The channel provider.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerSegmenationProvider`1">
-            <summary>
-            Responsible of building instance from segmented data.
-            Segmented data is how the producer sending its raw data to 
-            the consumer. It's in a form of dictionary when 
-            keys represent the different segments 
-            and the value represent serialized form of the segment's data.
+            Subscribe consumer.
             </summary>
             <typeparam name="T"></typeparam>
+            <param name="factory">The factory.</param>
+            <returns>
+            Un-subscribe from the partition
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder.FromShard(System.String)">
+            <summary>
+            Register raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="sourceShard">
+            Specify the event source shard.
+            Shard is a unique source name 
+            which used for direct message channeling (routing).</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder.RegisterTags(System.String[])">
+            <summary>
+            Register tag's channels, enable the consumer
+            to get data from multiple sources (shards).
+            For example: assuming that each order flow is written to
+            unique source (shard).
+            Register to ORDER tag will route all shards which holding 
+            messages with ORDER tag to the consume.
+            </summary>
+            <param name="tags"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder.RegisterTags(System.Collections.IEnumerable[])">
+            <summary>
+            Register tag's channels, enable the consumer
+            to get data from multiple sources (shards).
+            For example: assuming that each order flow is written to
+            unique source (shard).
+            Register to ORDER tag will route all shards which holding 
+            messages with ORDER tag to the consume.
+            </summary>
+            <param name="tags"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
+            <summary>
+            Register raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+            <summary>
+            Register raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
             <example>
             Examples for segments can be driven from regulation like
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmenationProvider`1.Unclassify(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},Weknow.EventSource.Backbone.IDataSerializer)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+            <summary>
+            Attach configuration.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerPartitionBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerPartitionBuilder.Partition(System.String)">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <param name="partition">The partition key.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerShardBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerShardBuilder.Shard(System.String)">
+            <summary>
+            Shard key represent physical sequence.
+            On the consumer side shard is optional
+            for listening on a physical source rather on the entire partition.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
+            <param name="shardKey">The shard key.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.ConsumerInterceptorBridge">
+            <summary>
+            Bridge segmentation
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerInterceptorBridge.#ctor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="sync">The synchronize.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Building.ConsumerInterceptorBridge.Weknow#EventSource#Backbone#IInterceptorName#InterceptorName">
+            <summary>
+            Unique name which represent the correlation
+            between the consumer and consumer interceptor.
+            It's recommended to use URL format.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge">
+            <summary>
+            Bridge segmentation
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.#ctor(Weknow.EventSource.Backbone.IConsumerSegmentationStrategy)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="sync">The synchronize.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -90,16 +198,37 @@
             keys represent the different segments
             and the value represent serialized form of the segment's data.
             </summary>
-            <param name="segments">Segments form of the original message.</param>
-            <param name="serializer">The serializer.</param>
-            <returns></returns>
+            <typeparam name="T"></typeparam>
+            <param name="segments">The segments which was collect so far.
+            It start as Empty and flow though all the registered segmentation strategies.</param>
+            <param name="operation">The operation's key which represent the method call at the
+            producer proxy.
+            This way you can segment same type into different slot.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="options">The options.</param>
+            <returns>
+            Materialization of the segments.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
             <example>
             Examples for segments can be driven from regulation like
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1">
+        <member name="T:Weknow.EventSource.Backbone.IConsumerChannelBuilder">
+            <summary>
+            Event Source Consumer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+            <summary>
+            Choose the communication channel provider.
+            </summary>
+            <param name="channel">The channel provider.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor">
             <summary>
             Consumer stage of an interception operation provider.
             It can be use for variety of responsibilities like 
@@ -107,11 +236,11 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor`1.InterceptAsync(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
             <summary>
             Interception operation.
             </summary>
-            <param name="announcement"></param>
+            <param name="metadata">The metadata.</param>
             <param name="interceptorData">
             The interceptor data which sets on the 
             producer stage of the interception.</param>
@@ -122,7 +251,7 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor`1">
+        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor">
             <summary>
             Consumer stage of an interception operation provider.
             It can be use for variety of responsibilities like 
@@ -130,24 +259,7 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor`1.Intercept(Weknow.EventSource.Backbone.Announcement{`0},System.ReadOnlyMemory{System.Byte})">
-            <summary>
-            Interception operation.
-            </summary>
-            <param name="announcement"></param>
-            <param name="interceptorData">
-            The interceptor data which sets on the 
-            producer stage of the interception.</param>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor">
-            <summary>
-            Consumer stage of an interception operation provider.
-            It can be use for variety of responsibilities like 
-            flowing auth context or traces, producing metrics, etc.
-            </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerRawAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
             <summary>
             Interception operation.
             </summary>
@@ -156,22 +268,81 @@
             The interceptor data which sets on the 
             producer stage of the interception.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerRawInterceptor">
+        <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy">
             <summary>
-            Consumer stage of an interception operation provider.
-            It can be use for variety of responsibilities like 
-            flowing auth context or traces, producing metrics, etc.
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
             </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerRawInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
-            Interception operation.
+            Unclassify segmented data into an instance.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
             </summary>
-            <param name="metadata">The metadata.</param>
-            <param name="interceptorData">
-            The interceptor data which sets on the 
-            producer stage of the interception.</param>
+            <param name="segments">The segments which was collect so far.
+            It start as Empty and flow though all the registered segmentation strategies.</param>
+            <param name="operation">The operation's key which represent the method call at the
+            producer proxy.
+            This way you can segment same type into different slot.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="options">The options.</param>
+            <returns>
+            Materialization of the segments.
+            </returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to 
+            the consumer. It's in a form of dictionary when 
+            keys represent the different segments 
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
+            <summary>
+            Unclassify segmented data into an instance.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segments">The segments which was collect so far.
+            It start as Empty and flow though all the registered segmentation strategies.</param>
+            <param name="operation">The operation's key which represent the method call at the
+            producer proxy.
+            This way you can segment same type into different slot.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="options">The options.</param>
+            <returns>
+            Materialization of the segments.
+            </returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
         </member>
     </members>
 </doc>

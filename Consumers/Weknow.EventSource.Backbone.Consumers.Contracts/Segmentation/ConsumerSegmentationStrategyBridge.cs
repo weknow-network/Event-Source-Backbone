@@ -1,26 +1,36 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+
 using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
-    /// Responsible of splitting an instance into segments.
-    /// Segments is how the producer sending its raw data to 
-    /// the consumer. It's in a form of dictionary when 
-    /// keys represent the different segments 
-    /// and the value represent serialized form of the segment's data.
+    /// Bridge segmentation
     /// </summary>
-    /// <example>
-    /// Examples for segments can be driven from regulation like
-    /// GDPR (personal, non-personal data),
-    /// Technical vs Business aspects, etc.
-    /// </example>
-    public interface IProducerSegmenationStrategy
+    public class ConsumerSegmentationStrategyBridge : IConsumerAsyncSegmentationStrategy
     {
+        private readonly IConsumerSegmentationStrategy _sync;
+
+        #region Ctor
+
         /// <summary>
-        /// Classifies instance into different segments.
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="sync">The synchronize.</param>
+        public ConsumerSegmentationStrategyBridge(
+            IConsumerSegmentationStrategy sync)
+        {
+            _sync = sync;
+        }
+
+        #endregion // Ctor
+
+        #region ClassifyAsync
+
+        /// <summary>
+        /// Unclassify segmented data into an instance.
         /// Segments is how the producer sending its raw data to
         /// the consumer. It's in a form of dictionary when
         /// keys represent the different segments
@@ -33,23 +43,30 @@ namespace Weknow.EventSource.Backbone.Building
         /// producer proxy.
         /// This way you can segment same type into different slot.</param>
         /// <param name="argumentName">Name of the argument.</param>
-        /// <param name="producedData">The produced data.</param>
         /// <param name="options">The options.</param>
         /// <returns>
-        /// bytes for each segment or
-        /// Empty if don't responsible for segmentation of the type.
+        /// Materialization of the segments.
         /// </returns>
+        /// <exception cref="NotImplementedException"></exception>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        Segments Classify<T>(
-                        Segments segments,
-                        string operation,
-                        string argumentName,
-                        T producedData,
-                        EventSourceOptions options)
-                    where T : notnull;
+        ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync<T>(
+            Segments segments,
+            string operation,
+            string argumentName,
+            EventSourceOptions options)
+        {
+            var result = _sync.TryUnclassify<T>(
+                                            segments, 
+                                            operation, 
+                                            argumentName, 
+                                            options);
+            return result.ToValueTask();
+        }
+
+        #endregion // ClassifyAsync
     }
 }
