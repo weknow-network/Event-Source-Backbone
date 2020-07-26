@@ -9,6 +9,11 @@
             Event Source consumer builder.
             </summary>
         </member>
+        <member name="F:Weknow.EventSource.Backbone.ConsumerBuilder.Empty">
+            <summary>
+            Event Source consumer builder.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.#ctor">
             <summary>
             Prevents a default instance of the <see cref="T:Weknow.EventSource.Backbone.ConsumerBuilder"/> class from being created.
@@ -20,7 +25,7 @@
             </summary>
             <param name="parameters">The parameters.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerChannelBuilder#UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerBuilder#UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
             Choose the communication channel provider.
             </summary>

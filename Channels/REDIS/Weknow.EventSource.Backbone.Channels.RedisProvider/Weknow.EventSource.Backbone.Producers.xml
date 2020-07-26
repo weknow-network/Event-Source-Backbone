@@ -9,7 +9,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerChannelBuilder,StackExchange.Redis.ConfigurationOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,StackExchange.Redis.ConfigurationOptions)">
             <summary>
             Uses REDIS consumer channel.
             </summary>
@@ -18,7 +18,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder,StackExchange.Redis.ConfigurationOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,StackExchange.Redis.ConfigurationOptions)">
             <summary>
             Uses REDIS producer channel.
             </summary>

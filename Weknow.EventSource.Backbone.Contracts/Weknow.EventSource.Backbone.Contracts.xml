@@ -94,7 +94,19 @@
             and should be evaluate by the interceptor at consume side.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "T:Weknow.EventSource.Backbone.Metadata" -->
+        <member name="T:Weknow.EventSource.Backbone.Metadata">
+            <summary>
+            <![CDATA[Represent metadata of announcement (event).
+            This information is available via Metadata.Current 
+            as long as the async-context exists.
+            Recommended to materialize it before sending to queue and
+            use Metadata.SetContext(metadata)
+            </summary>
+            <remarks>
+            Unlike the segments, this part can be flow with
+            message & will be set as async-context.]]> 
+            </summary>
+        </member>
         <member name="F:Weknow.EventSource.Backbone.Metadata.Empty">
             <summary>
             The empty

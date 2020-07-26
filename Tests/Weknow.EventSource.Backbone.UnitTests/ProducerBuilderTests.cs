@@ -14,10 +14,10 @@ using Segments = System.Collections.Immutable.ImmutableDictionary<string, System
 
 namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceApiProducerDesignTests
+    public class ProducerBuilderTests
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly IProducerBuilder _builder = A.Fake<IProducerBuilder>();
+        private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
         private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
@@ -28,17 +28,17 @@ namespace Weknow.EventSource.Backbone
 
         #region Ctor
 
-        public EventSourceApiProducerDesignTests(ITestOutputHelper outputHelper)
+        public ProducerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }
 
         #endregion // Ctor
 
-        #region Build_API_Merge_Producer_Test
+        #region Build_Merge_Producer_Test
 
         [Fact]
-        public async Task Build_API_Merge_Producer_Test()
+        public async Task Build_Merge_Producer_Test()
         {
             var producerA =
                 _builder.UseChannel(_channel)
@@ -70,12 +70,12 @@ namespace Weknow.EventSource.Backbone
             await producer.EarseAsync(4335);
         }
 
-        #endregion // Build_Default_Producer_Test
+        #endregion // Build_Merge_Producer_Test
 
-        #region Build_API_Serializer_Producer_Test
+        #region Build_Serializer_Producer_Test
 
         [Fact]
-        public async Task Build_API_Serializer_Producer_Test()
+        public async Task Build_Serializer_Producer_Test()
         {
             var option = new EventSourceOptions(_serializer);
 
@@ -91,12 +91,12 @@ namespace Weknow.EventSource.Backbone
             await producer.EarseAsync(4335);
         }
 
-        #endregion // Build_API_Serializer_Producer_Test
+        #endregion // Build_Serializer_Producer_Test
 
-        #region Build_API_Interceptor_Producer_Test
+        #region Build_Interceptor_Producer_Test
 
         [Fact]
-        public async Task Build_API_Interceptor_Producer_Test()
+        public async Task Build_Interceptor_Producer_Test()
         {
             ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
@@ -113,6 +113,6 @@ namespace Weknow.EventSource.Backbone
             await producer.EarseAsync(4335);
         }
 
-        #endregion // Build_API_Interceptor_Producer_Test
+        #endregion // Build_Interceptor_Producer_Test
     }
 }

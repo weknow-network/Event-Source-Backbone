@@ -10,10 +10,10 @@ using Xunit.Abstractions;
 
 namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceConsumerApiDesignTests
+    public class ConsumerBuilderTests
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly IConsumerBuilder _builder = A.Fake<IConsumerBuilder>();
+        private readonly IConsumerBuilder _builder = ConsumerBuilder.Empty;
         private readonly IConsumerChannelProvider _channel = A.Fake<IConsumerChannelProvider>();
         private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
         private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
@@ -21,7 +21,7 @@ namespace Weknow.EventSource.Backbone
         private readonly EventSourceConsumerOptions _options = A.Fake<EventSourceConsumerOptions>();
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
-        public EventSourceConsumerApiDesignTests(ITestOutputHelper outputHelper)
+        public ConsumerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }

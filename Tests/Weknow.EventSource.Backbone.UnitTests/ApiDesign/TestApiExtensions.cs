@@ -16,13 +16,13 @@ namespace Weknow.EventSource.Backbone
         private static readonly IProducerChannelProvider _producerChannel = A.Fake<IProducerChannelProvider>();
 
         public static IConsumerOptionsBuilder UseTestConsumerChannel(
-                            this IConsumerChannelBuilder builder)
+                            this IConsumerBuilder builder)
         {
             return builder.UseChannel(_consumerChannel);
         }
 
         public static IProducerOptionsBuilder UseTestProducerChannel(
-                            this IEventSourceProducerChannelBuilder builder)
+                            this IProducerBuilder builder)
         {
             return builder.UseChannel(_producerChannel);
         }

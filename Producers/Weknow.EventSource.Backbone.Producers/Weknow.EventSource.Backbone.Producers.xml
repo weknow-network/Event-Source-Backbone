@@ -9,6 +9,11 @@
             Event Source producer builder.
             </summary>
         </member>
+        <member name="F:Weknow.EventSource.Backbone.ProducerBuilder.Empty">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.#ctor">
             <summary>
             Initializes a new instance.
@@ -20,7 +25,7 @@
             </summary>
             <param name="parameters">The parameters.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IEventSourceProducerChannelBuilder#Merge(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerBuilder#Merge(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder[])">
             <summary>
             Merges multiple channels of same contract into single
             producer for broadcasting messages via all channels.
@@ -31,7 +36,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IEventSourceProducerChannelBuilder#UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerBuilder#UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
             <summary>
             Choose the communication channel provider.
             </summary>

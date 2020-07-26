@@ -6,7 +6,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IEventSourceProducerChannelBuilder
+    public interface IProducerBuilder
     {
         /// <summary>
         /// Choose the communication channel provider.

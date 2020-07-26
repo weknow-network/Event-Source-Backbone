@@ -11,7 +11,7 @@ namespace Weknow.EventSource.Backbone
     /// Event Source producer builder.
     /// </summary>
     public class ProducerBuilder :
-        IEventSourceProducerChannelBuilder,
+        IProducerBuilder,
         IProducerOptionsBuilder,
         IProducerShardBuilder,
         IProducerHooksBuilder
@@ -19,12 +19,17 @@ namespace Weknow.EventSource.Backbone
         private readonly ProducerParameters _parameters =
             ProducerParameters.Empty;
 
+        /// <summary>
+        /// Event Source producer builder.
+        /// </summary>
+        public static readonly IProducerBuilder Empty = new ProducerBuilder();
+       
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public ProducerBuilder()
+        private ProducerBuilder()
         {
 
         }
@@ -51,7 +56,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="others">The others channels.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IProducerHooksBuilder IEventSourceProducerChannelBuilder.Merge(
+        IProducerHooksBuilder IProducerBuilder.Merge(
                             IProducerHooksBuilder first,
                             IProducerHooksBuilder second,
                             params IProducerHooksBuilder[] others)
@@ -68,7 +73,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IProducerOptionsBuilder IEventSourceProducerChannelBuilder.UseChannel(
+        IProducerOptionsBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
             var prms = ProducerParameters.Empty.WithChannel(channel);

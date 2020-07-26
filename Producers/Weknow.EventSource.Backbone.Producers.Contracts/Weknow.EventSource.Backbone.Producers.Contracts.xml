@@ -232,19 +232,19 @@
             <param name="shard">The shard key.</param>
             <returns></returns>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder">
+        <member name="T:Weknow.EventSource.Backbone.IProducerBuilder">
             <summary>
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerBuilder.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
             <summary>
             Choose the communication channel provider.
             </summary>
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IEventSourceProducerChannelBuilder.Merge(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder[])">
+        <member name="M:Weknow.EventSource.Backbone.IProducerBuilder.Merge(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder,Weknow.EventSource.Backbone.Building.IProducerHooksBuilder[])">
             <summary>
             Merges multiple channels of same contract into single
             producer for broadcasting messages via all channels.

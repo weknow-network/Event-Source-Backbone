@@ -6,7 +6,7 @@ using System.Threading;
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
-    /// Represent metadata of announcement (event).
+    /// <![CDATA[Represent metadata of announcement (event).
     /// This information is available via Metadata.Current 
     /// as long as the async-context exists.
     /// Recommended to materialize it before sending to queue and
@@ -14,8 +14,8 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     /// <remarks>
     /// Unlike the segments, this part can be flow with
-    /// message & will be set as async-context.
-    /// </remarks>
+    /// message & will be set as async-context.]]> 
+    /// </summary>
     [DebuggerDisplay("{MessageId}")]
     public sealed class Metadata // : IEquatable<Metadata?>
     {

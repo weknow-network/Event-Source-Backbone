@@ -8,12 +8,16 @@ namespace Weknow.EventSource.Backbone
     /// Event Source consumer builder.
     /// </summary>
     public class ConsumerBuilder :
-        IConsumerChannelBuilder,
+        IConsumerBuilder,
         IConsumerOptionsBuilder,
-        IConsumerPartitionBuilder,
         IConsumerShardBuilder
     {
         private readonly ConsumerParameters _parameters = ConsumerParameters.Empty;
+
+        /// <summary>
+        /// Event Source consumer builder.
+        /// </summary>
+        public static readonly IConsumerBuilder Empty = new ConsumerBuilder();
 
         #region Ctor
 
@@ -43,7 +47,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IConsumerOptionsBuilder IConsumerChannelBuilder.UseChannel(
+        IConsumerOptionsBuilder IConsumerBuilder.UseChannel(
                         IConsumerChannelProvider channel)
         {
             var prms = _parameters.WithChannel(channel);
@@ -109,7 +113,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IConsumerBuilder Shard(string shard)
+        public Building.IConsumerBuilder Shard(string shard)
         {
             var prms = _parameters.WithShard(shard);
             var result = new ConsumerBuilder(prms);

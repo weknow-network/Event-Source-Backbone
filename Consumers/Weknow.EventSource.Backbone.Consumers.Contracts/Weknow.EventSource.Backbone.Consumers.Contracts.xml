@@ -216,12 +216,12 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerChannelBuilder">
+        <member name="T:Weknow.EventSource.Backbone.IConsumerBuilder">
             <summary>
             Event Source Consumer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
             Choose the communication channel provider.
             </summary>

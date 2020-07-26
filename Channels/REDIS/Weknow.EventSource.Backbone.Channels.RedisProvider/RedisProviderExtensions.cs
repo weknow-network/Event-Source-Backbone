@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static IConsumerOptionsBuilder UseRedisConsumerChannel(
-                            this IConsumerChannelBuilder builder,
+                            this IConsumerBuilder builder,
                             ConfigurationOptions configuration)
         {
             throw new NotImplementedException();
@@ -32,7 +32,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static IProducerOptionsBuilder UseRedisProducerChannel(
-                            this IEventSourceProducerChannelBuilder builder,
+                            this IProducerBuilder builder,
                             ConfigurationOptions configuration)
         {
             throw new NotImplementedException();
