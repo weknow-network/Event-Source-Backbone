@@ -21,12 +21,6 @@
     <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Entities\Announcement\Announcement.cs.deprecate" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Entities\Announcement\Announcement.cs.deprecate" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
   </ItemGroup>
 </Project>

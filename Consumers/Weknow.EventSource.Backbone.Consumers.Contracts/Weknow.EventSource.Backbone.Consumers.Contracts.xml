@@ -236,7 +236,24 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="interceptorData">
+            The interceptor data which sets on the 
+            producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor">
+            <summary>
+            Consumer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor.Intercept(Weknow.EventSource.Backbone.Metadata,System.ReadOnlyMemory{System.Byte})">
             <summary>
             Interception operation.
             </summary>
@@ -250,23 +267,6 @@
             Channel provider responsible for passing the actual message 
             from producer to consumer. 
             </summary>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerInterceptor">
-            <summary>
-            Consumer stage of an interception operation provider.
-            It can be use for variety of responsibilities like 
-            flowing auth context or traces, producing metrics, etc.
-            </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata,System.ReadOnlyMemory{System.Byte})">
-            <summary>
-            Interception operation.
-            </summary>
-            <param name="metadata">The metadata.</param>
-            <param name="interceptorData">
-            The interceptor data which sets on the 
-            producer stage of the interception.</param>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy">
             <summary>

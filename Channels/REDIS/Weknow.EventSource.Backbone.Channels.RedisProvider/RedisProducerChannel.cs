@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         }
 
-        public ValueTask<string> SendAsync(AnnouncementRaw payload)
+        public ValueTask<string> SendAsync(Announcement payload)
         {
             throw new System.NotImplementedException();
         }

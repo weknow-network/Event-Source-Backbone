@@ -19,6 +19,6 @@ namespace Weknow.EventSource.Backbone
         /// <returns>Data which will be available to the 
         /// consumer stage of the interception.</returns>
         ValueTask<ReadOnlyMemory<byte>> InterceptAsync(
-                                AnnouncementMetadata metadata);
+                                Metadata metadata);
     }
 }

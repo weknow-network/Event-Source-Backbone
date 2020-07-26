@@ -10,11 +10,12 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public interface IProducerChannelProvider
     {
+
         /// <summary>
         /// Sends raw announcement.
         /// </summary>
         /// <param name="payload">The raw announcement data.</param>
         /// <returns>The announcement id</returns>
-        ValueTask<string> SendAsync(AnnouncementRaw payload);
+        ValueTask<string> SendAsync(Announcement payload);
     }
 }

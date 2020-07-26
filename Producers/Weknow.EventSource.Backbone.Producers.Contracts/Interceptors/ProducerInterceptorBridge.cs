@@ -50,7 +50,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// </returns>
         /// <exception cref="NotImplementedException"></exception>
         ValueTask<ReadOnlyMemory<byte>> IProducerAsyncInterceptor.InterceptAsync(
-                                    AnnouncementMetadata metadata)
+                                    Metadata metadata)
         {
             var result = _sync.Intercept(metadata);
             return result.ToValueTask();

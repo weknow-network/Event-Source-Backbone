@@ -41,7 +41,7 @@ namespace Weknow.EventSource.Backbone.Building
 
         #region InterceptAsync
 
-        ValueTask IConsumerAsyncInterceptor.InterceptAsync(AnnouncementMetadata metadata, ReadOnlyMemory<byte> interceptorData)
+        ValueTask IConsumerAsyncInterceptor.InterceptAsync(Metadata metadata, ReadOnlyMemory<byte> interceptorData)
         {
             _sync.Intercept(metadata, interceptorData);
             return CompletedValueTask;

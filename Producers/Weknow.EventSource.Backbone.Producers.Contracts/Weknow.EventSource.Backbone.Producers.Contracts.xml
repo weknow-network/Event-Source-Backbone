@@ -95,7 +95,7 @@
             It's recommended to use URL format.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.Metadata)">
             <summary>
             Interception operation.
             </summary>
@@ -262,7 +262,23 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.AnnouncementMetadata)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata)">
+            <summary>
+            Interception operation.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <returns>Data which will be available to the 
+            consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor">
+            <summary>
+            Producer stage of an interception operation provider.
+            It can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerInterceptor.Intercept(Weknow.EventSource.Backbone.Metadata)">
             <summary>
             Interception operation.
             </summary>
@@ -276,28 +292,12 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerChannelProvider.SendAsync(Weknow.EventSource.Backbone.AnnouncementRaw)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerChannelProvider.SendAsync(Weknow.EventSource.Backbone.Announcement)">
             <summary>
             Sends raw announcement.
             </summary>
             <param name="payload">The raw announcement data.</param>
             <returns>The announcement id</returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor">
-            <summary>
-            Producer stage of an interception operation provider.
-            It can be use for variety of responsibilities like 
-            flowing auth context or traces, producing metrics, etc.
-            </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerInterceptor.Intercept(Weknow.EventSource.Backbone.AnnouncementMetadata)">
-            <summary>
-            Interception operation.
-            </summary>
-            <param name="metadata">The metadata.</param>
-            <returns>Data which will be available to the 
-            consumer stage of the interception.</returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy">
             <summary>

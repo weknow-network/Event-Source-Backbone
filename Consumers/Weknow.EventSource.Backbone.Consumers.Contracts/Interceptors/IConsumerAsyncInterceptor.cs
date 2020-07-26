@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         /// The interceptor data which sets on the 
         /// producer stage of the interception.</param>
         ValueTask InterceptAsync(
-                   AnnouncementMetadata metadata,
+                   Metadata metadata,
                    ReadOnlyMemory<byte> interceptorData);
     }
 }

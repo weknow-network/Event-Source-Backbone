@@ -46,155 +46,34 @@
             </summary>
             <param name="timeout">The timeout.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.AnnouncementMetadata">
-            <summary>
-            Represent metadata of message (command / event) metadata of
-            a communication channel (Pub/Sub, Event Source, REST, GraphQL).
-            It represent the operation's intent or represent event.
-            </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.AnnouncementMetadata.Empty">
-            <summary>
-            The empty
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.#ctor">
-            <summary>
-            Only for serialization support.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.#ctor(System.String,System.String,System.String,System.String,System.String,System.Nullable{System.DateTimeOffset},System.Nullable{System.TimeSpan})">
-            <summary>
-            Initializes a new instance        /// </summary>
-            <param name="intent">Represent logical intention of command/notification.
-            Either represent intention for action (command)
-            or type of occurrence (notification)</param>
-            <param name="channel">The communication channel used to handle this event.</param>
-            <param name="dataType">Type of the data.</param>
-            <param name="segmentedBy">The segmented by.</param>
-            <param name="messageId">The message identifier.</param>
-            <param name="dispatchTime">The dispatch time.</param>
-            <param name="duration">The duration.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.MessageId">
-            <summary>
-            The message identifier.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Flags">
-            <summary>
-            Gets or sets
-            Represent hints for event execution.
-            Some execution content (like reconstruction) might like to ignore
-            event with specific flags.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Intent">
-            <summary>        
-            Represent logical intention of command/notification.
-            Either represent intention for action (command)
-            or type of occurrence (notification).
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.DataType">
-            <summary>        
-            The type of the announcement's data.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.SegmentedBy">
-            <summary>        
-            Indicate the segment provider used for the announcement segmentation.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.DispatchTime">
-            <summary>
-            The sending time.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Duration">
-            <summary>
-            Time pass between sending to consuming of the message.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementMetadata.Channel">
-            <summary>
-            Represent the communication channel which the message came from.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.Equals(System.Object)">
-            <summary>
-            Determines whether the specified object is equal to the current object.
-            </summary>
-            <param name="obj">The object to compare with the current object.</param>
-            <returns>
-              <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
-            </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.Equals(Weknow.EventSource.Backbone.AnnouncementMetadata)">
-            <summary>
-            Indicates whether the current object is equal to another object of the same type.
-            </summary>
-            <param name="other">An object to compare with this object.</param>
-            <returns>
-              <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-            </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.GetHashCode">
-            <summary>
-            Returns a hash code for this instance.
-            </summary>
-            <returns>
-            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-            </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.op_Equality(Weknow.EventSource.Backbone.AnnouncementMetadata,Weknow.EventSource.Backbone.AnnouncementMetadata)">
-            <summary>
-            Implements the operator ==.
-            </summary>
-            <param name="left">The left.</param>
-            <param name="right">The right.</param>
-            <returns>
-            The result of the operator.
-            </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementMetadata.op_Inequality(Weknow.EventSource.Backbone.AnnouncementMetadata,Weknow.EventSource.Backbone.AnnouncementMetadata)">
-            <summary>
-            Implements the operator !=.
-            </summary>
-            <param name="left">The left.</param>
-            <param name="right">The right.</param>
-            <returns>
-            The result of the operator.
-            </returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.AnnouncementRaw">
+        <member name="T:Weknow.EventSource.Backbone.Announcement">
             <summary>
             Non-generics form of announcement representation,
             used to transfer data via channels.
             </summary>
         </member>
-        <member name="F:Weknow.EventSource.Backbone.AnnouncementRaw.Empty">
+        <member name="F:Weknow.EventSource.Backbone.Announcement.Empty">
             <summary>
             The empty
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementRaw.#ctor">
+        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor">
             <summary>
             Only for serialization support.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AnnouncementRaw.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
             <summary>
             Initializes a new instance        /// </summary>
             <param name="metadata">The metadata.</param>
             <param name="segments">The segments.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.Metadata">
+        <member name="P:Weknow.EventSource.Backbone.Announcement.Metadata">
             <summary>
             Gets or sets the metadata.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.Segments">
+        <member name="P:Weknow.EventSource.Backbone.Announcement.Segments">
             <summary>
             Gets or sets the segments.
             Segmentation is done at the sending side, 
@@ -208,18 +87,42 @@
             into personal and non-personal segments.
             </example>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.AnnouncementRaw.InterceptedData">
+        <member name="P:Weknow.EventSource.Backbone.Announcement.InterceptedData">
             <summary>
             Gets or sets the mapping of data which 
             was created by interceptors on the send side
             and should be evaluate by the interceptor at consume side.
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.EventFlags">
+        <!-- Badly formed XML comment ignored for member "T:Weknow.EventSource.Backbone.Metadata" -->
+        <member name="F:Weknow.EventSource.Backbone.Metadata.Empty">
             <summary>
-            Represent hints for event execution.
-            Some execution content (like reconstruction) might like to ignore
-            event with specific flags.
+            The empty
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Metadata.#ctor">
+            <summary>
+            Only for serialization support.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.MessageId">
+            <summary>
+            The message identifier.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Retries">
+            <summary>
+            Gets the retries time of re-consuming the message.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.ProducedAt">
+            <summary>
+            The sending time.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Duration">
+            <summary>
+            Calculation of Duration since produce time
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ShardMetadata">
@@ -282,33 +185,6 @@
         <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Replay">
             <summary>
             Will replay the messages on timeout.
-            </summary>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.Announcement`1">
-            <summary>
-            Represent command or occurrence.
-            Which is ready to consume.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor">
-            <summary>
-            Only for serialization.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement`1.#ctor(Weknow.EventSource.Backbone.AnnouncementMetadata,`0)">
-            <summary>
-            Initializes a new instance        /// </summary>
-            <param name="meta">The metadata.</param>
-            <param name="personalData">The personal data.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Meta">
-            <summary>
-            Gets the metadata.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement`1.Data">
-            <summary>
-            Gets or sets the data.
             </summary>
         </member>
     </members>

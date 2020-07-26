@@ -25,7 +25,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             throw new NotImplementedException();
         }
 
-        Ackable<AnnouncementRaw> ISourceBlock<Ackable<AnnouncementRaw>>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target, out bool messageConsumed)
+        Ackable<Announcement> ISourceBlock<Ackable<Announcement>>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target, out bool messageConsumed)
         {
             throw new NotImplementedException();
         }
@@ -35,17 +35,17 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             throw new NotImplementedException();
         }
 
-        IDisposable ISourceBlock<Ackable<AnnouncementRaw>>.LinkTo(ITargetBlock<Ackable<AnnouncementRaw>> target, DataflowLinkOptions linkOptions)
+        IDisposable ISourceBlock<Ackable<Announcement>>.LinkTo(ITargetBlock<Ackable<Announcement>> target, DataflowLinkOptions linkOptions)
         {
             throw new NotImplementedException();
         }
 
-        void ISourceBlock<Ackable<AnnouncementRaw>>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
+        void ISourceBlock<Ackable<Announcement>>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target)
         {
             throw new NotImplementedException();
         }
 
-        bool ISourceBlock<Ackable<AnnouncementRaw>>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<AnnouncementRaw>> target)
+        bool ISourceBlock<Ackable<Announcement>>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target)
         {
             throw new NotImplementedException();
         }

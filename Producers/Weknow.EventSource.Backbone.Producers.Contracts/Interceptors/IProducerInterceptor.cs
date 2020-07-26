@@ -18,6 +18,6 @@ namespace Weknow.EventSource.Backbone
         /// <returns>Data which will be available to the 
         /// consumer stage of the interception.</returns>
         ReadOnlyMemory<byte> Intercept(
-                                AnnouncementMetadata metadata);
+                                Metadata metadata);
     }
 }

@@ -11,7 +11,7 @@ namespace Weknow.EventSource.Backbone
     /// Channel provider responsible for passing the actual message 
     /// from producer to consumer. 
     /// </summary>
-    public interface IConsumerChannelProvider: ISourceBlock<Ackable<AnnouncementRaw>>
+    public interface IConsumerChannelProvider: ISourceBlock<Ackable<Announcement>>
     {
     }
 }

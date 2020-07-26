@@ -9,14 +9,14 @@ namespace Weknow.EventSource.Backbone
     /// used to transfer data via channels.
     /// </summary>
     [DebuggerDisplay("Announcement [{Metadata.MessageId}]: Version = [{Metadata.Version}], DataSegments = [{Metadata.DataSegments}]")]
-    public sealed class AnnouncementRaw
+    public sealed class Announcement
     {
         #region Empty
 
         /// <summary>
         /// The empty
         /// </summary>
-        public static readonly AnnouncementRaw Empty = new AnnouncementRaw();
+        public static readonly Announcement Empty = new Announcement();
 
         #endregion // Empty
 
@@ -25,7 +25,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Only for serialization support.
         /// </summary>
-        private AnnouncementRaw()
+        private Announcement()
         {
         }
 
@@ -33,8 +33,8 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance        /// </summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="segments">The segments.</param>
-        public AnnouncementRaw(
-            AnnouncementMetadata metadata,
+        public Announcement(
+            Metadata metadata,
             ImmutableDictionary<string, ReadOnlyMemory<byte>> segments)
         {
             _metadata = metadata;
@@ -45,11 +45,11 @@ namespace Weknow.EventSource.Backbone
 
         #region Metadata
 
-        private AnnouncementMetadata _metadata = AnnouncementMetadata.Empty;
+        private Metadata _metadata = Metadata.Empty;
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
-        public AnnouncementMetadata Metadata
+        public Metadata Metadata
         {
             get => _metadata;
             [Obsolete("Exposed for the serializer", true)]
