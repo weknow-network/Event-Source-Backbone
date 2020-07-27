@@ -4,48 +4,6 @@
         <name>Weknow.EventSource.Backbone.Contracts</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Ackable`1">
-            <summary>
-            Represent acknowledge-able instance.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor">
-            <summary>
-            Prevents a default instance.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,Weknow.EventSource.Backbone.IAck)">
-            <summary>
-            Initializes a new instance        /// </summary>
-            <param name="item">The item.</param>
-            <param name="ack">The acknowledge handle (callback).</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Item">
-            <summary>
-            Gets the item data.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Ack">
-            <summary>
-            Send Acknowledge (some queue type [like event sourcing] 
-            keep the item in the queue until it processed,
-            the acknowledge will notify it that it can be delete).
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IAck">
-            <summary>
-            Represent acknowledge trigger which will 
-            set the status on the event as done or release 
-            it for re-consuming.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IAck.RevokeAfter(System.TimeSpan)">
-            <summary>
-            Revokes the operation if not completed after a duration.
-            </summary>
-            <param name="timeout">The timeout.</param>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Announcement">
             <summary>
             Non-generics form of announcement representation,

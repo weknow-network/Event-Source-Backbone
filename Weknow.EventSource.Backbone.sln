@@ -12,6 +12,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Contracts", "Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj", "{E17F4D78-8645-457E-B4CB-455FCED12F49}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Producers", "Producers", "{3FBE7FA1-700D-4B58-8569-15F533F761D1}"
+	ProjectSection(SolutionItems) = preProject
+		Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.xml = Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.xml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumers", "Consumers", "{EC34CEBD-EEDE-4CBA-A28A-A71BCB51D5D2}"
 EndProject
