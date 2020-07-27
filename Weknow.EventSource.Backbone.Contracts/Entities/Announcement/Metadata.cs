@@ -43,6 +43,14 @@ namespace Weknow.EventSource.Backbone
         {
         }
 
+        public Metadata(string messageId, DateTimeOffset producedAt)
+        {
+            _messageId = messageId;
+            _producedAt = producedAt;
+        }
+
+
+
         #endregion // Ctor
 
         #region MessageId
