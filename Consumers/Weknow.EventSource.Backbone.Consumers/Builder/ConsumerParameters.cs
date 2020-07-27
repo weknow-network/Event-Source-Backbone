@@ -11,15 +11,17 @@ namespace Weknow.EventSource.Backbone
     public class ConsumerParameters
     {
         public static readonly ConsumerParameters Empty = new ConsumerParameters();
-       
+
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         private ConsumerParameters()
         {
         }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         /// <summary>
         /// Initializes a new instance.

@@ -167,7 +167,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(
                             IProducerAsyncSegmentationStrategy segmentationStrategy)
         {
-            var prms = ProducerParameters.Empty.AddSegmentation(segmentationStrategy);
+            var prms = _parameters.AddSegmentation(segmentationStrategy);
             return new ProducerBuilder(prms);
         }
 
@@ -190,7 +190,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(IProducerSegmentationStrategy segmentationStrategy)
         {
             var asyncImp = new ProducerSegmentationStrategyBridge(segmentationStrategy);
-            var prms = ProducerParameters.Empty.AddSegmentation(asyncImp);
+            var prms = _parameters.AddSegmentation(asyncImp);
             return new ProducerBuilder(prms);
         }
 
@@ -208,7 +208,7 @@ namespace Weknow.EventSource.Backbone
                                                 IProducerInterceptor interceptor)
         {
             var bridge = new ProducerInterceptorBridge(interceptor);
-            var prms = ProducerParameters.Empty.AddInterceptor(bridge);
+            var prms = _parameters.AddInterceptor(bridge);
             return new ProducerBuilder(prms);
         }
 
@@ -221,7 +221,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.AddInterceptor(
             IProducerAsyncInterceptor interceptor)
         {
-            var prms = ProducerParameters.Empty.AddInterceptor(interceptor);
+            var prms = _parameters.AddInterceptor(interceptor);
             return new ProducerBuilder(prms);
         }
 
