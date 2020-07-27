@@ -4,6 +4,9 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.CodeGeneration;
+
+using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -23,7 +26,7 @@ namespace Weknow.EventSource.Backbone
         /// Event Source producer builder.
         /// </summary>
         public static readonly IProducerBuilder Empty = new ProducerBuilder();
-       
+
         #region Ctor
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace Weknow.EventSource.Backbone
         IProducerOptionsBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
-            var prms = ProducerParameters.Empty.WithChannel(channel);
+            var prms = _parameters.WithChannel(channel);
             return new ProducerBuilder(prms);
         }
 
@@ -101,7 +104,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerShardBuilder IProducerPartitionBuilder.Partition(string partition)
         {
-            var prms = ProducerParameters.Empty.WithPartition(partition);
+            var prms = _parameters.WithPartition(partition);
             return new ProducerBuilder(prms);
         }
 
@@ -121,7 +124,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerHooksBuilder IProducerShardBuilder.Shard(string shard)
         {
-            var prms = ProducerParameters.Empty.WithShard(shard);
+            var prms = _parameters.WithShard(shard);
             return new ProducerBuilder(prms);
         }
 
@@ -137,7 +140,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(IEventSourceOptions options)
         {
-            var prms = ProducerParameters.Empty.WithOptions(options);
+            var prms = _parameters.WithOptions(options);
             return new ProducerBuilder(prms);
         }
 
@@ -242,9 +245,27 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            throw new NotImplementedException();
+            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters.Channel, _parameters.Options.Serializer);
         }
 
         #endregion // Build
+    }
+
+    public class ProducerBase
+    {
+        private IProducerChannelProvider _channel;
+        protected IDataSerializer _serializer;
+
+        public ProducerBase(IProducerChannelProvider channel, IDataSerializer serializer)
+        {
+            _channel = channel;
+            _serializer = serializer;
+        }
+
+        protected async ValueTask SendAsync(Segments segments)
+        {
+            var announcment = new Announcement(new Metadata(Guid.NewGuid().ToString(), DateTime.Now), segments);
+            await _channel.SendAsync(announcment);
+        }
     }
 }
