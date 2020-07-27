@@ -15,13 +15,44 @@ namespace Weknow.EventSource.Backbone
         private readonly CancellationTokenSource _ackByTimeout = new CancellationTokenSource();
         private int _onlyonce = 0;
 
-        public ConsumerContext(Metadata metadata)
+
+        #region Context
+
+        private static AsyncLocal<ConsumerContext?> AsyncContext = new AsyncLocal<ConsumerContext?>();
+
+        public static ConsumerContext? Current => AsyncContext.Value;
+        public static void SetContext(ConsumerContext ctx) =>
+                            AsyncContext.Value = ctx;
+
+
+        #endregion // Context
+
+        public ConsumerContext(
+            Metadata metadata,
+            ushort? retries =  null)
         {
             _ackByTimeout.Token.Register(() => (this as IAck).AckAsync());
             Metadata = metadata;
+            _retries = retries;
         }
 
         public Metadata Metadata { get; }
+
+        #region Retries
+
+        private ushort? _retries;
+        /// <summary>
+        /// Gets the retries time of re-consuming the message.
+        /// </summary>
+        public ushort? Retries
+        {
+            get => _retries;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _retries = value;
+        }
+
+        #endregion Retries 
+
 
         public void AckAfter(TimeSpan timeout) => _ackByTimeout.CancelAfter(timeout);
 

@@ -55,6 +55,103 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
+        #region Channel
+
+        /// <summary>
+        /// Gets the communication channel provider.
+        /// </summary>
+        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] in memory channel provider
+
+        #endregion // Channel
+
+        #region Partition
+
+        /// <summary>
+        /// Partition key represent logical group of 
+        /// event source shards.
+        /// For example assuming each ORDERING flow can have its 
+        /// own messaging sequence, yet can live concurrency with 
+        /// other ORDER's sequences.
+        /// The partition will let consumer the option to be notify and
+        /// consume multiple shards from single consumer.
+        /// This way the consumer can handle all orders in
+        /// central place without affecting sequence of specific order 
+        /// flow or limiting the throughput.
+        /// </summary>
+        /// <value>
+        /// The partition.
+        /// </value>
+        public string Partition { get; } = string.Empty;
+
+        #endregion // Partition
+
+        #region Shard
+
+        /// <summary>
+        /// Shard key represent physical sequence.
+        /// Use same shard when order is matter.
+        /// For example: assuming each ORDERING flow can have its 
+        /// own messaging sequence, in this case you can split each 
+        /// ORDER into different shard and gain performance bust..
+        /// </summary>
+        public string Shard { get; } = string.Empty;
+
+        #endregion // Shard
+
+        #region Options
+
+        /// <summary>
+        /// Gets the configuration.
+        /// </summary>
+        public IEventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
+
+        #endregion // Options
+
+        #region SegmentationStrategies
+
+        /// <summary>
+        /// Segmentation responsible of splitting an instance into segments.
+        /// Segments is how the Consumer sending its raw data to
+        /// the consumer. It's in a form of dictionary when
+        /// keys represent the different segments
+        /// and the value represent serialized form of the segment's data.
+        /// </summary>
+        /// <example>
+        /// Examples for segments can be driven from regulation like
+        /// GDPR (personal, non-personal data),
+        /// Technical vs Business aspects, etc.
+        /// </example>
+        public IImmutableList<IConsumerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
+                    ImmutableList<IConsumerAsyncSegmentationStrategy>.Empty;
+
+        #endregion // SegmentationStrategies
+
+        #region Interceptors
+
+        /// <summary>
+        /// Consumer interceptors (Timing: after serialization).
+        /// </summary>
+        /// <value>
+        /// The interceptors.
+        /// </value>
+        public IImmutableList<IConsumerAsyncInterceptor> Interceptors { get; } =
+                    ImmutableList<IConsumerAsyncInterceptor>.Empty;
+
+        #endregion // Interceptors
+
+        #region Routes
+
+        /// <summary>
+        /// Routes are sub-pipelines are results of merge operation
+        /// which can split same payload into multiple partitions or shards.
+        /// </summary>
+        private readonly IImmutableList<IConsumerHooksBuilder> Routes =
+                ImmutableList<IConsumerHooksBuilder>.Empty;
+
+        #endregion // Routes
+
+        //------------------------------------------
+
         #region WithChannel
 
         /// <summary>
@@ -161,100 +258,5 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // AddInterceptor
-
-        #region Channel
-
-        /// <summary>
-        /// Gets the communication channel provider.
-        /// </summary>
-        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] in memory channel provider
-
-        #endregion // Channel
-
-        #region Partition
-
-        /// <summary>
-        /// Partition key represent logical group of 
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its 
-        /// own messaging sequence, yet can live concurrency with 
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order 
-        /// flow or limiting the throughput.
-        /// </summary>
-        /// <value>
-        /// The partition.
-        /// </value>
-        public string Partition { get; } = string.Empty;
-
-        #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its 
-        /// own messaging sequence, in this case you can split each 
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        public string Shard { get; } = string.Empty;
-
-        #endregion // Shard
-
-        #region Options
-
-        /// <summary>
-        /// Gets the configuration.
-        /// </summary>
-        public IEventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
-
-        #endregion // Options
-
-        #region SegmentationStrategies
-
-        /// <summary>
-        /// Segmentation responsible of splitting an instance into segments.
-        /// Segments is how the Consumer sending its raw data to
-        /// the consumer. It's in a form of dictionary when
-        /// keys represent the different segments
-        /// and the value represent serialized form of the segment's data.
-        /// </summary>
-        /// <example>
-        /// Examples for segments can be driven from regulation like
-        /// GDPR (personal, non-personal data),
-        /// Technical vs Business aspects, etc.
-        /// </example>
-        public IImmutableList<IConsumerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
-                    ImmutableList<IConsumerAsyncSegmentationStrategy>.Empty;
-
-        #endregion // SegmentationStrategies
-
-        #region Interceptors
-
-        /// <summary>
-        /// Consumer interceptors (Timing: after serialization).
-        /// </summary>
-        /// <value>
-        /// The interceptors.
-        /// </value>
-        public IImmutableList<IConsumerAsyncInterceptor> Interceptors { get; } =
-                    ImmutableList<IConsumerAsyncInterceptor>.Empty;
-
-        #endregion // Interceptors
-
-        #region Routes
-
-        /// <summary>
-        /// Routes are sub-pipelines are results of merge operation
-        /// which can split same payload into multiple partitions or shards.
-        /// </summary>
-        private readonly IImmutableList<IConsumerHooksBuilder> Routes =
-                ImmutableList<IConsumerHooksBuilder>.Empty;
-
-        #endregion // Routes
     }
 }
