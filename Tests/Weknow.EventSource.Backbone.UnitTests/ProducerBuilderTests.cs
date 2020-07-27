@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
         private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
-        private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
+        private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
@@ -31,6 +31,7 @@ namespace Weknow.EventSource.Backbone
         public ProducerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
+            _serializer = new JsonDataSerializer();
         }
 
         #endregion // Ctor

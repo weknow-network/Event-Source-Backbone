@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
             IProducerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
-            EventSourceOptions? options = null,
+            IEventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
             IImmutableList<IProducerHooksBuilder>? routes = null)
@@ -76,7 +76,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options">The options.</param>
         /// <returns></returns>
         internal ProducerParameters WithOptions(
-                                        EventSourceOptions options)
+                                        IEventSourceOptions options)
         {
             return new ProducerParameters(this, options: options);
         }
@@ -208,7 +208,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public EventSourceOptions Options { get; } = EventSourceOptions.Empty;
+        public IEventSourceOptions Options { get; } = EventSourceOptions.Empty;
 
         #endregion // Options
 

@@ -117,7 +117,7 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
             Attach configuration.
             </summary>
@@ -190,7 +190,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -282,7 +282,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -320,7 +320,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to

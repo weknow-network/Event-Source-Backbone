@@ -32,7 +32,7 @@
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
             Attach configuration.
             </summary>
@@ -120,7 +120,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.EventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -140,7 +140,7 @@
             <param name="channel">The channel.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.EventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
             Withes the options.
             </summary>
@@ -244,6 +244,23 @@
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
+            <summary>
+            Gets the max batch size of reading messages per shard.
+            The framework won't proceed to the next batch until all messages
+            in the batch complete (or timeout when it set to acknowledge on timeout).
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.TimeoutBehavior">
+            <summary>
+            Define the behavior of the framework on timeout.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.MaxDegreeOfParallelism">
+            <summary>
+            Reduce the maximum concurrency level.
             </summary>
         </member>
     </members>

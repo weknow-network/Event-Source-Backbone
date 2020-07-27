@@ -120,7 +120,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -158,7 +158,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -190,7 +190,7 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Apply configuration.
             </summary>
@@ -313,7 +313,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Classifies instance into different segments.
             Segments is how the producer sending its raw data to

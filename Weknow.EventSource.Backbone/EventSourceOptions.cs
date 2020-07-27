@@ -2,15 +2,16 @@
 
 namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceOptions
+    public class EventSourceOptions: IEventSourceOptions
     {
+        private static readonly IDataSerializer DEFAULT_SERIALIZER = new JsonDataSerializer();
         public static readonly EventSourceOptions Empty = new EventSourceOptions();
 
         public EventSourceOptions(
             IDataSerializer? serializer = null,
             bool useFullName = false)
         {
-            Serializer = serializer ?? throw new NotImplementedException(); // TODO: json implementation
+            Serializer = serializer ?? DEFAULT_SERIALIZER;
             UseFullName = useFullName;
         }
 

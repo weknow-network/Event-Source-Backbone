@@ -49,7 +49,7 @@ namespace Weknow.EventSource.Backbone.Building
                         string operation,
                         string argumentName,
                         T producedData,
-                        EventSourceOptions options)
+                        IEventSourceOptions options)
                     where T : notnull;
     }
 }

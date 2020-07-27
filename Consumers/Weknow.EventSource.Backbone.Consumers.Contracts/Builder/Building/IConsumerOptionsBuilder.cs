@@ -14,6 +14,6 @@ namespace Weknow.EventSource.Backbone.Building
         /// <summary>
         /// Attach configuration.
         /// </summary>
-        IConsumerHooksBuilder WithOptions(EventSourceConsumerOptions options);
+        IConsumerHooksBuilder WithOptions(IEventSourceConsumerOptions options);
     }
 }

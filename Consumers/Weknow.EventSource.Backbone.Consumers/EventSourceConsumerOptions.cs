@@ -2,7 +2,8 @@
 
 namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceConsumerOptions: EventSourceOptions
+    public class EventSourceConsumerOptions: 
+        EventSourceOptions, IEventSourceConsumerOptions
     {
         public new static readonly EventSourceConsumerOptions Empty = new EventSourceConsumerOptions();
 

@@ -63,11 +63,11 @@ namespace Weknow.EventSource.Backbone
 
         #region Retries
 
-        private ushort _retries;
+        private ushort? _retries;
         /// <summary>
         /// Gets the retries time of re-consuming the message.
         /// </summary>
-        public ushort Retries
+        public ushort? Retries
         {
             get => _retries;
             [Obsolete("Exposed for the serializer", true)]

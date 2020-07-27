@@ -144,23 +144,6 @@
             It represent the operation's intent or represent event.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
-            <summary>
-            Gets the max batch size of reading messages per shard.
-            The framework won't proceed to the next batch until all messages
-            in the batch complete (or timeout when it set to acknowledge on timeout).
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.TimeoutBehavior">
-            <summary>
-            Define the behavior of the framework on timeout.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.MaxDegreeOfParallelism">
-            <summary>
-            Reduce the maximum concurrency level.
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
             <summary>
             Enable to replace the default serialization
@@ -181,6 +164,23 @@
             <typeparam name="T"></typeparam>
             <param name="serializedData">The serialized data.</param>
             <returns></returns>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.BatchSize">
+            <summary>
+            Gets the max batch size of reading messages per shard.
+            The framework won't proceed to the next batch until all messages
+            in the batch complete (or timeout when it set to acknowledge on timeout).
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.TimeoutBehavior">
+            <summary>
+            Define the behavior of the framework on timeout.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.MaxDegreeOfParallelism">
+            <summary>
+            Reduce the maximum concurrency level.
+            </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IInterceptorName.InterceptorName">
             <summary>

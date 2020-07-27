@@ -4,5 +4,11 @@
         <name>Weknow.EventSource.Backbone</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.JsonDataSerializer">
+            <summary>
+            Json serializer (this is the default serializer)
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
+        </member>
     </members>
 </doc>

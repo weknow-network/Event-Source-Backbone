@@ -72,7 +72,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Apply configuration.
             </summary>
@@ -153,7 +153,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.ProducerParameters,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.ProducerParameters,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -173,7 +173,7 @@
             <param name="channel">The channel.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Withes the options.
             </summary>

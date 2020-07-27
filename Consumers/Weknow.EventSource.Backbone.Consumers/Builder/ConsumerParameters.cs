@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
             IConsumerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
-            EventSourceConsumerOptions? options = null,
+            IEventSourceConsumerOptions? options = null,
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
             IImmutableList<IConsumerHooksBuilder>? routes = null)
@@ -76,7 +76,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options">The options.</param>
         /// <returns></returns>
         internal ConsumerParameters WithOptions(
-                                        EventSourceConsumerOptions options)
+                                        IEventSourceConsumerOptions options)
         {
             return new ConsumerParameters(this, options: options);
         }
@@ -208,7 +208,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public EventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
+        public IEventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
 
         #endregion // Options
 

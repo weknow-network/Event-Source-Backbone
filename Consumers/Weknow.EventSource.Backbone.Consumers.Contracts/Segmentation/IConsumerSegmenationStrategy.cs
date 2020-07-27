@@ -44,6 +44,6 @@ namespace Weknow.EventSource.Backbone
                 Segments segments,
                 string operation,
                 string argumentName,
-                EventSourceOptions options);
+                IEventSourceOptions options);
     }
 }

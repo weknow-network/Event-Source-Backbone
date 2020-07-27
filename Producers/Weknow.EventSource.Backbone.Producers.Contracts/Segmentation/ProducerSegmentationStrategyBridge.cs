@@ -59,7 +59,7 @@ namespace Weknow.EventSource.Backbone.Building
             string operation,
             string argumentName,
             T producedData,
-            EventSourceOptions options)
+            IEventSourceOptions options)
         {
             return _sync.Classify(segments, operation, argumentName, producedData, options).ToValueTask();
         }

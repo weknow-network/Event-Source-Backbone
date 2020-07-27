@@ -18,12 +18,14 @@ namespace Weknow.EventSource.Backbone
         private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
         private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
         private readonly IConsumerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerAsyncInterceptor>();
-        private readonly EventSourceConsumerOptions _options = A.Fake<EventSourceConsumerOptions>();
+        private readonly EventSourceConsumerOptions _options;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
         public ConsumerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
+            var serializer = new JsonDataSerializer();
+            _options = new EventSourceConsumerOptions(serializer: serializer);
         }
 
         #region Build_Raw_Consumer_Direct_Test

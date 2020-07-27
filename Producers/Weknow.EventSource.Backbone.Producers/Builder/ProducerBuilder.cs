@@ -135,7 +135,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(EventSourceOptions options)
+        IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(IEventSourceOptions options)
         {
             var prms = ProducerParameters.Empty.WithOptions(options);
             return new ProducerBuilder(prms);

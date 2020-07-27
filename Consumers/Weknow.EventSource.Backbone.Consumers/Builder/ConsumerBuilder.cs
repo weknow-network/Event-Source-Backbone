@@ -64,7 +64,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        IConsumerHooksBuilder IConsumerOptionsBuilder.WithOptions(EventSourceConsumerOptions options)
+        IConsumerHooksBuilder IConsumerOptionsBuilder.WithOptions(IEventSourceConsumerOptions options)
         {
             var prms = _parameters.WithOptions(options);
             var result = new ConsumerBuilder(prms);

@@ -57,7 +57,7 @@ namespace Weknow.EventSource.Backbone.Building
             Segments segments,
             string operation,
             string argumentName,
-            EventSourceOptions options)
+            IEventSourceOptions options)
         {
             var result = _sync.TryUnclassify<T>(
                                             segments, 
