@@ -37,16 +37,26 @@ namespace Weknow.EventSource.Backbone
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="partition">The partition.</param>
+        /// <param name="shard">The shard.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="producedAt">The produced at.</param>
         public Metadata(
             string messageId,
             string partition,
             string shard,
+            string operation,
             DateTimeOffset? producedAt = null)
         {
             _messageId = messageId;
             _producedAt = producedAt ?? DateTimeOffset.Now;
             _partition = partition;
             _shard = shard;
+            _operation = operation;
         }
 
         #endregion // Ctor
@@ -81,6 +91,21 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // ProducedAt
+
+        #region Operation
+
+        private string _operation;
+        /// <summary>
+        /// Gets or sets the operation.
+        /// </summary>
+        public string Operation
+        {
+            get => _operation;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _operation = value;
+        }
+
+        #endregion Operation 
 
         #region Duration
 

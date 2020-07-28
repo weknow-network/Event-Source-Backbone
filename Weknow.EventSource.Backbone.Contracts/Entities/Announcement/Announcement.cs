@@ -30,15 +30,19 @@ namespace Weknow.EventSource.Backbone
         }
 
         /// <summary>
-        /// Initializes a new instance        /// </summary>
+        /// Initializes a new instance
+        /// </summary>
         /// <param name="metadata">The metadata.</param>
         /// <param name="segments">The segments.</param>
+        /// <param name="interceptorData">The interceptor data.</param>
         public Announcement(
             Metadata metadata,
-            ImmutableDictionary<string, ReadOnlyMemory<byte>> segments)
+            ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
+            ImmutableDictionary<string, ReadOnlyMemory<byte>> interceptorData)
         {
             _metadata = metadata;
             _segments = segments;
+            _interceptorData = interceptorData;
         }
 
         #endregion // Ctor
@@ -61,6 +65,8 @@ namespace Weknow.EventSource.Backbone
         #region Segments
         
         private ImmutableDictionary<string, ReadOnlyMemory<byte>> _segments = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;
+        private readonly ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptorData;
+
         /// <summary>
         /// Gets or sets the segments.
         /// Segmentation is done at the sending side, 
@@ -81,6 +87,24 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion Segments 
+
+        #region InterceptorsData
+        
+        private ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptorsData = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;
+        /// <summary>
+        /// Interception data (each interceptor responsible of it own data).
+        /// Interception can be use for variety of responsibilities like 
+        /// flowing auth context or traces, producing metrics, etc.
+        /// </summary>
+        public ImmutableDictionary<string, ReadOnlyMemory<byte>> InterceptorsData
+        {
+            get => _interceptorsData;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _interceptorsData = value;
+        }
+
+        #endregion InterceptorsData 
+
 
         #region InterceptedData
 

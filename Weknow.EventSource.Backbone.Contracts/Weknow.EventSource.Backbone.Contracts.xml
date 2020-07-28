@@ -20,11 +20,13 @@
             Only for serialization support.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
             <summary>
-            Initializes a new instance        /// </summary>
+            Initializes a new instance
+            </summary>
             <param name="metadata">The metadata.</param>
             <param name="segments">The segments.</param>
+            <param name="interceptorData">The interceptor data.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Announcement.Metadata">
             <summary>
@@ -44,6 +46,13 @@
             Segmentation provider can split the message 
             into personal and non-personal segments.
             </example>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Announcement.InterceptorsData">
+            <summary>
+            Interception data (each interceptor responsible of it own data).
+            Interception can be use for variety of responsibilities like 
+            flowing auth context or traces, producing metrics, etc.
+            </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Announcement.InterceptedData">
             <summary>
@@ -75,6 +84,16 @@
             Only for serialization support.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Metadata.#ctor(System.String,System.String,System.String,System.String,System.Nullable{System.DateTimeOffset})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="messageId">The message identifier.</param>
+            <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
+            <param name="operation">The operation.</param>
+            <param name="producedAt">The produced at.</param>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.MessageId">
             <summary>
             The message identifier.
@@ -83,6 +102,11 @@
         <member name="P:Weknow.EventSource.Backbone.Metadata.ProducedAt">
             <summary>
             The sending time.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Operation">
+            <summary>
+            Gets or sets the operation.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.Duration">

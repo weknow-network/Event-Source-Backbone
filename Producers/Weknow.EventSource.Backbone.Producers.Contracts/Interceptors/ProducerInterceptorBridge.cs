@@ -44,13 +44,14 @@ namespace Weknow.EventSource.Backbone.Building
         /// Interception operation.
         /// </summary>
         /// <param name="metadata">The metadata.</param>
+        /// <param name="segments">The segments.</param>
         /// <returns>
         /// Data which will be available to the
         /// consumer stage of the interception.
         /// </returns>
-        /// <exception cref="NotImplementedException"></exception>
         ValueTask<ReadOnlyMemory<byte>> IProducerAsyncInterceptor.InterceptAsync(
-                                    Metadata metadata)
+                                    Metadata metadata,
+                                    Segments segments)
         {
             var result = _sync.Intercept(metadata);
             return result.ToValueTask();

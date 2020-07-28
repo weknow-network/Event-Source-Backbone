@@ -102,6 +102,13 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerShardBuilder IProducerPartitionBuilder.Partition(string partition)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var prms = _parameters.WithPartition(partition);
             return new ProducerBuilder(prms);
         }
@@ -122,6 +129,13 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerHooksBuilder IProducerShardBuilder.Shard(string shard)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var prms = _parameters.WithShard(shard);
             return new ProducerBuilder(prms);
         }
@@ -138,6 +152,13 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(IEventSourceOptions options)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var prms = _parameters.WithOptions(options);
             return new ProducerBuilder(prms);
         }
@@ -165,6 +186,13 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(
                             IProducerAsyncSegmentationStrategy segmentationStrategy)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var prms = _parameters.AddSegmentation(segmentationStrategy);
             return new ProducerBuilder(prms);
         }
@@ -187,6 +215,13 @@ namespace Weknow.EventSource.Backbone
         /// </example>
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(IProducerSegmentationStrategy segmentationStrategy)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var asyncImp = new ProducerSegmentationStrategyBridge(segmentationStrategy);
             var prms = _parameters.AddSegmentation(asyncImp);
             return new ProducerBuilder(prms);
@@ -205,6 +240,13 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.AddInterceptor(
                                                 IProducerInterceptor interceptor)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
             var bridge = new ProducerInterceptorBridge(interceptor);
             var prms = _parameters.AddInterceptor(bridge);
             return new ProducerBuilder(prms);
@@ -219,6 +261,12 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.AddInterceptor(
             IProducerAsyncInterceptor interceptor)
         {
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
             var prms = _parameters.AddInterceptor(interceptor);
             return new ProducerBuilder(prms);
         }
@@ -242,7 +290,15 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters);
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
+            return new CodeGenerator("DynamicProxies")
+                        .CreateProducerProxy<T, ProducerBase>(_parameters);
         }
 
         #endregion // Build
