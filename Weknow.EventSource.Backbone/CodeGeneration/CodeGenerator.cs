@@ -26,7 +26,6 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
             var cil = ctorBuilder.GetILGenerator();
             cil.Emit(OpCodes.Ldarg_0);
             cil.Emit(OpCodes.Ldarg_1);
-            cil.Emit(OpCodes.Ldarg_2);
             cil.Emit(OpCodes.Call, typeof(TBase).GetConstructors()[0]);
             cil.Emit(OpCodes.Nop);
             cil.Emit(OpCodes.Nop);
@@ -47,21 +46,13 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                                     .ToArray());
                 var parameter = method.GetParameters()[0];
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
-                var emptyField = typeof(ImmutableDictionary<string, ReadOnlyMemory<byte>>).GetField("Empty", BindingFlags.Public | BindingFlags.Static);
-                var addMethod = typeof(ImmutableDictionary<string, ReadOnlyMemory<byte>>).GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
-                var serializerField = typeof(TBase).GetField("_serializer", BindingFlags.NonPublic | BindingFlags.Instance);
-                var serializeMethod = serializerField.FieldType.GetMethod("Serialize").MakeGenericMethod(parameter.ParameterType);
-                var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(parameter.ParameterType);
                 var il = methodBuilder.GetILGenerator();
                 il.Emit(OpCodes.Nop);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldsfld, emptyField);
+                il.Emit(OpCodes.Ldstr, method.Name);
                 il.Emit(OpCodes.Ldstr, parameter.Name);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, serializerField);
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Callvirt, serializeMethod);
-                il.Emit(OpCodes.Callvirt, addMethod);
                 il.Emit(OpCodes.Call, sendAsyncMethod);
                 il.Emit(OpCodes.Ret);
             }

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
+using System.Linq;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.CodeGeneration;
-
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -244,9 +242,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            var prms = _parameters ?? throw new ArgumentNullException(nameof(ProducerParameters));
-            var pipeline = new ProducerPipeline(prms);
-            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerPipeline>(_parameters.Channel, _parameters.Options.Serializer);
+            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters);
         }
 
         #endregion // Build

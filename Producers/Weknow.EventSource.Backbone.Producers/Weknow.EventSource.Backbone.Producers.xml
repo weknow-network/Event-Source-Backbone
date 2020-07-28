@@ -278,10 +278,5 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ProducerPipeline">
-            <summary>
-            Base functionality for the producer pipeline
-            </summary>
-        </member>
     </members>
 </doc>
