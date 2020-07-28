@@ -15,7 +15,6 @@ namespace Weknow.EventSource.Backbone
         /// Sends raw announcement.
         /// </summary>
         /// <param name="payload">The raw announcement data.</param>
-        /// <returns>The announcement id</returns>
-        ValueTask<string> SendAsync(Announcement payload);
+        ValueTask SendAsync(Announcement payload);
     }
 }

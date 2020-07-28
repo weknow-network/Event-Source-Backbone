@@ -20,8 +20,7 @@ namespace Weknow.EventSource.Backbone
         IProducerShardBuilder,
         IProducerHooksBuilder
     {
-        private readonly ProducerParameters _parameters =
-            ProducerParameters.Empty;
+        private readonly ProducerParameters? _parameters;
 
         /// <summary>
         /// Event Source producer builder.
@@ -80,7 +79,8 @@ namespace Weknow.EventSource.Backbone
         IProducerOptionsBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
-            var prms = _parameters.WithChannel(channel);
+            var prms = new ProducerParameters(channel);
+
             return new ProducerBuilder(prms);
         }
 
@@ -243,7 +243,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         T IProducerSpecializeBuilder.Build<T>()
         {
             return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters);

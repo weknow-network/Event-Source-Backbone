@@ -15,22 +15,6 @@ using Segments = System.Collections.Immutable.ImmutableDictionary<string, System
 
 namespace Weknow.EventSource.Backbone
 {
-    class InMemoryChannel : IProducerChannelProvider
-    {
-        private readonly Channel<Announcement> _channel;
-
-        public InMemoryChannel(Channel<Announcement> channel)
-        {
-            _channel = channel;
-        }
-
-        public async ValueTask<string> SendAsync(Announcement payload)
-        {
-            await _channel.Writer.WriteAsync(payload);
-            return payload.Metadata.MessageId;
-        }
-    }
-
     public class ProducerBuilderTests
     {
         private readonly ITestOutputHelper _outputHelper;
@@ -42,7 +26,8 @@ namespace Weknow.EventSource.Backbone
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-        Channel<Announcement> ch;
+        private readonly Channel<Announcement> ch;
+
         #region Ctor
 
         public ProducerBuilderTests(ITestOutputHelper outputHelper)
@@ -50,7 +35,7 @@ namespace Weknow.EventSource.Backbone
             _outputHelper = outputHelper;
             _serializer = new JsonDataSerializer();
             ch = Channel.CreateUnbounded<Announcement>();
-            _channel = new InMemoryChannel(ch);
+            _channel = new ProducerTestChannel(ch);
         }
 
         #endregion // Ctor

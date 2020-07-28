@@ -115,6 +115,13 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerParameters">
+            <summary>
+            This class is a bucket of parameters which built-up 
+            by the consumer builder.
+            It will used to define the consumer execution pipeline.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor">
             <summary>
             Initializes a new instance.

@@ -39,12 +39,12 @@ namespace Weknow.EventSource.Backbone
 
         public Metadata(
             string messageId,
-            DateTimeOffset producedAt,
             string partition,
-            string shard)
+            string shard,
+            DateTimeOffset? producedAt = null)
         {
             _messageId = messageId;
-            _producedAt = producedAt;
+            _producedAt = producedAt ?? DateTimeOffset.Now;
             _partition = partition;
             _shard = shard;
         }

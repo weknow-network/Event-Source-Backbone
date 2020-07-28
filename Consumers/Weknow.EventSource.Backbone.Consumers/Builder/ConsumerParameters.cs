@@ -8,6 +8,11 @@ using Weknow.EventSource.Backbone.Building;
 namespace Weknow.EventSource.Backbone
 {
 
+    /// <summary>
+    /// This class is a bucket of parameters which built-up 
+    /// by the consumer builder.
+    /// It will used to define the consumer execution pipeline.
+    /// </summary>
     public class ConsumerParameters
     {
         public static readonly ConsumerParameters Empty = new ConsumerParameters();
@@ -60,7 +65,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] in memory channel provider
+        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
 
         #endregion // Channel
 
