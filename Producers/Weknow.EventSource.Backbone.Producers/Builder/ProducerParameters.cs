@@ -8,6 +8,11 @@ using Weknow.EventSource.Backbone.Building;
 namespace Weknow.EventSource.Backbone
 {
 
+    /// <summary>
+    /// This class is a bucket of parameters which built-up 
+    /// by the producer builder.
+    /// It will used to define the producer execution pipeline.
+    /// </summary>
     public class ProducerParameters
     {
         public static readonly ProducerParameters Empty = new ProducerParameters();
@@ -52,6 +57,103 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Ctor
+
+        #region Channel
+
+        /// <summary>
+        /// Gets the communication channel provider.
+        /// </summary>
+        public IProducerChannelProvider Channel { get; }
+
+        #endregion // Channel
+
+        #region Partition
+
+        /// <summary>
+        /// Partition key represent logical group of 
+        /// event source shards.
+        /// For example assuming each ORDERING flow can have its 
+        /// own messaging sequence, yet can live concurrency with 
+        /// other ORDER's sequences.
+        /// The partition will let consumer the option to be notify and
+        /// consume multiple shards from single consumer.
+        /// This way the consumer can handle all orders in
+        /// central place without affecting sequence of specific order 
+        /// flow or limiting the throughput.
+        /// </summary>
+        /// <value>
+        /// The partition.
+        /// </value>
+        public string Partition { get; } = string.Empty;
+
+        #endregion // Partition
+
+        #region Shard
+
+        /// <summary>
+        /// Shard key represent physical sequence.
+        /// Use same shard when order is matter.
+        /// For example: assuming each ORDERING flow can have its 
+        /// own messaging sequence, in this case you can split each 
+        /// ORDER into different shard and gain performance bust..
+        /// </summary>
+        public string Shard { get; } = string.Empty;
+
+        #endregion // Shard
+
+        #region Options
+
+        /// <summary>
+        /// Gets the configuration.
+        /// </summary>
+        public IEventSourceOptions Options { get; } = EventSourceOptions.Empty;
+
+        #endregion // Options
+
+        #region SegmentationStrategies
+
+        /// <summary>
+        /// Segmentation responsible of splitting an instance into segments.
+        /// Segments is how the producer sending its raw data to
+        /// the consumer. It's in a form of dictionary when
+        /// keys represent the different segments
+        /// and the value represent serialized form of the segment's data.
+        /// </summary>
+        /// <example>
+        /// Examples for segments can be driven from regulation like
+        /// GDPR (personal, non-personal data),
+        /// Technical vs Business aspects, etc.
+        /// </example>
+        public IImmutableList<IProducerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
+                    ImmutableList<IProducerAsyncSegmentationStrategy>.Empty;
+
+        #endregion // SegmentationStrategies
+
+        #region Interceptors
+
+        /// <summary>
+        /// Producer interceptors (Timing: after serialization).
+        /// </summary>
+        /// <value>
+        /// The interceptors.
+        /// </value>
+        public IImmutableList<IProducerAsyncInterceptor> Interceptors { get; } =
+                    ImmutableList<IProducerAsyncInterceptor>.Empty;
+
+        #endregion // Interceptors
+
+        #region Routes
+
+        /// <summary>
+        /// Routes are sub-pipelines are results of merge operation
+        /// which can split same payload into multiple partitions or shards.
+        /// </summary>
+        private readonly IImmutableList<IProducerHooksBuilder> Routes =
+                ImmutableList<IProducerHooksBuilder>.Empty;
+
+        #endregion // Routes
+
+        //---------------------------------------
 
         #region WithChannel
 
@@ -159,100 +261,5 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // AddInterceptor
-
-        #region Channel
-
-        /// <summary>
-        /// Gets the communication channel provider.
-        /// </summary>
-        public IProducerChannelProvider Channel { get; }
-
-        #endregion // Channel
-
-        #region Partition
-
-        /// <summary>
-        /// Partition key represent logical group of 
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its 
-        /// own messaging sequence, yet can live concurrency with 
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order 
-        /// flow or limiting the throughput.
-        /// </summary>
-        /// <value>
-        /// The partition.
-        /// </value>
-        public string Partition { get; } = string.Empty;
-
-        #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its 
-        /// own messaging sequence, in this case you can split each 
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        public string Shard { get; } = string.Empty;
-
-        #endregion // Shard
-
-        #region Options
-
-        /// <summary>
-        /// Gets the configuration.
-        /// </summary>
-        public IEventSourceOptions Options { get; } = EventSourceOptions.Empty;
-
-        #endregion // Options
-
-        #region SegmentationStrategies
-
-        /// <summary>
-        /// Segmentation responsible of splitting an instance into segments.
-        /// Segments is how the producer sending its raw data to
-        /// the consumer. It's in a form of dictionary when
-        /// keys represent the different segments
-        /// and the value represent serialized form of the segment's data.
-        /// </summary>
-        /// <example>
-        /// Examples for segments can be driven from regulation like
-        /// GDPR (personal, non-personal data),
-        /// Technical vs Business aspects, etc.
-        /// </example>
-        public IImmutableList<IProducerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
-                    ImmutableList<IProducerAsyncSegmentationStrategy>.Empty;
-
-        #endregion // SegmentationStrategies
-
-        #region Interceptors
-
-        /// <summary>
-        /// Producer interceptors (Timing: after serialization).
-        /// </summary>
-        /// <value>
-        /// The interceptors.
-        /// </value>
-        public IImmutableList<IProducerAsyncInterceptor> Interceptors { get; } =
-                    ImmutableList<IProducerAsyncInterceptor>.Empty;
-
-        #endregion // Interceptors
-
-        #region Routes
-
-        /// <summary>
-        /// Routes are sub-pipelines are results of merge operation
-        /// which can split same payload into multiple partitions or shards.
-        /// </summary>
-        private readonly IImmutableList<IProducerHooksBuilder> Routes =
-                ImmutableList<IProducerHooksBuilder>.Empty;
-
-        #endregion // Routes
     }
 }
