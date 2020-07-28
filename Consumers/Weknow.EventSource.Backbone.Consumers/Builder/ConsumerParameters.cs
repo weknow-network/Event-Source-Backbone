@@ -65,7 +65,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] in memory channel provider
+        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
 
         #endregion // Channel
 

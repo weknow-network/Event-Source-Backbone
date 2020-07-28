@@ -146,9 +146,15 @@
             </summary>
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <returns></returns>
-            <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor">
+        <member name="T:Weknow.EventSource.Backbone.ProducerParameters">
+            <summary>
+            This class is a bucket of parameters which built-up 
+            by the producer builder.
+            It will used to define the producer execution pipeline.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.IProducerChannelProvider)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -165,55 +171,6 @@
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
-            <summary>
-            Withes the channel.
-            </summary>
-            <param name="channel">The channel.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
-            <summary>
-            Withes the options.
-            </summary>
-            <param name="options">The options.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithPartition(System.String)">
-            <summary>
-            Withes the partition.
-            </summary>
-            <param name="partition">The partition.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithShard(System.String)">
-            <summary>
-            Withes the shard.
-            </summary>
-            <param name="shard">The shard.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder)">
-            <summary>
-            Adds the route.
-            </summary>
-            <param name="route">The route.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddSegmentation(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy)">
-            <summary>
-            Adds the segmentation.
-            </summary>
-            <param name="segmentation">The segmentation.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddInterceptor(Weknow.EventSource.Backbone.IProducerAsyncInterceptor)">
-            <summary>
-            Adds the interceptor.
-            </summary>
-            <param name="interceptor">The interceptor.</param>
-            <returns></returns>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerParameters.Channel">
             <summary>
@@ -277,6 +234,53 @@
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+            <summary>
+            Withes the options.
+            </summary>
+            <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithPartition(System.String)">
+            <summary>
+            Withes the partition.
+            </summary>
+            <param name="partition">The partition.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithShard(System.String)">
+            <summary>
+            Withes the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder)">
+            <summary>
+            Adds the route.
+            </summary>
+            <param name="route">The route.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddSegmentation(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy)">
+            <summary>
+            Adds the segmentation.
+            </summary>
+            <param name="segmentation">The segmentation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.AddInterceptor(Weknow.EventSource.Backbone.IProducerAsyncInterceptor)">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerPipeline">
+            <summary>
+            Base functionality for the producer pipeline
             </summary>
         </member>
     </members>

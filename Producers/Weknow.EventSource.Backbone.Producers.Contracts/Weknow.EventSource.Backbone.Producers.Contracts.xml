@@ -297,7 +297,6 @@
             Sends raw announcement.
             </summary>
             <param name="payload">The raw announcement data.</param>
-            <returns>The announcement id</returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy">
             <summary>

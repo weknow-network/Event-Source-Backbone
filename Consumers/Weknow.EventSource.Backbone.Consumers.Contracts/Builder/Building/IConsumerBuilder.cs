@@ -17,7 +17,6 @@ namespace Weknow.EventSource.Backbone.Building
         /// Un-subscribe from the partition
         /// </returns>
         IAsyncDisposable Subscribe<T>(
-            Func<ShardMetadata, T> factory)
-            where T : notnull;
+            Func<ShardMetadata, T> factory);
     }
 }

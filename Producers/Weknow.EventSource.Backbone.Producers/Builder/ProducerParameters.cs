@@ -14,16 +14,15 @@ namespace Weknow.EventSource.Backbone
     /// It will used to define the producer execution pipeline.
     /// </summary>
     public class ProducerParameters
-    {
-        public static readonly ProducerParameters Empty = new ProducerParameters();
-       
+    {       
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        private ProducerParameters()
+        internal ProducerParameters(IProducerChannelProvider channel)
         {
+            Channel = channel;
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IProducerChannelProvider Channel { get; }
+        public IProducerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
 
         #endregion // Channel
 
@@ -154,21 +153,6 @@ namespace Weknow.EventSource.Backbone
         #endregion // Routes
 
         //---------------------------------------
-
-        #region WithChannel
-
-        /// <summary>
-        /// Withes the channel.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
-        /// <returns></returns>
-        internal ProducerParameters WithChannel(
-                                        IProducerChannelProvider channel)
-        {
-            return new ProducerParameters(this, channel: channel);
-        }
-
-        #endregion // WithChannel
 
         #region WithOptions
 

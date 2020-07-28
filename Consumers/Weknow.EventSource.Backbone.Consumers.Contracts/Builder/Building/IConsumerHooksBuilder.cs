@@ -72,27 +72,23 @@ namespace Weknow.EventSource.Backbone.Building
         //void Build<T>(Func<Meta, T> factory, string partition, string? shard = null);
         //IEventSourceConsumer3Builder<T> ForType<T>(
         //                IConsumerSegmentationProvider<T> segmentationProvider,
-        //                params string[] intents)
-        //             where T : notnull;
+        //                params string[] intents);
 
         //IEventSourceConsumer3Builder<T> ForType<T>(
         //                Func<ImmutableDictionary<string, ReadOnlyMemory<byte>>,
         //                    IDataSerializer,
         //                    T> segmentationProvider,
-        //                params string[] intents)
-        //             where T : notnull;
+        //                params string[] intents);
 
         //IEventSourceConsumer3Builder<T> ForType<T>(
         //                IConsumerSegmentationProvider<T> segmentationProvider,
-        //                Func<AnnouncementMetadata, bool> filter)
-        //             where T : notnull;
+        //                Func<AnnouncementMetadata, bool> filter);
 
         //IEventSourceConsumer3Builder<T> ForType<T>(
         //                Func<ImmutableDictionary<string, ReadOnlyMemory<byte>>,
         //                    IDataSerializer,
         //                    T> segmentationProvider,
-        //                Func<AnnouncementMetadata, bool> filter)
-        //             where T : notnull;
+        //                Func<AnnouncementMetadata, bool> filter);
 
         ///// <summary>
         ///// Builds consumer for non-specialized announcements.

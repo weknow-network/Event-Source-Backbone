@@ -200,7 +200,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // RegisterInterceptor
 
-        public IAsyncDisposable Subscribe<T>(Func<ShardMetadata, T> factory) where T : notnull
+        public IAsyncDisposable Subscribe<T>(Func<ShardMetadata, T> factory) 
         {
             throw new NotImplementedException();
         }

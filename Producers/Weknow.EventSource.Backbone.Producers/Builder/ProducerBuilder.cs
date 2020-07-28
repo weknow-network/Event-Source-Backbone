@@ -19,8 +19,7 @@ namespace Weknow.EventSource.Backbone
         IProducerShardBuilder,
         IProducerHooksBuilder
     {
-        private readonly ProducerParameters _parameters =
-            ProducerParameters.Empty;
+        private readonly ProducerParameters? _parameters;
 
         /// <summary>
         /// Event Source producer builder.
@@ -79,7 +78,8 @@ namespace Weknow.EventSource.Backbone
         IProducerOptionsBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
-            var prms = _parameters.WithChannel(channel);
+            var prms = new ProducerParameters(channel);
+
             return new ProducerBuilder(prms);
         }
 
@@ -242,30 +242,13 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters.Channel, _parameters.Options.Serializer);
+            var prms = _parameters ?? throw new ArgumentNullException(nameof(ProducerParameters));
+            var pipeline = new ProducerPipeline(prms);
+            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerPipeline>(_parameters.Channel, _parameters.Options.Serializer);
         }
 
         #endregion // Build
-    }
-
-    public class ProducerBase
-    {
-        private IProducerChannelProvider _channel;
-        protected IDataSerializer _serializer;
-
-        public ProducerBase(IProducerChannelProvider channel, IDataSerializer serializer)
-        {
-            _channel = channel;
-            _serializer = serializer;
-        }
-
-        protected async ValueTask SendAsync(Segments segments)
-        {
-            var announcment = new Announcement(new Metadata(Guid.NewGuid().ToString(), DateTime.Now), segments);
-            await _channel.SendAsync(announcment);
-        }
     }
 }

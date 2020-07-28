@@ -4,11 +4,6 @@
         <name>Weknow.EventSource.Backbone.Consumers</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
-            <summary>
-            Base class for acknowledge-trigger.
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerBuilder">
             <summary>
             Event Source consumer builder.
@@ -120,6 +115,13 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerParameters">
+            <summary>
+            This class is a bucket of parameters which built-up 
+            by the consumer builder.
+            It will used to define the consumer execution pipeline.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor">
             <summary>
             Initializes a new instance.
@@ -137,55 +139,6 @@
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
-            <summary>
-            Withes the channel.
-            </summary>
-            <param name="channel">The channel.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
-            <summary>
-            Withes the options.
-            </summary>
-            <param name="options">The options.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithPartition(System.String)">
-            <summary>
-            Withes the partition.
-            </summary>
-            <param name="partition">The partition.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithShard(System.String)">
-            <summary>
-            Withes the shard.
-            </summary>
-            <param name="shard">The shard.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">
-            <summary>
-            Adds the route.
-            </summary>
-            <param name="route">The route.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddSegmentation(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
-            <summary>
-            Adds the segmentation.
-            </summary>
-            <param name="segmentation">The segmentation.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
-            <summary>
-            Adds the interceptor.
-            </summary>
-            <param name="interceptor">The interceptor.</param>
-            <returns></returns>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Channel">
             <summary>
@@ -249,6 +202,65 @@
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+            <summary>
+            Withes the channel.
+            </summary>
+            <param name="channel">The channel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+            <summary>
+            Withes the options.
+            </summary>
+            <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithPartition(System.String)">
+            <summary>
+            Withes the partition.
+            </summary>
+            <param name="partition">The partition.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithShard(System.String)">
+            <summary>
+            Withes the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">
+            <summary>
+            Adds the route.
+            </summary>
+            <param name="route">The route.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddSegmentation(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+            <summary>
+            Adds the segmentation.
+            </summary>
+            <param name="segmentation">The segmentation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
+            <summary>
+            Base class for acknowledge-trigger.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerContext.Retries">
+            <summary>
+            Gets the retries time of re-consuming the message.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
