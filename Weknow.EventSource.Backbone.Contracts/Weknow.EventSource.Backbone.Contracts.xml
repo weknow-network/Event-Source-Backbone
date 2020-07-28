@@ -80,11 +80,6 @@
             The message identifier.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Metadata.Retries">
-            <summary>
-            Gets the retries time of re-consuming the message.
-            </summary>
-        </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.ProducedAt">
             <summary>
             The sending time.
@@ -93,6 +88,16 @@
         <member name="P:Weknow.EventSource.Backbone.Metadata.Duration">
             <summary>
             Calculation of Duration since produce time
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Partition">
+            <summary>
+            Gets or sets the partition.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Shard">
+            <summary>
+            Gets or sets the shard.
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ShardMetadata">

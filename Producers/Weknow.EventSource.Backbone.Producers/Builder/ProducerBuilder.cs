@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -245,7 +246,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters.Channel, _parameters.Options.Serializer);
+            return new CodeGenerator("DynamicProxies").CreateProducerProxy<T, ProducerBase>(_parameters);
         }
 
         #endregion // Build
@@ -253,19 +254,24 @@ namespace Weknow.EventSource.Backbone
 
     public class ProducerBase
     {
-        private IProducerChannelProvider _channel;
-        protected IDataSerializer _serializer;
+        private ProducerParameters _parameters;
 
-        public ProducerBase(IProducerChannelProvider channel, IDataSerializer serializer)
+        public ProducerBase(ProducerParameters parameters)
         {
-            _channel = channel;
-            _serializer = serializer;
+            _parameters = parameters;
         }
 
-        protected async ValueTask SendAsync(Segments segments)
+        protected async ValueTask SendAsync<T>(string operation, string argumentName, T producedData)
+             where T : notnull
         {
-            var announcment = new Announcement(new Metadata(Guid.NewGuid().ToString(), DateTime.Now), segments);
-            await _channel.SendAsync(announcment);
+            var segments = Segments.Empty;
+            foreach (var strategy in _parameters.SegmentationStrategies)
+            {
+                segments = await strategy.ClassifyAsync(segments, operation, argumentName, producedData, _parameters.Options);
+            }
+
+            var announcment = new Announcement(new Metadata(Guid.NewGuid().ToString(), DateTime.Now, _parameters.Partition, _parameters.Shard), segments);
+            await _parameters.Channel.SendAsync(announcment);
         }
     }
 }
