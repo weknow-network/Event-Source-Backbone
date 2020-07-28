@@ -2,6 +2,7 @@ using FakeItEasy;
 
 using System;
 using System.Collections.Immutable;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -14,24 +15,42 @@ using Segments = System.Collections.Immutable.ImmutableDictionary<string, System
 
 namespace Weknow.EventSource.Backbone
 {
+    class InMemoryChannel : IProducerChannelProvider
+    {
+        private readonly Channel<Announcement> _channel;
+
+        public InMemoryChannel(Channel<Announcement> channel)
+        {
+            _channel = channel;
+        }
+
+        public async ValueTask<string> SendAsync(Announcement payload)
+        {
+            await _channel.Writer.WriteAsync(payload);
+            return payload.Metadata.MessageId;
+        }
+    }
+
     public class ProducerBuilderTests
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
-        private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
+        private readonly IProducerChannelProvider _channel;
         private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-
+        Channel<Announcement> ch;
         #region Ctor
 
         public ProducerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
             _serializer = new JsonDataSerializer();
+            ch = Channel.CreateUnbounded<Announcement>();
+            _channel = new InMemoryChannel(ch);
         }
 
         #endregion // Ctor
@@ -90,6 +109,8 @@ namespace Weknow.EventSource.Backbone
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
             await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
         }
 
         #endregion // Build_Serializer_Producer_Test

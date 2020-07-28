@@ -28,12 +28,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Empty
 
-        private static AsyncLocal<Metadata?> AsyncContext = new AsyncLocal<Metadata?>();
-        
-        public static Metadata? Current => AsyncContext.Value;
-        public static void SetContext(Metadata metadata) =>
-                            AsyncContext.Value = metadata;
-
         #region Ctor
 
         /// <summary>
@@ -41,6 +35,18 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         private Metadata()
         {
+        }
+
+        public Metadata(
+            string messageId,
+            DateTimeOffset producedAt,
+            string partition,
+            string shard)
+        {
+            _messageId = messageId;
+            _producedAt = producedAt;
+            _partition = partition;
+            _shard = shard;
         }
 
         #endregion // Ctor
@@ -60,21 +66,6 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // MessageId
-
-        #region Retries
-
-        private ushort? _retries;
-        /// <summary>
-        /// Gets the retries time of re-consuming the message.
-        /// </summary>
-        public ushort? Retries
-        {
-            get => _retries;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _retries = value;
-        }
-
-        #endregion Retries 
 
         #region ProducedAt
 
@@ -99,6 +90,37 @@ namespace Weknow.EventSource.Backbone
         public TimeSpan? Duration => DateTimeOffset.Now - ProducedAt;
 
         #endregion // Duration
+
+        #region Partition
+
+        private string _partition;
+        /// <summary>
+        /// Gets or sets the partition.
+        /// </summary>
+        public string Partition
+        {
+            get => _partition;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _partition = value;
+        }
+
+        #endregion Partition 
+
+        #region Shard
+
+        private string _shard;
+        /// <summary>
+        /// Gets or sets the shard.
+        /// </summary>
+        public string Shard
+        {
+            get => _shard;
+            [Obsolete("Exposed for the serializer", true)]
+            set => _shard = value;
+        }
+
+        #endregion Shard 
+
 
         #region // Equality
 

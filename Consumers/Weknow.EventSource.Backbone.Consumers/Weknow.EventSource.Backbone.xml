@@ -4,6 +4,11 @@
         <name>Weknow.EventSource.Backbone.Consumers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
+            <summary>
+            Base class for acknowledge-trigger.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerBuilder">
             <summary>
             Event Source consumer builder.
