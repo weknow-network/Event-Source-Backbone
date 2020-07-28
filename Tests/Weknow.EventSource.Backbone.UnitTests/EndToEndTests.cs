@@ -59,7 +59,7 @@ namespace Weknow.EventSource.Backbone
                         .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
-            //await producer.LoginAsync("admin", "1234");
+            await producer.LoginAsync("admin", "1234");
             await producer.EarseAsync(4335);
 
             var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);

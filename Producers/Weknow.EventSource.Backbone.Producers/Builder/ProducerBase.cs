@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
@@ -35,21 +36,9 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
-        #region SendAsync
-
-        /// <summary>
-        /// Sends the asynchronous.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="operation">The operation.</param>
-        /// <param name="argumentName">Name of the argument.</param>
-        /// <param name="producedData">The produced data.</param>
-        /// <returns></returns>
-        protected async ValueTask SendAsync<T>(
-            string operation,
+        protected async ValueTask<Bucket> ClassifyAsync<T>(string operation, 
             string argumentName,
             T producedData)
-             where T : notnull
         {
             var segments = Bucket.Empty;
             foreach (IProducerAsyncSegmentationStrategy strategy in _segmentations)
@@ -60,6 +49,28 @@ namespace Weknow.EventSource.Backbone
                     argumentName,
                     producedData,
                     _options);
+            }
+            return segments;
+        }
+
+        #region SendAsync
+
+        /// <summary>
+        /// Sends the asynchronous.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="operation">The operation.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="producedData">The produced data.</param>
+        /// <returns></returns>
+        protected async ValueTask SendAsync(
+            string operation,
+            ValueTask<Bucket>[] segmentss)
+        {
+            var segments = Bucket.Empty;
+            foreach (var s in segmentss)
+            {
+                segments = segments.AddRange((await s).AsEnumerable());
             }
 
             string id = Guid.NewGuid().ToString();

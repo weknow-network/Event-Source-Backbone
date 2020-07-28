@@ -15,7 +15,7 @@
             </summary>
             <param name="parameters">The parameters.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync``1(System.String,System.String,``0)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(System.String,System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}[])">
             <summary>
             Sends the asynchronous.
             </summary>

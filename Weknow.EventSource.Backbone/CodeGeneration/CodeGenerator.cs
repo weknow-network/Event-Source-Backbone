@@ -5,6 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading.Tasks;
+
+using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone.CodeGeneration
 {
@@ -44,15 +47,33 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                                   method.GetParameters()
                                     .Select(pi => pi.ParameterType)
                                     .ToArray());
-                var parameter = method.GetParameters()[0];
+                var parameters = method.GetParameters();
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
-                var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(parameter.ParameterType);
+                var classifyAsyncMethod = typeof(TBase).GetMethod("ClassifyAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance);
                 var il = methodBuilder.GetILGenerator();
+                var arr = il.DeclareLocal(typeof(ValueTask<Bucket>[]));
                 il.Emit(OpCodes.Nop);
+
+                il.Emit(OpCodes.Ldc_I4, parameters.Length);
+                il.Emit(OpCodes.Newarr, typeof(ValueTask<Bucket>));
+                il.Emit(OpCodes.Stloc_0);
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    var parameter = parameters[i];
+                    il.Emit(OpCodes.Ldloc_0);
+                    il.Emit(OpCodes.Ldc_I4, i);
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldstr, method.Name);
+                    il.Emit(OpCodes.Ldstr, parameter.Name);
+                    il.Emit(OpCodes.Ldarg, i + 1);
+                    il.Emit(OpCodes.Call, classifyAsyncMethod.MakeGenericMethod(parameter.ParameterType));
+                    il.Emit(OpCodes.Stelem, typeof(ValueTask<Bucket>));
+                }
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldstr, method.Name);
-                il.Emit(OpCodes.Ldstr, parameter.Name);
-                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldloc_0);
                 il.Emit(OpCodes.Call, sendAsyncMethod);
                 il.Emit(OpCodes.Ret);
             }

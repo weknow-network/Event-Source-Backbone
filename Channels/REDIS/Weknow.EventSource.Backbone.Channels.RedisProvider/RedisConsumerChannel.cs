@@ -16,38 +16,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         }
 
+        public void Init(IEventSourceConsumerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ValueTask ReceiveAsync(Func<Announcement, ValueTask> func)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion // Ctor
-
-        Task IDataflowBlock.Completion => throw new NotImplementedException();
-
-        void IDataflowBlock.Complete()
-        {
-            throw new NotImplementedException();
-        }
-
-        Ackable<Announcement> ISourceBlock<Ackable<Announcement>>.ConsumeMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target, out bool messageConsumed)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IDataflowBlock.Fault(Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        IDisposable ISourceBlock<Ackable<Announcement>>.LinkTo(ITargetBlock<Ackable<Announcement>> target, DataflowLinkOptions linkOptions)
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISourceBlock<Ackable<Announcement>>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool ISourceBlock<Ackable<Announcement>>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<Ackable<Announcement>> target)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
