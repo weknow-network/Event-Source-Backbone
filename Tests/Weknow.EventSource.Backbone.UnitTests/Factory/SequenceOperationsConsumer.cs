@@ -12,15 +12,15 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         private ActionBlock<Ackable<User>> _block = new ActionBlock<Ackable<User>>(
                             u => Console.WriteLine(u.Item.Details.Id),
                             new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 10 });
-        public ValueTask RegisterAsync(User user, IAck ack)
+        public ValueTask RegisterAsync(User user)
         {
-            var msg = new Ackable<User>(user, ack);
-            _block.Post(msg);
+            //var msg = new Ackable<User>(user, ack);
+            //_block.Post(msg);
             return CompletedValueTask;
         }
 
         public ValueTask UpdateAsync(User user) => throw new NotImplementedException();
-        public ValueTask LoginAsync(string email, string password, IAck ack ) => throw new NotImplementedException();
+        public ValueTask LoginAsync(string email, string password) => throw new NotImplementedException();
         public ValueTask LogoffAsync(int id) => throw new NotImplementedException();
         public ValueTask ApproveAsync(int id) => throw new NotImplementedException();
         public ValueTask SuspendAsync(int id) => throw new NotImplementedException();

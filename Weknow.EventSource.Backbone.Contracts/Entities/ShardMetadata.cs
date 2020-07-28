@@ -14,20 +14,17 @@ namespace Weknow.EventSource.Backbone
     {
         #region Ctor
 
-        private ShardMetadata(
-            string partition,
-            string shard,
+        public ShardMetadata(
+            Metadata metadata,
             IAsyncDisposable disposeShard)
         {
-            Partition = partition;
-            Shard = shard;
+            Metadata = metadata;
             DisposeShard = disposeShard;
         }
 
         #endregion // Ctor
 
-        public string Partition { get; }
-        public string Shard { get; }
+        public Metadata Metadata { get; }
         public IAsyncDisposable DisposeShard { get; }
     }
 }

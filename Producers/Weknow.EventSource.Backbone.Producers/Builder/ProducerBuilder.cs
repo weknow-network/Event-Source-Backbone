@@ -297,8 +297,12 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
+            var parameters = _parameters;
+            if (parameters.SegmentationStrategies.Count == 0)
+                parameters = parameters.AddSegmentation(new ProducerDefaultSegmentationStrategy());
+
             return new CodeGenerator("DynamicProxies")
-                        .CreateProducerProxy<T, ProducerBase>(_parameters);
+                        .CreateProducerProxy<T, ProducerBase>(parameters);
         }
 
         #endregion // Build

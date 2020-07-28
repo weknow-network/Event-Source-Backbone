@@ -4,6 +4,27 @@
         <name>Weknow.EventSource.Backbone.Producers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.ProducerBase">
+            <summary>
+            Handle the producing pipeline
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.#ctor(Weknow.EventSource.Backbone.ProducerParameters)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="parameters">The parameters.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync``1(System.String,System.String,``0)">
+            <summary>
+            Sends the asynchronous.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="operation">The operation.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="producedData">The produced data.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerBuilder">
             <summary>
             Event Source producer builder.

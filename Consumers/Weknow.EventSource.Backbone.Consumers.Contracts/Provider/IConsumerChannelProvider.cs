@@ -11,7 +11,9 @@ namespace Weknow.EventSource.Backbone
     /// Channel provider responsible for passing the actual message 
     /// from producer to consumer. 
     /// </summary>
-    public interface IConsumerChannelProvider: ISourceBlock<Ackable<Announcement>>
+    public interface IConsumerChannelProvider
     {
+        void Init(IEventSourceConsumerOptions options);
+        ValueTask ReceiveAsync(Func<Announcement, ValueTask> func);
     }
 }

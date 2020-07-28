@@ -1,6 +1,7 @@
 ﻿using System;
-
+using System.Linq;
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.CodeGeneration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -200,9 +201,22 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // RegisterInterceptor
 
-        public IAsyncDisposable Subscribe<T>(Func<ShardMetadata, T> factory) 
+        public IAsyncDisposable Subscribe<T>(Func<ShardMetadata, T> factory)
         {
-            throw new NotImplementedException();
+            #region Validation
+
+            if (_parameters == null)
+                throw new ArgumentNullException(nameof(_parameters));
+
+            #endregion // Validation
+
+            var parameters = _parameters;
+            if (parameters.SegmentationStrategies.Count == 0)
+                parameters = parameters.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
+
+            new ConsumerBase<T>(parameters, factory);
+
+            return null;
         }
     }
 }

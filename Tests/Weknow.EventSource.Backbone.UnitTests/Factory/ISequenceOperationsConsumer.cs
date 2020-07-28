@@ -5,9 +5,9 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public interface ISequenceOperationsConsumer
     {
-        ValueTask RegisterAsync(User user, IAck ack);
+        ValueTask RegisterAsync(User user);
         ValueTask UpdateAsync(User user);
-        ValueTask LoginAsync(string email, string password, IAck ack);
+        ValueTask LoginAsync(string email, string password);
         ValueTask LogoffAsync(int id);
         ValueTask ApproveAsync(int id);
         ValueTask SuspendAsync(int id);

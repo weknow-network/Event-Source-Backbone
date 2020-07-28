@@ -95,16 +95,16 @@
             It's recommended to use URL format.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.Metadata)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
             <summary>
             Interception operation.
             </summary>
             <param name="metadata">The metadata.</param>
+            <param name="segments">The segments.</param>
             <returns>
             Data which will be available to the
             consumer stage of the interception.
             </returns>
-            <exception cref="T:System.NotImplementedException"></exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy">
             <summary>
@@ -262,13 +262,16 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
             <summary>
             Interception operation.
             </summary>
             <param name="metadata">The metadata.</param>
-            <returns>Data which will be available to the 
-            consumer stage of the interception.</returns>
+            <param name="segments">The segments.</param>
+            <returns>
+            Data which will be available to the
+            consumer stage of the interception.
+            </returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerInterceptor">
             <summary>
