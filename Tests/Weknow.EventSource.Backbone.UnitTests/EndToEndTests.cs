@@ -76,6 +76,10 @@ namespace Weknow.EventSource.Backbone
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
         }
 
         #endregion // Build_Serializer_Producer_Test
