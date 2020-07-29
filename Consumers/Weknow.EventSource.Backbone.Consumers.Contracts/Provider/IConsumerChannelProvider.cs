@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -13,7 +14,16 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public interface IConsumerChannelProvider
     {
-        void Init(IEventSourceConsumerOptions options);
-        ValueTask ReceiveAsync(Func<Announcement, ValueTask> func);
+        /// <summary>
+        /// Receives the asynchronous.
+        /// </summary>
+        /// <param name="func">The function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        ValueTask ReceiveAsync(
+                    Func<Announcement, ValueTask> func,
+                    IEventSourceConsumerOptions options,
+                    CancellationToken cancellationToken);
     }
 }

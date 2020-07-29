@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.CodeGeneration;
 
@@ -114,7 +116,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Building.IConsumerBuilder Shard(string shard)
+        public IConsumerSubscribeBuilder Shard(string shard)
         {
             var prms = _parameters.WithShard(shard);
             var result = new ConsumerBuilder(prms);
@@ -201,7 +203,19 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // RegisterInterceptor
 
-        public IAsyncDisposable Subscribe<T>(Func<ShardMetadata, T> factory)
+        #region Subscribe
+
+        /// <summary>
+        /// Subscribe consumer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="factory">The factory.</param>
+        /// <returns>
+        /// The partition subscription (dispose to remove the subscription)
+        /// </returns>
+        IAsyncDisposable IConsumerSubscribeBuilder.Subscribe<T>(
+            Func<ConsumerMetadata, T> factory)
+
         {
             #region Validation
 
@@ -214,9 +228,39 @@ namespace Weknow.EventSource.Backbone
             if (parameters.SegmentationStrategies.Count == 0)
                 parameters = parameters.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            new ConsumerBase<T>(parameters, factory);
-
-            return null;
+            var consumer = new ConsumerBase<T>(parameters, factory);
+            var subscription = consumer.Subscribe();
+            return subscription;
         }
+
+        #endregion // Subscribe
+
+        #region WithCancellation
+
+        /// <summary>
+        /// Withes the cancellation token.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        IConsumerHooksBuilder IConsumerCancellationBuilder<IConsumerHooksBuilder>.WithCancellation(CancellationToken cancellation)
+        {
+            var prms = _parameters.WithCancellation(cancellation);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Withes the cancellation token.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        IConsumerOptionsBuilder IConsumerCancellationBuilder<IConsumerOptionsBuilder>.WithCancellation(CancellationToken cancellation)
+        {
+            var prms = _parameters.WithCancellation(cancellation);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // WithCancellation
     }
 }

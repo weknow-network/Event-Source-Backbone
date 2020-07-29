@@ -15,14 +15,24 @@
             </summary>
             <param name="parameters">The parameters.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(System.String,System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.ClassifyArgumentAsync``1(System.String,System.String,``0)">
             <summary>
-            Sends the asynchronous.
+            Prepare data of single argument in an operation
+            for sending.
+            By classifies the data into segments.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="operation">The operation.</param>
             <param name="argumentName">Name of the argument.</param>
             <param name="producedData">The produced data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(System.String,System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}[])">
+            <summary>
+            Sends the produced data via the channel.
+            </summary>
+            <param name="operation">The operation.</param>
+            <param name="segments">The segments.</param>
             <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerBuilder">

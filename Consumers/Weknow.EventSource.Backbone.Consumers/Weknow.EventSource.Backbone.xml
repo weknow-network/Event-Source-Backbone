@@ -4,6 +4,66 @@
         <name>Weknow.EventSource.Backbone.Consumers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerBase`1">
+            <summary>
+            Base class for the consumer's code generator
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="factory">The factory.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscribe">
+            <summary>
+            Subscribes this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription">
+            <summary>
+            Represent single consuming subscription
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="parameters">The parameters.</param>
+            <param name="factory">The factory.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement)">
+            <summary>
+            Handles consuming of single event.
+            </summary>
+            <param name="arg">The argument.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">
+            Cannot cre
+            or
+            unclassify
+            </exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.Unclassify``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+            <summary>
+            Unclassify the announcement.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="arg">The argument.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.DisposeAsync">
+            <summary>
+            Release consumer.
+            </summary>
+            <returns>
+            A task that represents the asynchronous dispose operation.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerBuilder">
             <summary>
             Event Source consumer builder.
@@ -115,6 +175,30 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0})">
+            <summary>
+            Subscribe consumer.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="factory">The factory.</param>
+            <returns>
+            The partition subscription (dispose to remove the subscription)
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerCancellationBuilder{Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder}#WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation token.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerCancellationBuilder{Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder}#WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation token.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerParameters">
             <summary>
             This class is a bucket of parameters which built-up 
@@ -127,7 +211,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -139,6 +223,7 @@
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
+            <param name="cancellations">The cancellations.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Channel">
             <summary>
@@ -198,6 +283,11 @@
             The interceptors.
             </value>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Cancellations">
+            <summary>
+            Gets the cancellation tokens.
+            </summary>
+        </member>
         <member name="F:Weknow.EventSource.Backbone.ConsumerParameters.Routes">
             <summary>
             Routes are sub-pipelines are results of merge operation
@@ -209,6 +299,13 @@
             Withes the channel.
             </summary>
             <param name="channel">The channel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
@@ -263,6 +360,27 @@
             Gets the retries time of re-consuming the message.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceConsumerOptions.#ctor(System.Int32,Weknow.EventSource.Backbone.TimeoutBehavior,Weknow.EventSource.Backbone.IDataSerializer,System.Boolean)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="batchSize">
+            Gets the max batch size of reading messages per shard.
+            The framework won't proceed to the next batch until all messages
+            in the batch complete (or timeout when it set to acknowledge on timeout).
+            </param>
+            <param name="timeoutBehavior">
+            Define the behavior of the framework on timeout.
+            </param>
+            <param name="serializer">The serializer.</param>
+            <param name="keepAlive">
+            Gets a value indicating whether to prevent the consumer
+            from being collect by the GC.
+            True by default, when you hold the subscription disposable
+            you can set it to false. as long as you keeping the disposable in
+            object that isn't candidate for being collected the consumer will stay alive.
+            </param>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
             <summary>
             Gets the max batch size of reading messages per shard.
@@ -275,10 +393,17 @@
             Define the behavior of the framework on timeout.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.MaxDegreeOfParallelism">
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.KeepAlive">
             <summary>
-            Reduce the maximum concurrency level.
+            Gets a value indicating whether to prevent the consumer
+            from being collect by the GC.
+            True by default, when you hold the subscription disposable
+            you can set it to false. as long as you keeping the disposable in
+            object that isn't candidate for being collected the consumer will stay alive.
             </summary>
+            <value>
+              <c>true</c> if [keep alive]; otherwise, <c>false</c>.
+            </value>
         </member>
     </members>
 </doc>

@@ -53,20 +53,17 @@
             </summary>
             <param name="timeout">The timeout.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerBuilder">
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1">
             <summary>
-            Event Source producer builder.
+            Event Source producer builder stage.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerBuilder.Subscribe``1(System.Func{Weknow.EventSource.Backbone.ShardMetadata,``0})">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1.WithCancellation(System.Threading.CancellationToken)">
             <summary>
-            Subscribe consumer.
+            Withes the cancellation token.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="factory">The factory.</param>
-            <returns>
-            Un-subscribe from the partition
-            </returns>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
             <summary>
@@ -210,6 +207,23 @@
             <param name="shardKey">The shard key.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0})">
+            <summary>
+            Subscribe consumer.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="factory">The factory.</param>
+            <returns>
+            Remove subscription.
+            keeping the disposable will prevent the consumer to be collected
+            by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.ConsumerInterceptorBridge">
             <summary>
             Bridge segmentation
@@ -277,6 +291,31 @@
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerMetadata">
+            <summary>
+            Represent metadata of message (command / event) metadata of
+            a communication channel (Pub/Sub, Event Source, REST, GraphQL).
+            It represent the operation's intent or represent event.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerMetadata.#ctor(Weknow.EventSource.Backbone.Metadata,System.Threading.CancellationToken)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="metadata">The metadata.</param>
+            <param name="consumingCancellation">The consuming cancellation 
+            (stop consuming call-back on cancellation).</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerMetadata.Metadata">
+            <summary>
+            Gets the metadata.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerMetadata.ConsumingCancellation">
+            <summary>
+            Cancel the consuming process.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor">
             <summary>
             Consumer stage of an interception operation provider.
@@ -316,6 +355,15 @@
             Channel provider responsible for passing the actual message 
             from producer to consumer. 
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.ReceiveAsync(System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+            <summary>
+            Receives the asynchronous.
+            </summary>
+            <param name="func">The function.</param>
+            <param name="options">The options.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy">
             <summary>

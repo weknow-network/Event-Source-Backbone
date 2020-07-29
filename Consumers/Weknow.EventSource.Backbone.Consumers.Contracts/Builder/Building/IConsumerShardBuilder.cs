@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerShardBuilder:
-        IConsumerBuilder
+        IConsumerSubscribeBuilder
     {
 
         /// <summary>
@@ -22,6 +22,6 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <param name="shardKey">The shard key.</param>
         /// <returns></returns>
-        IConsumerBuilder Shard(string shardKey);
+        IConsumerSubscribeBuilder Shard(string shardKey);
     }
 }

@@ -16,7 +16,7 @@ namespace Weknow.EventSource.Backbone
     /// Unlike the segments, this part can be flow with
     /// message & will be set as async-context.]]> 
     /// </summary>
-    [DebuggerDisplay("{MessageId}")]
+    [DebuggerDisplay("{Partition}/{Shard} [{MessageId} at {ProducedAt}]")]
     public sealed class Metadata // : IEquatable<Metadata?>
     {
         #region Empty

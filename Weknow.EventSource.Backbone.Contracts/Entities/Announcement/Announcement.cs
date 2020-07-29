@@ -105,7 +105,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion InterceptorsData 
 
-
         #region InterceptedData
 
         private ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptedData = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;

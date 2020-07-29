@@ -48,35 +48,4 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // SendAsync
     }
-
-    public class ConsumerTestChannel : IConsumerChannelProvider
-    {
-        private readonly Channel<Announcement> _channel;
-
-        #region Ctor
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
-        public ConsumerTestChannel(Channel<Announcement> channel)
-        {
-            _channel = channel;
-        }
-
-        #endregion // Ctor
-
-        public void Init(IEventSourceConsumerOptions options)
-        {
-        }
-
-        public async ValueTask ReceiveAsync(Func<Announcement, ValueTask> func)
-        {
-            while (!_channel.Reader.Completion.IsCompleted)
-            {
-                var announcement = await _channel.Reader.ReadAsync();
-                await func(announcement);
-            }
-        }
-    }
 }

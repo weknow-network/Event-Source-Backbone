@@ -14,7 +14,7 @@ namespace Weknow.EventSource.Backbone
         private const string PREFIX = "@DEFAULT";
 
         ValueTask<ImmutableDictionary<string, ReadOnlyMemory<byte>>> IProducerAsyncSegmentationStrategy.
-                ClassifyAsync<T>(
+                TryClassifyAsync<T>(
                     ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
                     string operation, 
                     string argumentName, 

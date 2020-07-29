@@ -8,7 +8,8 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerHooksBuilder
-        : IConsumerPartitionBuilder
+        : IConsumerPartitionBuilder,
+        IConsumerCancellationBuilder<IConsumerHooksBuilder>
     {
         /// <summary>
         /// Register raw interceptor.

@@ -49,7 +49,7 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                                     .ToArray());
                 var parameters = method.GetParameters();
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
-                var classifyAsyncMethod = typeof(TBase).GetMethod("ClassifyAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                var classifyAsyncMethod = typeof(TBase).GetMethod("ClassifyArgumentAsync", BindingFlags.NonPublic | BindingFlags.Instance);
                 var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance);
                 var il = methodBuilder.GetILGenerator();
                 var arr = il.DeclareLocal(typeof(ValueTask<Bucket>[]));
@@ -59,6 +59,7 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                 il.Emit(OpCodes.Newarr, typeof(ValueTask<Bucket>));
                 il.Emit(OpCodes.Stloc_0);
 
+                // classify each parameter
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     var parameter = parameters[i];
@@ -71,6 +72,7 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                     il.Emit(OpCodes.Call, classifyAsyncMethod.MakeGenericMethod(parameter.ParameterType));
                     il.Emit(OpCodes.Stelem, typeof(ValueTask<Bucket>));
                 }
+
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldstr, method.Name);
                 il.Emit(OpCodes.Ldloc_0);

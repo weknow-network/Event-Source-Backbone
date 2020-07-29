@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -39,6 +40,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
+        /// <param name="cancellations">The cancellations.</param>
         private ConsumerParameters(
             ConsumerParameters copyFrom,
             IConsumerChannelProvider? channel = null,
@@ -47,7 +49,8 @@ namespace Weknow.EventSource.Backbone
             IEventSourceConsumerOptions? options = null,
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
-            IImmutableList<IConsumerHooksBuilder>? routes = null)
+            IImmutableList<IConsumerHooksBuilder>? routes = null,
+            IImmutableList<CancellationToken>? cancellations = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -56,6 +59,7 @@ namespace Weknow.EventSource.Backbone
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
+            Cancellations = cancellations ?? copyFrom.Cancellations;
         }
 
         #endregion // Ctor
@@ -144,6 +148,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Interceptors
 
+        #region Cancellations
+
+        /// <summary>
+        /// Gets the cancellation tokens.
+        /// </summary>
+        public IImmutableList<CancellationToken> Cancellations { get; } = ImmutableList<CancellationToken>.Empty;
+
+        #endregion // Cancellations
+
         #region Routes
 
         /// <summary>
@@ -171,6 +184,22 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithChannel
+
+        #region WithCancellation
+
+        /// <summary>
+        /// Withes the cancellation.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        internal ConsumerParameters WithCancellation(
+                                        CancellationToken cancellation)
+        {
+            var cancellations = Cancellations.Add(cancellation);
+            return new ConsumerParameters(this, cancellations: cancellations);
+        }
+
+        #endregion // WithCancellation
 
         #region WithOptions
 

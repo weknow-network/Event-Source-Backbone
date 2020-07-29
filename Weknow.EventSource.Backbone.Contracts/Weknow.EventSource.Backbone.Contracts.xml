@@ -124,13 +124,6 @@
             Gets or sets the shard.
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ShardMetadata">
-            <summary>
-            Represent metadata of message (command / event) metadata of
-            a communication channel (Pub/Sub, Event Source, REST, GraphQL).
-            It represent the operation's intent or represent event.
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
             <summary>
             Enable to replace the default serialization
@@ -164,9 +157,26 @@
             Define the behavior of the framework on timeout.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.MaxDegreeOfParallelism">
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">
             <summary>
-            Reduce the maximum concurrency level.
+            Gets a value indicating whether to prevent the consumer
+            from being collect by the GC.
+            True by default, when you hold the subscription disposable
+            you can set it to false. as long as you keeping the disposable in
+            object that isn't candidate for being collected the consumer will stay alive.
+            </summary>
+            <value>
+              <c>true</c> if [keep alive]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IEventSourceOptions">
+            <summary>
+            options
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceOptions.Serializer">
+            <summary>
+            Gets the serializer.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IInterceptorName.InterceptorName">

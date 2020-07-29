@@ -158,13 +158,15 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#TryClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
-            Classifies instance into different segments.
+            Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to
             the consumer. It's in a form of dictionary when
             keys represent the different segments
             and the value represent serialized form of the segment's data.
+            EXPECTED to return the segments argument if it not responsible of
+            specific parameter handling.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="segments">The segments which was collect so far.
@@ -177,7 +179,7 @@
             <param name="options">The options.</param>
             <returns>
             bytes for each segment or
-            Empty if don't responsible for segmentation of the type.
+            the segments argument if don't responsible for segmentation of the type.
             </returns>
             <example>
             Examples for segments can be driven from regulation like
@@ -315,13 +317,15 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.ClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.TryClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
-            Classifies instance into different segments.
+            Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to
             the consumer. It's in a form of dictionary when
             keys represent the different segments
             and the value represent serialized form of the segment's data.
+            EXPECTED to return the segments argument if it not responsible of 
+            specific parameter handling.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="segments">The segments which was collect so far.
@@ -334,7 +338,7 @@
             <param name="options">The options.</param>
             <returns>
             bytes for each segment or
-            Empty if don't responsible for segmentation of the type.
+            the segments argument if don't responsible for segmentation of the type.
             </returns>
             <example>
             Examples for segments can be driven from regulation like

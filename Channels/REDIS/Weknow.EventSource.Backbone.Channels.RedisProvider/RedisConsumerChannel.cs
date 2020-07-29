@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -16,12 +17,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         }
 
-        public void Init(IEventSourceConsumerOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ValueTask ReceiveAsync(Func<Announcement, ValueTask> func)
+        public ValueTask ReceiveAsync(
+                        Func<Announcement, ValueTask> func,
+                        IEventSourceConsumerOptions options,
+                        CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

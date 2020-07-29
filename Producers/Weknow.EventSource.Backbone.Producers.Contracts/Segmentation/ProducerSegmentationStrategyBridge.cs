@@ -27,14 +27,16 @@ namespace Weknow.EventSource.Backbone.Building
 
         #endregion // Ctor
 
-        #region ClassifyAsync
+        #region TryClassifyAsync
 
         /// <summary>
-        /// Classifies instance into different segments.
+        /// Try to classifies instance into different segments.
         /// Segments is how the producer sending its raw data to
         /// the consumer. It's in a form of dictionary when
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
+        /// EXPECTED to return the segments argument if it not responsible of
+        /// specific parameter handling.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="segments">The segments which was collect so far.
@@ -47,14 +49,14 @@ namespace Weknow.EventSource.Backbone.Building
         /// <param name="options">The options.</param>
         /// <returns>
         /// bytes for each segment or
-        /// Empty if don't responsible for segmentation of the type.
+        /// the segments argument if don't responsible for segmentation of the type.
         /// </returns>
         /// <example>
         /// Examples for segments can be driven from regulation like
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        ValueTask<Segments> IProducerAsyncSegmentationStrategy.ClassifyAsync<T>(
+        ValueTask<Segments> IProducerAsyncSegmentationStrategy.TryClassifyAsync<T>(
             Segments segments,
             string operation,
             string argumentName,
@@ -64,6 +66,6 @@ namespace Weknow.EventSource.Backbone.Building
             return _sync.Classify(segments, operation, argumentName, producedData, options).ToValueTask();
         }
 
-        #endregion // ClassifyAsync
+        #endregion // TryClassifyAsync
     }
 }

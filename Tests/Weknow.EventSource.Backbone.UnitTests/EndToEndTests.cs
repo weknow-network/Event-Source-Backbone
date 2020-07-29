@@ -2,6 +2,7 @@ using FakeItEasy;
 
 using System;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -64,14 +65,17 @@ namespace Weknow.EventSource.Backbone
 
             var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
-            IAsyncDisposable disposePrtition =
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
                          .WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")
                          .Subscribe(meta => _subscriber);
 
             ch.Writer.Complete();
+            await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
