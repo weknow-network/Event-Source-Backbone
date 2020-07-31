@@ -14,15 +14,16 @@ namespace Weknow.EventSource.Backbone
     /// It will used to define the producer execution pipeline.
     /// </summary>
     public class ProducerParameters
-    {       
+    {
+        public static readonly ProducerParameters Empty = new ProducerParameters();
+       
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        internal ProducerParameters(IProducerChannelProvider channel)
+        private ProducerParameters()
         {
-            Channel = channel;
         }
 
         /// <summary>
@@ -36,6 +37,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
+        /// <param name="forwards">Result of merging multiple channels.</param>
         private ProducerParameters(
             ProducerParameters copyFrom,
             IProducerChannelProvider? channel = null,
@@ -44,7 +46,8 @@ namespace Weknow.EventSource.Backbone
             IEventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
-            IImmutableList<IProducerHooksBuilder>? routes = null)
+            IImmutableList<IProducerHooksBuilder>? routes = null,
+            IImmutableList<IProducerHooksBuilder>? forwards = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -53,6 +56,7 @@ namespace Weknow.EventSource.Backbone
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
+            Forwards = forwards ?? copyFrom.Forwards;
         }
 
         #endregion // Ctor
@@ -62,7 +66,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IProducerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
+        public IProducerChannelProvider Channel { get; } = NopChannel.Empty;
 
         #endregion // Channel
 
@@ -141,6 +145,16 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Interceptors
 
+        #region Forwards
+
+        /// <summary>
+        /// Gets the forwards pipelines.
+        /// Result of merging multiple channels.
+        /// </summary>
+        public IImmutableList<IProducerHooksBuilder> Forwards { get; } = ImmutableList<IProducerHooksBuilder>.Empty;
+
+        #endregion // Forwards
+
         #region Routes
 
         /// <summary>
@@ -153,6 +167,21 @@ namespace Weknow.EventSource.Backbone
         #endregion // Routes
 
         //---------------------------------------
+
+        #region UseChannel
+
+        /// <summary>
+        /// Assign channel.
+        /// </summary>
+        /// <param name="channel">The channel.</param>
+        /// <returns></returns>
+        internal ProducerParameters UseChannel(
+                                        IProducerChannelProvider channel)
+        {
+            return new ProducerParameters(this, channel: channel);
+        }
+
+        #endregion // WithOptions
 
         #region WithOptions
 
@@ -206,8 +235,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="route">The route.</param>
         /// <returns></returns>
-        internal ProducerParameters AddRoute(
-                                                IProducerHooksBuilder route)
+        internal ProducerParameters AddRoute(IProducerHooksBuilder route)
         {
             return new ProducerParameters(this, routes: Routes.Add(route));
         }
@@ -245,5 +273,31 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // AddInterceptor
+
+        #region AddForward
+
+        internal ProducerParameters AddForward(IProducerHooksBuilder forward)
+        {
+            return new ProducerParameters(this, forwards: Forwards.Add(forward));
+        }
+
+        #endregion // AddForward
+
+        #region class NopChannel
+
+        /// <summary>
+        /// Not operational channel
+        /// </summary>
+        /// <seealso cref="Weknow.EventSource.Backbone.IProducerChannelProvider" />
+        private class NopChannel : IProducerChannelProvider
+        {
+            public static readonly IProducerChannelProvider Empty = new NopChannel();
+            public ValueTask SendAsync(Announcement payload)
+            {
+                throw new NotSupportedException("Channel must be assign");
+            }
+        }
+
+        #endregion // class NopChannel
     }
 }

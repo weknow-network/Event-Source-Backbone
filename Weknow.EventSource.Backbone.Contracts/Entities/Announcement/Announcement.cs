@@ -2,6 +2,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -37,12 +39,12 @@ namespace Weknow.EventSource.Backbone
         /// <param name="interceptorData">The interceptor data.</param>
         public Announcement(
             Metadata metadata,
-            ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
-            ImmutableDictionary<string, ReadOnlyMemory<byte>> interceptorData)
+            Bucket segments,
+            Bucket interceptorData)
         {
             _metadata = metadata;
             _segments = segments;
-            _interceptorData = interceptorData;
+            _interceptorsData = interceptorData;
         }
 
         #endregion // Ctor
@@ -64,9 +66,7 @@ namespace Weknow.EventSource.Backbone
 
         #region Segments
         
-        private ImmutableDictionary<string, ReadOnlyMemory<byte>> _segments = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;
-        private readonly ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptorData;
-
+        private Bucket _segments = Bucket.Empty;
         /// <summary>
         /// Gets or sets the segments.
         /// Segmentation is done at the sending side, 
@@ -79,7 +79,7 @@ namespace Weknow.EventSource.Backbone
         /// Segmentation provider can split the message 
         /// into personal and non-personal segments.
         /// </example>
-        public ImmutableDictionary<string, ReadOnlyMemory<byte>> Segments
+        public Bucket Segments
         {
             get => _segments;
             [Obsolete("Exposed for the serializer", true)]
@@ -90,13 +90,13 @@ namespace Weknow.EventSource.Backbone
 
         #region InterceptorsData
         
-        private ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptorsData = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;
+        private Bucket _interceptorsData = Bucket.Empty;
         /// <summary>
         /// Interception data (each interceptor responsible of it own data).
         /// Interception can be use for variety of responsibilities like 
         /// flowing auth context or traces, producing metrics, etc.
         /// </summary>
-        public ImmutableDictionary<string, ReadOnlyMemory<byte>> InterceptorsData
+        public Bucket InterceptorsData
         {
             get => _interceptorsData;
             [Obsolete("Exposed for the serializer", true)]
@@ -105,21 +105,21 @@ namespace Weknow.EventSource.Backbone
 
         #endregion InterceptorsData 
 
-        #region InterceptedData
+        #region With
 
-        private ImmutableDictionary<string, ReadOnlyMemory<byte>> _interceptedData = ImmutableDictionary<string, ReadOnlyMemory<byte>>.Empty;
         /// <summary>
-        /// Gets or sets the mapping of data which 
-        /// was created by interceptors on the send side
-        /// and should be evaluate by the interceptor at consume side.
+        /// Clone Withes new segments & interceptor-data.
         /// </summary>
-        public ImmutableDictionary<string, ReadOnlyMemory<byte>> InterceptedData
+        /// <param name="segments">The segments.</param>
+        /// <param name="interceptorData">The interceptor data.</param>
+        /// <returns></returns>
+        public Announcement With(
+                        Bucket segments,
+                        Bucket interceptorData)
         {
-            get => _interceptedData;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _interceptedData = value;
+            return new Announcement(_metadata, segments, interceptorData);
         }
 
-        #endregion InterceptedData 
+        #endregion // With
     }
 }

@@ -185,12 +185,12 @@
             It will used to define the producer execution pipeline.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor">
             <summary>
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.ProducerParameters,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.#ctor(Weknow.EventSource.Backbone.ProducerParameters,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -202,6 +202,7 @@
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
+            <param name="forwards">Result of merging multiple channels.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerParameters.Channel">
             <summary>
@@ -261,11 +262,24 @@
             The interceptors.
             </value>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerParameters.Forwards">
+            <summary>
+            Gets the forwards pipelines.
+            Result of merging multiple channels.
+            </summary>
+        </member>
         <member name="F:Weknow.EventSource.Backbone.ProducerParameters.Routes">
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerParameters.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+            <summary>
+            Assign channel.
+            </summary>
+            <param name="channel">The channel.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
@@ -308,6 +322,12 @@
             </summary>
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerParameters.NopChannel">
+            <summary>
+            Not operational channel
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IProducerChannelProvider" />
         </member>
     </members>
 </doc>
