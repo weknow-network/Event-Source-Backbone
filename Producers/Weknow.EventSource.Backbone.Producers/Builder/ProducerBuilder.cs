@@ -263,7 +263,7 @@ namespace Weknow.EventSource.Backbone
                 plan = plan.AddSegmentation(new ProducerDefaultSegmentationStrategy());
 
             return new CodeGenerator("DynamicProxies")
-                        .CreateProducerProxy<T, ProducerBase>(plan);
+                        .CreateProducerProxy<T, ProducerPipeline>(plan);
         }
 
         #endregion // Build

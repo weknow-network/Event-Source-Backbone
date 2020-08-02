@@ -49,7 +49,7 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                                     .ToArray());
                 var parameters = method.GetParameters();
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
-                var classifyAsyncMethod = typeof(TBase).GetMethod("ClassifyAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                var classifyAsyncMethod = typeof(TBase).GetMethod("CreateClassificationAdaptor", BindingFlags.NonPublic | BindingFlags.Instance);
                 var returnType = classifyAsyncMethod.ReturnType;
                 var sendAsyncMethod = typeof(TBase).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "SendAsync" && m.GetParameters().Length == 2);
                 var il = methodBuilder.GetILGenerator();

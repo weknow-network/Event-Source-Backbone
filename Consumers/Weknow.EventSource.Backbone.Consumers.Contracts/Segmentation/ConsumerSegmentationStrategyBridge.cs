@@ -27,7 +27,7 @@ namespace Weknow.EventSource.Backbone.Building
 
         #endregion // Ctor
 
-        #region ClassifyAsync
+        #region CreateClassificationAdaptor
 
         /// <summary>
         /// Unclassify segmented data into an instance.
@@ -67,6 +67,6 @@ namespace Weknow.EventSource.Backbone.Building
             return result.ToValueTask();
         }
 
-        #endregion // ClassifyAsync
+        #endregion // CreateClassificationAdaptor
     }
 }

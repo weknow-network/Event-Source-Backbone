@@ -9,23 +9,20 @@ using Weknow.EventSource.Backbone.Building;
 
 using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
-// Flow Build ->
-//      CodeGenerator -> 
-//      ProducerBase
-//                  @foreach call parameter
-//                      .ClassifyAsync(plan, callInfo, payload) ->
-//                      @foreach SegmentationStrategies
-//                  .SendAsync(callInfo) ->
-//                  .SendAsync(id, payload, interceptorsData, callInfo) -> 
-//                  .SendAsync(plan, id, payload, interceptorsData, callInfo) ->
-
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Handle the producing pipeline
+    /// CodeGenerator : generate class which inherit from ProducerPipeline
+    /// ---------- ProducerPipeline - pipeline which invoke on each call  -----------
+    ///          classify-commands = 
+    ///             parameters.Select
+    ///                 CreateClassificationAdaptor(operation, argumentName, producedData)
+    ///                     return ClassifyArgumentAsync
+    ///          SendAsync(operation, classifyAdaptors) // recursive
+    ///             Channel.SendAsync(announcement)
     /// </summary>
-    public abstract class ProducerBase
+    public abstract class ProducerPipeline
     {
         private readonly ProducerPlan _plan;
 
@@ -35,55 +32,85 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        public ProducerBase(ProducerPlan plan)
+        public ProducerPipeline(ProducerPlan plan)
         {
             _plan = plan;
         }
 
         #endregion // Ctor
 
-        #region ClassifyAsync
+        #region CreateClassificationAdaptor
 
         /// <summary>
         /// Classify the operation payload from method arguments.
         /// </summary>
-        /// <param name="plan">The plan.</param>
-        /// <param name="callInfo">The call information.</param>
-        /// <param name="payload">The payload.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="operation">The operation.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="producedData">The produced data.</param>
         /// <returns></returns>
-        protected Func<ProducerPlan, Bucket, ValueTask<Bucket>> ClassifyAsync<T>(
+        /// <remarks>
+        /// MUST BE PROTECTED, called from the generated code
+        /// </remarks>
+        protected Func<ProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdaptor<T>(
                                             string operation,
                                             string argumentName,
                                             T producedData)
         {
-            return async (ProducerPlan plan, Bucket payload) =>
-            {
-                foreach (var strategy in plan.SegmentationStrategies)
-                {
-                    Bucket newSerments = await ClassifyArgumentAsync(strategy, plan.Options, operation, argumentName, producedData);
-
-                    #region Validation
-
-                    if (newSerments == Bucket.Empty)
-                        continue;
-
-                    #endregion // Validation
-
-                    payload = payload.AddRange(newSerments);
-                }
-
-                return payload;
-            };
+            return (ProducerPlan plan, Bucket payload) =>
+                                 ClassifyArgumentAsync(
+                                                 plan,
+                                                 payload,
+                                                 operation,
+                                                 argumentName,
+                                                 producedData);
         }
 
-        #endregion // ClassifyAsync
+        #endregion // CreateClassificationAdaptor
 
         #region ClassifyArgumentAsync
 
         /// <summary>
-        /// Prepare data of single argument in an operation
-        /// for sending.
-        /// By classifies the data into segments.
+        /// Classifies the operation's argument.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="plan">The plan.</param>
+        /// <param name="payload">The payload.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="producedData">The produced data.</param>
+        /// <returns></returns>
+        private async ValueTask<Bucket> ClassifyArgumentAsync<T>(
+                                                ProducerPlan plan,
+                                                Bucket payload,
+                                                string operation,
+                                                string argumentName,
+                                                T producedData)
+        {
+            foreach (var strategy in plan.SegmentationStrategies)
+            {
+                Bucket newSerments = await ClassifyArgumentAsync(strategy, plan.Options, operation, argumentName, producedData);
+
+                #region Validation
+
+                if (newSerments == Bucket.Empty)
+                    continue;
+
+                #endregion // Validation
+
+                payload = payload.AddRange(newSerments);
+            }
+
+            return payload;
+        }
+
+        #endregion // ClassifyArgumentAsync
+
+        #region ClassifyArgumentAsync
+
+        /// <summary>
+        /// Bridge classification of single operation's argument.
+        /// Get the argument data and pass it to the segmentation strategies.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="strategy">The strategy.</param>
@@ -158,11 +185,15 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Sends the produced data via the channel.
         /// </summary>
-        /// <param name="callInfo">The call information.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
+        /// <remarks>
+        /// MUST BE PROTECTED, called from the generated code
+        /// </remarks>
         protected ValueTask SendAsync(
             string operation,
-            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyFuncs)
+            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
 
@@ -174,7 +205,7 @@ namespace Weknow.EventSource.Backbone
                         payload,
                         interceptorsData,
                         operation,
-                        classifyFuncs);
+                        classifyAdaptors);
         }
 
         /// <summary>
@@ -184,15 +215,16 @@ namespace Weknow.EventSource.Backbone
         /// <param name="id">The identifier.</param>
         /// <param name="payload">The payload.</param>
         /// <param name="interceptorsData">The interceptors data.</param>
-        /// <param name="callInfo">The call information.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
-        protected async ValueTask SendAsync(
+        private async ValueTask SendAsync(
             ProducerPlan plan,
             string id,
             Bucket payload,
             Bucket interceptorsData,
             string operation,
-            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyFuncs)
+            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             Metadata metadata = new Metadata(
                                         id,
@@ -200,7 +232,7 @@ namespace Weknow.EventSource.Backbone
                                         plan.Shard,
                                         operation);
 
-            foreach (var classify in classifyFuncs)
+            foreach (var classify in classifyAdaptors)
             {
                 payload = await classify(plan, payload);
             }
@@ -230,7 +262,7 @@ namespace Weknow.EventSource.Backbone
                             payload,
                             interceptorsData,
                             operation,
-                            classifyFuncs);
+                            classifyAdaptors);
             }
         }
 
