@@ -50,6 +50,10 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                 var parameters = method.GetParameters();
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
                 var classifyAsyncMethod = typeof(TBase).GetMethod("CreateClassificationAdaptor", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (classifyAsyncMethod == null)
+                    throw new ArgumentNullException($"Code Gen: {nameof(classifyAsyncMethod)}");
+
                 var returnType = classifyAsyncMethod.ReturnType;
                 var sendAsyncMethod = typeof(TBase).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "SendAsync" && m.GetParameters().Length == 2);
                 var il = methodBuilder.GetILGenerator();
@@ -68,7 +72,7 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                     il.Emit(OpCodes.Ldc_I4, i);
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldstr, method.Name);
-                    il.Emit(OpCodes.Ldstr, parameter.Name);
+                    il.Emit(OpCodes.Ldstr, parameter.Name ?? throw new ArgumentNullException($"Code Gen: {nameof(parameter)}.Name"));
                     il.Emit(OpCodes.Ldarg, i + 1);
                     il.Emit(OpCodes.Call, classifyAsyncMethod.MakeGenericMethod(parameter.ParameterType));
                     il.Emit(OpCodes.Stelem, returnType);
@@ -80,8 +84,8 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                 il.Emit(OpCodes.Call, sendAsyncMethod);
                 il.Emit(OpCodes.Ret);
             }
-            var type = typeBuilder.CreateTypeInfo();
-            return (T)Activator.CreateInstance(type, arguments);
+            var type = typeBuilder.CreateTypeInfo() ?? throw new ArgumentNullException("Code Gen: CreateTypeInfo()");
+            return (T)Activator.CreateInstance(type, arguments) ?? throw new ArgumentNullException("Code Gen: Activator.CreateInstance");
         }
     }
 }
