@@ -11,15 +11,13 @@ using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.R
 
 // Flow Build ->
 //      CodeGenerator -> 
-//      ProducerBase.SendAsync(callInfo) ->
+//      ProducerBase
+//                  @foreach call parameter
+//                      .ClassifyAsync(plan, callInfo, payload) ->
+//                      @foreach SegmentationStrategies
+//                  .SendAsync(callInfo) ->
 //                  .SendAsync(id, payload, interceptorsData, callInfo) -> 
 //                  .SendAsync(plan, id, payload, interceptorsData, callInfo) ->
-//                  .ClassifyAsync(plan, callInfo, payload) ->
-//                      @foreach SegmentationStrategies
-//                          @foreach call parameter
-//                              DoSegmentationAsync(strategy, parameter) ->
-//                              -- gen code
-//                              DoSegmentationAsync(strategy, options, parameter) ->
 
 
 namespace Weknow.EventSource.Backbone
@@ -44,11 +42,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
-        protected abstract ValueTask<Bucket> DoSegmentationAsync(
-            IProducerAsyncSegmentationStrategy strategy,
-            IEventSourceOptions options,
-            ParamData parameter); // only use for the generics call formation
-
         #region ClassifyAsync
 
         /// <summary>
@@ -58,16 +51,16 @@ namespace Weknow.EventSource.Backbone
         /// <param name="callInfo">The call information.</param>
         /// <param name="payload">The payload.</param>
         /// <returns></returns>
-        private async ValueTask<Bucket> ClassifyAsync(
-                                            ProducerPlan plan,
-                                            CallInfo callInfo,
-                                            Bucket payload)
+        protected Func<ProducerPlan, Bucket, ValueTask<Bucket>> ClassifyAsync<T>(
+                                            string operation,
+                                            string argumentName,
+                                            T producedData)
         {
-            foreach (var strategy in plan.SegmentationStrategies)
+            return async (ProducerPlan plan, Bucket payload) =>
             {
-                foreach (ParamData parameter in callInfo.Parameters)
+                foreach (var strategy in plan.SegmentationStrategies)
                 {
-                    Bucket newSerments = await DoSegmentationAsync(strategy, plan.Options, parameter);
+                    Bucket newSerments = await ClassifyArgumentAsync(strategy, plan.Options, operation, argumentName, producedData);
 
                     #region Validation
 
@@ -78,9 +71,9 @@ namespace Weknow.EventSource.Backbone
 
                     payload = payload.AddRange(newSerments);
                 }
-            }
 
-            return payload;
+                return payload;
+            };
         }
 
         #endregion // ClassifyAsync
@@ -99,9 +92,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="argumentName">Name of the argument.</param>
         /// <param name="producedData">The produced data.</param>
         /// <returns></returns>
-        protected async ValueTask<Bucket> ClassifyArgumentAsync<T>(
+        private async ValueTask<Bucket> ClassifyArgumentAsync<T>(
             IProducerAsyncSegmentationStrategy strategy,
-            EventSourceOptions options,
+            IEventSourceOptions options,
             string operation,
             string argumentName,
             T producedData)
@@ -143,8 +136,8 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         private async Task<Bucket> InterceptAsync(
                                         IEnumerable<IProducerAsyncInterceptor> interceptors,
-                                        Metadata metadata, 
-                                        Bucket payload, 
+                                        Metadata metadata,
+                                        Bucket payload,
                                         Bucket interceptorsData)
         {
             foreach (IProducerAsyncInterceptor interceptor in interceptors)
@@ -168,7 +161,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="callInfo">The call information.</param>
         /// <returns></returns>
         protected ValueTask SendAsync(
-            CallInfo callInfo)
+            string operation,
+            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyFuncs)
         {
             string id = Guid.NewGuid().ToString();
 
@@ -177,9 +171,10 @@ namespace Weknow.EventSource.Backbone
             return SendAsync(
                         _plan,
                         id,
-                        payload, 
+                        payload,
                         interceptorsData,
-                        callInfo);
+                        operation,
+                        classifyFuncs);
         }
 
         /// <summary>
@@ -196,20 +191,24 @@ namespace Weknow.EventSource.Backbone
             string id,
             Bucket payload,
             Bucket interceptorsData,
-            CallInfo callInfo)
+            string operation,
+            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyFuncs)
         {
             Metadata metadata = new Metadata(
-                                        id, 
-                                        plan.Partition, 
-                                        plan.Shard, 
-                                        callInfo.Operation); 
+                                        id,
+                                        plan.Partition,
+                                        plan.Shard,
+                                        operation);
 
-            payload = await ClassifyAsync(plan, callInfo, payload);
+            foreach (var classify in classifyFuncs)
+            {
+                payload = await classify(plan, payload);
+            }
 
             interceptorsData = await InterceptAsync(
-                                            plan.Interceptors, 
-                                            metadata, 
-                                            payload, 
+                                            plan.Interceptors,
+                                            metadata,
+                                            payload,
                                             interceptorsData);
 
             var announcement = new Announcement(
@@ -230,41 +229,11 @@ namespace Weknow.EventSource.Backbone
                             id,
                             payload,
                             interceptorsData,
-                            callInfo);
+                            operation,
+                            classifyFuncs);
             }
         }
 
         #endregion // SendAsync
-
-        protected class CallInfo
-        {
-            public CallInfo(
-                string operation,
-                ParamData[] parameters)
-            {
-                Operation = operation;
-                Parameters = parameters;
-            }
-
-            public string Operation { get; }
-            public ParamData[] Parameters { get; }
-        }
-
-        protected class ParamData
-        {
-            public ParamData(
-                        string parametersName,
-                        Type parameterType,
-                        object parametersValue)
-            {
-                ParametersName = parametersName;
-                ParameterType = parameterType;
-                ParametersValue = parametersValue;
-            }
-
-            public string ParametersName { get; }
-            public Type ParameterType { get; }
-            public object ParametersValue { get; }
-        }
     }
 }

@@ -47,14 +47,15 @@
             unclassify
             </exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.Unclassify``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.UnclassifyAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
             <summary>
             Unclassify the announcement.
             </summary>
-            <typeparam name="T"></typeparam>
+            <typeparam name="TParam"></typeparam>
             <param name="arg">The argument.</param>
             <param name="argumentName">Name of the argument.</param>
             <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.DisposeAsync">
             <summary>

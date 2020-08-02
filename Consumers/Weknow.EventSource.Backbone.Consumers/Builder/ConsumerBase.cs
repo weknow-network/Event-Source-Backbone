@@ -126,7 +126,7 @@ namespace Weknow.EventSource.Backbone
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     ParameterInfo? parameter = parameters[i];
-                    MethodInfo? unclassify = this.GetType().GetMethod("Unclassify", BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo? unclassify = this.GetType().GetMethod(nameof(UnclassifyAsync), BindingFlags.NonPublic | BindingFlags.Instance);
                     unclassify = unclassify?.MakeGenericMethod(parameter.ParameterType);
 
                     #region Validation
@@ -157,7 +157,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="argumentName">Name of the argument.</param>
             /// <returns></returns>
             /// <exception cref="NotSupportedException"></exception>
-            private async ValueTask<object?> UnclassifyAsync<TParam>(Announcement arg, string argumentName)
+            protected async ValueTask<object?> UnclassifyAsync<TParam>(Announcement arg, string argumentName)
             {
                 foreach (var strategy in _plan.SegmentationStrategies)
                 {

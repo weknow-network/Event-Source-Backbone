@@ -15,7 +15,7 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.ClassifyAsync(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.ProducerBase.CallInfo,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.ClassifyAsync``1(System.String,System.String,``0)">
             <summary>
             Classify the operation payload from method arguments.
             </summary>
@@ -24,7 +24,7 @@
             <param name="payload">The payload.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy,Weknow.EventSource.Backbone.EventSourceOptions,System.String,System.String,``0)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy,Weknow.EventSource.Backbone.IEventSourceOptions,System.String,System.String,``0)">
             <summary>
             Prepare data of single argument in an operation
             for sending.
@@ -49,14 +49,14 @@
             <param name="interceptorsData">The interceptors data.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(Weknow.EventSource.Backbone.ProducerBase.CallInfo)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>
             <param name="callInfo">The call information.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(Weknow.EventSource.Backbone.ProducerPlan,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},Weknow.EventSource.Backbone.ProducerBase.CallInfo)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBase.SendAsync(Weknow.EventSource.Backbone.ProducerPlan,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>
