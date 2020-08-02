@@ -53,18 +53,6 @@
             </summary>
             <param name="timeout">The timeout.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1">
-            <summary>
-            Event Source producer builder stage.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1.WithCancellation(System.Threading.CancellationToken)">
-            <summary>
-            Withes the cancellation token.
-            </summary>
-            <param name="cancellation">The cancellation.</param>
-            <returns></returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
             <summary>
             Event Source producer builder.
@@ -109,6 +97,13 @@
             <summary>
             Event Source producer builder.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation token.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
             <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
 namespace Weknow.EventSource.Backbone.Building
@@ -8,9 +9,15 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerHooksBuilder
-        : IConsumerPartitionBuilder,
-        IConsumerCancellationBuilder<IConsumerHooksBuilder>
+        : IConsumerPartitionBuilder
     {
+        /// <summary>
+        /// Withes the cancellation token.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        IConsumerHooksBuilder WithCancellation(CancellationToken cancellation);
+
         /// <summary>
         /// Register raw interceptor.
         /// Intercept the consumer side execution before de-serialization.

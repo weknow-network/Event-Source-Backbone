@@ -4,22 +4,5 @@
         <name>Weknow.EventSource.Backbone</name>
     </assembly>
     <members>
-        <member name="M:Weknow.EventSource.Backbone.EventSourceOptions.#ctor(Weknow.EventSource.Backbone.IDataSerializer)">
-            <summary>
-            Initializes a new instance.
-            </summary>
-            <param name="serializer">The serializer.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceOptions.Serializer">
-            <summary>
-            Gets the serializer.
-            </summary>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.JsonDataSerializer">
-            <summary>
-            Json serializer (this is the default serializer)
-            </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
-        </member>
     </members>
 </doc>

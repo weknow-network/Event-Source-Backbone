@@ -17,7 +17,6 @@ namespace Weknow.EventSource.Backbone
         IProducerShardBuilder,
         IProducerHooksBuilder
     {
-        private readonly ProducerParameters _parameters = ProducerParameters.Empty;
 
         /// <summary>
         /// Event Source producer builder.
@@ -37,13 +36,22 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        internal ProducerBuilder(ProducerParameters parameters)
+        /// <param name="plan">The plan.</param>
+        internal ProducerBuilder(ProducerPlan plan)
         {
-            _parameters = parameters;
+            Plan = plan;
         }
 
         #endregion // Ctor
+
+        #region Plan
+
+        /// <summary>
+        /// Gets the producer's plan.
+        /// </summary>
+        public ProducerPlan Plan { get; } = ProducerPlan.Empty;
+
+        #endregion // Plan
 
         #region Merge
 
@@ -63,12 +71,12 @@ namespace Weknow.EventSource.Backbone
         {
             #region Validation
 
-            if (_parameters == null)
-                throw new ArgumentNullException(nameof(_parameters));
+            if (Plan == null)
+                throw new ArgumentNullException(nameof(Plan));
 
             #endregion // Validation
 
-            var prms = _parameters.AddForward(first);
+            var prms = Plan.AddForward(first);
             prms = prms.AddForward(second);
             return new ProducerBuilder(prms);
         }
@@ -85,7 +93,7 @@ namespace Weknow.EventSource.Backbone
         IProducerOptionsBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
-            var prms = _parameters.UseChannel(channel);
+            var prms = Plan.UseChannel(channel);
             return new ProducerBuilder(prms);
         }
 
@@ -110,7 +118,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerShardBuilder IProducerPartitionBuilder.Partition(string partition)
         {
-            var prms = _parameters.WithPartition(partition);
+            var prms = Plan.WithPartition(partition);
             return new ProducerBuilder(prms);
         }
 
@@ -130,7 +138,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerHooksBuilder IProducerShardBuilder.Shard(string shard)
         {
-            var prms = _parameters.WithShard(shard);
+            var prms = Plan.WithShard(shard);
             return new ProducerBuilder(prms);
         }
 
@@ -146,7 +154,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(IEventSourceOptions options)
         {
-            var prms = _parameters.WithOptions(options);
+            var prms = Plan.WithOptions(options);
             return new ProducerBuilder(prms);
         }
 
@@ -173,7 +181,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(
                             IProducerAsyncSegmentationStrategy segmentationStrategy)
         {
-            var prms = _parameters.AddSegmentation(segmentationStrategy);
+            var prms = Plan.AddSegmentation(segmentationStrategy);
             return new ProducerBuilder(prms);
         }
 
@@ -196,7 +204,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.UseSegmentation(IProducerSegmentationStrategy segmentationStrategy)
         {
             var asyncImp = new ProducerSegmentationStrategyBridge(segmentationStrategy);
-            var prms = _parameters.AddSegmentation(asyncImp);
+            var prms = Plan.AddSegmentation(asyncImp);
             return new ProducerBuilder(prms);
         }
 
@@ -214,7 +222,7 @@ namespace Weknow.EventSource.Backbone
                                                 IProducerInterceptor interceptor)
         {
             var bridge = new ProducerInterceptorBridge(interceptor);
-            var prms = _parameters.AddInterceptor(bridge);
+            var prms = Plan.AddInterceptor(bridge);
             return new ProducerBuilder(prms);
         }
 
@@ -227,7 +235,7 @@ namespace Weknow.EventSource.Backbone
         IProducerHooksBuilder IProducerHooksBuilder.AddInterceptor(
             IProducerAsyncInterceptor interceptor)
         {
-            var prms = _parameters.AddInterceptor(interceptor);
+            var prms = Plan.AddInterceptor(interceptor);
             return new ProducerBuilder(prms);
         }
 
@@ -250,12 +258,12 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            var parameters = _parameters;
-            if (parameters.SegmentationStrategies.Count == 0)
-                parameters = parameters.AddSegmentation(new ProducerDefaultSegmentationStrategy());
+            var plan = Plan;
+            if (plan.SegmentationStrategies.Count == 0)
+                plan = plan.AddSegmentation(new ProducerDefaultSegmentationStrategy());
 
             return new CodeGenerator("DynamicProxies")
-                        .CreateProducerProxy<T, ProducerBase>(parameters);
+                        .CreateProducerProxy<T, ProducerBase>(plan);
         }
 
         #endregion // Build

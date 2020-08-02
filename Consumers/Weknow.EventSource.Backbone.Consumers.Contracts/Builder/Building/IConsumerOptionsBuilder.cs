@@ -9,8 +9,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// Enable configuration.
     /// </summary>
     public interface IConsumerOptionsBuilder
-        : IConsumerHooksBuilder, 
-        IConsumerCancellationBuilder<IConsumerOptionsBuilder>
+        : IConsumerHooksBuilder
     {
         /// <summary>
         /// Attach configuration.

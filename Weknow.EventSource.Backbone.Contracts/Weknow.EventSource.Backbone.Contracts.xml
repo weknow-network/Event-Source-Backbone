@@ -54,13 +54,7 @@
             flowing auth context or traces, producing metrics, etc.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement.InterceptedData">
-            <summary>
-            Gets or sets the mapping of data which 
-            was created by interceptors on the send side
-            and should be evaluate by the interceptor at consume side.
-            </summary>
-        </member>
+        <!-- Badly formed XML comment ignored for member "M:Weknow.EventSource.Backbone.Announcement.With(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})" -->
         <member name="T:Weknow.EventSource.Backbone.Metadata">
             <summary>
             <![CDATA[Represent metadata of announcement (event).
@@ -124,6 +118,17 @@
             Gets or sets the shard.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceOptions.#ctor(Weknow.EventSource.Backbone.IDataSerializer)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="serializer">The serializer.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceOptions.Serializer">
+            <summary>
+            Gets the serializer.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
             <summary>
             Enable to replace the default serialization
@@ -185,6 +190,12 @@
             between the producer and consumer interceptor.
             It's recommended to use URL format.
             </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.JsonDataSerializer">
+            <summary>
+            Json serializer (this is the default serializer)
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
         </member>
         <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Ack">
             <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -9,22 +10,24 @@ namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>
-    /// This class is a bucket of parameters which built-up 
-    /// by the producer builder.
-    /// It will used to define the producer execution pipeline.
+    /// This class is a bucket of plan which built-up 
+    /// by the consumer builder.
+    /// It will used to define the consumer execution pipeline.
     /// </summary>
-    public class ProducerParameters
+    public class ConsumerPlan
     {
-        public static readonly ProducerParameters Empty = new ProducerParameters();
-       
+        public static readonly ConsumerPlan Empty = new ConsumerPlan();
+
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        private ProducerParameters()
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+        private ConsumerPlan()
         {
         }
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         /// <summary>
         /// Initializes a new instance.
@@ -37,17 +40,17 @@ namespace Weknow.EventSource.Backbone
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
-        /// <param name="forwards">Result of merging multiple channels.</param>
-        private ProducerParameters(
-            ProducerParameters copyFrom,
-            IProducerChannelProvider? channel = null,
+        /// <param name="cancellations">The cancellations.</param>
+        private ConsumerPlan(
+            ConsumerPlan copyFrom,
+            IConsumerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
-            IEventSourceOptions? options = null,
-            IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
-            IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
-            IImmutableList<IProducerHooksBuilder>? routes = null,
-            IImmutableList<IProducerHooksBuilder>? forwards = null)
+            IEventSourceConsumerOptions? options = null,
+            IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
+            IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
+            IImmutableList<IConsumerHooksBuilder>? routes = null,
+            IImmutableList<CancellationToken>? cancellations = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -56,7 +59,7 @@ namespace Weknow.EventSource.Backbone
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
-            Forwards = forwards ?? copyFrom.Forwards;
+            Cancellations = cancellations ?? copyFrom.Cancellations;
         }
 
         #endregion // Ctor
@@ -66,7 +69,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IProducerChannelProvider Channel { get; } = NopChannel.Empty;
+        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
 
         #endregion // Channel
 
@@ -109,7 +112,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public IEventSourceOptions Options { get; } = EventSourceOptions.Empty;
+        public IEventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
 
         #endregion // Options
 
@@ -117,7 +120,7 @@ namespace Weknow.EventSource.Backbone
 
         /// <summary>
         /// Segmentation responsible of splitting an instance into segments.
-        /// Segments is how the producer sending its raw data to
+        /// Segments is how the Consumer sending its raw data to
         /// the consumer. It's in a form of dictionary when
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
@@ -127,33 +130,32 @@ namespace Weknow.EventSource.Backbone
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        public IImmutableList<IProducerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
-                    ImmutableList<IProducerAsyncSegmentationStrategy>.Empty;
+        public IImmutableList<IConsumerAsyncSegmentationStrategy> SegmentationStrategies { get; } =
+                    ImmutableList<IConsumerAsyncSegmentationStrategy>.Empty;
 
         #endregion // SegmentationStrategies
 
         #region Interceptors
 
         /// <summary>
-        /// Producer interceptors (Timing: after serialization).
+        /// Consumer interceptors (Timing: after serialization).
         /// </summary>
         /// <value>
         /// The interceptors.
         /// </value>
-        public IImmutableList<IProducerAsyncInterceptor> Interceptors { get; } =
-                    ImmutableList<IProducerAsyncInterceptor>.Empty;
+        public IImmutableList<IConsumerAsyncInterceptor> Interceptors { get; } =
+                    ImmutableList<IConsumerAsyncInterceptor>.Empty;
 
         #endregion // Interceptors
 
-        #region Forwards
+        #region Cancellations
 
         /// <summary>
-        /// Gets the forwards pipelines.
-        /// Result of merging multiple channels.
+        /// Gets the cancellation tokens.
         /// </summary>
-        public IImmutableList<IProducerHooksBuilder> Forwards { get; } = ImmutableList<IProducerHooksBuilder>.Empty;
+        public IImmutableList<CancellationToken> Cancellations { get; } = ImmutableList<CancellationToken>.Empty;
 
-        #endregion // Forwards
+        #endregion // Cancellations
 
         #region Routes
 
@@ -161,27 +163,43 @@ namespace Weknow.EventSource.Backbone
         /// Routes are sub-pipelines are results of merge operation
         /// which can split same payload into multiple partitions or shards.
         /// </summary>
-        private readonly IImmutableList<IProducerHooksBuilder> Routes =
-                ImmutableList<IProducerHooksBuilder>.Empty;
+        private readonly IImmutableList<IConsumerHooksBuilder> Routes =
+                ImmutableList<IConsumerHooksBuilder>.Empty;
 
         #endregion // Routes
 
-        //---------------------------------------
+        //------------------------------------------
 
-        #region UseChannel
+        #region WithChannel
 
         /// <summary>
-        /// Assign channel.
+        /// Withes the channel.
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <returns></returns>
-        internal ProducerParameters UseChannel(
-                                        IProducerChannelProvider channel)
+        internal ConsumerPlan WithChannel(
+                                        IConsumerChannelProvider channel)
         {
-            return new ProducerParameters(this, channel: channel);
+            return new ConsumerPlan(this, channel: channel);
         }
 
-        #endregion // WithOptions
+        #endregion // WithChannel
+
+        #region WithCancellation
+
+        /// <summary>
+        /// Withes the cancellation.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithCancellation(
+                                        CancellationToken cancellation)
+        {
+            var cancellations = Cancellations.Add(cancellation);
+            return new ConsumerPlan(this, cancellations: cancellations);
+        }
+
+        #endregion // WithCancellation
 
         #region WithOptions
 
@@ -190,10 +208,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        internal ProducerParameters WithOptions(
-                                        IEventSourceOptions options)
+        internal ConsumerPlan WithOptions(
+                                        IEventSourceConsumerOptions options)
         {
-            return new ProducerParameters(this, options: options);
+            return new ConsumerPlan(this, options: options);
         }
 
         #endregion // WithOptions
@@ -205,10 +223,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        internal ProducerParameters WithPartition(
+        internal ConsumerPlan WithPartition(
                                                 string partition)
         {
-            return new ProducerParameters(this, partition: partition);
+            return new ConsumerPlan(this, partition: partition);
         }
 
         #endregion // WithPartition
@@ -220,10 +238,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
-        internal ProducerParameters WithShard(
+        internal ConsumerPlan WithShard(
                                                 string shard)
         {
-            return new ProducerParameters(this, shard: shard);
+            return new ConsumerPlan(this, shard: shard);
         }
 
         #endregion // WithShard
@@ -235,9 +253,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="route">The route.</param>
         /// <returns></returns>
-        internal ProducerParameters AddRoute(IProducerHooksBuilder route)
+        internal ConsumerPlan AddRoute(
+                                                IConsumerHooksBuilder route)
         {
-            return new ProducerParameters(this, routes: Routes.Add(route));
+            return new ConsumerPlan(this, routes: Routes.Add(route));
         }
 
         #endregion // AddRoute
@@ -249,10 +268,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="segmentation">The segmentation.</param>
         /// <returns></returns>
-        internal ProducerParameters AddSegmentation(
-                                                IProducerAsyncSegmentationStrategy segmentation)
+        internal ConsumerPlan AddSegmentation(
+                                                IConsumerAsyncSegmentationStrategy segmentation)
         {
-            return new ProducerParameters(this, 
+            return new ConsumerPlan(this, 
                             segmentationStrategies: SegmentationStrategies.Add(segmentation));
         }
 
@@ -265,39 +284,13 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="interceptor">The interceptor.</param>
         /// <returns></returns>
-        internal ProducerParameters AddInterceptor(
-                                  IProducerAsyncInterceptor interceptor)
+        internal ConsumerPlan AddInterceptor(
+                                  IConsumerAsyncInterceptor interceptor)
         {
-            return new ProducerParameters(this, 
+            return new ConsumerPlan(this, 
                             interceptors: Interceptors.Add(interceptor));
         }
 
         #endregion // AddInterceptor
-
-        #region AddForward
-
-        internal ProducerParameters AddForward(IProducerHooksBuilder forward)
-        {
-            return new ProducerParameters(this, forwards: Forwards.Add(forward));
-        }
-
-        #endregion // AddForward
-
-        #region class NopChannel
-
-        /// <summary>
-        /// Not operational channel
-        /// </summary>
-        /// <seealso cref="Weknow.EventSource.Backbone.IProducerChannelProvider" />
-        private class NopChannel : IProducerChannelProvider
-        {
-            public static readonly IProducerChannelProvider Empty = new NopChannel();
-            public ValueTask SendAsync(Announcement payload)
-            {
-                throw new NotSupportedException("Channel must be assign");
-            }
-        }
-
-        #endregion // class NopChannel
     }
 }

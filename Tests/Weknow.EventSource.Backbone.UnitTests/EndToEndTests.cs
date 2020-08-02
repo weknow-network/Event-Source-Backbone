@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone
         private readonly IConsumerBuilder _consumerBuilder = ConsumerBuilder.Empty;
         private readonly IProducerChannelProvider _producerChannel;
         private readonly IConsumerChannelProvider _consumerChannel;
-        private readonly IDataSerializer _serializer;
+        // private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
         public EndToEndTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-            _serializer = new JsonDataSerializer();
+            // _serializer = new JsonDataSerializer();
             ch = Channel.CreateUnbounded<Announcement>();
             _producerChannel = new ProducerTestChannel(ch);
             _consumerChannel = new ConsumerTestChannel(ch);
@@ -50,11 +50,11 @@ namespace Weknow.EventSource.Backbone
         [Fact]
         public async Task Build_Serializer_Producer_Test()
         {
-            var producerOption = new EventSourceOptions(_serializer);
+            //var producerOption = new EventSourceOptions(_serializer);
 
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
-                        .WithOptions(producerOption)
+                        //.WithOptions(producerOption)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .Build<ISequenceOperationsProducer>();
@@ -63,12 +63,12 @@ namespace Weknow.EventSource.Backbone
             await producer.LoginAsync("admin", "1234");
             await producer.EarseAsync(4335);
 
-            var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
+            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
-                         .WithOptions(consumerOptions)
+                         //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")

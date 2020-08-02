@@ -94,7 +94,7 @@ namespace Weknow.EventSource.Backbone
 
         #region Operation
 
-        private string _operation;
+        private string _operation = string.Empty;
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
@@ -118,7 +118,7 @@ namespace Weknow.EventSource.Backbone
 
         #region Partition
 
-        private string _partition;
+        private string _partition = string.Empty;
         /// <summary>
         /// Gets or sets the partition.
         /// </summary>
@@ -133,7 +133,7 @@ namespace Weknow.EventSource.Backbone
 
         #region Shard
 
-        private string _shard;
+        private string _shard = string.Empty;
         /// <summary>
         /// Gets or sets the shard.
         /// </summary>

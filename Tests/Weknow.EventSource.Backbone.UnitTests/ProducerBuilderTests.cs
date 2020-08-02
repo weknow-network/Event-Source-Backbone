@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
         private readonly IProducerChannelProvider _channel;
-        private readonly IDataSerializer _serializer;
+        //private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
         public ProducerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-            _serializer = new JsonDataSerializer();
+            //_serializer = new JsonDataSerializer();
             ch = Channel.CreateUnbounded<Announcement>();
             _channel = new ProducerTestChannel(ch);
         }
@@ -82,11 +82,11 @@ namespace Weknow.EventSource.Backbone
         [Fact]
         public async Task Build_Serializer_Producer_Test()
         {
-            var option = new EventSourceOptions(_serializer);
+            //var option = new EventSourceOptions(_serializer);
 
             ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
-                        .WithOptions(option)
+                        //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .Build<ISequenceOperationsProducer>();

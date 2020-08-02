@@ -11,6 +11,15 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IProducerHooksBuilder:
         IProducerSpecializeBuilder
     {
+        #region Parameters
+
+        /// <summary>
+        /// Gets the producer's plan.
+        /// </summary>
+        ProducerPlan Plan { get; }
+
+        #endregion // Parameters
+
         #region AddInterceptor
 
         /// <summary>
