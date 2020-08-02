@@ -1,7 +1,7 @@
 using FakeItEasy;
 
-using System;
-using System.Collections.Immutable;
+using Microsoft.Extensions.Logging;
+
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -18,6 +18,7 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = A.Fake<IProducerBuilder>();
+        private readonly ILogger _logger = A.Fake<ILogger>();
         private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
@@ -41,7 +42,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_API_Merge_Producer_Test()
         {
             var producerA =
-                _builder.UseChannel(_channel)
+                _builder.UseChannel(_channel)                        
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .AddInterceptor(_rawAsyncInterceptor);
@@ -63,6 +64,7 @@ namespace Weknow.EventSource.Backbone
                                     _builder
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
+                                        .WithLogger(_logger)
                                         .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
@@ -84,6 +86,7 @@ namespace Weknow.EventSource.Backbone
                         .WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
+                        .WithLogger(_logger)
                         .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());
@@ -106,6 +109,7 @@ namespace Weknow.EventSource.Backbone
                         .AddInterceptor(_rawAsyncInterceptor)
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
+                        .WithLogger(_logger)
                         .Build<ISequenceOperationsProducer>();
 
             await producer.RegisterAsync(new User());

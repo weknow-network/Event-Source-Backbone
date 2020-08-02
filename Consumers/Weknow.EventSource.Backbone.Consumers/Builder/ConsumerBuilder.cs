@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Threading;
 
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.CodeGeneration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -202,6 +202,22 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // RegisterInterceptor
+
+        #region WithLogger
+
+        /// <summary>
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IConsumerLoggerBuilder.WithLogger(ILogger logger)
+        {
+            var prms = _plan.WithLogger(logger);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // WithLogger
 
         #region Subscribe
 

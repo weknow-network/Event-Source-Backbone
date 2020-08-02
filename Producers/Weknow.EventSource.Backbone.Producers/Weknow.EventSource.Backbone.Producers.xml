@@ -137,6 +137,13 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerLoggerBuilder#WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Build``1">
             <summary>
             <![CDATA[ Ceate Producer proxy for specific events sequence.

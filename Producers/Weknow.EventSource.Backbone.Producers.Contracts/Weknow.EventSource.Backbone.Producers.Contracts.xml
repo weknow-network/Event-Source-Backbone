@@ -62,6 +62,18 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerLoggerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder">
             <summary>
             Event Source producer builder.
@@ -298,9 +310,8 @@
         </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerPlan">
             <summary>
-            This class is a bucket of parameters which built-up 
-            by the producer builder.
-            It will used to define the producer execution pipeline.
+            Hold builder definitions.
+            Define the consumer execution pipeline.
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor">
@@ -308,7 +319,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -316,6 +327,7 @@
             <param name="channel">The channel.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
+            <param name="logger">The logger.</param>
             <param name="options">The options.</param>
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
@@ -325,6 +337,11 @@
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Channel">
             <summary>
             Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Logger">
+            <summary>
+            Gets the logger.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Partition">
@@ -398,6 +415,14 @@
             </summary>
             <param name="channel">The channel.</param>
             <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+            r
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>

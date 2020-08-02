@@ -1,7 +1,6 @@
 using FakeItEasy;
 
 using System;
-using System.Threading.Tasks.Dataflow;
 
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 

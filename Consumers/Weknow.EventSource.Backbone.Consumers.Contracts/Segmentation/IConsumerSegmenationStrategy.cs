@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible of building instance from segmented data.

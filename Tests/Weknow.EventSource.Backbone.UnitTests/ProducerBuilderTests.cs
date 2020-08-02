@@ -1,7 +1,5 @@
 using FakeItEasy;
 
-using System;
-using System.Collections.Immutable;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 

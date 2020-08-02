@@ -1,15 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-
-
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
     public interface IProducerHooksBuilder:
-        IProducerSpecializeBuilder
+        IProducerLoggerBuilder
     {
         #region Parameters
 

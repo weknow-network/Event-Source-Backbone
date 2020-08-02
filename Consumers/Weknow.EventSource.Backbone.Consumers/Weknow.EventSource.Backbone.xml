@@ -176,6 +176,13 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerLoggerBuilder#WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0})">
             <summary>
             Subscribe consumer.
@@ -195,9 +202,8 @@
         </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerPlan">
             <summary>
-            This class is a bucket of plan which built-up 
-            by the consumer builder.
-            It will used to define the consumer execution pipeline.
+            Hold builder definitions.
+            Define the consumer execution pipeline.
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor">
@@ -205,7 +211,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -213,6 +219,7 @@
             <param name="channel">The channel.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
+            <param name="logger">The logger.</param>
             <param name="options">The options.</param>
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
@@ -222,6 +229,11 @@
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Channel">
             <summary>
             Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Logger">
+            <summary>
+            Gets the logger.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Partition">
@@ -290,35 +302,42 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
-            Withes the channel.
+            Attach the channel.
             </summary>
             <param name="channel">The channel.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach the LOGGER.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithCancellation(System.Threading.CancellationToken)">
             <summary>
-            Withes the cancellation.
+            Attach the cancellation.
             </summary>
             <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
-            Withes the options.
+            Attach the options.
             </summary>
             <param name="options">The options.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithPartition(System.String)">
             <summary>
-            Withes the partition.
+            Attach the partition.
             </summary>
             <param name="partition">The partition.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithShard(System.String)">
             <summary>
-            Withes the shard.
+            Attach the shard.
             </summary>
             <param name="shard">The shard.</param>
             <returns></returns>
@@ -343,6 +362,22 @@
             </summary>
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel">
+            <summary>
+            Not operational channel
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IConsumerChannelProvider" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.ReceiveAsync(System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+            <summary>
+            Receives the asynchronous.
+            </summary>
+            <param name="func">The function.</param>
+            <param name="options">The options.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException">Channel must be define</exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
             <summary>

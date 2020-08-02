@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
@@ -9,9 +10,8 @@ namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>
-    /// This class is a bucket of parameters which built-up 
-    /// by the producer builder.
-    /// It will used to define the producer execution pipeline.
+    /// Hold builder definitions.
+    /// Define the consumer execution pipeline.
     /// </summary>
     public class ProducerPlan
     {
@@ -33,6 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The channel.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
+        /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
@@ -43,6 +44,7 @@ namespace Weknow.EventSource.Backbone
             IProducerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
+            ILogger? logger = null,
             IEventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
@@ -57,6 +59,7 @@ namespace Weknow.EventSource.Backbone
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
             Forwards = forwards ?? copyFrom.Forwards;
+            Logger = logger;
         }
 
         #endregion // Ctor
@@ -67,6 +70,15 @@ namespace Weknow.EventSource.Backbone
         /// Gets the communication channel provider.
         /// </summary>
         public IProducerChannelProvider Channel { get; } = NopChannel.Empty;
+
+        #endregion // Channel
+
+        #region Logger
+
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
+        public ILogger? Logger { get; } = null;
 
         #endregion // Channel
 
@@ -175,10 +187,24 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <returns></returns>
-        public ProducerPlan UseChannel(
-                                        IProducerChannelProvider channel)
+        public ProducerPlan UseChannel(IProducerChannelProvider channel)
         {
             return new ProducerPlan(this, channel: channel);
+        }
+
+        #endregion // WithOptions
+
+        #region WithLogger
+
+        /// <summary>
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        /// r
+        public ProducerPlan WithLogger(ILogger logger)
+        {
+            return new ProducerPlan(this, logger: logger);
         }
 
         #endregion // WithOptions

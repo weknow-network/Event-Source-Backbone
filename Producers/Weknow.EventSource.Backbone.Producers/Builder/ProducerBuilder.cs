@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.CodeGeneration;
@@ -240,6 +239,22 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // AddInterceptor
+
+        #region WithLogger
+
+        /// <summary>
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IProducerSpecializeBuilder IProducerLoggerBuilder.WithLogger(ILogger logger)
+        {
+            var prms = Plan.WithLogger(logger);
+            return new ProducerBuilder(prms);
+            
+        }
+
+        #endregion // WithLogger
 
         #region Build
 

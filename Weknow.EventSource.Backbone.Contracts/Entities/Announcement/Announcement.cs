@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone

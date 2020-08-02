@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Responsible of splitting an instance into segments.

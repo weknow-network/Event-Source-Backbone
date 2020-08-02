@@ -153,6 +153,18 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder">
             <summary>
             Enable configuration.

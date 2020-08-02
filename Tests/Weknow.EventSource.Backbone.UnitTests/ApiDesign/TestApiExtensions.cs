@@ -1,12 +1,6 @@
 using FakeItEasy;
 
-using System.Threading.Tasks.Dataflow;
-
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.UnitTests.Entities;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace Weknow.EventSource.Backbone
 {
