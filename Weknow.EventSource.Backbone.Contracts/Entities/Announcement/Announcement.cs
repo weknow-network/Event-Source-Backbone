@@ -2,8 +2,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
-using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -108,7 +106,7 @@ namespace Weknow.EventSource.Backbone
         #region With
 
         /// <summary>
-        /// Clone Withes new segments & interceptor-data.
+        /// <![CDATA[Clone Withes new segments & interceptor-data.]]>
         /// </summary>
         /// <param name="segments">The segments.</param>
         /// <param name="interceptorData">The interceptor data.</param>

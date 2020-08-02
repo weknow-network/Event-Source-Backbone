@@ -184,7 +184,7 @@
             MUST BE PROTECTED, called from the generated code
             </remarks>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.ProducerPlan,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0)">
             <summary>
             Classifies the operation's argument.
             </summary>
@@ -209,7 +209,7 @@
             <param name="producedData">The produced data.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.InterceptAsync(System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.InterceptAsync(System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
             <summary>
             Call interceptors and store their intercepted data
             (which will be use by the consumer's interceptors).
@@ -220,7 +220,7 @@
             <param name="interceptorsData">The interceptors data.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}}[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>
@@ -231,7 +231,7 @@
             MUST BE PROTECTED, called from the generated code
             </remarks>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(Weknow.EventSource.Backbone.ProducerPlan,System.String,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Threading.Tasks.ValueTask{System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}}}[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(Weknow.EventSource.Backbone.ProducerPlan,System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket,System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>

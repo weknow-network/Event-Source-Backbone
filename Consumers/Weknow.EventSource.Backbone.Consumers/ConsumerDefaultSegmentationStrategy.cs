@@ -11,7 +11,7 @@ namespace Weknow.EventSource.Backbone
 
         ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.
                                 TryUnclassifyAsync<T>(
-                                        ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
+                                        Bucket segments,
                                         string operation,
                                         string argumentName,
                                         IEventSourceOptions options)

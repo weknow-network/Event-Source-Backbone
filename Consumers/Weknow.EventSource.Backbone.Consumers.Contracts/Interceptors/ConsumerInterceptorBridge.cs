@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 using static System.Threading.Tasks.ValueTaskStatic;
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 
 namespace Weknow.EventSource.Backbone.Building
 {

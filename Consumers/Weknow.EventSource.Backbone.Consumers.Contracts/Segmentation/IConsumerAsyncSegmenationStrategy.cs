@@ -2,8 +2,6 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -43,7 +41,7 @@ namespace Weknow.EventSource.Backbone
         /// Technical vs Business aspects, etc.
         /// </example>
         ValueTask<(bool, T)> TryUnclassifyAsync<T>(
-                Segments segments,
+                Bucket segments,
                 string operation,
                 string argumentName,
                 IEventSourceOptions options);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 
 namespace Weknow.EventSource.Backbone
 {
@@ -41,7 +41,7 @@ namespace Weknow.EventSource.Backbone
         /// Technical vs Business aspects, etc.
         /// </example>
         (bool, T) TryUnclassify<T>(
-                Segments segments,
+                Bucket segments,
                 string operation,
                 string argumentName,
                 IEventSourceOptions options);

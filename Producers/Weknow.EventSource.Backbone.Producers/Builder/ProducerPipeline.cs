@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 
-using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>

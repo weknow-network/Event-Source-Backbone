@@ -10,7 +10,7 @@ using Weknow.EventSource.Backbone.UnitTests.Entities;
 using Xunit;
 using Xunit.Abstractions;
 
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 
 namespace Weknow.EventSource.Backbone
 {
