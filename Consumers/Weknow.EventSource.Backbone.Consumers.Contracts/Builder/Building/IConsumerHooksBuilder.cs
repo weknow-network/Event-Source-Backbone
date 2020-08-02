@@ -66,9 +66,6 @@ namespace Weknow.EventSource.Backbone.Building
         IConsumerHooksBuilder RegisterSegmentationStrategy(
                                 IConsumerAsyncSegmentationStrategy segmentationStrategy);
 
-        // TODO: move partition & shard to the end
-        // TODO: Build<T>(Func<Meta = partition + shard, T>)
-        //// TODO: ASP.NET: services.UseConsumer(IEventSourceConsumerHooksBuilder i)
         //[Consumer(Partition="X", Shard="y")]
         //public class ConsumerX : Consumer, ISequenceOperations
         //{ 

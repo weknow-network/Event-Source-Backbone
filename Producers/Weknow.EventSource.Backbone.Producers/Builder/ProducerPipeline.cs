@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -132,7 +134,6 @@ namespace Weknow.EventSource.Backbone
 
             if (seg == null)
             {
-                // TODO: Log warning $"{nameof(strategy.TryClassifyAsync)} don't expect to return null value");
                 return segments;
             }
 

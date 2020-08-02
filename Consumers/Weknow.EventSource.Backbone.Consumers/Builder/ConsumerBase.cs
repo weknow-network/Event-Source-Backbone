@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -114,8 +116,9 @@ namespace Weknow.EventSource.Backbone
 
                 if (instance == null)
                 {
-                    // TODO: Log warning $"{nameof(strategy.TryClassifyAsync)} don't expect to return null value");
-                    throw new ArgumentNullException("Cannot cre");
+                    var ex = new ArgumentNullException("Cannot create instance");
+                    _plan.Logger?.LogWarning(ex, "Consumer fail to create instance");
+                    throw ex;
                 }
 
                 #endregion // Validation

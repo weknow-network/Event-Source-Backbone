@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-// TODO: consider Channel<T>
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
