@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -60,7 +61,8 @@ namespace Weknow.EventSource.Backbone
             private readonly Func<ConsumerMetadata, T> _factory;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
-            private readonly GCHandle? _gcHandle;
+            private readonly static ConcurrentDictionary<Subscription, object?> _keepAlive =
+                                                new ConcurrentDictionary<Subscription, object?>();
 
             #region Ctor
 
@@ -76,9 +78,8 @@ namespace Weknow.EventSource.Backbone
                 _plan = plan;
                 var channel = _plan.Channel;
                 _factory = factory;
-                // TODO: [bnaya, 2020-07] Review with Avi
-                if(plan.Options.KeepAlive)
-                    _gcHandle = GCHandle.Alloc(this, GCHandleType.Normal);
+                if (plan.Options.KeepAlive)
+                    _keepAlive.TryAdd(this, null);
 
                 _subscriptionLifetime = channel.ReceiveAsync(
                                                     ConsumingAsync,
@@ -184,7 +185,7 @@ namespace Weknow.EventSource.Backbone
             public ValueTask DisposeAsync()
             {
                 _cancellation.CancelSafe();
-                _gcHandle?.Free();
+                _keepAlive.TryRemove(this, out _);
                 return _subscriptionLifetime;
             }
 
