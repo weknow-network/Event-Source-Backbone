@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+﻿using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -46,8 +43,8 @@ namespace Weknow.EventSource.Backbone
         /// GDPR (personal, non-personal data),
         /// Technical vs Business aspects, etc.
         /// </example>
-        ValueTask<Segments> TryClassifyAsync<T>(
-                        Segments segments,
+        ValueTask<Bucket> TryClassifyAsync<T>(
+                        Bucket segments,
                         string operation,
                         string argumentName,
                         T producedData,

@@ -1,16 +1,20 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
     public interface IProducerHooksBuilder:
-        IProducerSpecializeBuilder
+        IProducerLoggerBuilder
     {
+        #region Parameters
+
+        /// <summary>
+        /// Gets the producer's plan.
+        /// </summary>
+        ProducerPlan Plan { get; }
+
+        #endregion // Parameters
+
         #region AddInterceptor
 
         /// <summary>

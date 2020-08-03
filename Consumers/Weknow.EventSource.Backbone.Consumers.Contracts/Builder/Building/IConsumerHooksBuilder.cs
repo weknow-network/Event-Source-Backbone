@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Threading.Tasks.Dataflow;
+﻿using System.Threading;
 
 namespace Weknow.EventSource.Backbone.Building
 {
@@ -8,9 +6,15 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerHooksBuilder
-        : IConsumerPartitionBuilder,
-        IConsumerCancellationBuilder<IConsumerHooksBuilder>
+        : IConsumerPartitionBuilder
     {
+        /// <summary>
+        /// Withes the cancellation token.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        IConsumerHooksBuilder WithCancellation(CancellationToken cancellation);
+
         /// <summary>
         /// Register raw interceptor.
         /// Intercept the consumer side execution before de-serialization.
@@ -62,9 +66,6 @@ namespace Weknow.EventSource.Backbone.Building
         IConsumerHooksBuilder RegisterSegmentationStrategy(
                                 IConsumerAsyncSegmentationStrategy segmentationStrategy);
 
-        // TODO: move partition & shard to the end
-        // TODO: Build<T>(Func<Meta = partition + shard, T>)
-        //// TODO: ASP.NET: services.UseConsumer(IEventSourceConsumerHooksBuilder i)
         //[Consumer(Partition="X", Shard="y")]
         //public class ConsumerX : Consumer, ISequenceOperations
         //{ 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -13,7 +15,7 @@ namespace Weknow.EventSource.Backbone
     /// <typeparam name="T"></typeparam>
     public class ConsumerBase<T>
     {
-        private readonly ConsumerParameters _parameters;
+        private readonly ConsumerPlan _plan;
         private readonly Func<ConsumerMetadata, T> _factory;
 
         #region Ctor
@@ -21,13 +23,13 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="parameters">The parameters.</param>
+        /// <param name="plan">The plan.</param>
         /// <param name="factory">The factory.</param>
         public ConsumerBase(
-            ConsumerParameters parameters,
+            ConsumerPlan plan,
             Func<ConsumerMetadata, T> factory)
         {
-            _parameters = parameters;
+            _plan = plan;
             _factory = factory;
         }
 
@@ -41,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         public IAsyncDisposable Subscribe()
         { 
-            var subscription = new Subscription(_parameters, _factory);
+            var subscription = new Subscription(_plan, _factory);
             return subscription;
         }
 
@@ -54,7 +56,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         private class Subscription: IAsyncDisposable
         {
-            private readonly ConsumerParameters _parameters;
+            private readonly ConsumerPlan _plan;
             private readonly Func<ConsumerMetadata, T> _factory;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
@@ -65,22 +67,22 @@ namespace Weknow.EventSource.Backbone
             /// <summary>
             /// Initializes a new instance.
             /// </summary>
-            /// <param name="parameters">The parameters.</param>
+            /// <param name="plan">The plan.</param>
             /// <param name="factory">The factory.</param>
             public Subscription(
-                ConsumerParameters parameters,
+                ConsumerPlan plan,
                 Func<ConsumerMetadata, T> factory)
             {
-                _parameters = parameters;
-                var channel = _parameters.Channel;
+                _plan = plan;
+                var channel = _plan.Channel;
                 _factory = factory;
                 // TODO: [bnaya, 2020-07] Review with Avi
-                if(parameters.Options.KeepAlive)
+                if(plan.Options.KeepAlive)
                     _gcHandle = GCHandle.Alloc(this, GCHandleType.Normal);
 
                 _subscriptionLifetime = channel.ReceiveAsync(
                                                     ConsumingAsync,
-                                                    _parameters.Options, 
+                                                    _plan.Options, 
                                                     _cancellation.Token);
             }
 
@@ -101,10 +103,10 @@ namespace Weknow.EventSource.Backbone
             private async ValueTask ConsumingAsync(Announcement arg)
             {
                 var cancellations = CancellationToken.None;
-                if (_parameters.Cancellations.Count != 0)
+                if (_plan.Cancellations.Count != 0)
                 {
                     var cts = CancellationTokenSource.CreateLinkedTokenSource(
-                                        _parameters.Cancellations.ToArray());
+                                        _plan.Cancellations.ToArray());
                     cancellations = cts.Token;
                 }
                 var meta = new ConsumerMetadata(arg.Metadata, cancellations);
@@ -114,8 +116,9 @@ namespace Weknow.EventSource.Backbone
 
                 if (instance == null)
                 {
-                    // TODO: Log warning $"{nameof(strategy.TryClassifyAsync)} don't expect to return null value");
-                    throw new ArgumentNullException("Cannot cre");
+                    var ex = new ArgumentNullException("Cannot create instance");
+                    _plan.Logger?.LogWarning(ex, "Consumer fail to create instance");
+                    throw ex;
                 }
 
                 #endregion // Validation
@@ -126,7 +129,7 @@ namespace Weknow.EventSource.Backbone
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     ParameterInfo? parameter = parameters[i];
-                    MethodInfo? unclassify = this.GetType().GetMethod("Unclassify", BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo? unclassify = this.GetType().GetMethod(nameof(UnclassifyAsync), BindingFlags.NonPublic | BindingFlags.Instance);
                     unclassify = unclassify?.MakeGenericMethod(parameter.ParameterType);
 
                     #region Validation
@@ -152,15 +155,16 @@ namespace Weknow.EventSource.Backbone
             /// <summary>
             /// Unclassify the announcement.
             /// </summary>
-            /// <typeparam name="T"></typeparam>
+            /// <typeparam name="TParam"></typeparam>
             /// <param name="arg">The argument.</param>
             /// <param name="argumentName">Name of the argument.</param>
             /// <returns></returns>
-            private async ValueTask<object> Unclassify<T>(Announcement arg, string argumentName)
+            /// <exception cref="NotSupportedException"></exception>
+            protected async ValueTask<object?> UnclassifyAsync<TParam>(Announcement arg, string argumentName)
             {
-                foreach (var strategy in _parameters.SegmentationStrategies)
+                foreach (var strategy in _plan.SegmentationStrategies)
                 {
-                    var (isValid, value) = await strategy.TryUnclassifyAsync<T>(arg.Segments, arg.Metadata.Operation, argumentName, _parameters.Options);
+                    var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Segments, arg.Metadata.Operation, argumentName, _plan.Options);
                     if (isValid)
                         return value;
                 }

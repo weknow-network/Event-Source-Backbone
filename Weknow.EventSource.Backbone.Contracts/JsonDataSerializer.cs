@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// Json serializer (this is the default serializer)
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IDataSerializer" />
-    public class JsonDataSerializer : IDataSerializer
+    internal class JsonDataSerializer : IDataSerializer
     {
         private static readonly JsonSerializerOptions DEFAULT_OPTIONS = new JsonSerializerOptions();
 

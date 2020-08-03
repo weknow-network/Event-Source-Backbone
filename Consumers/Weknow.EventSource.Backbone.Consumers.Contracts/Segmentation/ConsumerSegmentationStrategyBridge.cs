@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
-
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
 
 namespace Weknow.EventSource.Backbone.Building
 {
@@ -27,7 +24,7 @@ namespace Weknow.EventSource.Backbone.Building
 
         #endregion // Ctor
 
-        #region ClassifyAsync
+        #region CreateClassificationAdaptor
 
         /// <summary>
         /// Unclassify segmented data into an instance.
@@ -54,7 +51,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// Technical vs Business aspects, etc.
         /// </example>
         ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync<T>(
-            Segments segments,
+            Bucket segments,
             string operation,
             string argumentName,
             IEventSourceOptions options)
@@ -67,6 +64,6 @@ namespace Weknow.EventSource.Backbone.Building
             return result.ToValueTask();
         }
 
-        #endregion // ClassifyAsync
+        #endregion // CreateClassificationAdaptor
     }
 }

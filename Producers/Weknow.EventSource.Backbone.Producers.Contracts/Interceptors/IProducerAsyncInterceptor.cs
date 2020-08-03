@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Segments = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -25,6 +23,6 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         ValueTask<ReadOnlyMemory<byte>> InterceptAsync(
                                 Metadata metadata,
-                                Segments segments);
+                                Bucket segments);
     }
 }

@@ -10,11 +10,11 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="parameters">The parameters.</param>
+            <param name="plan">The plan.</param>
             <param name="factory">The factory.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscribe">
@@ -28,11 +28,11 @@
             Represent single consuming subscription
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="parameters">The parameters.</param>
+            <param name="plan">The plan.</param>
             <param name="factory">The factory.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement)">
@@ -47,14 +47,15 @@
             unclassify
             </exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.Unclassify``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.UnclassifyAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
             <summary>
             Unclassify the announcement.
             </summary>
-            <typeparam name="T"></typeparam>
+            <typeparam name="TParam"></typeparam>
             <param name="arg">The argument.</param>
             <param name="argumentName">Name of the argument.</param>
             <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.DisposeAsync">
             <summary>
@@ -79,11 +80,11 @@
             Prevents a default instance of the <see cref="T:Weknow.EventSource.Backbone.ConsumerBuilder"/> class from being created.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.#ctor(Weknow.EventSource.Backbone.ConsumerParameters)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.#ctor(Weknow.EventSource.Backbone.ConsumerPlan)">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="parameters">The parameters.</param>
+            <param name="plan">The plan.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerBuilder#UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
@@ -175,6 +176,13 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerLoggerBuilder#WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0})">
             <summary>
             Subscribe consumer.
@@ -185,33 +193,25 @@
             The partition subscription (dispose to remove the subscription)
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerCancellationBuilder{Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder}#WithCancellation(System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#WithCancellation(System.Threading.CancellationToken)">
             <summary>
             Withes the cancellation token.
             </summary>
             <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerCancellationBuilder{Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder}#WithCancellation(System.Threading.CancellationToken)">
+        <member name="T:Weknow.EventSource.Backbone.ConsumerPlan">
             <summary>
-            Withes the cancellation token.
-            </summary>
-            <param name="cancellation">The cancellation.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.ConsumerParameters">
-            <summary>
-            This class is a bucket of parameters which built-up 
-            by the consumer builder.
-            It will used to define the consumer execution pipeline.
+            Hold builder definitions.
+            Define the consumer execution pipeline.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor">
             <summary>
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.#ctor(Weknow.EventSource.Backbone.ConsumerParameters,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -219,18 +219,24 @@
             <param name="channel">The channel.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
+            <param name="logger">The logger.</param>
             <param name="options">The options.</param>
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
             <param name="cancellations">The cancellations.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Channel">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Channel">
             <summary>
             Gets the communication channel provider.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Partition">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Logger">
+            <summary>
+            Gets the logger.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Partition">
             <summary>
             Partition key represent logical group of 
             event source shards.
@@ -247,7 +253,7 @@
             The partition.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Shard">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Shard">
             <summary>
             Shard key represent physical sequence.
             Use same shard when order is matter.
@@ -256,12 +262,12 @@
             ORDER into different shard and gain performance bust..
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Options">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Options">
             <summary>
             Gets the configuration.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.SegmentationStrategies">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.SegmentationStrategies">
             <summary>
             Segmentation responsible of splitting an instance into segments.
             Segments is how the Consumer sending its raw data to
@@ -275,7 +281,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Interceptors">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Interceptors">
             <summary>
             Consumer interceptors (Timing: after serialization).
             </summary>
@@ -283,72 +289,95 @@
             The interceptors.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerParameters.Cancellations">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Cancellations">
             <summary>
             Gets the cancellation tokens.
             </summary>
         </member>
-        <member name="F:Weknow.EventSource.Backbone.ConsumerParameters.Routes">
+        <member name="F:Weknow.EventSource.Backbone.ConsumerPlan.Routes">
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
-            Withes the channel.
+            Attach the channel.
             </summary>
             <param name="channel">The channel.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithCancellation(System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
             <summary>
-            Withes the cancellation.
+            Attach the LOGGER.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Attach the cancellation.
             </summary>
             <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
-            Withes the options.
+            Attach the options.
             </summary>
             <param name="options">The options.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithPartition(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithPartition(System.String)">
             <summary>
-            Withes the partition.
+            Attach the partition.
             </summary>
             <param name="partition">The partition.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.WithShard(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithShard(System.String)">
             <summary>
-            Withes the shard.
+            Attach the shard.
             </summary>
             <param name="shard">The shard.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">
             <summary>
             Adds the route.
             </summary>
             <param name="route">The route.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddSegmentation(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.AddSegmentation(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
             <summary>
             Adds the segmentation.
             </summary>
             <param name="segmentation">The segmentation.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerParameters.AddInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.AddInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
             <summary>
             Adds the interceptor.
             </summary>
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel">
+            <summary>
+            Not operational channel
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IConsumerChannelProvider" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.ReceiveAsync(System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+            <summary>
+            Receives the asynchronous.
+            </summary>
+            <param name="func">The function.</param>
+            <param name="options">The options.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException">Channel must be define</exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
             <summary>

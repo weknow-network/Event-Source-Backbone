@@ -4,6 +4,79 @@
         <name>Weknow.EventSource.Backbone.Contracts</name>
     </assembly>
     <members>
+        <member name="F:Weknow.EventSource.Backbone.Bucket.Empty">
+            <summary>
+            Empty
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Weknow.EventSource.Backbone.Bucket"/> class from being created.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.#ctor(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="data">The data.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.Add(System.String,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Adds an element with the specified key and value to the bucket.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.TryGetValue(System.String,System.ReadOnlyMemory{System.Byte}@)">
+            <summary>
+            Gets the value associated with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.AddRange(Weknow.EventSource.Backbone.Bucket)">
+            <summary>
+            Adds the specified key/value pairs to the bucket.
+            </summary>
+            <param name="bucket">The bucket.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.op_Implicit(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})~Weknow.EventSource.Backbone.Bucket">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="data">The data.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.op_Implicit(Weknow.EventSource.Backbone.Bucket)~System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            An enumerator that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Announcement">
             <summary>
             Non-generics form of announcement representation,
@@ -20,7 +93,7 @@
             Only for serialization support.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
             <summary>
             Initializes a new instance
             </summary>
@@ -54,12 +127,13 @@
             flowing auth context or traces, producing metrics, etc.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Announcement.InterceptedData">
+        <member name="M:Weknow.EventSource.Backbone.Announcement.With(Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
             <summary>
-            Gets or sets the mapping of data which 
-            was created by interceptors on the send side
-            and should be evaluate by the interceptor at consume side.
+            <![CDATA[Clone Withes new segments & interceptor-data.]]>
             </summary>
+            <param name="segments">The segments.</param>
+            <param name="interceptorData">The interceptor data.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Metadata">
             <summary>
@@ -124,6 +198,17 @@
             Gets or sets the shard.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceOptions.#ctor(Weknow.EventSource.Backbone.IDataSerializer)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="serializer">The serializer.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceOptions.Serializer">
+            <summary>
+            Gets the serializer.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IDataSerializer">
             <summary>
             Enable to replace the default serialization
@@ -185,6 +270,12 @@
             between the producer and consumer interceptor.
             It's recommended to use URL format.
             </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.JsonDataSerializer">
+            <summary>
+            Json serializer (this is the default serializer)
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
         </member>
         <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Ack">
             <summary>

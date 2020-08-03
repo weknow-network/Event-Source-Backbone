@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
-using Bucket = System.Collections.Immutable.ImmutableDictionary<string, System.ReadOnlyMemory<byte>>;
+
 
 namespace Weknow.EventSource.Backbone.CodeGeneration
 {
@@ -49,14 +45,19 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                                     .ToArray());
                 var parameters = method.GetParameters();
                 typeBuilder.DefineMethodOverride(methodBuilder, method);
-                var classifyAsyncMethod = typeof(TBase).GetMethod("ClassifyArgumentAsync", BindingFlags.NonPublic | BindingFlags.Instance);
-                var sendAsyncMethod = typeof(TBase).GetMethod("SendAsync", BindingFlags.NonPublic | BindingFlags.Instance);
+                var classifyAsyncMethod = typeof(TBase).GetMethod("CreateClassificationAdaptor", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (classifyAsyncMethod == null)
+                    throw new ArgumentNullException($"Code Gen: {nameof(classifyAsyncMethod)}");
+
+                var returnType = classifyAsyncMethod.ReturnType;
+                var sendAsyncMethod = typeof(TBase).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "SendAsync" && m.GetParameters().Length == 2);
                 var il = methodBuilder.GetILGenerator();
-                var arr = il.DeclareLocal(typeof(ValueTask<Bucket>[]));
+                var arr = il.DeclareLocal(returnType.MakeArrayType());
                 il.Emit(OpCodes.Nop);
 
                 il.Emit(OpCodes.Ldc_I4, parameters.Length);
-                il.Emit(OpCodes.Newarr, typeof(ValueTask<Bucket>));
+                il.Emit(OpCodes.Newarr, returnType);
                 il.Emit(OpCodes.Stloc_0);
 
                 // classify each parameter
@@ -67,10 +68,10 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                     il.Emit(OpCodes.Ldc_I4, i);
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldstr, method.Name);
-                    il.Emit(OpCodes.Ldstr, parameter.Name);
+                    il.Emit(OpCodes.Ldstr, parameter.Name ?? throw new ArgumentNullException($"Code Gen: {nameof(parameter)}.Name"));
                     il.Emit(OpCodes.Ldarg, i + 1);
                     il.Emit(OpCodes.Call, classifyAsyncMethod.MakeGenericMethod(parameter.ParameterType));
-                    il.Emit(OpCodes.Stelem, typeof(ValueTask<Bucket>));
+                    il.Emit(OpCodes.Stelem, returnType);
                 }
 
                 il.Emit(OpCodes.Ldarg_0);
@@ -79,8 +80,8 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                 il.Emit(OpCodes.Call, sendAsyncMethod);
                 il.Emit(OpCodes.Ret);
             }
-            var type = typeBuilder.CreateTypeInfo();
-            return (T)Activator.CreateInstance(type, arguments);
+            var type = typeBuilder.CreateTypeInfo() ?? throw new ArgumentNullException("Code Gen: CreateTypeInfo()");
+            return (T)Activator.CreateInstance(type, arguments) ?? throw new ArgumentNullException("Code Gen: Activator.CreateInstance");
         }
     }
 }

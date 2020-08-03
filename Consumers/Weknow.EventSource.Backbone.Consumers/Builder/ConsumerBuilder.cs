@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Threading;
 
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.CodeGeneration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -15,7 +15,7 @@ namespace Weknow.EventSource.Backbone
         IConsumerOptionsBuilder,
         IConsumerShardBuilder
     {
-        private readonly ConsumerParameters _parameters = ConsumerParameters.Empty;
+        private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
 
         /// <summary>
         /// Event Source consumer builder.
@@ -35,10 +35,10 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="parameters">The parameters.</param>
-        private ConsumerBuilder(ConsumerParameters parameters)
+        /// <param name="plan">The plan.</param>
+        private ConsumerBuilder(ConsumerPlan plan)
         {
-            _parameters = parameters;
+            _plan = plan;
         }
 
         #endregion // Ctor
@@ -53,7 +53,7 @@ namespace Weknow.EventSource.Backbone
         IConsumerOptionsBuilder IConsumerBuilder.UseChannel(
                         IConsumerChannelProvider channel)
         {
-            var prms = _parameters.WithChannel(channel);
+            var prms = _plan.WithChannel(channel);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -69,7 +69,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         IConsumerHooksBuilder IConsumerOptionsBuilder.WithOptions(IEventSourceConsumerOptions options)
         {
-            var prms = _parameters.WithOptions(options);
+            var prms = _plan.WithOptions(options);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -95,7 +95,7 @@ namespace Weknow.EventSource.Backbone
         IConsumerShardBuilder IConsumerPartitionBuilder.Partition(
                                     string partition)
         {
-            var prms = _parameters.WithPartition(partition);
+            var prms = _plan.WithPartition(partition);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -118,7 +118,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         public IConsumerSubscribeBuilder Shard(string shard)
         {
-            var prms = _parameters.WithShard(shard);
+            var prms = _plan.WithShard(shard);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -144,7 +144,7 @@ namespace Weknow.EventSource.Backbone
         IConsumerHooksBuilder IConsumerHooksBuilder.RegisterSegmentationStrategy(IConsumerSegmentationStrategy segmentationStrategy)
         {
             var bridge = new ConsumerSegmentationStrategyBridge(segmentationStrategy);
-            var prms = _parameters.AddSegmentation(bridge);
+            var prms = _plan.AddSegmentation(bridge);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -165,7 +165,7 @@ namespace Weknow.EventSource.Backbone
         /// </example>
         IConsumerHooksBuilder IConsumerHooksBuilder.RegisterSegmentationStrategy(IConsumerAsyncSegmentationStrategy segmentationStrategy)
         {
-            var prms = _parameters.AddSegmentation(segmentationStrategy);
+            var prms = _plan.AddSegmentation(segmentationStrategy);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -183,7 +183,7 @@ namespace Weknow.EventSource.Backbone
                             IConsumerInterceptor interceptor)
         {
             var bridge = new ConsumerInterceptorBridge(interceptor);
-            var prms = _parameters.AddInterceptor(bridge);
+            var prms = _plan.AddInterceptor(bridge);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -196,12 +196,28 @@ namespace Weknow.EventSource.Backbone
         IConsumerHooksBuilder IConsumerHooksBuilder.RegisterInterceptor(
                             IConsumerAsyncInterceptor interceptor)
         {
-            var prms = _parameters.AddInterceptor(interceptor);
+            var prms = _plan.AddInterceptor(interceptor);
             var result = new ConsumerBuilder(prms);
             return result;
         }
 
         #endregion // RegisterInterceptor
+
+        #region WithLogger
+
+        /// <summary>
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IConsumerLoggerBuilder.WithLogger(ILogger logger)
+        {
+            var prms = _plan.WithLogger(logger);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // WithLogger
 
         #region Subscribe
 
@@ -219,16 +235,16 @@ namespace Weknow.EventSource.Backbone
         {
             #region Validation
 
-            if (_parameters == null)
-                throw new ArgumentNullException(nameof(_parameters));
+            if (_plan == null)
+                throw new ArgumentNullException(nameof(_plan));
 
             #endregion // Validation
 
-            var parameters = _parameters;
-            if (parameters.SegmentationStrategies.Count == 0)
-                parameters = parameters.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
+            var plan = _plan;
+            if (plan.SegmentationStrategies.Count == 0)
+                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            var consumer = new ConsumerBase<T>(parameters, factory);
+            var consumer = new ConsumerBase<T>(plan, factory);
             var subscription = consumer.Subscribe();
             return subscription;
         }
@@ -242,21 +258,9 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        IConsumerHooksBuilder IConsumerCancellationBuilder<IConsumerHooksBuilder>.WithCancellation(CancellationToken cancellation)
+        IConsumerHooksBuilder IConsumerHooksBuilder.WithCancellation(CancellationToken cancellation)
         {
-            var prms = _parameters.WithCancellation(cancellation);
-            var result = new ConsumerBuilder(prms);
-            return result;
-        }
-
-        /// <summary>
-        /// Withes the cancellation token.
-        /// </summary>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns></returns>
-        IConsumerOptionsBuilder IConsumerCancellationBuilder<IConsumerOptionsBuilder>.WithCancellation(CancellationToken cancellation)
-        {
-            var prms = _parameters.WithCancellation(cancellation);
+            var prms = _plan.WithCancellation(cancellation);
             var result = new ConsumerBuilder(prms);
             return result;
         }

@@ -1,7 +1,8 @@
 using FakeItEasy;
 
+using Microsoft.Extensions.Logging;
+
 using System;
-using System.Threading.Tasks.Dataflow;
 
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
@@ -13,6 +14,7 @@ namespace Weknow.EventSource.Backbone
     public class EventSourceConsumerApiDesignTests
     {
         private readonly ITestOutputHelper _outputHelper;
+        private readonly ILogger _logger = A.Fake<ILogger>();
         private readonly IConsumerBuilder _builder = A.Fake<IConsumerBuilder>();
         private readonly IConsumerChannelProvider _channel = A.Fake<IConsumerChannelProvider>();
         private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
@@ -39,6 +41,7 @@ namespace Weknow.EventSource.Backbone
                         .RegisterSegmentationStrategy(_segmentation)
                         .Partition("ORDERS")
                         // .Shard("ORDER-AHS7821X")
+                        .WithLogger(_logger)
                         .Subscribe(meta => _subscriber);
 
         }

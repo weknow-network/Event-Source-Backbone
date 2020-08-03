@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,24 +11,21 @@ namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>
-    /// This class is a bucket of parameters which built-up 
-    /// by the consumer builder.
-    /// It will used to define the consumer execution pipeline.
+    /// Hold builder definitions.
+    /// Define the consumer execution pipeline.
     /// </summary>
-    public class ConsumerParameters
+    public class ConsumerPlan
     {
-        public static readonly ConsumerParameters Empty = new ConsumerParameters();
+        public static readonly ConsumerPlan Empty = new ConsumerPlan();
 
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        private ConsumerParameters()
+        private ConsumerPlan()
         {
         }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         /// <summary>
         /// Initializes a new instance.
@@ -36,16 +34,18 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The channel.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
+        /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
         /// <param name="cancellations">The cancellations.</param>
-        private ConsumerParameters(
-            ConsumerParameters copyFrom,
+        private ConsumerPlan(
+            ConsumerPlan copyFrom,
             IConsumerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
+            ILogger? logger = null,
             IEventSourceConsumerOptions? options = null,
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
@@ -55,6 +55,7 @@ namespace Weknow.EventSource.Backbone
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
+            Logger = logger;
             Options = options ?? copyFrom.Options;
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
@@ -69,7 +70,16 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IConsumerChannelProvider Channel { get; } // TODO: [bnaya, 2020-07] assign in memory channel provider
+        public IConsumerChannelProvider Channel { get; } = NopChannel.Empty;
+
+        #endregion // Channel
+
+        #region Logger
+
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
+        public ILogger? Logger { get; } = null;
 
         #endregion // Channel
 
@@ -173,14 +183,27 @@ namespace Weknow.EventSource.Backbone
         #region WithChannel
 
         /// <summary>
-        /// Withes the channel.
+        /// Attach the channel.
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <returns></returns>
-        internal ConsumerParameters WithChannel(
-                                        IConsumerChannelProvider channel)
+        internal ConsumerPlan WithChannel(IConsumerChannelProvider channel)
         {
-            return new ConsumerParameters(this, channel: channel);
+            return new ConsumerPlan(this, channel: channel);
+        }
+
+        #endregion // WithChannel
+
+        #region WithLogger
+
+        /// <summary>
+        /// Attach the LOGGER.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithLogger(ILogger logger)
+        {
+            return new ConsumerPlan(this, logger: logger);
         }
 
         #endregion // WithChannel
@@ -188,15 +211,15 @@ namespace Weknow.EventSource.Backbone
         #region WithCancellation
 
         /// <summary>
-        /// Withes the cancellation.
+        /// Attach the cancellation.
         /// </summary>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        internal ConsumerParameters WithCancellation(
+        internal ConsumerPlan WithCancellation(
                                         CancellationToken cancellation)
         {
             var cancellations = Cancellations.Add(cancellation);
-            return new ConsumerParameters(this, cancellations: cancellations);
+            return new ConsumerPlan(this, cancellations: cancellations);
         }
 
         #endregion // WithCancellation
@@ -204,14 +227,14 @@ namespace Weknow.EventSource.Backbone
         #region WithOptions
 
         /// <summary>
-        /// Withes the options.
+        /// Attach the options.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        internal ConsumerParameters WithOptions(
+        internal ConsumerPlan WithOptions(
                                         IEventSourceConsumerOptions options)
         {
-            return new ConsumerParameters(this, options: options);
+            return new ConsumerPlan(this, options: options);
         }
 
         #endregion // WithOptions
@@ -219,14 +242,14 @@ namespace Weknow.EventSource.Backbone
         #region WithPartition
 
         /// <summary>
-        /// Withes the partition.
+        /// Attach the partition.
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        internal ConsumerParameters WithPartition(
+        internal ConsumerPlan WithPartition(
                                                 string partition)
         {
-            return new ConsumerParameters(this, partition: partition);
+            return new ConsumerPlan(this, partition: partition);
         }
 
         #endregion // WithPartition
@@ -234,14 +257,14 @@ namespace Weknow.EventSource.Backbone
         #region WithShard
 
         /// <summary>
-        /// Withes the shard.
+        /// Attach the shard.
         /// </summary>
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
-        internal ConsumerParameters WithShard(
+        internal ConsumerPlan WithShard(
                                                 string shard)
         {
-            return new ConsumerParameters(this, shard: shard);
+            return new ConsumerPlan(this, shard: shard);
         }
 
         #endregion // WithShard
@@ -253,10 +276,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="route">The route.</param>
         /// <returns></returns>
-        internal ConsumerParameters AddRoute(
+        internal ConsumerPlan AddRoute(
                                                 IConsumerHooksBuilder route)
         {
-            return new ConsumerParameters(this, routes: Routes.Add(route));
+            return new ConsumerPlan(this, routes: Routes.Add(route));
         }
 
         #endregion // AddRoute
@@ -268,10 +291,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="segmentation">The segmentation.</param>
         /// <returns></returns>
-        internal ConsumerParameters AddSegmentation(
+        internal ConsumerPlan AddSegmentation(
                                                 IConsumerAsyncSegmentationStrategy segmentation)
         {
-            return new ConsumerParameters(this, 
+            return new ConsumerPlan(this,
                             segmentationStrategies: SegmentationStrategies.Add(segmentation));
         }
 
@@ -284,13 +307,42 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="interceptor">The interceptor.</param>
         /// <returns></returns>
-        internal ConsumerParameters AddInterceptor(
+        internal ConsumerPlan AddInterceptor(
                                   IConsumerAsyncInterceptor interceptor)
         {
-            return new ConsumerParameters(this, 
+            return new ConsumerPlan(this,
                             interceptors: Interceptors.Add(interceptor));
         }
 
         #endregion // AddInterceptor
+
+        #region class NopChannel
+
+        /// <summary>
+        /// Not operational channel
+        /// </summary>
+        /// <seealso cref="Weknow.EventSource.Backbone.IConsumerChannelProvider" />
+        private class NopChannel : IConsumerChannelProvider
+        {
+            public static readonly IConsumerChannelProvider Empty = new NopChannel();
+
+            /// <summary>
+            /// Receives the asynchronous.
+            /// </summary>
+            /// <param name="func">The function.</param>
+            /// <param name="options">The options.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns></returns>
+            /// <exception cref="NotSupportedException">Channel must be define</exception>
+            public ValueTask ReceiveAsync(
+                Func<Announcement, ValueTask> func,
+                IEventSourceConsumerOptions options,
+                CancellationToken cancellationToken)
+            {
+                throw new NotSupportedException("Channel must be define");
+            }
+        }
+
+        #endregion // class NopChannel    }
     }
 }

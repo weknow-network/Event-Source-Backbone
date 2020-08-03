@@ -53,18 +53,6 @@
             </summary>
             <param name="timeout">The timeout.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1">
-            <summary>
-            Event Source producer builder stage.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerCancellationBuilder`1.WithCancellation(System.Threading.CancellationToken)">
-            <summary>
-            Withes the cancellation token.
-            </summary>
-            <param name="cancellation">The cancellation.</param>
-            <returns></returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
             <summary>
             Event Source producer builder.
@@ -109,6 +97,13 @@
             <summary>
             Event Source producer builder.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation token.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder.RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
             <summary>
@@ -157,6 +152,18 @@
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder">
             <summary>
@@ -253,7 +260,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -379,7 +386,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -417,7 +424,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to

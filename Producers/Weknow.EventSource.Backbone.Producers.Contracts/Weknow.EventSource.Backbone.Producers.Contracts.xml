@@ -9,6 +9,11 @@
             Event Source producer builder.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.Building.IProducerHooksBuilder.Plan">
+            <summary>
+            Gets the producer's plan.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IProducerHooksBuilder.AddInterceptor(Weknow.EventSource.Backbone.IProducerInterceptor)">
             <summary>
             Adds Producer interceptor (stage = after serialization).
@@ -57,6 +62,18 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerLoggerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder">
             <summary>
             Event Source producer builder.
@@ -95,7 +112,7 @@
             It's recommended to use URL format.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge.Weknow#EventSource#Backbone#IProducerAsyncInterceptor#InterceptAsync(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket)">
             <summary>
             Interception operation.
             </summary>
@@ -120,7 +137,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -158,7 +175,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#TryClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -264,7 +281,7 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IInterceptorName" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncInterceptor.InterceptAsync(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket)">
             <summary>
             Interception operation.
             </summary>
@@ -290,6 +307,170 @@
             <param name="metadata">The metadata.</param>
             <returns>Data which will be available to the 
             consumer stage of the interception.</returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerPlan">
+            <summary>
+            Hold builder definitions.
+            Define the consumer execution pipeline.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor">
+            <summary>
+            Initializes a new instance.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="copyFrom">The copy from.</param>
+            <param name="channel">The channel.</param>
+            <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
+            <param name="logger">The logger.</param>
+            <param name="options">The options.</param>
+            <param name="segmentationStrategies">The segmentation strategies.</param>
+            <param name="interceptors">The interceptors.</param>
+            <param name="routes">The routes.</param>
+            <param name="forwards">Result of merging multiple channels.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Channel">
+            <summary>
+            Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Logger">
+            <summary>
+            Gets the logger.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Partition">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <value>
+            The partition.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Shard">
+            <summary>
+            Shard key represent physical sequence.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Options">
+            <summary>
+            Gets the configuration.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.SegmentationStrategies">
+            <summary>
+            Segmentation responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Interceptors">
+            <summary>
+            Producer interceptors (Timing: after serialization).
+            </summary>
+            <value>
+            The interceptors.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Forwards">
+            <summary>
+            Gets the forwards pipelines.
+            Result of merging multiple channels.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.ProducerPlan.Routes">
+            <summary>
+            Routes are sub-pipelines are results of merge operation
+            which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+            <summary>
+            Assign channel.
+            </summary>
+            <param name="channel">The channel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+            r
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+            <summary>
+            Withes the options.
+            </summary>
+            <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String)">
+            <summary>
+            Withes the partition.
+            </summary>
+            <param name="partition">The partition.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithShard(System.String)">
+            <summary>
+            Withes the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.AddRoute(Weknow.EventSource.Backbone.Building.IProducerHooksBuilder)">
+            <summary>
+            Adds the route.
+            </summary>
+            <param name="route">The route.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.AddSegmentation(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy)">
+            <summary>
+            Adds the segmentation.
+            </summary>
+            <param name="segmentation">The segmentation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.AddInterceptor(Weknow.EventSource.Backbone.IProducerAsyncInterceptor)">
+            <summary>
+            Adds the interceptor.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerPlan.NopChannel">
+            <summary>
+            Not operational channel
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IProducerChannelProvider" />
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerChannelProvider">
             <summary>
@@ -317,7 +498,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.TryClassifyAsync``1(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}},System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to

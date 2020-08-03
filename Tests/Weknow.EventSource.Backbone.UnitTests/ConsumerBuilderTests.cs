@@ -1,7 +1,6 @@
 using FakeItEasy;
 
 using System;
-using System.Threading.Tasks.Dataflow;
 
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
@@ -18,14 +17,14 @@ namespace Weknow.EventSource.Backbone
         private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
         private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
         private readonly IConsumerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerAsyncInterceptor>();
-        private readonly EventSourceConsumerOptions _options;
+        //private readonly EventSourceConsumerOptions _options;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
         public ConsumerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-            var serializer = new JsonDataSerializer();
-            _options = new EventSourceConsumerOptions(serializer: serializer);
+            //var serializer = new JsonDataSerializer();
+            //_options = new EventSourceConsumerOptions(serializer: serializer);
         }
 
         #region Build_Raw_Consumer_Direct_Test
@@ -35,7 +34,7 @@ namespace Weknow.EventSource.Backbone
         {
            IAsyncDisposable disposePrtition =
                 _builder.UseChannel(_channel)
-                        .WithOptions(_options)
+                        //.WithOptions(_options)
                         .RegisterInterceptor(_rawAsyncInterceptor)
                         .RegisterInterceptor(_rawInterceptor)
                         .RegisterSegmentationStrategy(_segmentation)

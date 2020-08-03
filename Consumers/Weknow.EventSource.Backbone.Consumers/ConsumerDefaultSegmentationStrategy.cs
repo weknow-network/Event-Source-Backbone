@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -11,7 +10,7 @@ namespace Weknow.EventSource.Backbone
 
         ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.
                                 TryUnclassifyAsync<T>(
-                                        ImmutableDictionary<string, ReadOnlyMemory<byte>> segments,
+                                        Bucket segments,
                                         string operation,
                                         string argumentName,
                                         IEventSourceOptions options)
