@@ -19,7 +19,12 @@
     <Version>1.0.1</Version>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>.\Weknow.EventSource.Backbone.Producers.xml</DocumentationFile>
+    <DocumentationFile>C:\.repo\GitHub\.weknow\Weknow.EventSource.Backbone\Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisProvider\Weknow.EventSource.Backbone.Channels.RedisProvider.xml</DocumentationFile>
+    <PackageProjectUrl>https://github.com/weknow-network/Event-Source-Backbone</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
     <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.1" />
@@ -33,6 +38,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

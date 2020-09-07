@@ -363,10 +363,11 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.ReceiveAsync(System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.SubsribeAsync(Weknow.EventSource.Backbone.ConsumerMetadata,System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
             <summary>
-            Receives the asynchronous.
+            Subscribe to the channel for specific metadata.
             </summary>
+            <param name="metadata">The metadata.</param>
             <param name="func">The function.</param>
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>

@@ -78,6 +78,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // AddRange
 
+        #region Keys
+
+        /// <summary>
+        /// Gets the keys.
+        /// </summary>
+        public IEnumerable<string> Keys => _data.Keys;
+
+        #endregion // Keys
+
         #region Cast overloads
 
         /// <summary>

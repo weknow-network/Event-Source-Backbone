@@ -23,16 +23,18 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
-        #region ReceiveAsync
+        #region SubsribeAsync
 
         /// <summary>
-        /// Receives the asynchronous.
+        /// Subscribe to the channel for specific metadata.
         /// </summary>
+        /// <param name="metadata">The metadata.</param>
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async ValueTask ReceiveAsync(
+        /// <returns>When completed</returns>
+        public async ValueTask SubsribeAsync(
+                    IConsumerPlan metadata,
                     Func<Announcement, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
@@ -50,6 +52,6 @@ namespace Weknow.EventSource.Backbone
         }
 
 
-        #endregion // ReceiveAsync
+        #endregion // SubsribeAsync
     }
 }

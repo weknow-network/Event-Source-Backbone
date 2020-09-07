@@ -57,7 +57,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         private class Subscription: IAsyncDisposable
         {
-            private readonly ConsumerPlan _plan;
+            private readonly IConsumerPlan _plan;
             private readonly Func<ConsumerMetadata, T> _factory;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
@@ -72,18 +72,19 @@ namespace Weknow.EventSource.Backbone
             /// <param name="plan">The plan.</param>
             /// <param name="factory">The factory.</param>
             public Subscription(
-                ConsumerPlan plan,
+                IConsumerPlan plan,
                 Func<ConsumerMetadata, T> factory)
             {
+                var channel = plan.Channel;
                 _plan = plan;
-                var channel = _plan.Channel;
                 _factory = factory;
                 if (plan.Options.KeepAlive)
                     _keepAlive.TryAdd(this, null);
 
-                _subscriptionLifetime = channel.ReceiveAsync(
+                _subscriptionLifetime = channel.SubsribeAsync(
+                                                    plan,
                                                     ConsumingAsync,
-                                                    _plan.Options, 
+                                                    plan.Options, 
                                                     _cancellation.Token);
             }
 
@@ -103,14 +104,8 @@ namespace Weknow.EventSource.Backbone
             /// </exception>
             private async ValueTask ConsumingAsync(Announcement arg)
             {
-                var cancellations = CancellationToken.None;
-                if (_plan.Cancellations.Count != 0)
-                {
-                    var cts = CancellationTokenSource.CreateLinkedTokenSource(
-                                        _plan.Cancellations.ToArray());
-                    cancellations = cts.Token;
-                }
-                var meta = new ConsumerMetadata(arg.Metadata, cancellations);
+                var cancellation = _plan.Cancellation;
+                var meta = new ConsumerMetadata(arg.Metadata, cancellation);
                 var instance = _factory(meta);
 
                 #region Validation

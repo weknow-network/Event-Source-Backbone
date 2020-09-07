@@ -1,17 +1,19 @@
-﻿using System.Threading.Channels;
+﻿using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>
-    /// In-Memory Channel (excelent for testing)
+    /// In-Memory Channel (excellent for testing)
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IProducerChannelProvider" />
     public class ProducerTestChannel :
                             IProducerChannelProvider
     {
         private readonly Channel<Announcement> _channel;
+        private int _index;
 
         #region Ctor
 
@@ -35,9 +37,10 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// The announcement id
         /// </returns>
-        public async ValueTask SendAsync(Announcement payload)
+        public async ValueTask<string> SendAsync(Announcement payload)
         {
             await _channel.Writer.WriteAsync(payload);
+            return Interlocked.Increment(ref _index).ToString();
         }
 
         #endregion // SendAsync

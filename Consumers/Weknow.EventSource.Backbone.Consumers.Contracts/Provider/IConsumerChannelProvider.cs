@@ -11,13 +11,15 @@ namespace Weknow.EventSource.Backbone
     public interface IConsumerChannelProvider
     {
         /// <summary>
-        /// Receives the asynchronous.
+        /// Subscribe to the channel for specific metadata.
         /// </summary>
+        /// <param name="plan">The consumer plan.</param>
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        ValueTask ReceiveAsync(
+        /// <returns>When completed</returns>
+        ValueTask SubsribeAsync(
+                    IConsumerPlan plan,
                     Func<Announcement, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken);

@@ -43,6 +43,11 @@
             <param name="bucket">The bucket.</param>
             <returns></returns>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.Bucket.Keys">
+            <summary>
+            Gets the keys.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.op_Implicit(System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}})~Weknow.EventSource.Backbone.Bucket">
             <summary>
             Performs an implicit conversion.
@@ -196,6 +201,11 @@
         <member name="P:Weknow.EventSource.Backbone.Metadata.Shard">
             <summary>
             Gets or sets the shard.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Key">
+            <summary>
+            Gets the partition:shard as key.
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventSourceOptions.#ctor(Weknow.EventSource.Backbone.IDataSerializer)">

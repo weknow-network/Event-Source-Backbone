@@ -33,7 +33,8 @@ namespace Weknow.EventSource.Backbone
         public void Build_Raw_Consumer_Direct_Test()
         {
            IAsyncDisposable disposePrtition =
-                _builder.UseChannel(_channel)
+                _builder
+                        .UseChannel(_channel)
                         //.WithOptions(_options)
                         .RegisterInterceptor(_rawAsyncInterceptor)
                         .RegisterInterceptor(_rawInterceptor)

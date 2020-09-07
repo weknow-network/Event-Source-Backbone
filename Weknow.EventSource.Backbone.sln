@@ -12,9 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Contracts", "Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj", "{E17F4D78-8645-457E-B4CB-455FCED12F49}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Producers", "Producers", "{3FBE7FA1-700D-4B58-8569-15F533F761D1}"
-	ProjectSection(SolutionItems) = preProject
-		Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.xml = Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.xml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumers", "Consumers", "{EC34CEBD-EEDE-4CBA-A28A-A71BCB51D5D2}"
 EndProject
@@ -30,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Channels", "Channels", "{75
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{64FC6860-BD4C-4C11-BF6E-E99BB4D91723}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Channels.RedisProvider", "Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisProvider\Weknow.EventSource.Backbone.Channels.RedisProvider.csproj", "{6EA0401C-E498-4726-AD85-472C47B6FB09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Channels.RedisProvider", "Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisProvider\Weknow.EventSource.Backbone.Channels.RedisProvider.csproj", "{9939BA01-E471-45BB-8BAC-75C3F8037E9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,12 +78,12 @@ Global
 		{90B4EBE9-7CDB-42E0-B5E2-9FCAC4AD52CA}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
 		{90B4EBE9-7CDB-42E0-B5E2-9FCAC4AD52CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B4EBE9-7CDB-42E0-B5E2-9FCAC4AD52CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.ProjRef|Any CPU.ActiveCfg = ProjRef|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EA0401C-E498-4726-AD85-472C47B6FB09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.ProjRef|Any CPU.ActiveCfg = ProjRef|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,7 +95,7 @@ Global
 		{6821E250-3BE8-4CDA-AFEA-FB8C9B4C4106} = {EC34CEBD-EEDE-4CBA-A28A-A71BCB51D5D2}
 		{90B4EBE9-7CDB-42E0-B5E2-9FCAC4AD52CA} = {3FBE7FA1-700D-4B58-8569-15F533F761D1}
 		{64FC6860-BD4C-4C11-BF6E-E99BB4D91723} = {75CE8A6F-D63B-491D-8834-8D3BA2127208}
-		{6EA0401C-E498-4726-AD85-472C47B6FB09} = {64FC6860-BD4C-4C11-BF6E-E99BB4D91723}
+		{9939BA01-E471-45BB-8BAC-75C3F8037E9E} = {64FC6860-BD4C-4C11-BF6E-E99BB4D91723}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {103E4CA1-859C-4E6A-9F2D-7FD54A8E687C}

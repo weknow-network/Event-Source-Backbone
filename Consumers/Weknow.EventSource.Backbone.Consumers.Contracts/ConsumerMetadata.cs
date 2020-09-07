@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// a communication channel (Pub/Sub, Event Source, REST, GraphQL).
     /// It represent the operation's intent or represent event.
     /// </summary>
-    [DebuggerDisplay("{Partition}/{Shard} [{MessageId} at {ProducedAt}]")]
+    [DebuggerDisplay("{Metadata.Partition}/{Metadata.Shard} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
     public sealed class ConsumerMetadata 
     {
         #region Ctor
@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="metadata">The metadata.</param>
-        /// <param name="consumingCancellation">The consuming cancellation 
+        /// <param name="consumingCancellation">The consuming cancellation
         /// (stop consuming call-back on cancellation).</param>
         public ConsumerMetadata(
             Metadata metadata,

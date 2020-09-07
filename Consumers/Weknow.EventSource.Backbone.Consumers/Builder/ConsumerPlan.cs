@@ -14,7 +14,7 @@ namespace Weknow.EventSource.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
-    public class ConsumerPlan
+    public class ConsumerPlan : IConsumerPlan
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
 
@@ -39,7 +39,13 @@ namespace Weknow.EventSource.Backbone
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
-        /// <param name="cancellations">The cancellations.</param>
+        /// <param name="cancellation">The cancellation token.</param>
+        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages</param>
+        /// <param name="consumerName">
+        /// Optional Name of the consumer.
+        /// Can use for observability.
+        /// </param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             IConsumerChannelProvider? channel = null,
@@ -50,7 +56,9 @@ namespace Weknow.EventSource.Backbone
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
             IImmutableList<IConsumerHooksBuilder>? routes = null,
-            IImmutableList<CancellationToken>? cancellations = null)
+            CancellationToken? cancellation = null,
+            string? consumerGroup = null,
+            string? consumerName = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -60,7 +68,9 @@ namespace Weknow.EventSource.Backbone
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
-            Cancellations = cancellations ?? copyFrom.Cancellations;
+            Cancellation = cancellation ?? copyFrom.Cancellation;
+            ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
+            ConsumerName = consumerName ?? copyFrom.ConsumerName;
         }
 
         #endregion // Ctor
@@ -158,14 +168,14 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Interceptors
 
-        #region Cancellations
+        #region Cancellation
 
         /// <summary>
-        /// Gets the cancellation tokens.
+        /// Gets the cancellation token.
         /// </summary>
-        public IImmutableList<CancellationToken> Cancellations { get; } = ImmutableList<CancellationToken>.Empty;
+        public CancellationToken Cancellation { get; } = default;
 
-        #endregion // Cancellations
+        #endregion // Cancellation
 
         #region Routes
 
@@ -177,6 +187,27 @@ namespace Weknow.EventSource.Backbone
                 ImmutableList<IConsumerHooksBuilder>.Empty;
 
         #endregion // Routes
+
+        #region ConsumerGroup
+
+        /// <summary>
+        /// Gets the consumer group.
+        /// Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages
+        /// </summary>
+        public string ConsumerGroup { get; } = string.Empty;
+
+        #endregion // ConsumerGroup
+
+        #region ConsumerName
+
+        /// <summary>
+        /// Optional Name of the consumer.
+        /// Can use for observability.
+        /// </summary>
+        public string ConsumerName { get; } = Guid.NewGuid().ToString("N");
+
+        #endregion // ConsumerName
 
         //------------------------------------------
 
@@ -218,8 +249,13 @@ namespace Weknow.EventSource.Backbone
         internal ConsumerPlan WithCancellation(
                                         CancellationToken cancellation)
         {
-            var cancellations = Cancellations.Add(cancellation);
-            return new ConsumerPlan(this, cancellations: cancellations);
+            
+            if(Cancellation == default)
+                return new ConsumerPlan(this, cancellation: cancellation);
+
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(Cancellation, cancellation);
+            return new ConsumerPlan(this, cancellation: cts.Token);
+
         }
 
         #endregion // WithCancellation
@@ -231,8 +267,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithOptions(
-                                        IEventSourceConsumerOptions options)
+        internal ConsumerPlan WithOptions(IEventSourceConsumerOptions options)
         {
             return new ConsumerPlan(this, options: options);
         }
@@ -246,8 +281,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithPartition(
-                                                string partition)
+        internal ConsumerPlan WithPartition(string partition)
         {
             return new ConsumerPlan(this, partition: partition);
         }
@@ -261,8 +295,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithShard(
-                                                string shard)
+        internal ConsumerPlan WithShard(string shard)
         {
             return new ConsumerPlan(this, shard: shard);
         }
@@ -316,6 +349,29 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // AddInterceptor
 
+        #region ConsumerGroup
+
+        /// <summary>
+        /// Set Consumer Group which allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages
+        /// </summary>
+        /// <param name="consumerGroup">
+        /// Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages
+        /// </param>
+        /// <param name="consumerName">
+        /// Optional Name of the consumer.
+        /// Can use for observability.
+        /// </param>
+        /// <returns></returns>
+        internal ConsumerPlan WithConsumerGroup(
+            string consumerGroup,
+            string? consumerName = null) => new ConsumerPlan(this,
+                                                consumerGroup: consumerGroup,
+                                                consumerName: consumerName);
+
+        #endregion // ConsumerGroup
+
         #region class NopChannel
 
         /// <summary>
@@ -327,17 +383,21 @@ namespace Weknow.EventSource.Backbone
             public static readonly IConsumerChannelProvider Empty = new NopChannel();
 
             /// <summary>
-            /// Receives the asynchronous.
+            /// Subscribe to the channel for specific metadata.
             /// </summary>
+            /// <param name="plan">The consumer plan.</param>
             /// <param name="func">The function.</param>
             /// <param name="options">The options.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
+            /// <returns>
+            /// When completed
+            /// </returns>
             /// <exception cref="NotSupportedException">Channel must be define</exception>
-            public ValueTask ReceiveAsync(
-                Func<Announcement, ValueTask> func,
-                IEventSourceConsumerOptions options,
-                CancellationToken cancellationToken)
+            public ValueTask SubsribeAsync(
+                    IConsumerPlan plan,
+                    Func<Announcement, ValueTask> func,
+                    IEventSourceConsumerOptions options,
+                    CancellationToken cancellationToken)
             {
                 throw new NotSupportedException("Channel must be define");
             }

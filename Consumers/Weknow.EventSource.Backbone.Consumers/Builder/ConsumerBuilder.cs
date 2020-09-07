@@ -226,11 +226,21 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="factory">The factory.</param>
+        /// <param name="consumerGroup">
+        /// Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages
+        /// </param>
+        /// <param name="consumerName">
+        /// Optional Name of the consumer.
+        /// Can use for observability.
+        /// </param>
         /// <returns>
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         IAsyncDisposable IConsumerSubscribeBuilder.Subscribe<T>(
-            Func<ConsumerMetadata, T> factory)
+            Func<ConsumerMetadata, T> factory,
+            string? consumerGroup,
+            string? consumerName)
 
         {
             #region Validation
@@ -240,7 +250,9 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-            var plan = _plan;
+            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
+
+            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 

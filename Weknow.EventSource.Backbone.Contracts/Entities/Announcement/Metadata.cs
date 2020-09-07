@@ -144,14 +144,13 @@ namespace Weknow.EventSource.Backbone
 
         #endregion Shard 
 
+        #region Key
 
-        #region // Equality
+        /// <summary>
+        /// Gets the partition:shard as key.
+        /// </summary>
+        public string Key => $"{_partition}:{_shard}";
 
-        public override string ToString()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion // Equality
+        #endregion // Key
     }
 }

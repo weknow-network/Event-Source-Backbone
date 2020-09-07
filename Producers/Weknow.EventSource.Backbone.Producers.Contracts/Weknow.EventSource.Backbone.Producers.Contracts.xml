@@ -483,6 +483,7 @@
             Sends raw announcement.
             </summary>
             <param name="payload">The raw announcement data.</param>
+            <returns>Return the message id</returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy">
             <summary>

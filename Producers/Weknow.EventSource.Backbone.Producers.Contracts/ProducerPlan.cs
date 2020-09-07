@@ -318,7 +318,7 @@ namespace Weknow.EventSource.Backbone
         private class NopChannel : IProducerChannelProvider
         {
             public static readonly IProducerChannelProvider Empty = new NopChannel();
-            public ValueTask SendAsync(Announcement payload)
+            public ValueTask<string> SendAsync(Announcement payload)
             {
                 throw new NotSupportedException("Channel must be assign");
             }
