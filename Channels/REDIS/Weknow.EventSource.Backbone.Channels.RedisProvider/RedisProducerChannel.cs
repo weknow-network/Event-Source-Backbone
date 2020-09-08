@@ -69,7 +69,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 KV(nameof(meta.MessageId), id),
                 KV(nameof(meta.Operation), meta.Operation),
-                KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeMilliseconds())
+                KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds())
             };
 
             #endregion // var entries = new NameValueEntry[]{...}

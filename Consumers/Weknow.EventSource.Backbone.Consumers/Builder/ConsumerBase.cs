@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <returns></returns>
         public IAsyncDisposable Subscribe()
-        { 
+        {
             var subscription = new Subscription(_plan, _factory);
             return subscription;
         }
@@ -55,7 +55,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Represent single consuming subscription
         /// </summary>
-        private class Subscription: IAsyncDisposable
+        private class Subscription : IAsyncDisposable
         {
             private readonly IConsumerPlan _plan;
             private readonly Func<ConsumerMetadata, T> _factory;
@@ -84,7 +84,7 @@ namespace Weknow.EventSource.Backbone
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,
-                                                    plan.Options, 
+                                                    plan.Options,
                                                     _cancellation.Token);
             }
 
@@ -96,13 +96,11 @@ namespace Weknow.EventSource.Backbone
             /// Handles consuming of single event.
             /// </summary>
             /// <param name="arg">The argument.</param>
+            /// <param name="ack">
+            /// The acknowledge callback which will prevent message from 
+            /// being re-fetch from same consumer group.</param>
             /// <returns></returns>
-            /// <exception cref="ArgumentNullException">
-            /// Cannot cre
-            /// or
-            /// unclassify
-            /// </exception>
-            private async ValueTask ConsumingAsync(Announcement arg)
+            private async ValueTask ConsumingAsync(Announcement arg, AckCallbackAsync ack)
             {
                 var cancellation = _plan.Cancellation;
                 var meta = new ConsumerMetadata(arg.Metadata, cancellation);
@@ -119,11 +117,15 @@ namespace Weknow.EventSource.Backbone
 
                 #endregion // Validation
 
+                // TODO: interception
+
                 var method = instance?.GetType().GetMethod(arg.Metadata.Operation, BindingFlags.Public | BindingFlags.Instance);
                 var parameters = method?.GetParameters() ?? throw new ArgumentNullException(); ;
                 var arguments = new object[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
+                    #region Unclassify(segmentations)
+
                     ParameterInfo? parameter = parameters[i];
                     MethodInfo? unclassify = this.GetType().GetMethod(nameof(UnclassifyAsync), BindingFlags.NonPublic | BindingFlags.Instance);
                     unclassify = unclassify?.MakeGenericMethod(parameter.ParameterType);
@@ -138,10 +140,22 @@ namespace Weknow.EventSource.Backbone
                     var prm = parameter?.Name ?? throw new NullReferenceException();
                     ValueTask<object>? args = (ValueTask<object>?)unclassify.Invoke(
                                                                 this, new object[] { arg, prm });
-                    
                     arguments[i] = await (args ?? throw new NullReferenceException());
+
+                    #endregion // Unclassify(segmentations)
                 }
-                method.Invoke(instance, arguments);
+
+                try
+                {
+                    method.Invoke(instance, arguments);
+                }
+                finally
+                {
+                    // _plan
+                    // TODO: get ack behavior: fire-forget, manual, auto
+                    //if (!fireForget && manual)
+                    //    ack();
+                }
             }
 
             #endregion // ConsumingAsync

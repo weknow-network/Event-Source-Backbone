@@ -28,24 +28,22 @@
             Represent single consuming subscription
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="plan">The plan.</param>
             <param name="factory">The factory.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.AckCallbackAsync)">
             <summary>
             Handles consuming of single event.
             </summary>
             <param name="arg">The argument.</param>
+            <param name="ack">
+            The acknowledge callback which will prevent message from 
+            being re-fetch from same consumer group.</param>
             <returns></returns>
-            <exception cref="T:System.ArgumentNullException">
-            Cannot cre
-            or
-            unclassify
-            </exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.UnclassifyAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
             <summary>
@@ -183,12 +181,20 @@
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0},System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
             <typeparam name="T"></typeparam>
             <param name="factory">The factory.</param>
+            <param name="consumerGroup">
+            Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages
+            </param>
+            <param name="consumerName">
+            Optional Name of the consumer.
+            Can use for observability.
+            </param>
             <returns>
             The partition subscription (dispose to remove the subscription)
             </returns>
@@ -211,7 +217,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Collections.Immutable.IImmutableList{System.Threading.CancellationToken})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -224,7 +230,13 @@
             <param name="segmentationStrategies">The segmentation strategies.</param>
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
-            <param name="cancellations">The cancellations.</param>
+            <param name="cancellation">The cancellation token.</param>
+            <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages</param>
+            <param name="consumerName">
+            Optional Name of the consumer.
+            Can use for observability.
+            </param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Channel">
             <summary>
@@ -289,15 +301,28 @@
             The interceptors.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Cancellations">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Cancellation">
             <summary>
-            Gets the cancellation tokens.
+            Gets the cancellation token.
             </summary>
         </member>
         <member name="F:Weknow.EventSource.Backbone.ConsumerPlan.Routes">
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.ConsumerGroup">
+            <summary>
+            Gets the consumer group.
+            Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.ConsumerName">
+            <summary>
+            Optional Name of the consumer.
+            Can use for observability.
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
@@ -363,20 +388,38 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithConsumerGroup(System.String,System.String)">
+            <summary>
+            Set Consumer Group which allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages
+            </summary>
+            <param name="consumerGroup">
+            Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages
+            </param>
+            <param name="consumerName">
+            Optional Name of the consumer.
+            Can use for observability.
+            </param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel">
             <summary>
             Not operational channel
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IConsumerChannelProvider" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.ReceiveAsync(System.Func{Weknow.EventSource.Backbone.Announcement,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.AckCallbackAsync,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
             <summary>
-            Receives the asynchronous.
+            Subscribe to the channel for specific metadata.
             </summary>
+            <param name="plan">The consumer plan.</param>
             <param name="func">The function.</param>
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>
-            <returns></returns>
+            <returns>
+            When completed
+            </returns>
             <exception cref="T:System.NotSupportedException">Channel must be define</exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerContext">

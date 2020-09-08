@@ -395,7 +395,7 @@ namespace Weknow.EventSource.Backbone
             /// <exception cref="NotSupportedException">Channel must be define</exception>
             public ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, ValueTask> func,
+                    Func<Announcement, AckCallbackAsync, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
             {

@@ -28,6 +28,13 @@
             <param name="value">The value.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.AddRange(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,System.Byte[]}})">
+            <summary>
+            Adds an elements with the specified key and value to the bucket.
+            </summary>
+            <param name="pairs"></param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.TryGetValue(System.String,System.ReadOnlyMemory{System.Byte}@)">
             <summary>
             Gets the value associated with the specified key.

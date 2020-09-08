@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -48,6 +49,21 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Add
+
+        #region AddRange
+
+        /// <summary>
+        /// Adds an elements with the specified key and value to the bucket.
+        /// </summary>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        public Bucket AddRange(IEnumerable<(string key, byte[] value)> pairs)
+        {
+            var item = pairs.Select(m => new KeyValuePair<string, ReadOnlyMemory<byte>>(m.key, m.value));
+            return _data.AddRange(item);
+        }
+
+        #endregion // AddRange
 
         #region TryGetValue
 
