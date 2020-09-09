@@ -4,54 +4,144 @@
         <name>Weknow.EventSource.Backbone.Consumers.Contracts</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Ackable`1">
+        <member name="T:Weknow.EventSource.Backbone.Ack">
             <summary>
-            Represent acknowledge-able instance.
+            Acknowledge context
+            </summary>
+            <seealso cref="T:System.IAsyncDisposable" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ack.#cctor">
+            <summary>
+            Initializes the <see cref="T:Weknow.EventSource.Backbone.Ack"/> class.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor">
+        <member name="M:Weknow.EventSource.Backbone.Ack.Set(Weknow.EventSource.Backbone.IAck)">
             <summary>
-            Prevents a default instance.
+            Sets ack.
+            </summary>
+            <param name="ack"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Ack.Current">
+            <summary>
+            Gets the current.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Ackable`1.#ctor(`0,Weknow.EventSource.Backbone.IAck)">
+        <member name="T:Weknow.EventSource.Backbone.Ack.NOP">
             <summary>
-            Initializes a new instance        /// </summary>
-            <param name="item">The item.</param>
-            <param name="ack">The acknowledge handle (callback).</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Item">
-            <summary>
-            Gets the item data.
+            Empty implementation
             </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IAck" />
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Ackable`1.Ack">
+        <member name="M:Weknow.EventSource.Backbone.Ack.NOP.AckAsync">
             <summary>
-            Send Acknowledge (some queue type [like event sourcing] 
-            keep the item in the queue until it processed,
-            the acknowledge will notify it that it can be delete).
+            Preform acknowledge (which should prevent the
+            message from process again by the consumer)
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ack.NOP.Cancel">
+            <summary>
+            Cancel acknowledge (will happen on error in order to avoid ack on succeed)
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ack.NOP.DisposeAsync">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+            </summary>
+            <returns>
+            A task that represents the asynchronous dispose operation.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Ack.Scope">
+            <summary>
+            Disposable scope
+            </summary>
+            <seealso cref="T:System.IAsyncDisposable" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ack.Scope.#ctor(Weknow.EventSource.Backbone.IAck)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="ack">The ack.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Ack.Scope.DisposeAsync">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+            </summary>
+            <returns>
+            A task that represents the asynchronous dispose operation.
+            </returns>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.AckBehavior.FireAndForget">
+            <summary>
+            The message won't send again after first delivery.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.AckBehavior.OnSucceed">
+            <summary>
+            Automatic acknowledge when execute without exception.
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.AckBehavior.Manual">
+            <summary>
+            Ignored expected to be handle elsewhere.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.AckOnce">
+            <summary>
+            Preform acknowledge (which should prevent the 
+            message from process again by the consumer)
+            </summary>
+            <seealso cref="T:System.IAsyncDisposable" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.#ctor(System.Func{System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.AckBehavior)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="ack">The ack.</param>
+            <param name="behavior">The behavior.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.AckAsync">
+            <summary>
+            Preform acknowledge (which should prevent the 
+            message from process again by the consumer)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.Cancel">
+            <summary>
+            Cancel acknowledge (will happen on error in order to avoid ack on succeed)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.DisposeAsync">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+            </summary>
+            <returns>
+            A task that represents the asynchronous dispose operation.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IAck">
             <summary>
-            Represent acknowledge trigger which will 
-            set the status on the event as done and release 
-            it for re-consuming.
+            Preform acknowledge (which should prevent the 
+            message from process again by the consumer)
             </summary>
+            <seealso cref="T:System.IAsyncDisposable" />
         </member>
         <member name="M:Weknow.EventSource.Backbone.IAck.AckAsync">
             <summary>
-            Acknowledge the asynchronous.
+            Preform acknowledge (which should prevent the 
+            message from process again by the consumer)
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IAck.Cancel">
+            <summary>
+            Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IAck.AckAfter(System.TimeSpan)">
-            <summary>
-            Revokes the operation if not completed after a duration
-            and avoid re-consume of the message (by same consumer signature).
-            </summary>
-            <param name="timeout">The timeout.</param>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
             <summary>
@@ -410,6 +500,30 @@
             Cancel the consuming process.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.BatchSize">
+            <summary>
+            Gets the max batch size of reading messages per shard.
+            The framework won't proceed to the next batch until all messages
+            in the batch complete (or timeout when it set to acknowledge on timeout).
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.AckBehavior">
+            <summary>
+            Gets the acknowledge behavior.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">
+            <summary>
+            Gets a value indicating whether to prevent the consumer
+            from being collect by the GC.
+            True by default, when you hold the subscription disposable
+            you can set it to false. as long as you keeping the disposable in
+            object that isn't candidate for being collected the consumer will stay alive.
+            </summary>
+            <value>
+              <c>true</c> if [keep alive]; otherwise, <c>false</c>.
+            </value>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor">
             <summary>
             Consumer stage of an interception operation provider.
@@ -450,7 +564,7 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.AckCallbackAsync,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to the channel for specific metadata.
             </summary>

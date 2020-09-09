@@ -1,0 +1,125 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Weknow.EventSource.Backbone
+{
+    /// <summary>
+    /// Acknowledge context
+    /// </summary>
+    /// <seealso cref="System.IAsyncDisposable" />
+    public static class Ack
+    {
+        private static AsyncLocal<IAck> _context = new AsyncLocal<IAck>();
+        public static readonly IAck Empty = NOP.Default;
+
+        #region Ctor
+
+        /// <summary>
+        /// Initializes the <see cref="Ack"/> class.
+        /// </summary>
+        static Ack()
+        {
+            _context.Value = NOP.Default;
+        }
+
+        #endregion // Ctor
+
+        #region Set
+
+        /// <summary>
+        /// Sets ack.
+        /// </summary>
+        /// <param name="ack"></param>
+        /// <returns></returns>
+        public static IAsyncDisposable Set(IAck ack)
+        {
+            return new Scope(ack);
+        }
+
+        #endregion // Set
+
+        #region Current
+
+        /// <summary>
+        /// Gets the current.
+        /// </summary>
+        public static IAck Current => _context.Value;
+
+        #endregion // Current
+
+        #region NOP
+
+        /// <summary>
+        /// Empty implementation
+        /// </summary>
+        /// <seealso cref="Weknow.EventSource.Backbone.IAck" />
+        private struct NOP : IAck
+        {
+            public static readonly IAck Default = new NOP();
+            /// <summary>
+            /// Preform acknowledge (which should prevent the
+            /// message from process again by the consumer)
+            /// </summary>
+            /// <returns></returns>
+            public ValueTask AckAsync()
+            {
+                return ValueTaskStatic.CompletedValueTask;
+            }
+
+            /// <summary>
+            /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
+            /// </summary>
+            public void Cancel() { }
+
+            /// <summary>
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+            /// </summary>
+            /// <returns>
+            /// A task that represents the asynchronous dispose operation.
+            /// </returns>
+            public ValueTask DisposeAsync()
+            {
+                return ValueTaskStatic.CompletedValueTask;
+            }
+        }
+
+        #endregion // NOP
+
+        #region Scope
+
+        /// <summary>
+        /// Disposable scope
+        /// </summary>
+        /// <seealso cref="System.IAsyncDisposable" />
+        private struct Scope : IAsyncDisposable
+        {
+            /// <summary>
+            /// Initializes a new instance.
+            /// </summary>
+            /// <param name="ack">The ack.</param>
+            public Scope(IAck ack)
+            {
+                _context.Value = ack;
+            }
+
+            /// <summary>
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
+            /// </summary>
+            /// <returns>
+            /// A task that represents the asynchronous dispose operation.
+            /// </returns>
+            public ValueTask DisposeAsync()
+            {
+                _context.Value = NOP.Default;
+                return ValueTaskStatic.CompletedValueTask;
+            }
+        }
+
+        #endregion // Scope
+    }
+}

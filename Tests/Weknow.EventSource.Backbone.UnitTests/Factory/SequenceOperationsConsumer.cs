@@ -8,8 +8,8 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public class SequenceOperationsConsumer : ISequenceOperationsConsumer
     {
-        private ActionBlock<Ackable<User>> _block = new ActionBlock<Ackable<User>>(
-                            u => Console.WriteLine(u.Item.Details.Id),
+        private ActionBlock<User> _block = new ActionBlock<User>(
+                            u => Console.WriteLine(u.Details.Id),
                             new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 10 });
         public ValueTask RegisterAsync(User user)
         {

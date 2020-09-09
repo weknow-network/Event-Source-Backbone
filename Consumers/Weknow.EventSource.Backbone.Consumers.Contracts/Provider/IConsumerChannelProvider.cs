@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
-    public delegate Task AckCallbackAsync();
-
     /// <summary>
     /// Channel provider responsible for passing the actual message 
     /// from producer to consumer. 
@@ -22,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns>When completed</returns>
         ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, AckCallbackAsync, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken);
     }

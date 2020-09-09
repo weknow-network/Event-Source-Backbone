@@ -60,11 +60,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </returns>
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, AckCallbackAsync, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
             string key = $"{plan.Partition}:{plan.Shard}";
+            CommandFlags flags = plan.Options.AckBehavior == AckBehavior.FireAndForget ?
+                                      CommandFlags.FireAndForget :
+                                      CommandFlags.None;
 
             IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
             await db.CreateConsumerGroupIfNotExistsAsync(
@@ -102,8 +105,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
 
                     var announcement = new Announcement(meta, segmets, interceptions);
-                    
-                    await func(announcement, () => AckAsync(result.Id));
+                    var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior);
+                    await func(announcement, ack);
                 }
             }
 
@@ -120,7 +123,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                         plan.ConsumerName,
                                                         position: StreamPosition.Beginning,
                                                         count: options.BatchSize,
-                                                        flags: CommandFlags.None);
+                                                        flags: flags);
                     return values;
 
                 }
@@ -140,7 +143,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region AckAsync
 
-            async Task AckAsync(RedisValue messageId)
+            async ValueTask AckAsync(RedisValue messageId)
             {
                 // release the event (won't handle again in the future)
                 long id = await db.StreamAcknowledgeAsync(key,

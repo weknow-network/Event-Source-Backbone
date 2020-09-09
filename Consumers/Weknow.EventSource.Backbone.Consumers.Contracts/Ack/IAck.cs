@@ -4,22 +4,23 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
-    /// Represent acknowledge trigger which will 
-    /// set the status on the event as done and release 
-    /// it for re-consuming.
+    /// Preform acknowledge (which should prevent the 
+    /// message from process again by the consumer)
     /// </summary>
-    public interface IAck
+    /// <seealso cref="System.IAsyncDisposable" />
+    public interface IAck: IAsyncDisposable
     {
         /// <summary>
-        /// Acknowledge the asynchronous.
+        /// Preform acknowledge (which should prevent the 
+        /// message from process again by the consumer)
+        /// </summary>
+        ValueTask AckAsync();
+
+        /// <summary>
+        /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
         /// </summary>
         /// <returns></returns>
-        ValueTask AckAsync();
-        /// <summary>
-        /// Revokes the operation if not completed after a duration
-        /// and avoid re-consume of the message (by same consumer signature).
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        void AckAfter(TimeSpan timeout);
+        void Cancel();
+
     }
 }

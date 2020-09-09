@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,7 +64,7 @@ namespace Weknow.EventSource.Backbone
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
-            Logger = logger;
+            Logger = logger ?? copyFrom.Logger;
             Options = options ?? copyFrom.Options;
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
@@ -89,7 +90,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        public ILogger? Logger { get; } = null;
+        public ILogger Logger { get; } = DefaultLogger.Default;
 
         #endregion // Channel
 
@@ -395,7 +396,7 @@ namespace Weknow.EventSource.Backbone
             /// <exception cref="NotSupportedException">Channel must be define</exception>
             public ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, AckCallbackAsync, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
             {
@@ -404,5 +405,91 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // class NopChannel    }
+
+        #region DefaultLogger
+
+        /// <summary>
+        /// Default logger
+        /// </summary>
+        /// <seealso cref="Microsoft.Extensions.Logging.ILogger" />
+        /// <seealso cref="System.IDisposable" />
+        private class DefaultLogger : ILogger, IDisposable
+        {
+            #region Default
+
+            /// <summary>
+            /// The default
+            /// </summary>
+            public static readonly ILogger Default = new DefaultLogger();
+
+            #endregion // Default
+
+            #region BeginScope
+
+            /// <summary>
+            /// Begins a logical operation scope.
+            /// </summary>
+            /// <typeparam name="TState">The type of the state to begin scope for.</typeparam>
+            /// <param name="state">The identifier for the scope.</param>
+            /// <returns>
+            /// An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.
+            /// </returns>
+            public IDisposable BeginScope<TState>(TState state) => this;
+
+            #endregion // BeginScope
+
+            #region IsEnabled
+
+            /// <summary>
+            /// Checks if the given <paramref name="logLevel" /> is enabled.
+            /// </summary>
+            /// <param name="logLevel">level to be checked.</param>
+            /// <returns>
+            ///   <c>true</c> if enabled.
+            /// </returns>
+            public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
+
+            #endregion // IsEnabled
+
+            /// <summary>
+            /// Writes a log entry.
+            /// </summary>
+            /// <typeparam name="TState">The type of the object to be written.</typeparam>
+            /// <param name="logLevel">Entry will be written on this level.</param>
+            /// <param name="eventId">Id of the event.</param>
+            /// <param name="state">The entry to be written. Can be also an object.</param>
+            /// <param name="exception">The exception related to this entry.</param>
+            /// <param name="formatter">Function to create a <see cref="T:System.String" /> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
+            /// <exception cref="NotImplementedException"></exception>
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception exception,
+                Func<TState, Exception, string> formatter)
+            {
+                string message = string.Empty;
+                if (exception == null)
+                {
+                    message = state?.ToString() ?? string.Empty;
+                }
+                else
+                {
+                    message = formatter(state, exception);
+                }
+                Trace.WriteLine(message, logLevel.ToString());
+            }
+
+            #region Dispose
+
+            /// <summary>
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            /// </summary>
+            public void Dispose() { }
+
+            #endregion // Dispose
+        }
+
+        #endregion // DefaultLogger
     }
 }

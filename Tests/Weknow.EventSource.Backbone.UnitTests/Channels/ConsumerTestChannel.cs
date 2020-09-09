@@ -35,7 +35,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns>When completed</returns>
         public async ValueTask SubsribeAsync(
                     IConsumerPlan metadata,
-                    Func<Announcement, AckCallbackAsync, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone
                 try
                 {
                     var announcement = await _channel.Reader.ReadAsync(cancellationToken);
-                    await func(announcement, () => Task.CompletedTask);
+                    await func(announcement, Ack.Empty);
                 }
                 catch (ChannelClosedException) { }
             }

@@ -247,30 +247,6 @@
             <param name="serializedData">The serialized data.</param>
             <returns></returns>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.BatchSize">
-            <summary>
-            Gets the max batch size of reading messages per shard.
-            The framework won't proceed to the next batch until all messages
-            in the batch complete (or timeout when it set to acknowledge on timeout).
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.TimeoutBehavior">
-            <summary>
-            Define the behavior of the framework on timeout.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">
-            <summary>
-            Gets a value indicating whether to prevent the consumer
-            from being collect by the GC.
-            True by default, when you hold the subscription disposable
-            you can set it to false. as long as you keeping the disposable in
-            object that isn't candidate for being collected the consumer will stay alive.
-            </summary>
-            <value>
-              <c>true</c> if [keep alive]; otherwise, <c>false</c>.
-            </value>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.IEventSourceOptions">
             <summary>
             options
@@ -293,16 +269,6 @@
             Json serializer (this is the default serializer)
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Ack">
-            <summary>
-            Will acknowledge the messages on timeout.
-            </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.TimeoutBehavior.Replay">
-            <summary>
-            Will replay the messages on timeout.
-            </summary>
         </member>
     </members>
 </doc>

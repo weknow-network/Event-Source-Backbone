@@ -35,7 +35,7 @@
             <param name="plan">The plan.</param>
             <param name="factory">The factory.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.AckCallbackAsync)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck)">
             <summary>
             Handles consuming of single event.
             </summary>
@@ -409,7 +409,7 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IConsumerChannelProvider" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.AckCallbackAsync,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to the channel for specific metadata.
             </summary>
@@ -422,47 +422,74 @@
             </returns>
             <exception cref="T:System.NotSupportedException">Channel must be define</exception>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ConsumerContext">
+        <member name="T:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger">
             <summary>
-            Base class for acknowledge-trigger.
+            Default logger
+            </summary>
+            <seealso cref="T:Microsoft.Extensions.Logging.ILogger" />
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger.Default">
+            <summary>
+            The default
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerContext.Retries">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger.BeginScope``1(``0)">
             <summary>
-            Gets the retries time of re-consuming the message.
+            Begins a logical operation scope.
+            </summary>
+            <typeparam name="TState">The type of the state to begin scope for.</typeparam>
+            <param name="state">The identifier for the scope.</param>
+            <returns>
+            An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Checks if the given <paramref name="logLevel" /> is enabled.
+            </summary>
+            <param name="logLevel">level to be checked.</param>
+            <returns>
+              <c>true</c> if enabled.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+            <summary>
+            Writes a log entry.
+            </summary>
+            <typeparam name="TState">The type of the object to be written.</typeparam>
+            <param name="logLevel">Entry will be written on this level.</param>
+            <param name="eventId">Id of the event.</param>
+            <param name="state">The entry to be written. Can be also an object.</param>
+            <param name="exception">The exception related to this entry.</param>
+            <param name="formatter">Function to create a <see cref="T:System.String" /> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.DefaultLogger.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.EventSourceConsumerOptions.#ctor(System.Int32,Weknow.EventSource.Backbone.TimeoutBehavior,Weknow.EventSource.Backbone.IDataSerializer,System.Boolean)">
+        <member name="M:Weknow.EventSource.Backbone.EventSourceConsumerOptions.#ctor(System.Int32,Weknow.EventSource.Backbone.AckBehavior,Weknow.EventSource.Backbone.IDataSerializer,System.Boolean)">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="batchSize">
-            Gets the max batch size of reading messages per shard.
+            <param name="batchSize">Gets the max batch size of reading messages per shard.
             The framework won't proceed to the next batch until all messages
-            in the batch complete (or timeout when it set to acknowledge on timeout).
-            </param>
-            <param name="timeoutBehavior">
-            Define the behavior of the framework on timeout.
-            </param>
+            in the batch complete (or timeout when it set to acknowledge on timeout).</param>
+            <param name="ackBehavior">The acknowledge behavior.</param>
             <param name="serializer">The serializer.</param>
-            <param name="keepAlive">
-            Gets a value indicating whether to prevent the consumer
+            <param name="keepAlive">Gets a value indicating whether to prevent the consumer
             from being collect by the GC.
             True by default, when you hold the subscription disposable
             you can set it to false. as long as you keeping the disposable in
-            object that isn't candidate for being collected the consumer will stay alive.
-            </param>
+            object that isn't candidate for being collected the consumer will stay alive.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
             <summary>
             Gets the max batch size of reading messages per shard.
             The framework won't proceed to the next batch until all messages
             in the batch complete (or timeout when it set to acknowledge on timeout).
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.TimeoutBehavior">
-            <summary>
-            Define the behavior of the framework on timeout.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.KeepAlive">
@@ -476,6 +503,11 @@
             <value>
               <c>true</c> if [keep alive]; otherwise, <c>false</c>.
             </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.AckBehavior">
+            <summary>
+            Gets the acknowledge behavior.
+            </summary>
         </member>
     </members>
 </doc>

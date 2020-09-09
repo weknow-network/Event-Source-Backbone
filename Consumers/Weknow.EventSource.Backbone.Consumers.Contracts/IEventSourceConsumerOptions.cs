@@ -11,9 +11,9 @@
         int BatchSize { get; }
 
         /// <summary>
-        /// Define the behavior of the framework on timeout.
+        /// Gets the acknowledge behavior.
         /// </summary>
-        TimeoutBehavior TimeoutBehavior { get; }
+        AckBehavior AckBehavior { get; }
 
         /// <summary>
         /// Gets a value indicating whether to prevent the consumer
