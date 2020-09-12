@@ -19,10 +19,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </summary>
         /// <returns></returns>
         Task<IDatabaseAsync> GetDbAsync();
-        /// <summary>
-        /// Gets the subscriber.
-        /// </summary>
-        /// <returns></returns>
-        Task<ISubscriber> GetSubscriberAsync();
+        ///// <summary>
+        ///// Gets the subscriber.
+        ///// </summary>
+        ///// <returns></returns>
+        //Task<ISubscriber> GetSubscriberAsync();
     }
 }

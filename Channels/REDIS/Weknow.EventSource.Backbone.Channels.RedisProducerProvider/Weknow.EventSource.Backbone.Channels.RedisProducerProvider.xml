@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Weknow.EventSource.Backbone.Channels.RedisProducerProvider</name>
+    </assembly>
+    <members>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,StackExchange.Redis.ConfigurationOptions,System.String,System.String)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="logger">The logger.</param>
+            <param name="options">The options.</param>
+            <param name="endpointEnvKey">The endpoint env key.</param>
+            <param name="passwordEnvKey">The password env key.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.SendAsync(Weknow.EventSource.Backbone.Announcement)">
+            <summary>
+            Sends raw announcement.
+            </summary>
+            <param name="payload">The raw announcement data.</param>
+            <returns>
+            Return the message id
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},System.String,System.String)">
+            <summary>
+            Uses REDIS producer channel.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointEnvKey">The endpoint env key.</param>
+            <param name="passwordEnvKey">The password env key.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},System.Threading.CancellationToken,System.String,System.String)">
+            <summary>
+            Uses REDIS producer channel.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <param name="endpointEnvKey">The endpoint env key.</param>
+            <param name="passwordEnvKey">The password env key.</param>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+    </members>
+</doc>

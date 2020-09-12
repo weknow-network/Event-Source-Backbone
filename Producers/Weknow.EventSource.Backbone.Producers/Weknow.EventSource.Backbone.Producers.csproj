@@ -19,6 +19,9 @@
   <PropertyGroup>
     <DocumentationFile>.\Weknow.EventSource.Backbone.Producers.xml</DocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove=".\Weknow.EventSource.Backbone.Producers.xml" />
+  </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
     <PackageReference Include="Weknow.EventSource.Backbone.Producers.Contracts" Version="1.0.1" />
     <PackageReference Include="Weknow.EventSource.Backbone" Version="1.0.1" />

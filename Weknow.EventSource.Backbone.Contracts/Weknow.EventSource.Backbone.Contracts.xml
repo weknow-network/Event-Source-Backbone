@@ -215,6 +215,56 @@
             Gets the partition:shard as key.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger">
+            <summary>
+            Best practice is to supply proper logger and 
+            not using this class.Default logger.
+            This class use Trace logger just in case the other logger is missing.
+            </summary>
+            <seealso cref="T:Microsoft.Extensions.Logging.ILogger" />
+            <seealso cref="T:System.IDisposable" />
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger.Default">
+            <summary>
+            The default
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger.BeginScope``1(``0)">
+            <summary>
+            Begins a logical operation scope.
+            </summary>
+            <typeparam name="TState">The type of the state to begin scope for.</typeparam>
+            <param name="state">The identifier for the scope.</param>
+            <returns>
+            An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Checks if the given <paramref name="logLevel" /> is enabled.
+            </summary>
+            <param name="logLevel">level to be checked.</param>
+            <returns>
+              <c>true</c> if enabled.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+            <summary>
+            Writes a log entry.
+            </summary>
+            <typeparam name="TState">The type of the object to be written.</typeparam>
+            <param name="logLevel">Entry will be written on this level.</param>
+            <param name="eventId">Id of the event.</param>
+            <param name="state">The entry to be written. Can be also an object.</param>
+            <param name="exception">The exception related to this entry.</param>
+            <param name="formatter">Function to create a <see cref="T:System.String" /> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.EventSourceOptions.#ctor(Weknow.EventSource.Backbone.IDataSerializer)">
             <summary>
             Initializes a new instance.

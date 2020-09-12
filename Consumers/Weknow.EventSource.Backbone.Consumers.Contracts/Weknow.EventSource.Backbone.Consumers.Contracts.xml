@@ -394,6 +394,11 @@
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerLifetime.Completion">
+            <summary>
+            Represent the consuming completion..
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Partition">
             <summary>
             Partition key represent logical group of 
@@ -510,6 +515,12 @@
         <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.AckBehavior">
             <summary>
             Gets the acknowledge behavior.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.MaxMessages">
+            <summary>
+            Gets the maximum messages to consume before detaching the subscription.
+            any number > 0 will activate this mechanism.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">

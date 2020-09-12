@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// keeping the disposable will prevent the consumer to be collected
         /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
         /// </returns>
-        IAsyncDisposable Subscribe<T>(
+        IConsumerLifetime Subscribe<T>(
             Func<ConsumerMetadata, T> factory,
             string? consumerGroup = null, 
             string? consumerName = null);

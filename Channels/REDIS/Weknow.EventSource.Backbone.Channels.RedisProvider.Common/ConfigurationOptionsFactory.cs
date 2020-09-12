@@ -1,13 +1,19 @@
-﻿using StackExchange.Redis;
+﻿using System;
+using StackExchange.Redis;
 
-using System;
-
-using Weknow.EventSource.Backbone.Building;
-
-namespace Weknow.EventSource.Backbone.Channels.RedisProvider
+namespace Weknow.EventSource.Backbone.Private
 {
+    /// <summary>
+    /// Configuration options factory
+    /// </summary>
     public static class ConfigurationOptionsFactory
     {
+        /// <summary>
+        /// Create configuration from environment.
+        /// </summary>
+        /// <param name="endpointKey">The endpoint key.</param>
+        /// <param name="passwordKey">The password key.</param>
+        /// <returns></returns>
         public static ConfigurationOptions FromEnv(
                             string endpointKey,
                             string passwordKey)

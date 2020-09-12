@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;ProjRef</Configurations>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Weknow</Authors>
+    <Company>Weknow</Company>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>Weknow.EventSource.Backbone.Channels.RedisConsumerProviderr.xml</DocumentationFile>
+    <PackageProjectUrl>https://github.com/weknow-network/Event-Source-Backbone</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Weknow.EventSource.Backbone.Channels.RedisConsumerProviderr.xml" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
+    <PackageReference Include="Weknow.EventSource.Backbone.Channels.RedisProvider.Common" Version="1.0.1" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.RedisProvider.Common\Weknow.EventSource.Backbone.Channels.RedisProvider.Common.csproj" />
+    <ProjectReference Include="..\..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

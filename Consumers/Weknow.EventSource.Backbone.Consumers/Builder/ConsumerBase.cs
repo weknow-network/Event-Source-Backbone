@@ -1,12 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-
+﻿
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -42,7 +35,7 @@ namespace Weknow.EventSource.Backbone
         /// Subscribes this instance.
         /// </summary>
         /// <returns></returns>
-        public IAsyncDisposable Subscribe()
+        public IConsumerLifetime Subscribe()
         {
             var subscription = new Subscription(_plan, _factory);
             return subscription;

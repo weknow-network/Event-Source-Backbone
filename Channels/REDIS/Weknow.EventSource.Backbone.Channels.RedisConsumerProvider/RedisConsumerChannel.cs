@@ -7,11 +7,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Weknow.EventSource.Backbone.Private;
+
 using static System.Math;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
-    public class RedisConsumerChannel : IConsumerChannelProvider
+    internal class RedisConsumerChannel : IConsumerChannelProvider
     {
         private const int MAX_DELAY = 1500;
 
@@ -47,6 +49,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // Ctor
+
+        #region SubsribeAsync
 
         /// <summary>
         /// Subscribe to the channel for specific metadata.
@@ -171,5 +175,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // DelayIfEmpty
         }
+
+        #endregion // SubsribeAsync
     }
 }

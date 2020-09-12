@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,14 +14,18 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Represent single consuming subscription
         /// </summary>
-        private class Subscription : IAsyncDisposable
+        private class Subscription : IConsumerLifetime
         {
             private readonly IConsumerPlan _plan;
             private readonly Func<ConsumerMetadata, T> _factory;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
+            private readonly IEventSourceConsumerOptions _options;
+            private readonly uint _maxMessages;
             private readonly static ConcurrentDictionary<Subscription, object?> _keepAlive =
                                                 new ConcurrentDictionary<Subscription, object?>();
+            private readonly TaskCompletionSource<object?> _completion = new TaskCompletionSource<object?>();
+            private long _consumeCounter;
 
             #region Ctor
 
@@ -42,6 +44,9 @@ namespace Weknow.EventSource.Backbone
                 if (plan.Options.KeepAlive)
                     _keepAlive.TryAdd(this, null);
 
+                _options = _plan.Options;
+                _maxMessages = _options.MaxMessages;
+
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,
@@ -51,6 +56,17 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
+
+            #region Completion
+#pragma warning disable AMNF0001 // Asynchronous method name is not ending with 'Async'
+
+            /// <summary>
+            /// Represent the consuming completion..
+            /// </summary>
+            public Task Completion => _completion.Task;
+
+#pragma warning restore AMNF0001 // Asynchronous method name is not ending with 'Async'
+            #endregion // Completion
             #region ConsumingAsync
 
             /// <summary>
@@ -65,8 +81,21 @@ namespace Weknow.EventSource.Backbone
                 Announcement arg,
                 IAck ack)
             {
+
                 CancellationToken cancellation = _plan.Cancellation;
                 Metadata meta = arg.Metadata;
+
+                #region Validation Max Messages Limit
+
+                long count = Interlocked.Increment(ref _consumeCounter);
+                if (_maxMessages != 0 && _maxMessages >= count)
+                {
+                    await DisposeAsync();
+                    throw new OperationCanceledException(); // make sure it not auto ack;
+                }
+
+                #endregion // Validation Max Messages Limit
+
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
                 T instance = _factory(consumerMeta);
                 #region Validation
@@ -165,7 +194,7 @@ namespace Weknow.EventSource.Backbone
                 }
                 #region Exception Handling
 
-                catch (OperationCanceledException ex)
+                catch (OperationCanceledException)
                 {
                     ack.Cancel();
                     logger.LogWarning("Canceled event: {0}", meta.Key);
@@ -219,8 +248,16 @@ namespace Weknow.EventSource.Backbone
             /// </returns>
             public ValueTask DisposeAsync()
             {
+                #region Validation
+
+                if (_cancellation.IsCancellationRequested)
+                    return ValueTaskStatic.CompletedValueTask;
+
+                #endregion // Validation
+
                 _cancellation.CancelSafe();
                 _keepAlive.TryRemove(this, out _);
+                _completion.SetResult(null);
                 return _subscriptionLifetime;
             }
 

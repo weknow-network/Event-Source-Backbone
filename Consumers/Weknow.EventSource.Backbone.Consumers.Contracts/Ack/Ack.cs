@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,7 +44,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public static IAck Current => _context.Value;
+        public static IAck Current => _context.Value ?? throw new NullReferenceException("IAck Current");
 
         #endregion // Current
 

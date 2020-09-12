@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
-    public class RedisProducerChannel : IProducerChannelProvider
+    internal class RedisProducerChannel : IProducerChannelProvider
     {
         private readonly ILogger _logger;
         private static int _index = 0;

@@ -139,19 +139,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         #endregion // CreateDbAsync
 
-        #region GetSubscriberAsync
+        //#region GetSubscriberAsync
 
-        /// <summary>
-        /// Gets the subscriber.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<ISubscriber> GetSubscriberAsync()
-        {
-            ConnectionMultiplexer redis = await _multiplexerTask;
-            ISubscriber sub = redis.GetSubscriber();
-            return sub;
-        }
+        ///// <summary>
+        ///// Gets the subscriber.
+        ///// </summary>
+        ///// <returns></returns>
+        //public async Task<ISubscriber> GetSubscriberAsync()
+        //{
+        //    ConnectionMultiplexer redis = await _multiplexerTask;
+        //    ISubscriber sub = redis.GetSubscriber();
+        //    return sub;
+        //}
 
-        #endregion // GetSubscriberAsync
+        //#endregion // GetSubscriberAsync
     }
 }

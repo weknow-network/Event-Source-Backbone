@@ -19,22 +19,21 @@
     <Version>1.0.1</Version>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>C:\.repo\GitHub\.weknow\Weknow.EventSource.Backbone\Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisProvider\Weknow.EventSource.Backbone.Channels.RedisProvider.xml</DocumentationFile>
+    <DocumentationFile>Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/weknow-network/Event-Source-Backbone</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml" />
+  </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
     <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.1" />
-    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.0.1" />
-    <PackageReference Include="Weknow.EventSource.Backbone.Producers.Contracts" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.1.58" />

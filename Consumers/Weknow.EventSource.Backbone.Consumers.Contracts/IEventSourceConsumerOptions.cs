@@ -16,6 +16,12 @@
         AckBehavior AckBehavior { get; }
 
         /// <summary>
+        /// Gets the maximum messages to consume before detaching the subscription.
+        /// any number > 0 will activate this mechanism.
+        /// </summary>
+        uint MaxMessages { get; }
+
+        /// <summary>
         /// Gets a value indicating whether to prevent the consumer
         /// from being collect by the GC.
         /// True by default, when you hold the subscription disposable

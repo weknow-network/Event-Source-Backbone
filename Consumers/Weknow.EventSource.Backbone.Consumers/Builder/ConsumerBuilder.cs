@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 using Weknow.EventSource.Backbone.Building;
@@ -238,7 +237,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
-        IAsyncDisposable IConsumerSubscribeBuilder.Subscribe<T>(
+        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe<T>(
             Func<ConsumerMetadata, T> factory,
             string? consumerGroup,
             string? consumerName)

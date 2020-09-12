@@ -21,6 +21,9 @@
     <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove=".\Weknow.EventSource.Backbone.Contracts.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.6" />
   </ItemGroup>

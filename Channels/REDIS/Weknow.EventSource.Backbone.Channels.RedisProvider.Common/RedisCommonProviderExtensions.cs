@@ -4,77 +4,12 @@ using StackExchange.Redis;
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
-using Weknow.EventSource.Backbone.Building;
-
-namespace Weknow.EventSource.Backbone.Channels.RedisProvider
+namespace Weknow.EventSource.Backbone.Private
 {
-    public static class RedisProviderExtensions
+    public static class RedisCommonProviderExtensions
     {
-        private const string PRODUCER_END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
-        private const string PRODUCER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
-        private const string CONSUMER_END_POINT_KEY = "REDIS_EVENT_SOURCE_CONSUMER_ENDPOINT";
-        private const string CONSUMER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_CONSUMER_PASS";
-
-        public static async ValueTask<IConsumerOptionsBuilder> UseRedisConsumerChannelAsync(
-                            this IConsumerBuilder builder,
-                            string consumerGroup,
-                            ILogger logger,
-                            Func<ConfigurationOptions, CancellationToken, ValueTask> configuration,
-                            CancellationToken cancellationToken = default,
-                            string endpointEnvKey = CONSUMER_END_POINT_KEY,
-                            string passwordEnvKey = CONSUMER_PASSWORD_KEY)
-        {
-            var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            await configuration(options, cancellationToken);
-            var channel = new RedisConsumerChannel(
-                                        logger,
-                                        options,
-                                        endpointEnvKey,
-                                        passwordEnvKey);
-            cancellationToken.ThrowIfCancellationRequested();
-            IConsumerOptionsBuilder result = builder.UseChannel(channel);
-            return result;
-        }
-
-
-        #region UseRedisProducerChannelAsync
-
-        /// <summary>
-        /// Uses REDIS producer channel.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public static async ValueTask<IProducerOptionsBuilder> UseRedisProducerChannelAsync(
-                            this IProducerBuilder builder,
-                            ILogger logger,
-                            Func<ConfigurationOptions, CancellationToken, ValueTask> configuration,
-                            CancellationToken cancellationToken = default,
-                            string endpointEnvKey = PRODUCER_END_POINT_KEY,
-                            string passwordEnvKey = PRODUCER_PASSWORD_KEY)
-        {
-            var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            await configuration(options, cancellationToken);
-            var channel = new RedisProducerChannel(
-                                        logger,
-                                        options,
-                                        endpointEnvKey,
-                                        passwordEnvKey);
-            cancellationToken.ThrowIfCancellationRequested();
-            IProducerOptionsBuilder result = builder.UseChannel(channel);
-            return result;
-        }
-
-        #endregion // UseRedisProducerChannelAsync
-
         #region CreateConsumerGroupIfNotExistsAsync
 
         /// <summary>
@@ -85,7 +20,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        internal static async Task CreateConsumerGroupIfNotExistsAsync(
+        public static async Task CreateConsumerGroupIfNotExistsAsync(
                         this IDatabaseAsync db,
                         string eventSourceKey,
                         string consumerGroup,
@@ -166,6 +101,5 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // CreateConsumerGroupIfNotExistsAsync
-
     }
 }
