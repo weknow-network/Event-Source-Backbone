@@ -125,7 +125,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                         key,
                                                         plan.ConsumerGroup,
                                                         plan.ConsumerName,
-                                                        position: StreamPosition.Beginning,
+                                                        position: StreamPosition.NewMessages,
                                                         count: options.BatchSize,
                                                         flags: flags);
                     return values;

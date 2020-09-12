@@ -39,12 +39,13 @@ namespace Weknow.EventSource.Backbone.Tests
         public async Task Build_Serializer_Producer_Test()
         {
             string partition = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
+            string shard = $"some-shard-{DateTime.UtcNow.Second}";
 
             ISequenceOperations producer =
                 ProducerBuilder.Empty.UseRedisProducerChannel(CancellationToken.None)
                         //.WithOptions(producerOption)
                         .Partition(partition)
-                        .Shard("Org: #RedSocks")
+                        .Shard(shard)
                         .Build<ISequenceOperations>();
 
             await producer.RegisterAsync(new User());
@@ -61,8 +62,8 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Partition(partition)
-                         .Shard("Org: #RedSocks")
-                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1");
+                         .Shard(shard)
+                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             await subscription.Completion;
 

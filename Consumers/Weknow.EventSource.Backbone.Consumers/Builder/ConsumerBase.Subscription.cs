@@ -88,7 +88,7 @@ namespace Weknow.EventSource.Backbone
                 #region Validation Max Messages Limit
 
                 long count = Interlocked.Increment(ref _consumeCounter);
-                if (_maxMessages != 0 && _maxMessages >= count)
+                if (_maxMessages != 0 && _maxMessages < count)
                 {
                     await DisposeAsync();
                     throw new OperationCanceledException(); // make sure it not auto ack;
@@ -210,6 +210,15 @@ namespace Weknow.EventSource.Backbone
                 {
                     if (_plan.Options.AckBehavior == AckBehavior.OnSucceed)
                         await ack.AckAsync();
+
+                    #region Validation Max Messages Limit
+
+                    if (_maxMessages != 0 && _maxMessages <= count)
+                    {
+                        await DisposeAsync();
+                    }
+
+                    #endregion // Validation Max Messages Limit
                 }
             }
 
