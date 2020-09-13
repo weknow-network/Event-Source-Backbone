@@ -3,7 +3,9 @@
 using StackExchange.Redis;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +17,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
-        private const int MAX_DELAY = 1500;
+        private const int MAX_DELAY = 5000;
 
         private readonly ILogger _logger;
         private readonly ConfigurationOptions _options;
@@ -68,12 +70,104 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
+            IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
+            if (plan.Shard != string.Empty)
+                await SubsribeShardAsync(db, plan, func, options, cancellationToken);
+            else
+                await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+        }
+
+        #endregion // SubsribeAsync
+
+        #region SubsribePartitionAsync
+
+        /// <summary>
+        /// Subscribe to all shards under a partition.
+        /// </summary>
+        /// <param name="db">The database.</param>
+        /// <param name="plan">The consumer plan.</param>
+        /// <param name="func">The function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// When completed
+        /// </returns>
+        private async ValueTask SubsribePartitionAsync(
+                    IDatabaseAsync db,
+                    IConsumerPlan plan,
+                    Func<Announcement, IAck, ValueTask> func,
+                    IEventSourceConsumerOptions options,
+                    CancellationToken cancellationToken)
+        {
+            var subscriptions = new Queue<Task>();
+            int delay = 1;
+            string partition = plan.Partition;
+            int partitionSplit = partition.Length + 1;
+            while (!cancellationToken.IsCancellationRequested)
+            {   // loop for error cases
+                try
+                {
+                    // infinite until cancellation
+                    var keys = _redisClientFactory.GetKeysUnsafeAsync(
+                                                            pattern: $"{partition}:*")
+                                                    .WithCancellation(cancellationToken);
+                    await foreach (string key in keys)
+                    {
+                        string shard = key.Substring(partitionSplit);
+                        IConsumerPlan p = plan.WithShard(shard);
+                        Task subscription = SubsribeShardAsync(db, plan, func, options, cancellationToken);
+                        subscriptions.Enqueue(subscription);
+                    }
+
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    plan.Logger.LogError(ex, "Partition subscription");
+                    await DelayIfRetry();
+                }
+            }
+
+            await Task.WhenAll(subscriptions);
+
+            #region DelayIfRetry
+
+            async Task DelayIfRetry()
+            {
+                await Task.Delay(delay, cancellationToken);
+                delay *= Max(delay, 2);
+                delay = Min(MAX_DELAY, delay);
+            }
+
+            #endregion // DelayIfRetry
+
+        }
+
+        #endregion // SubsribePartitionAsync
+
+        #region SubsribeShardAsync
+
+        /// <summary>
+        /// Subscribe to specific shard.
+        /// </summary>
+        /// <param name="db">The database.</param>
+        /// <param name="plan">The consumer plan.</param>
+        /// <param name="func">The function.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        private async Task SubsribeShardAsync(
+                    IDatabaseAsync db,
+                    IConsumerPlan plan,
+                    Func<Announcement, IAck, ValueTask> func,
+                    IEventSourceConsumerOptions options,
+                    CancellationToken cancellationToken)
+        {
+            // TODO: if !shard read all keys with partition prefix & subscribe to, interval should check for new shard
             string key = $"{plan.Partition}:{plan.Shard}";
             CommandFlags flags = plan.Options.AckBehavior == AckBehavior.FireAndForget ?
                                       CommandFlags.FireAndForget :
                                       CommandFlags.None;
 
-            IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
             await db.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 plan.ConsumerGroup,
@@ -151,7 +245,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 // release the event (won't handle again in the future)
                 long id = await db.StreamAcknowledgeAsync(key,
-                                                plan.ConsumerGroup, 
+                                                plan.ConsumerGroup,
                                                 messageId,
                                                 flags: CommandFlags.DemandMaster);
             }
@@ -176,6 +270,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             #endregion // DelayIfEmpty
         }
 
-        #endregion // SubsribeAsync
+        #endregion // SubsribeShardAsync
     }
 }

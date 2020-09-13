@@ -3,9 +3,13 @@
 using StackExchange.Redis;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
@@ -77,11 +81,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             var sb = new StringBuilder();
             var writer = new StringWriter(sb);
 
+            // TODO: [bnaya, 2020_09] Fix option order
             var redisConfiguration = ConfigurationOptions.Parse(endpoint);
             redisConfiguration.ClientName = name;
             redisConfiguration.Password = password;
-            if(!Debugger.IsAttached)
-                redisConfiguration.ServiceName = "mymaster";
+            //redisConfiguration.ServiceName = "mymaster";
             switch (intent)
             {
                 case RedisUsageIntent.Admin:
@@ -108,7 +112,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         logger.LogError(ex.FormatLazy(), $"Fail to create REDIS client [final retry ({i})]. {Environment.NewLine}{sb}");
                         throw;
                     }
-                    if(i % 10 == 0)
+                    if (i % 10 == 0)
                         logger.LogWarning(ex.FormatLazy(), $"Fail to create REDIS client [retry = {i}]. {Environment.NewLine}{sb}");
                 }
             }
@@ -139,19 +143,27 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         #endregion // CreateDbAsync
 
-        //#region GetSubscriberAsync
-
-        ///// <summary>
-        ///// Gets the subscriber.
-        ///// </summary>
-        ///// <returns></returns>
-        //public async Task<ISubscriber> GetSubscriberAsync()
-        //{
-        //    ConnectionMultiplexer redis = await _multiplexerTask;
-        //    ISubscriber sub = redis.GetSubscriber();
-        //    return sub;
-        //}
-
-        //#endregion // GetSubscriberAsync
+        public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
+                            string pattern,
+                            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var multiplexer = await _multiplexerTask;
+            var distict = new HashSet<string>();
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                foreach (EndPoint endpoint in multiplexer.GetEndPoints())
+                {
+                    IServer server = multiplexer.GetServer(endpoint);
+                    // TODO: [bnaya 2020_09] check the pagination behavior
+                    await foreach (string key in server.KeysAsync(pattern: pattern))
+                    {
+                        if (distict.Contains(key))
+                            continue;
+                        distict.Add(key);
+                        yield return key;
+                    }
+                }
+            }
+        }
     }
 }

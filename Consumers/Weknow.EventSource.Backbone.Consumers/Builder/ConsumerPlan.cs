@@ -296,6 +296,12 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
+        IConsumerPlan IConsumerPlan.WithShard(string shard) => WithShard(shard);
+        /// <summary>
+        /// Attach the shard.
+        /// </summary>
+        /// <param name="shard">The shard.</param>
+        /// <returns></returns>
         internal ConsumerPlan WithShard(string shard)
         {
             return new ConsumerPlan(this, shard: shard);

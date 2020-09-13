@@ -42,7 +42,9 @@ namespace Weknow.EventSource.Backbone.Tests
             string shard = $"some-shard-{DateTime.UtcNow.Second}";
 
             ISequenceOperations producer =
-                ProducerBuilder.Empty.UseRedisProducerChannel(CancellationToken.None)
+                ProducerBuilder.Empty.UseRedisProducerChannel(
+                                        CancellationToken.None,
+                                        configuration: (cfg) => cfg.ServiceName = "mymaster")
                         //.WithOptions(producerOption)
                         .Partition(partition)
                         .Shard(shard)
@@ -58,7 +60,9 @@ namespace Weknow.EventSource.Backbone.Tests
 
             var cts = new CancellationTokenSource();
             await using IConsumerLifetime subscription =
-                 ConsumerBuilder.Empty.UseRedisConsumerChannel(CancellationToken.None)
+                 ConsumerBuilder.Empty.UseRedisConsumerChannel(
+                                        CancellationToken.None,
+                                        configuration: (cfg) => cfg.ServiceName = "mymaster")
                          .WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Partition(partition)

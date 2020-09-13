@@ -21,7 +21,30 @@
             When completed
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribePartitionAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+            <summary>
+            Subscribe to all shards under a partition.
+            </summary>
+            <param name="db">The database.</param>
+            <param name="plan">The consumer plan.</param>
+            <param name="func">The function.</param>
+            <param name="options">The options.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>
+            When completed
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeShardAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+            <summary>
+            Subscribe to specific shard.
+            </summary>
+            <param name="db">The database.</param>
+            <param name="plan">The consumer plan.</param>
+            <param name="func">The function.</param>
+            <param name="options">The options.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,System.Action{StackExchange.Redis.ConfigurationOptions},Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
             </summary>
@@ -33,7 +56,7 @@
             <param name="passwordEnvKey">The password env key.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},System.Threading.CancellationToken,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.Threading.CancellationToken,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
             </summary>

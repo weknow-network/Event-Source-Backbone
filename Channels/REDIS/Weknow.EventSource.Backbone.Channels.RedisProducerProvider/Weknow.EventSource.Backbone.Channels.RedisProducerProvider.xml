@@ -22,7 +22,7 @@
             Return the message id
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Uses REDIS producer channel.
             </summary>
@@ -35,7 +35,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions,System.Threading.CancellationToken},System.Threading.CancellationToken,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.Threading.CancellationToken,System.String,System.String)">
             <summary>
             Uses REDIS producer channel.
             </summary>

@@ -78,5 +78,12 @@ namespace Weknow.EventSource.Backbone
         /// Technical vs Business aspects, etc.
         /// </example>
         IImmutableList<IConsumerAsyncSegmentationStrategy> SegmentationStrategies { get; }
+
+        /// <summary>
+        /// Attach the shard.
+        /// </summary>
+        /// <param name="shard">The shard.</param>
+        /// <returns></returns>
+        IConsumerPlan WithShard(string shard);
     }
 }

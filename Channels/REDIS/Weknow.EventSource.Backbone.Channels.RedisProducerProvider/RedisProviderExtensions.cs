@@ -32,7 +32,7 @@ namespace Weknow.EventSource.Backbone
                             this IProducerBuilder builder,
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
-                            Action<ConfigurationOptions, CancellationToken>? configuration = null,
+                            Action<ConfigurationOptions>? configuration = null,
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
@@ -55,13 +55,13 @@ namespace Weknow.EventSource.Backbone
         public static IProducerOptionsBuilder UseRedisProducerChannel(
                             this IProducerBuilder builder,
                             ILogger? logger = null,
-                            Action<ConfigurationOptions, CancellationToken>? configuration = null,
+                            Action<ConfigurationOptions>? configuration = null,
                             CancellationToken cancellationToken = default,
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
             var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            configuration?.Invoke(options, cancellationToken);
+            configuration?.Invoke(options);
             var channel = new RedisProducerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
                                         options,

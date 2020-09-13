@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone
         public static IConsumerOptionsBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             CancellationToken cancellationToken,
-                            Action<ConfigurationOptions, CancellationToken>? configuration = null,
+                            Action<ConfigurationOptions>? configuration = null,
                             ILogger? logger = null,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
@@ -54,13 +54,13 @@ namespace Weknow.EventSource.Backbone
         public static IConsumerOptionsBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             ILogger? logger = null,
-                            Action<ConfigurationOptions, CancellationToken>? configuration = null,
+                            Action<ConfigurationOptions>? configuration = null,
                             CancellationToken cancellationToken = default,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
             var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            configuration?.Invoke(options, cancellationToken);
+            configuration?.Invoke(options);
             var channel = new RedisConsumerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
                                         options,

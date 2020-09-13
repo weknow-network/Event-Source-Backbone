@@ -480,6 +480,13 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerPlan.WithShard(System.String)">
+            <summary>
+            Attach the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerMetadata">
             <summary>
             Represent metadata of message (command / event) metadata of

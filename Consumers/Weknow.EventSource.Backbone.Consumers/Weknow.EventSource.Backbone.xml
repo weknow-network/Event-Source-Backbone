@@ -365,6 +365,13 @@
             <param name="partition">The partition.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.Weknow#EventSource#Backbone#IConsumerPlan#WithShard(System.String)">
+            <summary>
+            Attach the shard.
+            </summary>
+            <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithShard(System.String)">
             <summary>
             Attach the shard.

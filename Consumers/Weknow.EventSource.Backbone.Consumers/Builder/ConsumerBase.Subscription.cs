@@ -209,7 +209,7 @@ namespace Weknow.EventSource.Backbone
                 finally
                 {
                     if (_plan.Options.AckBehavior == AckBehavior.OnSucceed)
-                        await ack.AckAsync();
+                        await ack.AckAsync(); // TODO: check ACK (manual & auto)
 
                     #region Validation Max Messages Limit
 
