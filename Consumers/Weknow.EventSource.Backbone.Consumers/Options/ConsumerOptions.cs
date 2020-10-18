@@ -1,9 +1,9 @@
 ﻿namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceConsumerOptions: 
+    public class ConsumerOptions: 
         EventSourceOptions, IEventSourceConsumerOptions
     {
-        public new static readonly EventSourceConsumerOptions Empty = new EventSourceConsumerOptions();
+        public new static readonly ConsumerOptions Empty = new ConsumerOptions();
 
         #region Ctor
 
@@ -24,7 +24,7 @@
         /// True by default, when you hold the subscription disposable
         /// you can set it to false. as long as you keeping the disposable in
         /// object that isn't candidate for being collected the consumer will stay alive.</param>
-        public EventSourceConsumerOptions(
+        public ConsumerOptions(
             AckBehavior ackBehavior = AckBehavior.Manual,
             int batchSize = 100,
             IDataSerializer? serializer = null,

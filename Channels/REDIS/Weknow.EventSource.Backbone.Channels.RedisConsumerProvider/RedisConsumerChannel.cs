@@ -163,9 +163,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             // TODO: if !shard read all keys with partition prefix & subscribe to, interval should check for new shard
             string key = $"{plan.Partition}:{plan.Shard}";
-            CommandFlags flags = plan.Options.AckBehavior == AckBehavior.FireAndForget ?
-                                      CommandFlags.FireAndForget :
-                                      CommandFlags.None;
+            CommandFlags flags = CommandFlags.None;
 
             await db.CreateConsumerGroupIfNotExistsAsync(
                 key,
@@ -222,7 +220,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                         position: StreamPosition.NewMessages,
                                                         count: options.BatchSize,
                                                         flags: flags);
-                    return values;
+                    return values ?? Array.Empty<StreamEntry>();
 
                 }
                 catch (RedisTimeoutException ex)

@@ -74,6 +74,16 @@
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+            <summary>
+            Apply configuration.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder">
             <summary>
             Event Source producer builder.
@@ -203,16 +213,6 @@
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IProducerOptionsBuilder">
-            <summary>
-            Enable configuration.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
-            <summary>
-            Apply configuration.
-            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerPartitionBuilder">
             <summary>

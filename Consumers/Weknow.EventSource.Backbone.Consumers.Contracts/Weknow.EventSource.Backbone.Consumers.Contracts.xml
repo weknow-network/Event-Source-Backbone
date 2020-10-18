@@ -73,11 +73,6 @@
             A task that represents the asynchronous dispose operation.
             </returns>
         </member>
-        <member name="F:Weknow.EventSource.Backbone.AckBehavior.FireAndForget">
-            <summary>
-            The message won't send again after first delivery.
-            </summary>
-        </member>
         <member name="F:Weknow.EventSource.Backbone.AckBehavior.OnSucceed">
             <summary>
             Automatic acknowledge when execute without exception.

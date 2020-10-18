@@ -77,7 +77,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
             Apply configuration.
             </summary>

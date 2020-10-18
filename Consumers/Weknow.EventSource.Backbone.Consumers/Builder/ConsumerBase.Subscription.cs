@@ -67,6 +67,7 @@ namespace Weknow.EventSource.Backbone
 
 #pragma warning restore AMNF0001 // Asynchronous method name is not ending with 'Async'
             #endregion // Completion
+
             #region ConsumingAsync
 
             /// <summary>
@@ -81,7 +82,6 @@ namespace Weknow.EventSource.Backbone
                 Announcement arg,
                 IAck ack)
             {
-
                 CancellationToken cancellation = _plan.Cancellation;
                 Metadata meta = arg.Metadata;
 

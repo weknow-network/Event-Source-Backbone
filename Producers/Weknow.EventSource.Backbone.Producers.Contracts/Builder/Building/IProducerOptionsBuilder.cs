@@ -1,4 +1,4 @@
-﻿namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Enable configuration.

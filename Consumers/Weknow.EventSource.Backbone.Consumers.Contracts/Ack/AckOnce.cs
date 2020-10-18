@@ -64,6 +64,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // AckAsync
 
+        // TODO: [bnaya 2020-10] cancel pending
         #region Cancel
 
         /// <summary>
@@ -73,6 +74,7 @@ namespace Weknow.EventSource.Backbone
         public void Cancel()
         {
             Interlocked.Increment(ref _ackCount);
+           
         }
 
         #endregion // Cancel

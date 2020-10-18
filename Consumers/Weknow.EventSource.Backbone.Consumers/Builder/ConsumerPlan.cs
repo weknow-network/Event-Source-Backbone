@@ -133,7 +133,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public IEventSourceConsumerOptions Options { get; } = EventSourceConsumerOptions.Empty;
+        public IEventSourceConsumerOptions Options { get; } = ConsumerOptions.Empty;
 
         #endregion // Options
 

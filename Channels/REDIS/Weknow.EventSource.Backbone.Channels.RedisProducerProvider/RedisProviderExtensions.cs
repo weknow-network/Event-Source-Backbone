@@ -5,6 +5,7 @@ using StackExchange.Redis;
 using System;
 using System.Threading;
 
+using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
 

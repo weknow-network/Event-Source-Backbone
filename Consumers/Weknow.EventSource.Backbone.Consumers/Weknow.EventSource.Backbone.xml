@@ -434,7 +434,7 @@
             </returns>
             <exception cref="T:System.NotSupportedException">Channel must be define</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.EventSourceConsumerOptions.#ctor(Weknow.EventSource.Backbone.AckBehavior,System.Int32,Weknow.EventSource.Backbone.IDataSerializer,System.UInt32,System.Boolean)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerOptions.#ctor(Weknow.EventSource.Backbone.AckBehavior,System.Int32,Weknow.EventSource.Backbone.IDataSerializer,System.UInt32,System.Boolean)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -453,14 +453,14 @@
             you can set it to false. as long as you keeping the disposable in
             object that isn't candidate for being collected the consumer will stay alive.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.BatchSize">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.BatchSize">
             <summary>
             Gets the max batch size of reading messages per shard.
             The framework won't proceed to the next batch until all messages
             in the batch complete (or timeout when it set to acknowledge on timeout).
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.KeepAlive">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.KeepAlive">
             <summary>
             Gets a value indicating whether to prevent the consumer
             from being collect by the GC.
@@ -472,12 +472,12 @@
               <c>true</c> if [keep alive]; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.AckBehavior">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.AckBehavior">
             <summary>
             Gets the acknowledge behavior.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.EventSourceConsumerOptions.MaxMessages">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.MaxMessages">
             <summary>
             Gets the maximum messages to consume before detaching the subscription.
             any number > 0 will activate this mechanism.

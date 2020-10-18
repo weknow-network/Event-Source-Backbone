@@ -3,10 +3,6 @@
     public enum AckBehavior
     {
         /// <summary>
-        /// The message won't send again after first delivery.
-        /// </summary>
-        FireAndForget,
-        /// <summary>
         /// Automatic acknowledge when execute without exception.
         /// </summary>
         OnSucceed,
