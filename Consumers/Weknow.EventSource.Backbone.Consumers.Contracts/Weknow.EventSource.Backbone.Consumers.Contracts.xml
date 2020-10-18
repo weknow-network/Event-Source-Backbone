@@ -101,6 +101,7 @@
             </summary>
             <param name="ack">The ack.</param>
             <param name="behavior">The behavior.</param>
+            <param name="logger">The logger.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.AckOnce.AckAsync">
             <summary>

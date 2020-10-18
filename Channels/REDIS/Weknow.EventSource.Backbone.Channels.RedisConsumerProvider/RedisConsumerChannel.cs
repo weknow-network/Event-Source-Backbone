@@ -44,10 +44,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             _redisClientFactory = new RedisClientFactory(
                                                 logger,
                                                 name,
-                                                RedisUsageIntent.Write,
+                                                RedisUsageIntent.Read,
                                                 endpointEnvKey, passwordEnvKey);
-            //_dbTask = _redisClientFactory.GetDbAsync();
-            //redisClientFactory.GetSubscriberAsync()
         }
 
         #endregion // Ctor
@@ -111,6 +109,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     var keys = _redisClientFactory.GetKeysUnsafeAsync(
                                                             pattern: $"{partition}:*")
                                                     .WithCancellation(cancellationToken);
+                    // TODO: [bnaya 2020-10] seem like memory leak, re-subscribe to same shard 
                     await foreach (string key in keys)
                     {
                         string shard = key.Substring(partitionSplit);
