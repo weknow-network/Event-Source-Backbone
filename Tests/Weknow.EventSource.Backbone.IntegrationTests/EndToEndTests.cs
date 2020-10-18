@@ -1,6 +1,7 @@
 using FakeItEasy;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,12 +17,6 @@ namespace Weknow.EventSource.Backbone.Tests
     public class EndToEndTests
     {
         private readonly ITestOutputHelper _outputHelper;
-        // private readonly IDataSerializer _serializer;
-        //private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
-        //private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
-        //private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
-        //private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-        //private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
 
         #region Ctor
@@ -58,7 +53,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                                 AckBehavior.OnSucceed,
                                                 maxMessages: 3);
 
-            var cts = new CancellationTokenSource();
+            var cts = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(10) : TimeSpan.FromSeconds(10));
             await using IConsumerLifetime subscription =
                  ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         CancellationToken.None,

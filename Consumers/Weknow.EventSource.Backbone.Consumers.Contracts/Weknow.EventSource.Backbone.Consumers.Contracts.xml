@@ -95,7 +95,7 @@
             </summary>
             <seealso cref="T:System.IAsyncDisposable" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AckOnce.#ctor(System.Func{System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.AckBehavior)">
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.#ctor(System.Func{System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.AckBehavior,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Initializes a new instance.
             </summary>

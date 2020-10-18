@@ -7,7 +7,7 @@ namespace Weknow.EventSource.Backbone
     /// Non-generics form of announcement representation,
     /// used to transfer data via channels.
     /// </summary>
-    [DebuggerDisplay("Announcement [{Metadata.MessageId}]: Version = [{Metadata.Version}], DataSegments = [{Metadata.DataSegments}]")]
+    [DebuggerDisplay("Announcement [{Metadata.MessageId}]: [{Metadata.Key}]")]
     public sealed class Announcement
     {
         #region Empty

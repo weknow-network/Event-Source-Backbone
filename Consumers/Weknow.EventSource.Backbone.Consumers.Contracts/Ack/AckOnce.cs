@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +15,7 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly Func<ValueTask> _ack;
         private readonly AckBehavior _behavior;
+        private readonly ILogger _logger;
         private int _ackCount = 0;
 
         #region Ctor
@@ -22,12 +25,15 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="ack">The ack.</param>
         /// <param name="behavior">The behavior.</param>
+        /// <param name="logger">The logger.</param>
         public AckOnce(
             Func<ValueTask> ack,
-            AckBehavior behavior)
+            AckBehavior behavior,
+            ILogger logger)
         {
             _ack = ack;
             _behavior = behavior;
+            _logger = logger;
         }
 
         #endregion // Ctor
@@ -42,8 +48,18 @@ namespace Weknow.EventSource.Backbone
         public async ValueTask AckAsync()
         {
             int count = Interlocked.Increment(ref _ackCount);
-            if (count == 0)
-                await _ack();
+            try
+            {
+                if (count == 1)
+                    await _ack();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ack failure: Behavior = {behavior}", _behavior);
+                Interlocked.Decrement(ref _ackCount);
+                throw;
+            }
         }
 
         #endregion // AckAsync

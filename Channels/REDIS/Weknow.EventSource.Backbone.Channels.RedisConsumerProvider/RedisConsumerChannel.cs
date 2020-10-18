@@ -203,13 +203,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
 
                     var announcement = new Announcement(meta, segmets, interceptions);
-                    var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior);
+                    var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior, _logger);
                     await func(announcement, ack);
                 }
             }
 
             #region ReadBatchAsync
 
+            // read batch entities from REDIS
             async Task<StreamEntry[]> ReadBatchAsync()
             {
                 // TBD: circuit-breaker
@@ -241,19 +242,28 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region AckAsync
 
+            // Acknowledge event handling (prevent re-consuming of the message).
             async ValueTask AckAsync(RedisValue messageId)
             {
-                // release the event (won't handle again in the future)
-                long id = await db.StreamAcknowledgeAsync(key,
-                                                plan.ConsumerGroup,
-                                                messageId,
-                                                flags: CommandFlags.DemandMaster);
+                try
+                {
+                    // release the event (won't handle again in the future)
+                    long id = await db.StreamAcknowledgeAsync(key,
+                                                    plan.ConsumerGroup,
+                                                    messageId,
+                                                    flags: CommandFlags.DemandMaster);
+                }
+                catch (Exception)
+                { // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+                    throw;
+                }
             }
 
             #endregion // AckAsync
 
             #region DelayIfEmpty
 
+            // avoiding system hit when empty (mitigation of self DDoS)
             async Task<int> DelayIfEmpty(int resultsLength)
             {
                 if (resultsLength == 0)
