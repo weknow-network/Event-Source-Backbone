@@ -1,30 +1,39 @@
 using FakeItEasy;
 
+using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
+
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
 
 
-// TODO: [bnaya 2020-10] delete REDIS key on dispose
 // TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)
 // TODO: [bnaya 2020-10] check for no pending
 
 namespace Weknow.EventSource.Backbone.Tests
 {
-    public class EndToEndTests
+    public class EndToEndTests: IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
         private readonly CancellationToken _testScopeCancellation = GetCancellationToken();
         private readonly IProducerOptionsBuilder _producerBuilder;
-        private readonly IConsumerOptionsBuilder _condumerBuilder;
+        private readonly IConsumerOptionsBuilder _consumerBuilder;
+
+        private string PARTITION = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
+        private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+
+        private ILogger _fakeLogger = A.Fake<ILogger>();
 
         #region Ctor
 
@@ -34,9 +43,10 @@ namespace Weknow.EventSource.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
                                         _testScopeCancellation,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster");
-            _condumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
+            _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         _testScopeCancellation,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster");
+
         }
 
         #endregion // Ctor
@@ -46,15 +56,12 @@ namespace Weknow.EventSource.Backbone.Tests
         [Fact]
         public async Task OnSucceed_ACK_Test()
         {
-            string partition = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
-            string shard = $"some-shard-{DateTime.UtcNow.Second}";
-
             #region ISequenceOperations producer = ...
 
             ISequenceOperations producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Partition(partition)
-                                            .Shard(shard)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
                                             .Build<ISequenceOperations>();
 
             #endregion // ISequenceOperations producer = ...
@@ -68,11 +75,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _condumerBuilder
+            await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(consumerOptions)
                          .WithCancellation(cancellation)
-                         .Partition(partition)
-                         .Shard(shard)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -99,15 +106,12 @@ namespace Weknow.EventSource.Backbone.Tests
         [Fact]
         public async Task OnSucceed_ACK_WithFailure_Test()
         {
-            string partition = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
-            string shard = $"some-shard-{DateTime.UtcNow.Second}";
-
             #region ISequenceOperations producer = ...
 
             ISequenceOperations producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Partition(partition)
-                                            .Shard(shard)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
                                             .Build<ISequenceOperations>();
 
             #endregion // ISequenceOperations producer = ...
@@ -125,11 +129,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _condumerBuilder
+            await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(consumerOptions)
                          .WithCancellation(cancellation)
-                         .Partition(partition)
-                         .Shard(shard)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -156,15 +160,12 @@ namespace Weknow.EventSource.Backbone.Tests
         [Fact]
         public async Task Manual_ACK_Test()
         {
-            string partition = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
-            string shard = $"some-shard-{DateTime.UtcNow.Second}";
-
             #region ISequenceOperations producer = ...
 
             ISequenceOperations producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Partition(partition)
-                                            .Shard(shard)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
                                             .Build<ISequenceOperations>();
 
             #endregion // ISequenceOperations producer = ...
@@ -183,11 +184,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _condumerBuilder
+            await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(consumerOptions)
                          .WithCancellation(cancellation)
-                         .Partition(partition)
-                         .Shard(shard)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -237,5 +238,32 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // GetCancellationToken
+
+        #region Dispose pattern
+
+
+        ~EndToEndTests()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            string END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
+            string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
+            string key = $"{PARTITION}:{SHARD}";
+            var redisClientFactory = new RedisClientFactory(
+                                                _fakeLogger,
+                                                $"Test {DateTime.Now: yyyy-MM-dd HH_mm_ss}",
+                                                RedisUsageIntent.Admin, 
+                                                END_POINT_KEY, PASSWORD_KEY);
+
+            IDatabaseAsync db = redisClientFactory.GetDbAsync().Result;
+            db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
+
+        }
+
+        #endregion // Dispose pattern
     }
 }

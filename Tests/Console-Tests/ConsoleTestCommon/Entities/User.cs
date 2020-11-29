@@ -1,4 +1,4 @@
-﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities
+﻿namespace Weknow.EventSource.Backbone.ConsoleTests
 {
     public class User
     {
@@ -35,5 +35,7 @@
             public int Id { get; set; }
             public string Hobbies { get; set; } = string.Empty;
         }
+
+        public override string ToString() => $"{Eracure?.Name}";
     }
 }
