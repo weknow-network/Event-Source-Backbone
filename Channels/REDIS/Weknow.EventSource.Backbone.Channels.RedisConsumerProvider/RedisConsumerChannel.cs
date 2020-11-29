@@ -68,11 +68,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
-            IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
-            if (plan.Shard != string.Empty)
-                await SubsribeShardAsync(db, plan, func, options, cancellationToken);
-            else
-                await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+            while (!cancellationToken.IsCancellationRequested)
+            { // connection errors
+                IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
+                if (plan.Shard != string.Empty)
+                    await SubsribeShardAsync(db, plan, func, options, cancellationToken);
+                else
+                    await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+
+            }
         }
 
         #endregion // SubsribeAsync
