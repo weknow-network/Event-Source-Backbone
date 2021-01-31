@@ -78,6 +78,11 @@
             Automatic acknowledge when execute without exception.
             </summary>
         </member>
+        <member name="F:Weknow.EventSource.Backbone.AckBehavior.OnFinally">
+            <summary>
+            Automatic acknowledge when execute complete (whether it succeed or having exception, like finaly) .
+            </summary>
+        </member>
         <member name="F:Weknow.EventSource.Backbone.AckBehavior.Manual">
             <summary>
             Ignored expected to be handle elsewhere.

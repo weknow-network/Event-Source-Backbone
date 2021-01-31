@@ -116,7 +116,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IConsumerSubscribeBuilder Shard(string shard)
+        public IConsumerLoggerBuilder Shard(string shard)
         {
             var prms = _plan.WithShard(shard);
             var result = new ConsumerBuilder(prms);

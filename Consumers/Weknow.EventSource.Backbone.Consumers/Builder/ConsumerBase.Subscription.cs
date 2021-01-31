@@ -47,6 +47,7 @@ namespace Weknow.EventSource.Backbone
                 _options = _plan.Options;
                 _maxMessages = _options.MaxMessages;
 
+
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,
@@ -188,9 +189,14 @@ namespace Weknow.EventSource.Backbone
                 {
                     await using (Ack.Set(ack))
                     {
-                        method.Invoke(instance, arguments);
+                        var res = method.Invoke(instance, arguments);
+                        if (res is ValueTask vtsk) await vtsk;
+                        if (res is Task tsk) await tsk;
                     }
                     logger.LogDebug("Consumed event: {0}", meta.Key);
+
+                    if (_plan.Options.AckBehavior == AckBehavior.OnSucceed)
+                        await ack.AckAsync(); 
                 }
                 #region Exception Handling
 
@@ -208,8 +214,8 @@ namespace Weknow.EventSource.Backbone
                 #endregion // Exception Handling
                 finally
                 {
-                    if (_plan.Options.AckBehavior == AckBehavior.OnSucceed)
-                        await ack.AckAsync(); // TODO: check ACK (manual & auto)
+                    if (_plan.Options.AckBehavior == AckBehavior.OnFinally)
+                        await ack.AckAsync(); 
 
                     #region Validation Max Messages Limit
 

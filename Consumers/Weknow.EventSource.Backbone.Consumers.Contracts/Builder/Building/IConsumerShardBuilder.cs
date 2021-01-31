@@ -18,6 +18,6 @@
         /// </summary>
         /// <param name="shardKey">The shard key.</param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder Shard(string shardKey);
+        IConsumerLoggerBuilder Shard(string shardKey);
     }
 }

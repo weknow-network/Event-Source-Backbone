@@ -70,6 +70,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             while (!cancellationToken.IsCancellationRequested)
             { // connection errors
+
                 IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
                 if (plan.Shard != string.Empty)
                     await SubsribeShardAsync(db, plan, func, options, cancellationToken);
@@ -179,33 +180,44 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             int delay = 1;
             while (!cancellationToken.IsCancellationRequested)
             {
+                // TODO: [bnaya 2021] add poly at the fetching level (poly policy should be injectable)
                 StreamEntry[] results = await ReadBatchAsync();
 
                 await DelayIfEmpty(results.Length);
 
-                foreach (StreamEntry result in results)
+                try
                 {
-                    var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                    string id = entries[nameof(Metadata.Empty.MessageId)];
-                    string segmentsKey = $"Segments~{id}";
-                    string interceptorsKey = $"Interceptors~{id}";
 
-                    string operation = entries[nameof(Metadata.Empty.Operation)];
-                    long producedAtUnix = (long)entries[nameof(Metadata.Empty.ProducedAt)];
-                    DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                    var meta = new Metadata(id, plan.Partition, plan.Shard, operation, producedAt);
+                    foreach (StreamEntry result in results)
+                    {
+                        var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
+                        string id = entries[nameof(Metadata.Empty.MessageId)];
+                        string segmentsKey = $"Segments~{id}";
+                        string interceptorsKey = $"Interceptors~{id}";
 
-                    var segmentsEntities = await db.HashGetAllAsync(segmentsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
-                    var segmentsPairs = segmentsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
-                    var interceptionsEntities = await db.HashGetAllAsync(interceptorsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
-                    var interceptionsPairs = interceptionsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
+                        string operation = entries[nameof(Metadata.Empty.Operation)];
+                        long producedAtUnix = (long)entries[nameof(Metadata.Empty.ProducedAt)];
+                        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                        var meta = new Metadata(id, plan.Partition, plan.Shard, operation, producedAt);
 
-                    var segmets = Bucket.Empty.AddRange(segmentsPairs);
-                    var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
+                        var segmentsEntities = await db.HashGetAllAsync(segmentsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
+                        var segmentsPairs = segmentsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
+                        var interceptionsEntities = await db.HashGetAllAsync(interceptorsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
+                        var interceptionsPairs = interceptionsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
 
-                    var announcement = new Announcement(meta, segmets, interceptions);
-                    var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior, _logger);
-                    await func(announcement, ack);
+                        var segmets = Bucket.Empty.AddRange(segmentsPairs);
+                        var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
+
+                        var announcement = new Announcement(meta, segmets, interceptions);
+
+                        // TODO: [bnaya 2021] add poly before re-fetching (poly policy should be injectable)
+                        // TODO: [bnaya 2021] log failure, plan?.Logger
+                        var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior, _logger);
+                        await func(announcement, ack);
+                    }
+                }
+                catch
+                {
                 }
             }
 
@@ -224,7 +236,26 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                         position: StreamPosition.NewMessages,
                                                         count: options.BatchSize,
                                                         flags: flags);
-                    return values ?? Array.Empty<StreamEntry>();
+                    StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
+                    if (results.Length == 0)
+                    {
+                        StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
+                        plan.Logger?.LogInformation($"PEND [{pendingInfo.PendingMessageCount}]: {pendingInfo.LowestPendingMessageId} -> {pendingInfo.HighestPendingMessageId}");
+                        plan.Logger?.LogInformation("\tConsumers:");
+                        foreach (var c in pendingInfo.Consumers)
+                        {
+                            var self = c.Name == plan.ConsumerName ? "*" : "";
+                            plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
+                        }
+
+                        plan.Logger?.LogInformation("\tMessages info:");
+                        var pendMsgInfo = await db.StreamPendingMessagesAsync(key, plan.ConsumerGroup, 10, plan.ConsumerName, pendingInfo.LowestPendingMessageId, pendingInfo.HighestPendingMessageId, flags: CommandFlags.DemandMaster);
+                        foreach (var c in pendMsgInfo)
+                        {
+                            plan.Logger?.LogInformation($"\t\tID = {c.MessageId}, ConsumerName = {c.ConsumerName}, Duration = {c.IdleTimeInMilliseconds / 1000.0:N3}s, DeliveryCount = {c.DeliveryCount}");
+                        }
+                    }
+                    return results;
 
                 }
                 catch (RedisTimeoutException ex)

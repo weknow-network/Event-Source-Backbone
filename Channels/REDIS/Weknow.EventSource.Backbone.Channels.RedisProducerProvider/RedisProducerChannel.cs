@@ -74,6 +74,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // var entries = new NameValueEntry[]{...}
 
+            // TODO: [bnaya 2021-01] enable to replace the segments storage without replacing the strweam
+
             #region await db.HashSetAsync($"Segments~{id}", segmentsEntities)
 
             var segmentsEntities = payload.Segments

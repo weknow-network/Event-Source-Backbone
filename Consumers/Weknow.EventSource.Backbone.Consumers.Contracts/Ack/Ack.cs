@@ -111,6 +111,8 @@ namespace Weknow.EventSource.Backbone
             /// </returns>
             public ValueTask DisposeAsync()
             {
+                // the Ack.Current won't be available any more after closing this scope
+                // invocation is over and cannot Ack.Current.AckAsync() anymore.
                 _context.Value = NOP.Default;
                 return ValueTaskStatic.CompletedValueTask;
             }
