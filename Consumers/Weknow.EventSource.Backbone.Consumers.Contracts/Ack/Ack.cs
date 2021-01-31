@@ -62,15 +62,12 @@ namespace Weknow.EventSource.Backbone
             /// message from process again by the consumer)
             /// </summary>
             /// <returns></returns>
-            public ValueTask AckAsync()
-            {
-                return ValueTaskStatic.CompletedValueTask;
-            }
+            public ValueTask AckAsync() => ValueTaskStatic.CompletedValueTask;
 
             /// <summary>
             /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             /// </summary>
-            public void Cancel() { }
+            public ValueTask CancelAsync() => ValueTaskStatic.CompletedValueTask;
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.

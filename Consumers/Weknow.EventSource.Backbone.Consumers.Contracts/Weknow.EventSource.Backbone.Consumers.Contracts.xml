@@ -40,7 +40,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Ack.NOP.Cancel">
+        <member name="M:Weknow.EventSource.Backbone.Ack.NOP.CancelAsync">
             <summary>
             Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             </summary>
@@ -95,11 +95,12 @@
             </summary>
             <seealso cref="T:System.IAsyncDisposable" />
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AckOnce.#ctor(System.Func{System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.AckBehavior,Microsoft.Extensions.Logging.ILogger)">
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.#ctor(System.Func{System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.AckBehavior,Microsoft.Extensions.Logging.ILogger,System.Func{System.Threading.Tasks.ValueTask})">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="ack">The ack.</param>
+            <param name="ackAsync">The ack.</param>
+            <param name="cancelAsync">The cancel.</param>
             <param name="behavior">The behavior.</param>
             <param name="logger">The logger.</param>
         </member>
@@ -110,7 +111,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.AckOnce.Cancel">
+        <member name="M:Weknow.EventSource.Backbone.AckOnce.CancelAsync">
             <summary>
             Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             </summary>
@@ -138,7 +139,7 @@
             message from process again by the consumer)
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IAck.Cancel">
+        <member name="M:Weknow.EventSource.Backbone.IAck.CancelAsync">
             <summary>
             Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             </summary>

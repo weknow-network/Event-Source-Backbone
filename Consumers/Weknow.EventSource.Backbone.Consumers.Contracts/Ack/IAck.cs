@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
         /// </summary>
         /// <returns></returns>
-        void Cancel();
+        ValueTask CancelAsync();
 
     }
 }

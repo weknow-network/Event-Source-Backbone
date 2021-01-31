@@ -126,7 +126,6 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // OnSucceed_ACK_Test
 
-
         #region OnSucceed_ACK_WithFailure_Test
 
         [Fact]
@@ -138,13 +137,24 @@ namespace Weknow.EventSource.Backbone.Tests
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
                                             .Build<ISequenceOperations>();
 
             #endregion // ISequenceOperations producer = ...
 
+            #region A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
+
             int tryNumber = 0;
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
-             .Throws<Exception>(e => Interlocked.Increment(ref tryNumber) == 1 ? e : null);
+                .ReturnsLazily<ValueTask>(() =>
+                {
+                    if (Interlocked.Increment(ref tryNumber) == 1)
+                        throw new ApplicationException("test intensional exception");
+
+                    return ValueTaskStatic.CompletedValueTask;
+                });
+
+            #endregion // A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
 
             await SendSequenceAsync(producer);
 
@@ -160,6 +170,72 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedTwiceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // OnSucceed_ACK_WithFailure_Test
+
+        #region OnFinaly_ACK_WithFailure_Test
+
+        [Fact]
+        public async Task OnFinaly_ACK_WithFailure_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperations producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .Build<ISequenceOperations>();
+
+            #endregion // ISequenceOperations producer = ...
+
+            #region A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
+
+            int tryNumber = 0;
+            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+                .ReturnsLazily<ValueTask>(() =>
+                {
+                    if (Interlocked.Increment(ref tryNumber) == 1)
+                        throw new ApplicationException("test intensional exception");
+
+                    return ValueTaskStatic.CompletedValueTask;
+                });
+
+            #endregion // A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
+
+            await SendSequenceAsync(producer);
+
+            var consumerOptions = new ConsumerOptions(
+                                        AckBehavior.OnFinally,
+                                        maxMessages: 3 /* detach consumer after 4 messages*/);
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -178,9 +254,8 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // Validation
         }
 
-        #endregion // OnSucceed_ACK_WithFailure_Test
+        #endregion // OnFinaly_ACK_WithFailure_Test
 
-        // TODO: [bnaya 2020-10] manual ack
         #region Manual_ACK_Test
 
         [Fact]
@@ -197,6 +272,8 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // ISequenceOperations producer = ...
 
             int tryNumber = 0;
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                    .ReturnsLazily(() => Ack.Current.AckAsync());
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(async () =>
                 {
@@ -205,6 +282,8 @@ namespace Weknow.EventSource.Backbone.Tests
 
                     await Ack.Current.AckAsync();
                 });
+            A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
+                    .ReturnsLazily(() => Ack.Current.AckAsync());
 
 
             await SendSequenceAsync(producer);
@@ -221,6 +300,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithCancellation(cancellation)
                              .Partition(PARTITION)
                              .Shard(SHARD)
+                             .WithLogger(_fakeLogger)
                              .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -232,7 +312,7 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
-                        .MustHaveHappened(2, Times.Exactly);
+                        .MustHaveHappenedTwiceExactly();
             A.CallTo(() => _subscriber.EarseAsync(4335))
                         .MustHaveHappenedOnceExactly();
 

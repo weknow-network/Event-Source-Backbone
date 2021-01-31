@@ -13,6 +13,9 @@ using Weknow.EventSource.Backbone.Private;
 
 using static System.Math;
 
+// TODO: Poly policies, multiple levels,
+// TODO: Claim from other inactive consumers
+
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     internal class RedisConsumerChannel : IConsumerChannelProvider
@@ -70,8 +73,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             while (!cancellationToken.IsCancellationRequested)
             { // connection errors
-
                 IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
+
                 if (plan.Shard != string.Empty)
                     await SubsribeShardAsync(db, plan, func, options, cancellationToken);
                 else
@@ -168,6 +171,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             // TODO: if !shard read all keys with partition prefix & subscribe to, interval should check for new shard
             string key = $"{plan.Partition}:{plan.Shard}";
+            bool hasUnhandledMessages = true;
+
             CommandFlags flags = CommandFlags.None;
 
             await db.CreateConsumerGroupIfNotExistsAsync(
@@ -187,9 +192,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 try
                 {
-
-                    foreach (StreamEntry result in results)
+                    var batchCancellation = new CancellationTokenSource();
+                    for (int i = 0; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                     {
+                        StreamEntry result = results[i];                    
                         var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
                         string id = entries[nameof(Metadata.Empty.MessageId)];
                         string segmentsKey = $"Segments~{id}";
@@ -210,14 +216,24 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         var announcement = new Announcement(meta, segmets, interceptions);
 
+                        int local = i;
+                        var cancellableIds = results[local..].Select(m => m.Id);
                         // TODO: [bnaya 2021] add poly before re-fetching (poly policy should be injectable)
                         // TODO: [bnaya 2021] log failure, plan?.Logger
-                        var ack = new AckOnce(() => AckAsync(result.Id), plan.Options.AckBehavior, _logger);
+                        var ack = new AckOnce(
+                                        () => AckAsync(result.Id),
+                                        plan.Options.AckBehavior, _logger,
+                                        async () =>
+                                        {
+                                            batchCancellation.CancelSafe(); // cancel forward
+                                            await CancelAsync(cancellableIds);
+                                        });
                         await func(announcement, ack);
                     }
                 }
                 catch
                 {
+                    hasUnhandledMessages = true;
                 }
             }
 
@@ -229,32 +245,58 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 // TBD: circuit-breaker
                 try
                 {
-                    StreamEntry[] values = await db.StreamReadGroupAsync(
-                                                        key,
-                                                        plan.ConsumerGroup,
-                                                        plan.ConsumerName,
-                                                        position: StreamPosition.NewMessages,
-                                                        count: options.BatchSize,
-                                                        flags: flags);
-                    StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
-                    if (results.Length == 0)
+                    StreamEntry[] values = Array.Empty<StreamEntry>();
+                    if (hasUnhandledMessages) // first batch for this consumer 
                     {
-                        StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
-                        plan.Logger?.LogInformation($"PEND [{pendingInfo.PendingMessageCount}]: {pendingInfo.LowestPendingMessageId} -> {pendingInfo.HighestPendingMessageId}");
-                        plan.Logger?.LogInformation("\tConsumers:");
-                        foreach (var c in pendingInfo.Consumers)
+                        var pendMsgInfo = await db.StreamPendingMessagesAsync(
+                                                    key,
+                                                    plan.ConsumerGroup,
+                                                    options.BatchSize,
+                                                    plan.ConsumerName, 
+                                                    flags: CommandFlags.DemandMaster);
+                        if (pendMsgInfo != null && pendMsgInfo.Length != 0)
                         {
-                            var self = c.Name == plan.ConsumerName ? "*" : "";
-                            plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
-                        }
-
-                        plan.Logger?.LogInformation("\tMessages info:");
-                        var pendMsgInfo = await db.StreamPendingMessagesAsync(key, plan.ConsumerGroup, 10, plan.ConsumerName, pendingInfo.LowestPendingMessageId, pendingInfo.HighestPendingMessageId, flags: CommandFlags.DemandMaster);
-                        foreach (var c in pendMsgInfo)
-                        {
-                            plan.Logger?.LogInformation($"\t\tID = {c.MessageId}, ConsumerName = {c.ConsumerName}, Duration = {c.IdleTimeInMilliseconds / 1000.0:N3}s, DeliveryCount = {c.DeliveryCount}");
+                            var ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+                            values = await db.StreamClaimAsync(key, 
+                                                      plan.ConsumerGroup, 
+                                                      plan.ConsumerName, 
+                                                      0,
+                                                      ids,
+                                                      flags: CommandFlags.DemandMaster);
+                            values = values ?? Array.Empty<StreamEntry>();
                         }
                     }
+                    if (values.Length == 0)
+                    {
+                        hasUnhandledMessages = false;
+                        values = await db.StreamReadGroupAsync(
+                                                            key,
+                                                            plan.ConsumerGroup,
+                                                            plan.ConsumerName,
+                                                            position: StreamPosition.NewMessages,
+                                                            count: options.BatchSize,
+                                                            flags: flags);
+                    }
+                    StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
+
+                    //if (results.Length == 0)
+                    //{
+                    //    StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
+                    //    plan.Logger?.LogInformation($"PEND [{pendingInfo.PendingMessageCount}]: {pendingInfo.LowestPendingMessageId} -> {pendingInfo.HighestPendingMessageId}");
+                    //    plan.Logger?.LogInformation("\tConsumers:");
+                    //    foreach (var c in pendingInfo.Consumers)
+                    //    {
+                    //        var self = c.Name == plan.ConsumerName ? "*" : "";
+                    //        plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
+                    //    }
+
+                    //    plan.Logger?.LogInformation("\tMessages info:");
+                    //    var pendMsgInfo = await db.StreamPendingMessagesAsync(key, plan.ConsumerGroup, 10, plan.ConsumerName, pendingInfo.LowestPendingMessageId, pendingInfo.HighestPendingMessageId, flags: CommandFlags.DemandMaster);
+                    //    foreach (var c in pendMsgInfo)
+                    //    {
+                    //        plan.Logger?.LogInformation($"\t\tID = {c.MessageId}, ConsumerName = {c.ConsumerName}, Duration = {c.IdleTimeInMilliseconds / 1000.0:N3}s, DeliveryCount = {c.DeliveryCount}");
+                    //    }
+                    //}
                     return results;
 
                 }
@@ -292,6 +334,36 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             }
 
             #endregion // AckAsync
+
+            #region CancelAsync
+
+            /// <summary>
+            /// Cancels the asynchronous.
+            /// </summary>
+            /// <param name="messageIds">The message ids.</param>
+            /// <returns></returns>
+            ValueTask CancelAsync(IEnumerable<RedisValue> messageIds)
+            {
+                // no way to release consumed item back to the stream
+                //try
+                //{
+                //    // release the event (won't handle again in the future)
+                //    await db.StreamClaimIdsOnlyAsync(key,
+                //                                    plan.ConsumerGroup,
+                //                                    RedisValue.Null,
+                //                                    0,
+                //                                    messageIds.ToArray(),
+                //                                    flags: CommandFlags.DemandMaster);
+                //}
+                //catch (Exception)
+                //{ // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+                //    throw;
+                //}
+                return ValueTaskStatic.CompletedValueTask;
+
+            }
+
+            #endregion // CancelAsync
 
             #region DelayIfEmpty
 

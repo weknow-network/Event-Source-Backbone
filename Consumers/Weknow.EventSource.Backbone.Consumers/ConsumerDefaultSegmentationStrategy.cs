@@ -21,7 +21,14 @@ namespace Weknow.EventSource.Backbone
                 T item = options.Serializer.Deserialize<T>(data);
                 return (true, item).ToValueTask();
             }
-            return (false, default(T)).ToValueTask();
+
+            T t = default(T);
+
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+            return (false, t).ToValueTask();
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
         }
     }
 }

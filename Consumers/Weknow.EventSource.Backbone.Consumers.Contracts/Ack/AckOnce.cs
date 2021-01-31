@@ -13,7 +13,9 @@ namespace Weknow.EventSource.Backbone
     /// <seealso cref="System.IAsyncDisposable" />
     public class AckOnce : IAck
     {
-        private readonly Func<ValueTask> _ack;
+        private static readonly Func<ValueTask> NON_FN = () => ValueTaskStatic.CompletedValueTask;
+        private readonly Func<ValueTask> _ackAsync;
+        private readonly Func<ValueTask> _cancelAsync;
         private readonly AckBehavior _behavior;
         private readonly ILogger _logger;
         private int _ackCount = 0;
@@ -23,15 +25,18 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="ack">The ack.</param>
+        /// <param name="ackAsync">The ack.</param>
+        /// <param name="cancelAsync">The cancel.</param>
         /// <param name="behavior">The behavior.</param>
         /// <param name="logger">The logger.</param>
         public AckOnce(
-            Func<ValueTask> ack,
+            Func<ValueTask> ackAsync,
             AckBehavior behavior,
-            ILogger logger)
+            ILogger logger,
+            Func<ValueTask>? cancelAsync = null)
         {
-            _ack = ack;
+            _ackAsync = ackAsync;
+            _cancelAsync = cancelAsync ?? NON_FN;
             _behavior = behavior;
             _logger = logger;
         }
@@ -51,7 +56,7 @@ namespace Weknow.EventSource.Backbone
             try
             {
                 if (count == 1)
-                    await _ack();
+                    await _ackAsync();
 
             }
             catch (Exception ex)
@@ -65,19 +70,31 @@ namespace Weknow.EventSource.Backbone
         #endregion // AckAsync
 
         // TODO: [bnaya 2020-10] cancel pending
-        #region Cancel
+        #region CancelAsync
 
         /// <summary>
         /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
         /// </summary>
         /// <returns></returns>
-        public void Cancel()
+        public async ValueTask CancelAsync()
         {
-            Interlocked.Increment(ref _ackCount);
+            int count = Interlocked.Increment(ref _ackCount);
+            try
+            {
+                if (count == 1)
+                    await _cancelAsync();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Cancel failure: Behavior = {behavior}", _behavior);
+                Interlocked.Decrement(ref _ackCount);
+                throw;
+            }
            
         }
 
-        #endregion // Cancel
+        #endregion // CancelAsync
 
         #region DisposeAsync
 

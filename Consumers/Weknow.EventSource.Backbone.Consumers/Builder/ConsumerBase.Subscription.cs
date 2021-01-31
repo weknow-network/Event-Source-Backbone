@@ -195,20 +195,29 @@ namespace Weknow.EventSource.Backbone
                     }
                     logger.LogDebug("Consumed event: {0}", meta.Key);
 
-                    if (_plan.Options.AckBehavior == AckBehavior.OnSucceed)
-                        await ack.AckAsync(); 
+                    var behavior = _plan.Options.AckBehavior;
+                    if (behavior == AckBehavior.OnSucceed)
+                        await ack.AckAsync();
                 }
                 #region Exception Handling
 
                 catch (OperationCanceledException)
                 {
-                    ack.Cancel();
                     logger.LogWarning("Canceled event: {0}", meta.Key);
+                    if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
+                    {
+                        await ack.CancelAsync();
+                        throw;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    ack.Cancel();
                     logger.LogError(ex, "event: {0}", meta.Key);
+                    if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
+                    {
+                        await ack.CancelAsync();
+                        throw;
+                    }
                 }
 
                 #endregion // Exception Handling
