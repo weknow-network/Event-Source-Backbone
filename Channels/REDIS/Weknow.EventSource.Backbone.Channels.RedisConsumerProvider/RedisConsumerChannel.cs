@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using System;
@@ -24,6 +26,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         private readonly ILogger _logger;
         private readonly ConfigurationOptions _options;
+        private readonly RedisConsumerChannelSetting _setting;
         private static int _index;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Consumer_{0}";
         private readonly RedisClientFactory _redisClientFactory;
@@ -33,14 +36,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="setting">The setting.</param>
+        /// <param name="endpointEnvKey">The endpoint env key.</param>
+        /// <param name="passwordEnvKey">The password env key.</param>
         public RedisConsumerChannel(
             ILogger logger,
             ConfigurationOptions options,
+            RedisConsumerChannelSetting setting,
             string endpointEnvKey,
             string passwordEnvKey)
         {
             _logger = logger;
             _options = options;
+            _setting = setting;
             string name = string.Format(
                                     CONNECTION_NAME_PATTERN,
                                     Interlocked.Increment(ref _index));
@@ -169,9 +179,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
-            // TODO: if !shard read all keys with partition prefix & subscribe to, interval should check for new shard
+            // TODO: [bnaya 2021] add poly at the fetching level (poly policy should be injectable)
             string key = $"{plan.Partition}:{plan.Shard}";
-            bool hasUnhandledMessages = true;
+            bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
 
@@ -183,10 +193,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(
                                         cancellationToken, plan.Cancellation).Token;
             int delay = 1;
+            int emptyBatchCount = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
-                // TODO: [bnaya 2021] add poly at the fetching level (poly policy should be injectable)
                 StreamEntry[] results = await ReadBatchAsync();
+                emptyBatchCount = results.Length == 0 ? results.Length + 1 : 0;
+                results = await ClaimStaleMessages(emptyBatchCount, results);
 
                 await DelayIfEmpty(results.Length);
 
@@ -195,7 +207,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     var batchCancellation = new CancellationTokenSource();
                     for (int i = 0; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                     {
-                        StreamEntry result = results[i];                    
+                        StreamEntry result = results[i];
                         var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
                         string id = entries[nameof(Metadata.Empty.MessageId)];
                         string segmentsKey = $"Segments~{id}";
@@ -233,7 +245,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 }
                 catch
                 {
-                    hasUnhandledMessages = true;
+                    isFirstBatchOrFailure = true;
                 }
             }
 
@@ -246,29 +258,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 try
                 {
                     StreamEntry[] values = Array.Empty<StreamEntry>();
-                    if (hasUnhandledMessages) // first batch for this consumer 
-                    {
-                        var pendMsgInfo = await db.StreamPendingMessagesAsync(
-                                                    key,
-                                                    plan.ConsumerGroup,
-                                                    options.BatchSize,
-                                                    plan.ConsumerName, 
-                                                    flags: CommandFlags.DemandMaster);
-                        if (pendMsgInfo != null && pendMsgInfo.Length != 0)
-                        {
-                            var ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
-                            values = await db.StreamClaimAsync(key, 
-                                                      plan.ConsumerGroup, 
-                                                      plan.ConsumerName, 
-                                                      0,
-                                                      ids,
-                                                      flags: CommandFlags.DemandMaster);
-                            values = values ?? Array.Empty<StreamEntry>();
-                        }
-                    }
+                    values = await ReadSelfPending();
+
                     if (values.Length == 0)
                     {
-                        hasUnhandledMessages = false;
+                        isFirstBatchOrFailure = false;
                         values = await db.StreamReadGroupAsync(
                                                             key,
                                                             plan.ConsumerGroup,
@@ -278,25 +272,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                             flags: flags);
                     }
                     StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
-
-                    //if (results.Length == 0)
-                    //{
-                    //    StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
-                    //    plan.Logger?.LogInformation($"PEND [{pendingInfo.PendingMessageCount}]: {pendingInfo.LowestPendingMessageId} -> {pendingInfo.HighestPendingMessageId}");
-                    //    plan.Logger?.LogInformation("\tConsumers:");
-                    //    foreach (var c in pendingInfo.Consumers)
-                    //    {
-                    //        var self = c.Name == plan.ConsumerName ? "*" : "";
-                    //        plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
-                    //    }
-
-                    //    plan.Logger?.LogInformation("\tMessages info:");
-                    //    var pendMsgInfo = await db.StreamPendingMessagesAsync(key, plan.ConsumerGroup, 10, plan.ConsumerName, pendingInfo.LowestPendingMessageId, pendingInfo.HighestPendingMessageId, flags: CommandFlags.DemandMaster);
-                    //    foreach (var c in pendMsgInfo)
-                    //    {
-                    //        plan.Logger?.LogInformation($"\t\tID = {c.MessageId}, ConsumerName = {c.ConsumerName}, Duration = {c.IdleTimeInMilliseconds / 1000.0:N3}s, DeliveryCount = {c.DeliveryCount}");
-                    //    }
-                    //}
                     return results;
 
                 }
@@ -313,6 +288,81 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             }
 
             #endregion // ReadBatchAsync
+
+            #region ReadSelfPending
+
+            // Check for pending messages of the current consumer (crash scenario)
+            async Task<StreamEntry[]> ReadSelfPending()
+            {
+                StreamEntry[] values = Array.Empty<StreamEntry>();
+                if (!isFirstBatchOrFailure)
+                    return values;
+
+                var pendMsgInfo = await db.StreamPendingMessagesAsync(
+                                            key,
+                                            plan.ConsumerGroup,
+                                            options.BatchSize,
+                                            plan.ConsumerName,
+                                            flags: CommandFlags.DemandMaster);
+                if (pendMsgInfo != null && pendMsgInfo.Length != 0)
+                {
+                    var ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+                    values = await db.StreamClaimAsync(key,
+                                              plan.ConsumerGroup,
+                                              plan.ConsumerName,
+                                              0,
+                                              ids,
+                                              flags: CommandFlags.DemandMaster);
+                    values = values ?? Array.Empty<StreamEntry>();
+                }
+
+                return values;
+            }
+
+            #endregion // ReadSelfPending
+
+            #region ClaimStaleMessages
+
+            // Taking work from other consumers which have log-time's pending messages
+            async Task<StreamEntry[]> ClaimStaleMessages(
+                int emptyBatchCount,
+                StreamEntry[] values)
+            {
+                if (values.Length != 0) return values;
+                if (emptyBatchCount < _setting.ClaimingTrigger.EmptyBatchCount)
+                    return values;
+
+                StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
+                foreach (var c in pendingInfo.Consumers)
+                {
+                    var self = c.Name == plan.ConsumerName;
+                    if (self) continue;
+
+                    plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
+                    var pendMsgInfo = await db.StreamPendingMessagesAsync(
+                        key,
+                        plan.ConsumerGroup,
+                        10,
+                        c.Name, 
+                        pendingInfo.LowestPendingMessageId, 
+                        pendingInfo.HighestPendingMessageId,
+                        flags: CommandFlags.DemandMaster);
+
+                    RedisValue[] ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+                    values = await db.StreamClaimAsync(key,
+                                              plan.ConsumerGroup,
+                                              c.Name,
+                                              0,
+                                              ids,
+                                              flags: CommandFlags.DemandMaster);
+                    if (values != null && values.Length != 0)
+                        return values;
+                }
+
+                return Array.Empty<StreamEntry>();
+            }
+
+            #endregion // ClaimStaleMessages
 
             #region AckAsync
 
@@ -337,11 +387,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region CancelAsync
 
-            /// <summary>
-            /// Cancels the asynchronous.
-            /// </summary>
-            /// <param name="messageIds">The message ids.</param>
-            /// <returns></returns>
+            // Cancels the asynchronous.
             ValueTask CancelAsync(IEnumerable<RedisValue> messageIds)
             {
                 // no way to release consumed item back to the stream

@@ -21,7 +21,7 @@ namespace Weknow.EventSource.Backbone.ConsoleTests
             Console.WriteLine($"{PARTITION}: {SHARD_A}");
             var consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         CancellationToken.None,
-                                        configuration: (cfg) => cfg.ServiceName = "mymaster");
+                                        redisConfiguration: (cfg) => cfg.ServiceName = "mymaster");
 
 
             var consumerOptions = new ConsumerOptions(AckBehavior.OnSucceed);

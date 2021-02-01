@@ -16,54 +16,64 @@ namespace Weknow.EventSource.Backbone
         private const string CONSUMER_END_POINT_KEY = "REDIS_EVENT_SOURCE_CONSUMER_ENDPOINT";
         private const string CONSUMER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_CONSUMER_PASS";
 
-        #region Overloads
-
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
+        /// <param name="redisConfiguration">The redis configuration.</param>
+        /// <param name="policy">The policy.</param>
+        /// <param name="claimingTrigger">The claiming trigger.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         public static IConsumerOptionsBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             CancellationToken cancellationToken,
-                            Action<ConfigurationOptions>? configuration = null,
                             ILogger? logger = null,
+                            Action<ConfigurationOptions>? redisConfiguration = null,
+                            ResiliencePolicies? policy = null,
+                            StaleMessagesClaimingTrigger? claimingTrigger = null,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
-            return UseRedisConsumerChannel(builder, logger, configuration, cancellationToken, endpointEnvKey, passwordEnvKey);
-        }
+            var setting = new RedisConsumerChannelSetting
+            {
+                ClaimingTrigger = claimingTrigger ?? StaleMessagesClaimingTrigger.Empty,
+                Policy = policy ?? ResiliencePolicies.Empty,
+                RedisConfiguration = redisConfiguration
+            };
 
-        #endregion // Overloads
+            return UseRedisConsumerChannel(builder, cancellationToken, setting,
+                                            logger, endpointEnvKey, passwordEnvKey);
+        }
 
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="setting">The setting.</param>
+        /// <param name="logger">The logger.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         public static IConsumerOptionsBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
+                            CancellationToken cancellationToken,
+                            RedisConsumerChannelSetting? setting = null,
                             ILogger? logger = null,
-                            Action<ConfigurationOptions>? configuration = null,
-                            CancellationToken cancellationToken = default,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
             var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            configuration?.Invoke(options);
+            var cfg = setting ?? RedisConsumerChannelSetting.Empty;
+            cfg.RedisConfiguration?.Invoke(options);
             var channel = new RedisConsumerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
                                         options,
+                                        cfg,
                                         endpointEnvKey,
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();

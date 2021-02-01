@@ -81,7 +81,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             var sb = new StringBuilder();
             var writer = new StringWriter(sb);
 
-            // TODO: [bnaya, 2020_09] Fix option order
             var redisConfiguration = ConfigurationOptions.Parse(endpoint);
             redisConfiguration.ClientName = name;
             redisConfiguration.Password = password;

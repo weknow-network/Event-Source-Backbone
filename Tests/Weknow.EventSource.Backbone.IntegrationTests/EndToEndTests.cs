@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                         configuration: (cfg) => cfg.ServiceName = "mymaster");
             _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         _testScopeCancellation,
-                                        configuration: (cfg) => cfg.ServiceName = "mymaster");
+                                        redisConfiguration: (cfg) => cfg.ServiceName = "mymaster");
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .Returns(ValueTaskStatic.CompletedValueTask);
