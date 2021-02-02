@@ -25,6 +25,7 @@ namespace Weknow.EventSource.Backbone
             private readonly static ConcurrentDictionary<Subscription, object?> _keepAlive =
                                                 new ConcurrentDictionary<Subscription, object?>();
             private readonly TaskCompletionSource<object?> _completion = new TaskCompletionSource<object?>();
+            // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
             private long _consumeCounter;
 
             #region Ctor
@@ -86,7 +87,7 @@ namespace Weknow.EventSource.Backbone
                 CancellationToken cancellation = _plan.Cancellation;
                 Metadata meta = arg.Metadata;
 
-                #region Validation Max Messages Limit
+                #region Increment & Validation Max Messages Limit
 
                 long count = Interlocked.Increment(ref _consumeCounter);
                 if (_maxMessages != 0 && _maxMessages < count)
@@ -95,7 +96,7 @@ namespace Weknow.EventSource.Backbone
                     throw new OperationCanceledException(); // make sure it not auto ack;
                 }
 
-                #endregion // Validation Max Messages Limit
+                #endregion // Increment & Validation Max Messages Limit
 
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
                 T instance = _factory(consumerMeta);
@@ -189,9 +190,11 @@ namespace Weknow.EventSource.Backbone
                 {
                     await using (Ack.Set(ack))
                     {
-                        var res = method.Invoke(instance, arguments);
-                        if (res is ValueTask vtsk) await vtsk;
-                        if (res is Task tsk) await tsk;
+                        await _plan.ResiliencePolicy.ExecuteAsync(async () => {
+                            var res = method.Invoke(instance, arguments);
+                            if (res is ValueTask vtsk) await vtsk;
+                            if (res is Task tsk) await tsk;
+                        });
                     }
                     logger.LogDebug("Consumed event: {0}", meta.Key);
 

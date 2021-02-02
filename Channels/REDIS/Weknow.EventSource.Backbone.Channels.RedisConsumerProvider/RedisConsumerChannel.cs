@@ -257,23 +257,26 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 // TBD: circuit-breaker
                 try
                 {
-                    StreamEntry[] values = Array.Empty<StreamEntry>();
-                    values = await ReadSelfPending();
-
-                    if (values.Length == 0)
+                    var r = await _setting.Policy.BatchReading.ExecuteAsync(async () =>
                     {
-                        isFirstBatchOrFailure = false;
-                        values = await db.StreamReadGroupAsync(
-                                                            key,
-                                                            plan.ConsumerGroup,
-                                                            plan.ConsumerName,
-                                                            position: StreamPosition.NewMessages,
-                                                            count: options.BatchSize,
-                                                            flags: flags);
-                    }
-                    StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
-                    return results;
+                        StreamEntry[] values = Array.Empty<StreamEntry>();
+                        values = await ReadSelfPending();
 
+                        if (values.Length == 0)
+                        {
+                            isFirstBatchOrFailure = false;
+                            values = await db.StreamReadGroupAsync(
+                                                                key,
+                                                                plan.ConsumerGroup,
+                                                                plan.ConsumerName,
+                                                                position: StreamPosition.NewMessages,
+                                                                count: options.BatchSize,
+                                                                flags: flags);
+                        }
+                        StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
+                        return results;
+                    });
+                    return r;
                 }
                 catch (RedisTimeoutException ex)
                 {

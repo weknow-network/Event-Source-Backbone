@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using System;
 using System.Collections.Immutable;
 using System.Threading;
@@ -26,6 +28,11 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         private ConsumerPlan()
         {
+            ResiliencePolicy = Policy.Handle<Exception>()
+                          .WaitAndRetryAsync(3,
+                                (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)),
+                                 ((ex, duration, retryCount, ctx) => Logger?.LogWarning(ex,"Retry {count}", retryCount)));
+
         }
 
         /// <summary>
@@ -59,7 +66,8 @@ namespace Weknow.EventSource.Backbone
             IImmutableList<IConsumerHooksBuilder>? routes = null,
             CancellationToken? cancellation = null,
             string? consumerGroup = null,
-            string? consumerName = null)
+            string? consumerName = null,
+            AsyncPolicy? resiliencePolicy = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -72,6 +80,7 @@ namespace Weknow.EventSource.Backbone
             Cancellation = cancellation ?? copyFrom.Cancellation;
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
+            ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
         }
 
         #endregion // Ctor
@@ -210,6 +219,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // ConsumerName
 
+        #region ResiliencePolicy
+
+        /// <summary>
+        /// Gets or sets the invocation resilience policy.
+        /// </summary>
+        public AsyncPolicy ResiliencePolicy { get; }
+
+        #endregion // ResiliencePolicy
+
         //------------------------------------------
 
         #region WithChannel
@@ -308,6 +326,20 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithShard
+
+        #region WithResiliencePolicy
+
+        /// <summary>
+        /// Set resilience policy
+        /// </summary>
+        /// <param name="policy">The policy.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithResiliencePolicy(AsyncPolicy policy)
+        {
+            return new ConsumerPlan(this, resiliencePolicy: policy);
+        }
+
+        #endregion // WithResiliencePolicy
 
         #region AddRoute
 

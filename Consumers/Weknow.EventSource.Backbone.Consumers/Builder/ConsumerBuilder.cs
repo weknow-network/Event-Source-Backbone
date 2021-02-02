@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using System;
 using System.Threading;
 
@@ -218,6 +220,22 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithLogger
+
+        #region WithResiliencePolicy
+
+        /// <summary>
+        /// Set resilience policy
+        /// </summary>
+        /// <param name="policy">The policy.</param>
+        /// <returns></returns>
+        IConsumerLoggerBuilder IConsumerLoggerBuilder.WithResiliencePolicy(AsyncPolicy policy)
+        {
+            var prms = _plan.WithResiliencePolicy(policy);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // WithResiliencePolicy
 
         #region Subscribe
 

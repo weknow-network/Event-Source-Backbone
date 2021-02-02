@@ -186,6 +186,13 @@
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerLoggerBuilder#WithResiliencePolicy(Polly.AsyncPolicy)">
+            <summary>
+            Set resilience policy
+            </summary>
+            <param name="policy">The policy.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0},System.String,System.String)">
             <summary>
             Subscribe consumer.
@@ -222,7 +229,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -330,6 +337,11 @@
             Can use for observability.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.ResiliencePolicy">
+            <summary>
+            Gets or sets the invocation resilience policy.
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
             <summary>
             Attach the channel.
@@ -377,6 +389,13 @@
             Attach the shard.
             </summary>
             <param name="shard">The shard.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithResiliencePolicy(Polly.AsyncPolicy)">
+            <summary>
+            Set resilience policy
+            </summary>
+            <param name="policy">The policy.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.AddRoute(Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder)">

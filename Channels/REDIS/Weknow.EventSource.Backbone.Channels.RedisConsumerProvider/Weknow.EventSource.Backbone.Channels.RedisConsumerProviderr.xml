@@ -83,11 +83,6 @@
             Gets or sets the batch reading policy.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.Invocation">
-            <summary>
-            Gets or sets the invocation policy.
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger">
             <summary>
             Define when to claim stale (long waiting) messages from other consumers

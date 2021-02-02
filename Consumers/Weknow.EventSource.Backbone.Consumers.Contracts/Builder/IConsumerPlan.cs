@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using System.Collections.Immutable;
 using System.Threading;
 
@@ -85,5 +87,11 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
         IConsumerPlan WithShard(string shard);
+
+        /// <summary>
+        /// Gets or sets the invocation resilience policy.
+        /// </summary>
+        AsyncPolicy ResiliencePolicy { get; }
+
     }
 }

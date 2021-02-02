@@ -18,6 +18,8 @@
         /// <summary>
         /// Gets the maximum messages to consume before detaching the subscription.
         /// any number > 0 will activate this mechanism.
+        /// 
+        /// Will be evaluate against consuming attempt (either successful or faulted), not includes Polly retry policy
         /// </summary>
         uint MaxMessages { get; }
 

@@ -47,10 +47,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             AsyncPolicy retryReading = Policy.Handle<Exception>()
                   .RetryForeverAsync((ex, i, c) => onRetry_(ex, TimeSpan.Zero, i, c));
 
-            AsyncPolicy retryInvocation = Policy.Handle<Exception>()
-                  .WaitAndRetryAsync(3, 
-                        (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)),
-                        onRetry_); 
             
             AsyncPolicy breaker = Policy.Handle<Exception>()
                             //.CircuitBreakerAsync(
@@ -69,7 +65,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 onHalfOpen_);
 
             BatchReading = retryReading.WrapAsync(breaker);
-            Invocation = retryInvocation; 
         }
 
         #endregion // Ctor
@@ -79,9 +74,5 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </summary>
         public AsyncPolicy BatchReading { get; set; }
 
-        /// <summary>
-        /// Gets or sets the invocation policy.
-        /// </summary>
-        public AsyncPolicy Invocation { get; set; }
     }
 }

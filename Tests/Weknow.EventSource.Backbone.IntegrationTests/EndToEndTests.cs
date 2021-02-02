@@ -2,6 +2,8 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using System;
@@ -148,7 +150,8 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(() =>
                 {
-                    if (Interlocked.Increment(ref tryNumber) == 1)
+                    // 3 error will be catch by Polly, the 4th one will catch outside of Polly
+                    if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
 
                     return ValueTaskStatic.CompletedValueTask;
@@ -170,6 +173,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
+                         .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
@@ -182,7 +186,9 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
-                .MustHaveHappenedTwiceExactly();
+                        .MustHaveHappened(
+                                    3 /* Polly retry */ + 1 /* error */ + 1 /* succeed */,
+                                    Times.Exactly);
             A.CallTo(() => _subscriber.EarseAsync(4335))
                 .MustHaveHappenedOnceExactly();
 
@@ -213,7 +219,8 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(() =>
                 {
-                    if (Interlocked.Increment(ref tryNumber) == 1)
+                    // 3 error will be catch by Polly, the 4th one will catch outside of Polly
+                    if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
 
                     return ValueTaskStatic.CompletedValueTask;
@@ -235,6 +242,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
+                         .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
                          .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
@@ -247,7 +255,9 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
-                .MustHaveHappenedOnceExactly();
+                        .MustHaveHappened(
+                                    3 /* Polly retry */ + 1 /* error */ ,
+                                    Times.Exactly);
             A.CallTo(() => _subscriber.EarseAsync(4335))
                 .MustHaveHappenedOnceExactly();
 
@@ -260,6 +270,75 @@ namespace Weknow.EventSource.Backbone.Tests
 
         [Fact]
         public async Task Manual_ACK_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperations producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .Build<ISequenceOperations>();
+
+            #endregion // ISequenceOperations producer = ...
+
+            int tryNumber = 0;
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                    .ReturnsLazily(() => Ack.Current.AckAsync());
+            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+                .ReturnsLazily<ValueTask>(async () =>
+                {
+                    // 3 error will be catch by Polly, the 4th one will catch outside of Polly
+                    if (Interlocked.Increment(ref tryNumber) < 5)
+                        throw new ApplicationException("test intensional exception");
+
+                    await Ack.Current.AckAsync();
+                });
+            A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
+                    .ReturnsLazily(() => Ack.Current.AckAsync());
+
+
+            await SendSequenceAsync(producer);
+
+            var consumerOptions = new ConsumerOptions(
+                                        AckBehavior.Manual,
+                                        maxMessages: 4 /* detach consumer after 4 messages*/);
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(consumerOptions)
+                             .WithCancellation(cancellation)
+                             .Partition(PARTITION)
+                             .Shard(SHARD)
+                             .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
+                             .WithLogger(_fakeLogger)
+                             .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                        .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                        .MustHaveHappened(
+                                    3 /* Polly retry */ + 1 /* error */ + 1 /* succeed */,
+                                    Times.Exactly);
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                        .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // Manual_ACK_Test
+
+        #region Resilience_Test
+
+        [Fact]
+        public async Task Resilience_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -290,7 +369,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             var consumerOptions = new ConsumerOptions(
                                         AckBehavior.Manual,
-                                        maxMessages: 4 /* detach consumer after 3 messages*/);
+                                        maxMessages: 3 /* detach consumer after 3 messages */);
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -300,6 +379,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithCancellation(cancellation)
                              .Partition(PARTITION)
                              .Shard(SHARD)
+                             .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
                              .WithLogger(_fakeLogger)
                              .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
@@ -312,7 +392,7 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
-                        .MustHaveHappenedTwiceExactly();
+                        .MustHaveHappenedTwiceExactly(); /* 1 Polly, 1 succeed */
             A.CallTo(() => _subscriber.EarseAsync(4335))
                         .MustHaveHappenedOnceExactly();
 

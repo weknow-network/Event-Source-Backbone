@@ -257,6 +257,13 @@
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder.WithResiliencePolicy(Polly.AsyncPolicy)">
+            <summary>
+            Set resilience policy
+            </summary>
+            <param name="policy">The policy.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder">
             <summary>
             Enable configuration.
@@ -489,6 +496,11 @@
             <param name="shard">The shard.</param>
             <returns></returns>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.ResiliencePolicy">
+            <summary>
+            Gets or sets the invocation resilience policy.
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerMetadata">
             <summary>
             Represent metadata of message (command / event) metadata of
@@ -530,6 +542,8 @@
             <summary>
             Gets the maximum messages to consume before detaching the subscription.
             any number > 0 will activate this mechanism.
+            
+            Will be evaluate against consuming attempt (either successful or faulted), not includes Polly retry policy
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">
