@@ -40,7 +40,7 @@ namespace Weknow.EventSource.Backbone
         {
             var setting = new RedisConsumerChannelSetting
             {
-                ClaimingTrigger = claimingTrigger ?? StaleMessagesClaimingTrigger.Empty,
+                ClaimingTrigger = claimingTrigger ?? StaleMessagesClaimingTrigger.Default,
                 Policy = policy ?? ResiliencePolicies.Empty,
                 RedisConfiguration = redisConfiguration
             };

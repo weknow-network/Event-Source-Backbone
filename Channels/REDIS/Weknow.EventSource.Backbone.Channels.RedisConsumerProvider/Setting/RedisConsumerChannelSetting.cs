@@ -29,7 +29,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Define when to claim stale (long waiting) messages from other consumers
         /// </summary>
-        public StaleMessagesClaimingTrigger ClaimingTrigger { get; set; } = StaleMessagesClaimingTrigger.Empty;
+        public StaleMessagesClaimingTrigger ClaimingTrigger { get; set; } = StaleMessagesClaimingTrigger.Default;
 
 
         /// <summary>

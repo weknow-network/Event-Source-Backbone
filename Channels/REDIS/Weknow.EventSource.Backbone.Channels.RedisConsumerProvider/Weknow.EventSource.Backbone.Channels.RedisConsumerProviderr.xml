@@ -94,6 +94,11 @@
             which will trigger operation of trying to get stale messages from other consumers.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger.MinIdleTime">
+            <summary>
+            The minimum message idle time to allow the reassignment of the message(s).
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies,Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.

@@ -10,13 +10,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     /// </summary>
     public class StaleMessagesClaimingTrigger
     {
-        public static readonly StaleMessagesClaimingTrigger Empty = new StaleMessagesClaimingTrigger();
+        public static readonly StaleMessagesClaimingTrigger Default = new StaleMessagesClaimingTrigger();
 
         /// <summary>
         /// Empty batch count define number of empty fetching cycle in a row 
         /// which will trigger operation of trying to get stale messages from other consumers.
         /// </summary>
         public ushort EmptyBatchCount { get; set; } = 100;
+
+        /// <summary>
+        /// The minimum message idle time to allow the reassignment of the message(s).
+        /// </summary>
+        public TimeSpan MinIdleTime { get; set; } = TimeSpan.FromMinutes(20);
 
         ///// <summary>
         ///// Define schedule which will trigger 

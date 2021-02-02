@@ -179,16 +179,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
         {
-            // TODO: [bnaya 2021] add poly at the fetching level (poly policy should be injectable)
             string key = $"{plan.Partition}:{plan.Shard}";
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
 
+            #region await db.CreateConsumerGroupIfNotExistsAsync(...)
+
             await db.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 plan.ConsumerGroup,
                 plan.Logger ?? _logger);
+
+            #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
 
             cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(
                                         cancellationToken, plan.Cancellation).Token;
@@ -196,11 +199,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             int emptyBatchCount = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
+                await HandleBatchAsync();
+            }
+
+            #region HandleBatchAsync
+
+            // Handle single batch
+            async ValueTask HandleBatchAsync()
+            {
                 StreamEntry[] results = await ReadBatchAsync();
-                emptyBatchCount = results.Length == 0 ? results.Length + 1 : 0;
+                emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
                 results = await ClaimStaleMessages(emptyBatchCount, results);
 
                 await DelayIfEmpty(results.Length);
+                if (results.Length == 0)
+                    return;
 
                 try
                 {
@@ -208,6 +221,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     for (int i = 0; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                     {
                         StreamEntry result = results[i];
+
+                        #region var announcement = new Announcement(...)
+
                         var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
                         string id = entries[nameof(Metadata.Empty.MessageId)];
                         string segmentsKey = $"Segments~{id}";
@@ -228,10 +244,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         var announcement = new Announcement(meta, segmets, interceptions);
 
+                        #endregion // var announcement = new Announcement(...)
+
                         int local = i;
                         var cancellableIds = results[local..].Select(m => m.Id);
-                        // TODO: [bnaya 2021] add poly before re-fetching (poly policy should be injectable)
-                        // TODO: [bnaya 2021] log failure, plan?.Logger
                         var ack = new AckOnce(
                                         () => AckAsync(result.Id),
                                         plan.Options.AckBehavior, _logger,
@@ -248,6 +264,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     isFirstBatchOrFailure = true;
                 }
             }
+
+            #endregion // HandleBatchAsync
 
             #region ReadBatchAsync
 
@@ -355,7 +373,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     values = await db.StreamClaimAsync(key,
                                               plan.ConsumerGroup,
                                               c.Name,
-                                              0,
+                                              (int)_setting.ClaimingTrigger.MinIdleTime.TotalMilliseconds,
                                               ids,
                                               flags: CommandFlags.DemandMaster);
                     if (values != null && values.Length != 0)

@@ -45,12 +45,17 @@ namespace Weknow.EventSource.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
                                         _testScopeCancellation,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster");
+            var claimTrigger = StaleMessagesClaimingTrigger.Default;
+            claimTrigger.EmptyBatchCount = 5;
+            claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
+
             _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         _testScopeCancellation,
-                                        redisConfiguration: (cfg) => cfg.ServiceName = "mymaster");
+                                        redisConfiguration: (cfg) => cfg.ServiceName = "mymaster",
+                                        claimingTrigger: claimTrigger);
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
-                    .Returns(ValueTaskStatic.CompletedValueTask);
+                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
             A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
@@ -61,17 +66,17 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(() => _fakeLogger.Log<string>(
                 A<LogLevel>.Ignored,
                 A<EventId>.Ignored,
-                A<string>.Ignored ,
-                A<Exception>.Ignored, 
+                A<string>.Ignored,
+                A<Exception>.Ignored,
                 A<Func<string, Exception, string>>.Ignored
                 ))
-                .Invokes<object, LogLevel, EventId, string, Exception, Func<string, Exception, string>> ((level, id, msg, ex, fn) => 
-                        _outputHelper.WriteLine(
-                         $"Info: {fn(msg, ex)}"));
+                .Invokes<object, LogLevel, EventId, string, Exception, Func<string, Exception, string>>((level, id, msg, ex, fn) =>
+                       _outputHelper.WriteLine(
+                        $"Info: {fn(msg, ex)}"));
 
             #endregion //  A.CallTo(() => _fakeLogger...)
 
-            async ValueTask Delay() => await Task.Delay(500);
+            async ValueTask Delay() => await Task.Delay(200);
 
         }
 
@@ -281,6 +286,9 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
+            #region A.CallTo(...).ReturnsLazily(...)
+
+
             int tryNumber = 0;
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
@@ -295,6 +303,8 @@ namespace Weknow.EventSource.Backbone.Tests
                 });
             A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
+
+            #endregion // A.CallTo(...).ReturnsLazily(...)
 
 
             await SendSequenceAsync(producer);
@@ -400,6 +410,84 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Manual_ACK_Test
+
+        #region Claim_Test
+
+        [Fact]
+        public async Task Claim_Test()
+        {
+            ISequenceOperations otherSubscriber = A.Fake<ISequenceOperations>();
+
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperations producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .Build<ISequenceOperations>();
+
+            #endregion // ISequenceOperations producer = ...
+
+            #region A.CallTo(...).ReturnsLazily(...)
+
+            A.CallTo(() => otherSubscriber.RegisterAsync(A<User>.Ignored))
+                .ReturnsLazily<ValueTask>(async () =>
+                {
+                    throw new ApplicationException("test intensional exception");
+                });
+            A.CallTo(() => otherSubscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+            A.CallTo(() => otherSubscriber.EarseAsync(A<int>.Ignored))
+                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+
+            #endregion // A.CallTo(...).ReturnsLazily(...)
+
+            await SendSequenceAsync(producer);
+
+            var consumerOptions = new ConsumerOptions(
+                                        AckBehavior.OnSucceed,
+                                        maxMessages: 3 /* detach consumer after 3 messages */);
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var consumerPipe = _consumerBuilder
+                         .WithOptions(consumerOptions)
+                             .WithCancellation(cancellation)
+                             .Partition(PARTITION)
+                             .Shard(SHARD)
+                             .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
+                             .WithLogger(_fakeLogger);
+
+            await using IConsumerLifetime otherSubscription = consumerPipe
+                             .Subscribe(meta => otherSubscriber, "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
+
+            await otherSubscription.Completion;
+
+            await using IConsumerLifetime subscription = consumerPipe
+                             .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => otherSubscriber.RegisterAsync(A<User>.Ignored))
+                        .MustHaveHappened(
+                                    (3 /* Polly retry */ + 1 /* throw */ ) * 3 /* disconnect after 3 messaged */ ,
+                                    Times.Exactly);
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                        .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                        .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                        .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // Claim_Test
 
         #region SendSequenceAsync
 
