@@ -12,11 +12,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml</DocumentationFile>
-    <PackageProjectUrl>https://github.com/weknow-network/Event-Source-Backbone</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
-    <RepositoryType>GitHub</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml" />
@@ -29,12 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 
 </Project>

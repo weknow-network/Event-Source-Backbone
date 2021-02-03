@@ -6,6 +6,18 @@
     <Configurations>Debug;Release;ProjRef</Configurations>
  </PropertyGroup>
  <PropertyGroup>
-    <Version>1.0.2</Version>
+    <Version>1.0.2-alpha</Version>
+ </PropertyGroup>
+ <PropertyGroup>
+   <PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
+   <PackageReleaseNotes>
+
+   </PackageReleaseNotes>
+   <PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
+   <RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+   <RepositoryType>GitHub</RepositoryType>
+   <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+   <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+   <PackageLicenseExpression>MIT</PackageLicenseExpression>
  </PropertyGroup>
 </Project>
