@@ -36,7 +36,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="options">The options.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
@@ -193,7 +192,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(
                                         cancellationToken, plan.Cancellation).Token;
-            int delay = 1;
+            TimeSpan delay = TimeSpan.Zero;
             int emptyBatchCount = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -433,17 +432,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             #region DelayIfEmpty
 
             // avoiding system hit when empty (mitigation of self DDoS)
-            async Task<int> DelayIfEmpty(int resultsLength)
+            async Task<TimeSpan> DelayIfEmpty(int resultsLength)
             {
                 if (resultsLength == 0)
                 {
-                    await Task.Delay(delay, cancellationToken);
-                    delay *= Max(delay, 2);
-                    delay = Min(MAX_DELAY, delay);
+                    var cfg = _setting.DelayWhenEmptyBehavior;
+                    var newDelay = cfg.CalcNextDelay(delay);
+                    var maxDelayMs = Min(cfg.MaxDelay.TotalMilliseconds, delay.TotalMilliseconds);
+                    newDelay = TimeSpan.FromMilliseconds(maxDelayMs);
+                    await Task.Delay(newDelay, cancellationToken);
+                    return newDelay;
                 }
-                else
-                    delay = 1;
-                return delay;
+                return  TimeSpan.Zero;
             }
 
             #endregion // DelayIfEmpty

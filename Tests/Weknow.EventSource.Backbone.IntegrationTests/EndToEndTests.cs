@@ -45,9 +45,11 @@ namespace Weknow.EventSource.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
                                         _testScopeCancellation /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
-            var claimTrigger = StaleMessagesClaimingTrigger.Default;
+            var consumerSetting = RedisConsumerChannelSetting.Default;
+            var claimTrigger = consumerSetting.ClaimingTrigger;
             claimTrigger.EmptyBatchCount = 5;
             claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
+            consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
 
             _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
                                         _testScopeCancellation /*,
@@ -431,7 +433,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region A.CallTo(...).ReturnsLazily(...)
 
             A.CallTo(() => otherSubscriber.RegisterAsync(A<User>.Ignored))
-                .ReturnsLazily<ValueTask>(async () =>
+                .ReturnsLazily<ValueTask>(() =>
                 {
                     throw new ApplicationException("test intensional exception");
                 });

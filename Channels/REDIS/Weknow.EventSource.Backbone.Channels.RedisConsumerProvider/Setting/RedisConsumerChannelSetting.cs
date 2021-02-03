@@ -37,6 +37,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </summary>
         public ResiliencePolicies Policy { get; set; } = new ResiliencePolicies();
 
+
+        /// <summary>
+        /// Gets or sets the redis configuration manipulation.
+        /// </summary>
         public Action<ConfigurationOptions>? RedisConfiguration { get; set; }
+
+
+        /// <summary>
+        /// Behavior of delay when empty
+        /// </summary>
+        public DelayWhenEmptyBehavior DelayWhenEmptyBehavior { get; set; } = DelayWhenEmptyBehavior.Default;
     }
 }
