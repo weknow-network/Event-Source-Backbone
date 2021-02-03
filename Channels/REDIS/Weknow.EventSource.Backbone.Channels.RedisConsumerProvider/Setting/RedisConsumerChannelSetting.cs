@@ -24,7 +24,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     /// </summary>
     public class RedisConsumerChannelSetting
     {
-        public static readonly RedisConsumerChannelSetting Empty = new RedisConsumerChannelSetting();
+        public static readonly RedisConsumerChannelSetting Default = new RedisConsumerChannelSetting();
 
         /// <summary>
         /// Define when to claim stale (long waiting) messages from other consumers

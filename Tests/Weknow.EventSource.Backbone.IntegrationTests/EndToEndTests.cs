@@ -43,15 +43,15 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
-                                        _testScopeCancellation,
-                                        configuration: (cfg) => cfg.ServiceName = "mymaster");
+                                        _testScopeCancellation /*,
+                                        configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             var claimTrigger = StaleMessagesClaimingTrigger.Default;
             claimTrigger.EmptyBatchCount = 5;
             claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
 
             _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
-                                        _testScopeCancellation,
-                                        redisConfiguration: (cfg) => cfg.ServiceName = "mymaster",
+                                        _testScopeCancellation /*,
+                                        configuration: (cfg) => cfg.ServiceName = "mymaster" */,
                                         claimingTrigger: claimTrigger);
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
@@ -537,6 +537,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                                 _fakeLogger,
                                                 $"Test {DateTime.Now: yyyy-MM-dd HH_mm_ss}",
                                                 RedisUsageIntent.Admin,
+                                                null,
                                                 END_POINT_KEY, PASSWORD_KEY);
 
             IDatabaseAsync db = redisClientFactory.GetDbAsync().Result;

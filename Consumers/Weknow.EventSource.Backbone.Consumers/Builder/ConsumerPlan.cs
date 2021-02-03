@@ -50,10 +50,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="cancellation">The cancellation token.</param>
         /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
         /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">
-        /// Optional Name of the consumer.
-        /// Can use for observability.
-        /// </param>
+        /// <param name="consumerName">Optional Name of the consumer.
+        /// Can use for observability.</param>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             IConsumerChannelProvider? channel = null,

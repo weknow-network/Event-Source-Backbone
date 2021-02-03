@@ -4,7 +4,7 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisConsumerProvider</name>
     </assembly>
     <members>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,StackExchange.Redis.ConfigurationOptions,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
             <summary>
             Initializes a new instance.
             </summary>

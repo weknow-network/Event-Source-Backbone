@@ -4,29 +4,6 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisProvider.Common</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Private.ConfigurationOptionsFactory">
-            <summary>
-            Configuration options factory
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Private.ConfigurationOptionsFactory.FromEnv(System.String,System.String)">
-            <summary>
-            Create configuration from environment.
-            </summary>
-            <param name="endpointKey">The endpoint key.</param>
-            <param name="passwordKey">The password key.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Private.RedisCommonProviderExtensions.CreateConsumerGroupIfNotExistsAsync(StackExchange.Redis.IDatabaseAsync,System.String,System.String,Microsoft.Extensions.Logging.ILogger)">
-            <summary>
-            Creates the consumer group if not exists asynchronous.
-            </summary>
-            <param name="db">The database.</param>
-            <param name="eventSourceKey">The event source key.</param>
-            <param name="consumerGroup">The consumer group.</param>
-            <param name="logger">The logger.</param>
-            <returns></returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent">
             <summary>
             REDIS Usage Intent
@@ -69,13 +46,14 @@
             REDIS client factory
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.#ctor(Microsoft.Extensions.Logging.ILogger,System.String,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.#ctor(Microsoft.Extensions.Logging.ILogger,System.String,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory" /> class.
             </summary>
             <param name="logger">The logger.</param>
             <param name="name">Identification for the connection within REDIS.</param>
             <param name="intent">The usage intent.</param>
+            <param name="configuration">The configuration.</param>
             <param name="endpointKey">The environment key of endpoint.</param>
             <param name="passwordKey">The environment key of password.</param>
         </member>
@@ -85,21 +63,33 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.CreateAsync(Microsoft.Extensions.Logging.ILogger,System.String,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.CreateAsync(Microsoft.Extensions.Logging.ILogger,System.String,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Create REDIS client.
             </summary>
             <param name="logger">The logger.</param>
             <param name="name">The name.</param>
             <param name="intent">The intent.</param>
+            <param name="configuration">The configuration.</param>
             <param name="endpointKey">The endpoint key.</param>
             <param name="passwordKey">The password key.</param>
             <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.GetDbAsync">
             <summary>
             Creates the database asynchronous.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Private.RedisCommonProviderExtensions.CreateConsumerGroupIfNotExistsAsync(StackExchange.Redis.IDatabaseAsync,System.String,System.String,Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Creates the consumer group if not exists asynchronous.
+            </summary>
+            <param name="db">The database.</param>
+            <param name="eventSourceKey">The event source key.</param>
+            <param name="consumerGroup">The consumer group.</param>
+            <param name="logger">The logger.</param>
             <returns></returns>
         </member>
     </members>

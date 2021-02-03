@@ -25,7 +25,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private const int MAX_DELAY = 5000;
 
         private readonly ILogger _logger;
-        private readonly ConfigurationOptions _options;
         private readonly RedisConsumerChannelSetting _setting;
         private static int _index;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Consumer_{0}";
@@ -43,13 +42,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="passwordEnvKey">The password env key.</param>
         public RedisConsumerChannel(
             ILogger logger,
-            ConfigurationOptions options,
             RedisConsumerChannelSetting setting,
             string endpointEnvKey,
             string passwordEnvKey)
         {
             _logger = logger;
-            _options = options;
             _setting = setting;
             string name = string.Format(
                                     CONNECTION_NAME_PATTERN,
@@ -58,6 +55,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                 logger,
                                                 name,
                                                 RedisUsageIntent.Read,
+                                                setting.RedisConfiguration,
                                                 endpointEnvKey, passwordEnvKey);
         }
 

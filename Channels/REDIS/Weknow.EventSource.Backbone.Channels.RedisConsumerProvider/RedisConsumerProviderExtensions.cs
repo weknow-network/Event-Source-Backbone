@@ -67,12 +67,9 @@ namespace Weknow.EventSource.Backbone
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
-            var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            var cfg = setting ?? RedisConsumerChannelSetting.Empty;
-            cfg.RedisConfiguration?.Invoke(options);
+            var cfg = setting ?? RedisConsumerChannelSetting.Default;
             var channel = new RedisConsumerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
-                                        options,
                                         cfg,
                                         endpointEnvKey,
                                         passwordEnvKey);

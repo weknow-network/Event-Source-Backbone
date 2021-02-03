@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +14,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     internal class RedisProducerChannel : IProducerChannelProvider
     {
         private readonly ILogger _logger;
+        private readonly AsyncPolicy _resiliencePolicy;
         private static int _index = 0;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
         private readonly Task<IDatabaseAsync> _dbTask;
@@ -21,16 +25,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="options">The options.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         public RedisProducerChannel(
                         ILogger logger,
-                        ConfigurationOptions options,
+                        Action<ConfigurationOptions>? configuration,
+                        AsyncPolicy? resiliencePolicy,
                         string endpointEnvKey,
                         string passwordEnvKey)
         {
             _logger = logger;
+            _resiliencePolicy = resiliencePolicy ?? 
+                                Policy.Handle<Exception>()
+                                      .RetryAsync(3); // TODO: [bnaya 2021-02] onRetry -> open telemetry
             string name = string.Format(
                                     CONNECTION_NAME_PATTERN,
                                     Interlocked.Increment(ref _index));
@@ -38,6 +47,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                 logger,
                                                 name,
                                                 RedisUsageIntent.Write,
+                                                configuration,
                                                 endpointEnvKey, passwordEnvKey);
             _dbTask = redisClientFactory.GetDbAsync();
 
@@ -96,8 +106,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // await db.HashSetAsync($"Interceptors~{id}", interceptionsEntities)
 
-            RedisValue messageId = await db.StreamAddAsync(meta.Key, entries,
-                                                   flags: CommandFlags.DemandMaster);
+            RedisValue messageId = await _resiliencePolicy.ExecuteAsync(() => 
+                                                db.StreamAddAsync(meta.Key, entries,
+                                                   flags: CommandFlags.DemandMaster));
 
 
             return messageId;

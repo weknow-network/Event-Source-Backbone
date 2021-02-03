@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using System;
@@ -25,6 +27,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
@@ -34,10 +37,11 @@ namespace Weknow.EventSource.Backbone
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,
+                            AsyncPolicy? resiliencePolicy = null,
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-            return UseRedisProducerChannel(builder, logger, configuration, cancellationToken, endpointEnvKey, passwordEnvKey);
+            return UseRedisProducerChannel(builder, logger, configuration, resiliencePolicy, cancellationToken, endpointEnvKey, passwordEnvKey);
         }
 
         #endregion // Overloads
@@ -48,6 +52,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="builder">The builder.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
@@ -57,15 +62,15 @@ namespace Weknow.EventSource.Backbone
                             this IProducerBuilder builder,
                             ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,
+                            AsyncPolicy? resiliencePolicy = null,
                             CancellationToken cancellationToken = default,
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-            var options = ConfigurationOptionsFactory.FromEnv(endpointEnvKey, passwordEnvKey);
-            configuration?.Invoke(options);
             var channel = new RedisProducerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
-                                        options,
+                                        configuration,
+                                        resiliencePolicy,
                                         endpointEnvKey,
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();

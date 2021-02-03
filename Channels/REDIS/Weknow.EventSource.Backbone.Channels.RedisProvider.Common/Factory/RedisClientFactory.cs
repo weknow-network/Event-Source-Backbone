@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using System;
@@ -11,6 +13,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Weknow.EventSource.Backbone.Private;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
@@ -32,12 +36,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="logger">The logger.</param>
         /// <param name="name">Identification for the connection within REDIS.</param>
         /// <param name="intent">The usage intent.</param>
+        /// <param name="configuration">The configuration.</param>
         /// <param name="endpointKey">The environment key of endpoint.</param>
         /// <param name="passwordKey">The environment key of password.</param>
         public RedisClientFactory(
                     ILogger logger,
                     string name,
                     RedisUsageIntent intent,
+                    Action<ConfigurationOptions>? configuration,
                     string endpointKey,
                     string passwordKey)
         {
@@ -45,6 +51,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                         logger,
                                         name,
                                         intent,
+                                        configuration,
                                         endpointKey,
                                         passwordKey);
         }
@@ -65,13 +72,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="logger">The logger.</param>
         /// <param name="name">The name.</param>
         /// <param name="intent">The intent.</param>
+        /// <param name="configuration">The configuration.</param>
         /// <param name="endpointKey">The endpoint key.</param>
         /// <param name="passwordKey">The password key.</param>
         /// <returns></returns>
+        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         private async Task<ConnectionMultiplexer> CreateAsync(
                     ILogger logger,
                     string name,
                     RedisUsageIntent intent,
+                    Action<ConfigurationOptions>? configuration,
                     string endpointKey,
                     string passwordKey)
         {
@@ -83,8 +93,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             var redisConfiguration = ConfigurationOptions.Parse(endpoint);
             redisConfiguration.ClientName = name;
-            redisConfiguration.Password = password;
-            //redisConfiguration.ServiceName = "mymaster";
             switch (intent)
             {
                 case RedisUsageIntent.Admin:
@@ -93,6 +101,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 default:
                     break;
             }
+            configuration?.Invoke(redisConfiguration);
+            redisConfiguration.Password = password;
 
             ConnectionMultiplexer redis;
             TimeSpan delay = RETRY_INTERVAL_DELAY;
