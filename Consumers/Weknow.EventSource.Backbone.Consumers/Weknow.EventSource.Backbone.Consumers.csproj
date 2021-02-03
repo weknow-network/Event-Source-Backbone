@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Weknow</Authors>
-    <Company>Weknow</Company>
-  </PropertyGroup>
-  <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
@@ -14,14 +9,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.xml" />
-    <None Include="icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.0.1" />
-    <PackageReference Include="Weknow.EventSource.Backbone" Version="1.0.1" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.0.7-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone" Version="1.0.7-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />

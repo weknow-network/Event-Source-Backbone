@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Weknow</Authors>
-    <Company>Weknow</Company>
-  </PropertyGroup>
-  <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
@@ -15,6 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.Contracts.xml" />
+    <None Include="..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />

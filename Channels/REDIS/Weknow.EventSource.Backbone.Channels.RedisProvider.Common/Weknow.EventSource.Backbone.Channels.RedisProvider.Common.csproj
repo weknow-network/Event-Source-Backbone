@@ -1,10 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Weknow</Authors>
-    <Company>Weknow</Company>
-  </PropertyGroup>
   
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +12,7 @@
     <None Remove="Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.1" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.7-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
