@@ -1,11 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;ProjRef</Configurations>
-  </PropertyGroup>
   
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -16,7 +9,6 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Version>1.0.1</Version>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>Weknow.EventSource.Backbone.Channels.RedisProducerProvider.xml</DocumentationFile>

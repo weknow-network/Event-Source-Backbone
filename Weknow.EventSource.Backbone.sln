@@ -37,11 +37,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Console-Tests", "Console-Tests", "{8214B628-D5E1-4224-BB6E-86004F648DB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTestProducer", "Tests\Console-Tests\ConsoleTestProducer\ConsoleTestProducer.csproj", "{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestProducer", "Tests\Console-Tests\ConsoleTestProducer\ConsoleTestProducer.csproj", "{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestConsumer", "Tests\Console-Tests\ConsoleTestConsumer\ConsoleTestConsumer.csproj", "{EDB20A99-36F5-40B7-9251-ECA6CA358D76}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestCommon", "Tests\Console-Tests\ConsoleTestCommon\ConsoleTestCommon.csproj", "{4D2867D1-911D-4647-9970-0C566516CE7F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6BD7580F-9EAE-4046-8EA9-10FBC8CF2C56}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
