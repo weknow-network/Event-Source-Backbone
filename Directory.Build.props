@@ -3,8 +3,8 @@
     <Version>1.0.7-alpha</Version>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;ProjRef</Configurations>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

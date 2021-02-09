@@ -22,6 +22,7 @@ namespace Weknow.EventSource.Backbone
         T IDataSerializer.Deserialize<T>(ReadOnlyMemory<byte> serializedData)
         {
             T result = JsonSerializer.Deserialize<T>(serializedData.Span, _options);
+            if (result == null) throw new NullReferenceException("Deserialize results with null");
             return result;
         }
 

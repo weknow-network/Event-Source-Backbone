@@ -35,14 +35,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Channels.RedisConsumerProvider", "Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisConsumerProvider\Weknow.EventSource.Backbone.Channels.RedisConsumerProvider.csproj", "{ECC48028-F980-49E9-AAC1-65AF5AF3B16F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Console-Tests", "Console-Tests", "{8214B628-D5E1-4224-BB6E-86004F648DB6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestProducer", "Tests\Console-Tests\ConsoleTestProducer\ConsoleTestProducer.csproj", "{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestConsumer", "Tests\Console-Tests\ConsoleTestConsumer\ConsoleTestConsumer.csproj", "{EDB20A99-36F5-40B7-9251-ECA6CA358D76}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestCommon", "Tests\Console-Tests\ConsoleTestCommon\ConsoleTestCommon.csproj", "{4D2867D1-911D-4647-9970-0C566516CE7F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6BD7580F-9EAE-4046-8EA9-10FBC8CF2C56}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
@@ -121,24 +113,6 @@ Global
 		{ECC48028-F980-49E9-AAC1-65AF5AF3B16F}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
 		{ECC48028-F980-49E9-AAC1-65AF5AF3B16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECC48028-F980-49E9-AAC1-65AF5AF3B16F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.ProjRef|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.ProjRef|Any CPU.Build.0 = Debug|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.ProjRef|Any CPU.ActiveCfg = Debug|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.ProjRef|Any CPU.Build.0 = Debug|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.ProjRef|Any CPU.ActiveCfg = Debug|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.ProjRef|Any CPU.Build.0 = Debug|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4D2867D1-911D-4647-9970-0C566516CE7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,10 +128,6 @@ Global
 		{68387B20-DC7B-4C56-906E-9EC379677DE3} = {64FC6860-BD4C-4C11-BF6E-E99BB4D91723}
 		{C4D21A30-B556-4272-85BD-8F7793BD7432} = {64FC6860-BD4C-4C11-BF6E-E99BB4D91723}
 		{ECC48028-F980-49E9-AAC1-65AF5AF3B16F} = {64FC6860-BD4C-4C11-BF6E-E99BB4D91723}
-		{8214B628-D5E1-4224-BB6E-86004F648DB6} = {4DE45B98-D18F-4E1D-9D2F-A4E40C11BC1F}
-		{F9FD2FF2-B08F-46D0-8626-2C1F8742DB1A} = {8214B628-D5E1-4224-BB6E-86004F648DB6}
-		{EDB20A99-36F5-40B7-9251-ECA6CA358D76} = {8214B628-D5E1-4224-BB6E-86004F648DB6}
-		{4D2867D1-911D-4647-9970-0C566516CE7F} = {8214B628-D5E1-4224-BB6E-86004F648DB6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {103E4CA1-859C-4E6A-9F2D-7FD54A8E687C}
