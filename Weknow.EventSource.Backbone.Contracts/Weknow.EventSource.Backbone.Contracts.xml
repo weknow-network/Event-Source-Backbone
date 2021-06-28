@@ -95,23 +95,11 @@
             used to transfer data via channels.
             </summary>
         </member>
-        <member name="F:Weknow.EventSource.Backbone.Announcement.Empty">
-            <summary>
-            The empty
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor">
-            <summary>
-            Only for serialization support.
-            </summary>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
             <summary>
-            Initializes a new instance
+            Non-generics form of announcement representation,
+            used to transfer data via channels.
             </summary>
-            <param name="metadata">The metadata.</param>
-            <param name="segments">The segments.</param>
-            <param name="interceptorData">The interceptor data.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Announcement.Metadata">
             <summary>
@@ -139,14 +127,6 @@
             flowing auth context or traces, producing metrics, etc.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement.With(Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
-            <summary>
-            <![CDATA[Clone Withes new segments & interceptor-data.]]>
-            </summary>
-            <param name="segments">The segments.</param>
-            <param name="interceptorData">The interceptor data.</param>
-            <returns></returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Metadata">
             <summary>
             <![CDATA[Represent metadata of announcement (event).
@@ -159,26 +139,6 @@
             Unlike the segments, this part can be flow with
             message & will be set as async-context.]]> 
             </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.Metadata.Empty">
-            <summary>
-            The empty
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Metadata.#ctor">
-            <summary>
-            Only for serialization support.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Metadata.#ctor(System.String,System.String,System.String,System.String,System.Nullable{System.DateTimeOffset})">
-            <summary>
-            Initializes a new instance.
-            </summary>
-            <param name="messageId">The message identifier.</param>
-            <param name="partition">The partition.</param>
-            <param name="shard">The shard.</param>
-            <param name="operation">The operation.</param>
-            <param name="producedAt">The produced at.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.MessageId">
             <summary>
@@ -195,11 +155,6 @@
             Gets or sets the operation.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Metadata.Duration">
-            <summary>
-            Calculation of Duration since produce time
-            </summary>
-        </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.Partition">
             <summary>
             Gets or sets the partition.
@@ -210,7 +165,17 @@
             Gets or sets the shard.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Metadata.Key">
+        <member name="T:Weknow.EventSource.Backbone.MetadataExtensions">
+            <summary>
+            Metadata extensions
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.MetadataExtensions.Duration(Weknow.EventSource.Backbone.Metadata)">
+            <summary>
+            Calculation of Duration since produce time
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.MetadataExtensions.Key(Weknow.EventSource.Backbone.Metadata)">
             <summary>
             Gets the partition:shard as key.
             </summary>

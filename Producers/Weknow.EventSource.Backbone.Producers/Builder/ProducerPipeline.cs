@@ -219,11 +219,13 @@ namespace Weknow.EventSource.Backbone
             string operation,
             Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
-            Metadata metadata = new Metadata(
-                                        id,
-                                        plan.Partition,
-                                        plan.Shard,
-                                        operation);
+            Metadata metadata = new Metadata
+            {
+                MessageId = id,
+                Partition = plan.Partition,
+                Shard = plan.Shard,
+                Operation = operation
+            };
 
             foreach (var classify in classifyAdaptors)
             {

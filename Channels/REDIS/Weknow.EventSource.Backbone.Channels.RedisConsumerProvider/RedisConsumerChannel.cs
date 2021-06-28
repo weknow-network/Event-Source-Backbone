@@ -222,14 +222,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         #region var announcement = new Announcement(...)
 
                         var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                        string id = entries[nameof(Metadata.Empty.MessageId)];
+                        string id = entries[nameof(MetadataExtensions.Empty.MessageId)];
                         string segmentsKey = $"Segments~{id}";
                         string interceptorsKey = $"Interceptors~{id}";
 
-                        string operation = entries[nameof(Metadata.Empty.Operation)];
-                        long producedAtUnix = (long)entries[nameof(Metadata.Empty.ProducedAt)];
+                        string operation = entries[nameof(MetadataExtensions.Empty.Operation)];
+                        long producedAtUnix = (long)entries[nameof(MetadataExtensions.Empty.ProducedAt)];
                         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                        var meta = new Metadata(id, plan.Partition, plan.Shard, operation, producedAt);
+                        var meta = new Metadata
+                        {
+                            MessageId = id,
+                            Partition = plan.Partition,
+                            Shard = plan.Shard,
+                            Operation = operation,
+                            ProducedAt = producedAt
+                        };
 
                         var segmentsEntities = await db.HashGetAllAsync(segmentsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
                         var segmentsPairs = segmentsEntities.Select(m => ((string)m.Name, (byte[])m.Value));

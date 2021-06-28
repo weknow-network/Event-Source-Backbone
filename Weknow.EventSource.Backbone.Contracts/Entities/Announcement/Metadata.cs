@@ -14,51 +14,9 @@ namespace Weknow.EventSource.Backbone
     /// Unlike the segments, this part can be flow with
     /// message & will be set as async-context.]]> 
     /// </summary>
-    [DebuggerDisplay("{Partition}/{Shard} [{MessageId} at {ProducedAt}]")]
-    public sealed class Metadata // : IEquatable<Metadata?>
+    [DebuggerDisplay("{Partition}:{Shard} [{MessageId} at {ProducedAt}]")]
+    public record Metadata
     {
-        #region Empty
-
-        /// <summary>
-        /// The empty
-        /// </summary>
-        public static readonly Metadata Empty = new Metadata();
-
-        #endregion // Empty
-
-        #region Ctor
-
-        /// <summary>
-        /// Only for serialization support.
-        /// </summary>
-        private Metadata()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="messageId">The message identifier.</param>
-        /// <param name="partition">The partition.</param>
-        /// <param name="shard">The shard.</param>
-        /// <param name="operation">The operation.</param>
-        /// <param name="producedAt">The produced at.</param>
-        public Metadata(
-            string messageId,
-            string partition,
-            string shard,
-            string operation,
-            DateTimeOffset? producedAt = null)
-        {
-            MessageId = messageId;
-            ProducedAt = producedAt ?? DateTimeOffset.Now;
-            Partition = partition;
-            Shard = shard;
-            Operation = operation;
-        }
-
-        #endregion // Ctor
-
         #region MessageId
 
         /// <summary>
@@ -86,15 +44,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion Operation 
 
-        #region Duration
-
-        /// <summary>
-        /// Calculation of Duration since produce time
-        /// </summary>
-        public TimeSpan? Duration => DateTimeOffset.Now - ProducedAt;
-
-        #endregion // Duration
-
         #region Partition
 
         /// <summary>
@@ -112,13 +61,30 @@ namespace Weknow.EventSource.Backbone
         public string Shard { get; init; } = string.Empty;
 
         #endregion Shard 
+    }
+
+    /// <summary>
+    /// Metadata extensions
+    /// </summary>
+    public static class MetadataExtensions
+    {
+        public static readonly Metadata Empty = new Metadata();
+
+        #region Duration
+
+        /// <summary>
+        /// Calculation of Duration since produce time
+        /// </summary>
+        public static TimeSpan? Duration(this Metadata meta) => DateTimeOffset.Now - meta.ProducedAt;
+
+        #endregion // Duration
 
         #region Key
 
         /// <summary>
         /// Gets the partition:shard as key.
         /// </summary>
-        public string Key => $"{Partition}:{Shard}";
+        public static string Key(this Metadata meta) => $"{meta.Partition}:{meta.Shard}";
 
         #endregion // Key
     }

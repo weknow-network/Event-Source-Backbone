@@ -107,7 +107,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             #endregion // await db.HashSetAsync($"Interceptors~{id}", interceptionsEntities)
 
             RedisValue messageId = await _resiliencePolicy.ExecuteAsync(() => 
-                                                db.StreamAddAsync(meta.Key, entries,
+                                                db.StreamAddAsync(meta.Key(), entries,
                                                    flags: CommandFlags.DemandMaster));
 
 

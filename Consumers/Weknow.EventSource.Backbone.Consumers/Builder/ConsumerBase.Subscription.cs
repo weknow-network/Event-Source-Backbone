@@ -108,7 +108,7 @@ namespace Weknow.EventSource.Backbone
                 #endregion // Validation
 
                 var logger = _plan.Logger;
-                logger.LogDebug("Consuming event: {0}", meta.Key);
+                logger.LogDebug("Consuming event: {0}", meta.Key());
 
                 #region Validation
 
@@ -196,7 +196,7 @@ namespace Weknow.EventSource.Backbone
                             if (res is Task tsk) await tsk;
                         });
                     }
-                    logger.LogDebug("Consumed event: {0}", meta.Key);
+                    logger.LogDebug("Consumed event: {0}", meta.Key());
 
                     var behavior = _plan.Options.AckBehavior;
                     if (behavior == AckBehavior.OnSucceed)
@@ -206,7 +206,7 @@ namespace Weknow.EventSource.Backbone
 
                 catch (OperationCanceledException)
                 {
-                    logger.LogWarning("Canceled event: {0}", meta.Key);
+                    logger.LogWarning("Canceled event: {0}", meta.Key());
                     if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();
@@ -215,7 +215,7 @@ namespace Weknow.EventSource.Backbone
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "event: {0}", meta.Key);
+                    logger.LogError(ex, "event: {0}", meta.Key());
                     if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();
