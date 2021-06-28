@@ -50,58 +50,39 @@ namespace Weknow.EventSource.Backbone
             string operation,
             DateTimeOffset? producedAt = null)
         {
-            _messageId = messageId;
-            _producedAt = producedAt ?? DateTimeOffset.Now;
-            _partition = partition;
-            _shard = shard;
-            _operation = operation;
+            MessageId = messageId;
+            ProducedAt = producedAt ?? DateTimeOffset.Now;
+            Partition = partition;
+            Shard = shard;
+            Operation = operation;
         }
 
         #endregion // Ctor
 
         #region MessageId
 
-        private string _messageId = Guid.NewGuid().ToString("N");
-
         /// <summary>
         /// The message identifier.
         /// </summary>
-        public string MessageId
-        {
-            get => _messageId;
-            [Obsolete("for serialization", true)]
-            set => _messageId = value;
-        }
+        public string MessageId { get; init; } = Guid.NewGuid().ToString("N");
 
         #endregion // MessageId
 
         #region ProducedAt
 
-        private DateTimeOffset _producedAt = DateTimeOffset.Now;
         /// <summary>
         /// The sending time.
         /// </summary>
-        public DateTimeOffset ProducedAt
-        {
-            get => _producedAt;
-            [Obsolete("for serialization", true)]
-            set => _producedAt = value;
-        }
+        public DateTimeOffset ProducedAt { get; init; } = DateTimeOffset.Now;
 
         #endregion // ProducedAt
 
         #region Operation
 
-        private string _operation = string.Empty;
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
-        public string Operation
-        {
-            get => _operation;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _operation = value;
-        }
+        public string Operation { get; init; } = string.Empty;
 
         #endregion Operation 
 
@@ -116,31 +97,19 @@ namespace Weknow.EventSource.Backbone
 
         #region Partition
 
-        private string _partition = string.Empty;
         /// <summary>
         /// Gets or sets the partition.
         /// </summary>
-        public string Partition
-        {
-            get => _partition;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _partition = value;
-        }
+        public string Partition { get; init; } = string.Empty;
 
         #endregion Partition 
 
         #region Shard
 
-        private string _shard = string.Empty;
         /// <summary>
         /// Gets or sets the shard.
         /// </summary>
-        public string Shard
-        {
-            get => _shard;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _shard = value;
-        }
+        public string Shard { get; init; } = string.Empty;
 
         #endregion Shard 
 
@@ -149,7 +118,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the partition:shard as key.
         /// </summary>
-        public string Key => $"{_partition}:{_shard}";
+        public string Key => $"{Partition}:{Shard}";
 
         #endregion // Key
     }
