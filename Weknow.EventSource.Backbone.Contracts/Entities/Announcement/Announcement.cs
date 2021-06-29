@@ -7,11 +7,8 @@ namespace Weknow.EventSource.Backbone
     /// Non-generics form of announcement representation,
     /// used to transfer data via channels.
     /// </summary>
-    [DebuggerDisplay("Announcement [{Metadata.MessageId}]: [{Metadata.Key}]")]
-    public record Announcement(
-            Metadata Metadata,
-            Bucket Segments,
-            Bucket InterceptorData)
+    [DebuggerDisplay("Announcement [{Metadata.MessageId}]: [{Metadata.Partition} > {Metadata.Shard} > {Metadata.Operation}]")]
+    public record Announcement
     {
         #region Metadata
 

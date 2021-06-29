@@ -238,10 +238,12 @@ namespace Weknow.EventSource.Backbone
                                             payload,
                                             interceptorsData);
 
-            var announcement = new Announcement(
-                metadata,
-                payload,
-                interceptorsData);
+            var announcement = new Announcement
+            {
+                Metadata = metadata,
+                Segments = payload,
+                InterceptorsData = interceptorsData
+            };
 
             if (plan.Forwards.Count == 0) // merged
             {

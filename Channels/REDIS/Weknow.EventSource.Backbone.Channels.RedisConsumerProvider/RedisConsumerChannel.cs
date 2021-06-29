@@ -246,7 +246,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var segmets = Bucket.Empty.AddRange(segmentsPairs);
                         var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
 
-                        var announcement = new Announcement(meta, segmets, interceptions);
+                        var announcement = new Announcement
+                        {
+                            Metadata = meta,
+                            Segments = segmets,
+                            InterceptorsData = interceptions
+                        };
 
                         #endregion // var announcement = new Announcement(...)
 

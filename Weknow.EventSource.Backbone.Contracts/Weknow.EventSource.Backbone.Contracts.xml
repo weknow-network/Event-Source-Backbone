@@ -95,12 +95,6 @@
             used to transfer data via channels.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Announcement.#ctor(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
-            <summary>
-            Non-generics form of announcement representation,
-            used to transfer data via channels.
-            </summary>
-        </member>
         <member name="P:Weknow.EventSource.Backbone.Announcement.Metadata">
             <summary>
             Gets or sets the metadata.
