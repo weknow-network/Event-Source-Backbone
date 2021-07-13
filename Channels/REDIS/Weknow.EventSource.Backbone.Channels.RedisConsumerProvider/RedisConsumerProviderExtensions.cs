@@ -28,7 +28,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
-        public static IConsumerOptionsBuilder UseRedisConsumerChannel(
+        public static IRedisConsumerChannelBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
@@ -59,7 +59,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
-        public static IConsumerOptionsBuilder UseRedisConsumerChannel(
+        public static IRedisConsumerChannelBuilder UseRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             CancellationToken cancellationToken,
                             RedisConsumerChannelSetting? setting = null,
@@ -74,8 +74,11 @@ namespace Weknow.EventSource.Backbone
                                         endpointEnvKey,
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();
-            IConsumerOptionsBuilder result = builder.UseChannel(channel);
-            return result;
+            IConsumerOptionsBuilder options = builder.UseChannel(channel);
+            var channelBuilder = new RedisConsumerChannelBuilder(builder, channel, options);
+            return channelBuilder;
         }
+
+
     }
 }

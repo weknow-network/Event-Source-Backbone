@@ -82,6 +82,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.StorageType">
+            <summary>
+            Bucket storage type
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Private.RedisCommonProviderExtensions.CreateConsumerGroupIfNotExistsAsync(StackExchange.Redis.IDatabaseAsync,System.String,System.String,Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Creates the consumer group if not exists asynchronous.

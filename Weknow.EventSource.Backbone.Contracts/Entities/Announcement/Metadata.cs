@@ -14,7 +14,6 @@ namespace Weknow.EventSource.Backbone
     /// Unlike the segments, this part can be flow with
     /// message & will be set as async-context.]]> 
     /// </summary>
-    [DebuggerDisplay("{Partition}:{Shard} [{MessageId} at {ProducedAt}]")]
     public record Metadata
     {
         #region MessageId
@@ -61,6 +60,15 @@ namespace Weknow.EventSource.Backbone
         public string Shard { get; init; } = string.Empty;
 
         #endregion Shard 
+
+        #region ChannelType
+
+        /// <summary>
+        /// Gets or sets the shard.
+        /// </summary>
+        public string ChannelType { get; init; } = string.Empty;
+
+        #endregion ChannelType 
     }
 
     /// <summary>

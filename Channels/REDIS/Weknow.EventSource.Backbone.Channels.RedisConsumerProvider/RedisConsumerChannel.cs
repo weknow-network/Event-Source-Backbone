@@ -6,6 +6,7 @@ using StackExchange.Redis;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -14,6 +15,8 @@ using System.Threading.Tasks;
 using Weknow.EventSource.Backbone.Private;
 
 using static System.Math;
+
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 // TODO: Poly policies, multiple levels,
 // TODO: Claim from other inactive consumers
@@ -29,6 +32,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private static int _index;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Consumer_{0}";
         private readonly RedisClientFactory _redisClientFactory;
+        internal ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty;
+        private readonly IConsumerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
 
@@ -56,6 +61,23 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                 RedisUsageIntent.Read,
                                                 setting.RedisConfiguration,
                                                 endpointEnvKey, passwordEnvKey);
+            _defaultStorageStrategy = new RedisHashStorageStrategy(_redisClientFactory);
+        }
+
+        /// <summary>
+        /// Copy ctor.
+        /// </summary>
+        /// <param name="self">The self.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        internal RedisConsumerChannel(
+            RedisConsumerChannel self,
+            ImmutableArray<IConsumerStorageStrategyWithFilter> storageStrategy)
+        {
+            _logger = self._logger;
+            _setting = self._setting;
+            _redisClientFactory = self._redisClientFactory;
+            StorageStrategy = storageStrategy;
+            _defaultStorageStrategy = self._defaultStorageStrategy;
         }
 
         #endregion // Ctor
@@ -221,11 +243,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #region var announcement = new Announcement(...)
 
-                        var entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                        string id = entries[nameof(MetadataExtensions.Empty.MessageId)];
-                        string segmentsKey = $"Segments~{id}";
-                        string interceptorsKey = $"Interceptors~{id}";
+                        Dictionary<RedisValue, RedisValue> entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
+                        string channelType = entries[nameof(MetadataExtensions.Empty.ChannelType)];
 
+                        if (channelType != CHANNEL_TYPE)
+                        {
+                            // TODO: [bnaya 2021-07] send metrics
+                            _logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
+                            await AckAsync(result.Id);
+                            continue;
+                        }
+
+                        string id = entries[nameof(MetadataExtensions.Empty.MessageId)];
                         string operation = entries[nameof(MetadataExtensions.Empty.Operation)];
                         long producedAtUnix = (long)entries[nameof(MetadataExtensions.Empty.ProducedAt)];
                         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
@@ -238,13 +267,34 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             ProducedAt = producedAt
                         };
 
-                        var segmentsEntities = await db.HashGetAllAsync(segmentsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
-                        var segmentsPairs = segmentsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
-                        var interceptionsEntities = await db.HashGetAllAsync(interceptorsKey, CommandFlags.DemandMaster); // DemandMaster avoid racing
-                        var interceptionsPairs = interceptionsEntities.Select(m => ((string)m.Name, (byte[])m.Value));
+                        Bucket segmets = await GetBucketAsync(StorageType.Segments);
+                        Bucket interceptions = await GetBucketAsync(StorageType.Interceptions);
 
-                        var segmets = Bucket.Empty.AddRange(segmentsPairs);
-                        var interceptions = Bucket.Empty.AddRange(interceptionsPairs);
+                        #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
+
+                        async ValueTask<Bucket> GetBucketAsync(StorageType storageType)
+                        {
+                            var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
+                            Bucket bucket = Bucket.Empty;
+                            if (strategies.Any())
+                            {
+                                foreach (var strategy in strategies)
+                                {
+                                    bucket = await strategy.LoadBucketAsync(id, bucket, storageType, GetMeta);
+                                }
+                            }
+                            else
+                            {
+                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(id, bucket, storageType, GetMeta);
+                            }
+
+                            return bucket;
+
+                            // local function 
+                            string GetMeta (string k) => (string)entries[k];
+                        }
+
+                        #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
 
                         var announcement = new Announcement
                         {

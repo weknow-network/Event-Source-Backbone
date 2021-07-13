@@ -5,9 +5,12 @@ using Polly;
 using StackExchange.Redis;
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
@@ -18,6 +21,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private static int _index = 0;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
         private readonly Task<IDatabaseAsync> _dbTask;
+        internal ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+        private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
 
@@ -37,7 +42,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string passwordEnvKey)
         {
             _logger = logger;
-            _resiliencePolicy = resiliencePolicy ?? 
+            _resiliencePolicy = resiliencePolicy ??
                                 Policy.Handle<Exception>()
                                       .RetryAsync(3); // TODO: [bnaya 2021-02] onRetry -> open telemetry
             string name = string.Format(
@@ -50,7 +55,23 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                 configuration,
                                                 endpointEnvKey, passwordEnvKey);
             _dbTask = redisClientFactory.GetDbAsync();
+            _defaultStorageStrategy = new RedisHashStorageStrategy(_dbTask);
 
+        }
+        /// <summary>
+        /// Copy ctor.
+        /// </summary>
+        /// <param name="self">The self.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        internal RedisProducerChannel(
+                        RedisProducerChannel self,
+                        ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
+        {
+            _logger = self._logger;
+            _resiliencePolicy = self._resiliencePolicy;
+            _dbTask = self._dbTask;
+            _defaultStorageStrategy = self._defaultStorageStrategy;
+            StorageStrategy = storageStrategy;
         }
 
         #endregion // Ctor
@@ -75,38 +96,45 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             // local method
             NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
-            var entries = new NameValueEntry[] 
-            {
+            var entriesBuilder = ImmutableArray.Create<NameValueEntry>(
                 KV(nameof(meta.MessageId), id),
                 KV(nameof(meta.Operation), meta.Operation),
-                KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds())
-            };
+                KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds()),
+                KV(nameof(meta.ChannelType), CHANNEL_TYPE)
+            );
 
             #endregion // var entries = new NameValueEntry[]{...}
 
-            // TODO: [bnaya 2021-01] enable to replace the segments storage without replacing the strweam
+            await StoreBucketAsync(StorageType.Segments);
+            await StoreBucketAsync(StorageType.Interceptions);
 
-            #region await db.HashSetAsync($"Segments~{id}", segmentsEntities)
+            #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            var segmentsEntities = payload.Segments
-                                            .Select(sgm => 
-                                                    new HashEntry(sgm.Key, sgm.Value))
-                                            .ToArray();
-            await db.HashSetAsync($"Segments~{id}", segmentsEntities);
+            async ValueTask StoreBucketAsync(StorageType storageType)
+            {
+                var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
+                Bucket bucket = storageType == StorageType.Segments ? payload.Segments : payload.InterceptorsData;
+                if (strategies.Any())
+                {
+                    foreach (var strategy in strategies)
+                    {
+                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType);
+                        foreach (var item in metaItems)
+                        {
+                            entriesBuilder = entriesBuilder.Add(KV(item.key, item.metadata));
+                        }
+                    }
+                }
+                else
+                {
+                    await _defaultStorageStrategy.SaveBucketAsync(id, payload.Segments, storageType);
+                }
+            }
 
-            #endregion // await db.HashSetAsync($"Segments~{id}", segmentsEntities)
+            #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            #region await db.HashSetAsync($"Interceptors~{id}", interceptionsEntities)
-
-            var interceptionsEntities = payload.InterceptorsData
-                                            .Select(spt => 
-                                                    new HashEntry(spt.Key, spt.Value))
-                                            .ToArray();
-            await db.HashSetAsync($"Interceptors~{id}", interceptionsEntities);
-
-            #endregion // await db.HashSetAsync($"Interceptors~{id}", interceptionsEntities)
-
-            RedisValue messageId = await _resiliencePolicy.ExecuteAsync(() => 
+            var entries = entriesBuilder.ToArray();
+            RedisValue messageId = await _resiliencePolicy.ExecuteAsync(() =>
                                                 db.StreamAddAsync(meta.Key(), entries,
                                                    flags: CommandFlags.DemandMaster));
 

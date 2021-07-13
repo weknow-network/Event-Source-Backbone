@@ -4,6 +4,58 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisConsumerProvider</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategy">
+            <summary>
+            Responsible to load information from storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategy.LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
+            <summary>
+            Load the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="prevBucket">The current bucket (previous item in the chain).</param>
+            <param name="type">The type of the storage.</param>
+            <param name="meta">The meta fetch provider.</param>
+            <returns>
+            Either Segments or Interceptions.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter">
+            <summary>
+            Responsible to load information from storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter.IsOfTargetType(Weknow.EventSource.Backbone.StorageType)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+            <summary>
+            Adds the storage strategy (Segment / Interceptions).
+            Will use default storage (REDIS Hash) when empty.
+            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+            It important the consumer's storage will be in sync with this setting.
+            </summary>
+            <param name="storageStrategy">Storage strategy provider.</param>
+            <param name="targetType">Type of the target.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
             <summary>
             Initializes a new instance.
@@ -12,6 +64,13 @@
             <param name="setting">The setting.</param>
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel,System.Collections.Immutable.ImmutableArray{Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter})">
+            <summary>
+            Copy ctor.
+            </summary>
+            <param name="self">The self.</param>
+            <param name="storageStrategy">The storage strategy.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
             <summary>
@@ -123,6 +182,131 @@
             The minimum message idle time to allow the reassignment of the message(s).
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy">
+            <summary>
+            Responsible to save information to REDIS hash storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.#ctor(Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="redisClientFactory">The redis client factory.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
+            <summary>
+            Load the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="prevBucket">The current bucket (previous item in the chain).</param>
+            <param name="type">The type of the storage.</param>
+            <param name="meta">The meta fetch provider.</param>
+            <returns>
+            Either Segments or Interceptions.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.#ctor(Weknow.EventSource.Backbone.IConsumerBuilder,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel,Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="channel">The channel.</param>
+            <param name="optionBuilder">The option builder.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#IRedisConsumerChannelBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+            <summary>
+            Adds the storage strategy (Segment / Interceptions).
+            Will use default storage (REDIS Hash) when empty.
+            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+            It important the consumer's storage will be in sync with this setting.
+            </summary>
+            <param name="storageStrategy">Storage strategy provider.</param>
+            <param name="targetType">Type of the target.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerPartitionBuilder#Partition(System.String)">
+            <summary>
+            Partition key represent logical group of
+            event source shards.
+            For example assuming each ORDERING flow can have its
+            own messaging sequence, yet can live concurrency with
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order
+            flow or limiting the throughput.
+            </summary>
+            <param name="partition">The partition key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerInterceptor)">
+            <summary>
+            Register raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterInterceptor(Weknow.EventSource.Backbone.IConsumerAsyncInterceptor)">
+            <summary>
+            Register raw interceptor.
+            Intercept the consumer side execution before de-serialization.
+            </summary>
+            <param name="interceptorData">The interceptor data as the interceptor defined in the producer stage.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#RegisterSegmentationStrategy(Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy)">
+            <summary>
+            Responsible of building instance from segmented data.
+            Segmented data is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <param name="segmentationStrategy">The segmentation strategy.</param>
+            <returns></returns>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#WithCancellation(System.Threading.CancellationToken)">
+            <summary>
+            Withes the cancellation token.
+            </summary>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+            <summary>
+            Attach configuration.
+            </summary>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies,Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
@@ -148,6 +332,39 @@
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.FilteredStorageStrategy">
+            <summary>
+            Wrap Channel Storage with key filtering of the bucket.
+            Useful for 'Chain of Responsibility' by saving different parts
+            into different storage (For example GDPR's PII).
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.#ctor(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="storage">The actual storage provider.</param>
+            <param name="targetType">Type of the target.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategyWithFilter#IsOfTargetType(Weknow.EventSource.Backbone.StorageType)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
+            <summary>
+            Load the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="prevBucket">The current bucket (previous item in the chain).</param>
+            <param name="type">The type of the storage.</param>
+            <param name="meta">The meta fetch provider.</param>
+            <returns>
+            Either Segments or Interceptions.
+            </returns>
         </member>
     </members>
 </doc>

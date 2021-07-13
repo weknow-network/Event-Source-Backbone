@@ -6,6 +6,7 @@ using StackExchange.Redis;
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
@@ -32,7 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IProducerOptionsBuilder UseRedisProducerChannel(
+        public static IRedisProducerChannelBuilder UseRedisProducerChannel(
                             this IProducerBuilder builder,
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
@@ -58,7 +59,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IProducerOptionsBuilder UseRedisProducerChannel(
+        public static IRedisProducerChannelBuilder UseRedisProducerChannel(
                             this IProducerBuilder builder,
                             ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,
@@ -75,7 +76,8 @@ namespace Weknow.EventSource.Backbone
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();
             IProducerOptionsBuilder result = builder.UseChannel(channel);
-            return result;
+            var fluent = new RedisProducerChannelBuilder(builder, channel, result);
+            return fluent;
         }
     }
 }

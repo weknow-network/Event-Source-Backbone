@@ -63,7 +63,93 @@ namespace Weknow.EventSource.Backbone
             return _data.AddRange(item);
         }
 
+        /// <summary>
+        /// Adds the specified key/value pairs to the bucket.
+        /// </summary>
+        /// <param name="bucket">The bucket.</param>
+        /// <returns></returns>
+        public Bucket AddRange(Bucket bucket)
+        {
+            return _data.AddRange(bucket);
+        }
+
         #endregion // AddRange
+
+        #region TryAddRange
+
+        /// <summary>
+        /// Adds an elements with the specified key and value to the bucket if the key doesn't exists.
+        /// </summary>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        public Bucket TryAddRange(IEnumerable<(string key, byte[] value)> pairs)
+        {
+            var result = pairs.Aggregate(_data, (acc, pair) => 
+            {
+                var (key, value) = pair;
+                if (acc.ContainsKey(key))
+                    return acc;
+                return acc.Add(key, value);
+            });
+            return result;
+        }
+
+        /// <summary>
+        /// Adds the specified key/value pairs to the bucket if the key doesn't exists.
+        /// </summary>
+        /// <param name="bucket">The bucket.</param>
+        /// <returns></returns>
+        public Bucket TryAddRange(Bucket bucket)  
+        {
+            var result = bucket.Aggregate(_data, (acc, pair) =>
+            {
+                var (key, value) = pair;
+                if (acc.ContainsKey(key))
+                    return acc;
+                return acc.Add(key, value);
+            });
+            return result;
+        }
+
+        #endregion // TryAddRange
+
+        #region RemoveRange
+
+        /// <summary>
+        /// Removes keys from the bucket.
+        /// </summary>
+        /// <param name="keys">The keys.</param>
+        /// <returns></returns>
+        public Bucket RemoveRange(params string[] keys) => RemoveRange((IEnumerable<string>)keys);
+
+        /// <summary>
+        /// Removes keys from the bucket.
+        /// </summary>
+        /// <param name="keys">The keys.</param>
+        /// <returns></returns>
+        public Bucket RemoveRange(IEnumerable<string> keys)
+        {
+            return _data.RemoveRange(keys);
+        }
+
+        #endregion // RemoveRange
+
+        #region Remove
+
+        /// <summary>
+        /// Removes items from the bucket.
+        /// </summary>
+        /// <param name="filter">The filter by key.</param>
+        /// <returns></returns>
+        public Bucket RemoveRange(Predicate<string>? filter = null)
+        {
+            if (filter == null) return this;
+
+            IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> filtered = _data.Where(m => filter(m.Key));
+            return ImmutableDictionary.CreateRange<string, ReadOnlyMemory<byte>>(filtered);
+        }
+
+        #endregion // RemoveRange
 
         #region TryGetValue
 
@@ -79,20 +165,6 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // TryGetValue
-
-        #region AddRange
-
-        /// <summary>
-        /// Adds the specified key/value pairs to the bucket.
-        /// </summary>
-        /// <param name="bucket">The bucket.</param>
-        /// <returns></returns>
-        public Bucket AddRange(Bucket bucket)
-        {
-            return _data.AddRange(bucket);
-        }
-
-        #endregion // AddRange
 
         #region Keys
 

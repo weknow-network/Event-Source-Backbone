@@ -35,19 +35,54 @@
             <param name="pairs"></param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.AddRange(Weknow.EventSource.Backbone.Bucket)">
+            <summary>
+            Adds the specified key/value pairs to the bucket.
+            </summary>
+            <param name="bucket">The bucket.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.TryAddRange(System.Collections.Generic.IEnumerable{System.ValueTuple{System.String,System.Byte[]}})">
+            <summary>
+            Adds an elements with the specified key and value to the bucket if the key doesn't exists.
+            </summary>
+            <param name="pairs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.TryAddRange(Weknow.EventSource.Backbone.Bucket)">
+            <summary>
+            Adds the specified key/value pairs to the bucket if the key doesn't exists.
+            </summary>
+            <param name="bucket">The bucket.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.RemoveRange(System.String[])">
+            <summary>
+            Removes keys from the bucket.
+            </summary>
+            <param name="keys">The keys.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.RemoveRange(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Removes keys from the bucket.
+            </summary>
+            <param name="keys">The keys.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.RemoveRange(System.Predicate{System.String})">
+            <summary>
+            Removes items from the bucket.
+            </summary>
+            <param name="filter">The filter by key.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.TryGetValue(System.String,System.ReadOnlyMemory{System.Byte}@)">
             <summary>
             Gets the value associated with the specified key.
             </summary>
             <param name="key">The key.</param>
             <param name="value">The value.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Bucket.AddRange(Weknow.EventSource.Backbone.Bucket)">
-            <summary>
-            Adds the specified key/value pairs to the bucket.
-            </summary>
-            <param name="bucket">The bucket.</param>
             <returns></returns>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Bucket.Keys">
@@ -155,6 +190,11 @@
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.Shard">
+            <summary>
+            Gets or sets the shard.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.ChannelType">
             <summary>
             Gets or sets the shard.
             </summary>
