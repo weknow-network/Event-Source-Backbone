@@ -49,6 +49,13 @@
             <param name="pairs"></param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.TryAddRange(System.Collections.Generic.IEnumerable{System.Nullable{System.ValueTuple{System.String,System.Byte[]}}})">
+            <summary>
+            Adds an elements with the specified key and value to the bucket if the key doesn't exists.
+            </summary>
+            <param name="pairs"></param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.TryAddRange(Weknow.EventSource.Backbone.Bucket)">
             <summary>
             Adds the specified key/value pairs to the bucket if the key doesn't exists.
@@ -212,6 +219,11 @@
         <member name="M:Weknow.EventSource.Backbone.MetadataExtensions.Key(Weknow.EventSource.Backbone.Metadata)">
             <summary>
             Gets the partition:shard as key.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventBucketCategories">
+            <summary>
+            Bucket storage type
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger">

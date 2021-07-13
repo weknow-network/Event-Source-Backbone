@@ -105,29 +105,29 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // var entries = new NameValueEntry[]{...}
 
-            await StoreBucketAsync(StorageType.Segments);
-            await StoreBucketAsync(StorageType.Interceptions);
+            await StoreBucketAsync(EventBucketCategories.Segments);
+            await StoreBucketAsync(EventBucketCategories.Interceptions);
 
             #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            async ValueTask StoreBucketAsync(StorageType storageType)
+            async ValueTask StoreBucketAsync(EventBucketCategories storageType)
             {
                 var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
-                Bucket bucket = storageType == StorageType.Segments ? payload.Segments : payload.InterceptorsData;
+                Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
                 if (strategies.Any())
                 {
                     foreach (var strategy in strategies)
                     {
-                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType);
+                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
                         foreach (var item in metaItems)
                         {
-                            entriesBuilder = entriesBuilder.Add(KV(item.key, item.metadata));
+                            entriesBuilder = entriesBuilder.Add(KV(item.Key, item.Value));
                         }
                     }
                 }
                 else
                 {
-                    await _defaultStorageStrategy.SaveBucketAsync(id, payload.Segments, storageType);
+                    await _defaultStorageStrategy.SaveBucketAsync(id, payload.Segments, storageType, meta);
                 }
             }
 

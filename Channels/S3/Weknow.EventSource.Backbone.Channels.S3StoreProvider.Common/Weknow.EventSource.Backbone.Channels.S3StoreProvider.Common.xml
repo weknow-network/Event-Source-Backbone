@@ -1,0 +1,253 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Weknow.EventSource.Backbone.Channels.BlobResponse">
+            <summary>
+            Response structure
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Weknow.EventSource.Backbone.Channels.BlobResponse" /> class from being created.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.#ctor(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Create request instance.
+            </summary>
+            <param name="key">The blob key.</param>
+            <param name="partition">The partition.</param>
+            <param name="eTag">The e tag.</param>
+            <param name="contentVersion">The content version.</param>
+            <param name="fileName">Name of the file.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.BlobResponse.Key">
+            <summary>
+            Gets or sets the key.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.BlobResponse.Partition">
+            <summary>
+            Gets or sets the partition.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.BlobResponse.FileName">
+            <summary>
+            Gets or sets the file name.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.BlobResponse.ETag">
+            <summary>
+            Gets or sets the eTag.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.Channels.BlobResponse.ContentVersion">
+            <summary>
+            Gets or sets the contentVersion.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.Equals(System.Object)">
+            <summary>
+            Determines whether the specified object is equal to the current object.
+            </summary>
+            <param name="obj">The object to compare with the current object.</param>
+            <returns>
+              <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.Equals(Weknow.EventSource.Backbone.Channels.BlobResponse)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+              <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.op_Equality(Weknow.EventSource.Backbone.Channels.BlobResponse,Weknow.EventSource.Backbone.Channels.BlobResponse)">
+            <summary>
+            Implements the operator ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.BlobResponse.op_Inequality(Weknow.EventSource.Backbone.Channels.BlobResponse,Weknow.EventSource.Backbone.Channels.BlobResponse)">
+            <summary>
+            Implements the operator !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>
+            The result of the operator.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Channels.Constants">
+            <summary>
+            Constants
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Channels.S3Repository">
+            <summary>
+            Abstract S3 operations
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.#ctor(Amazon.S3.AmazonS3Client,System.String,Microsoft.Extensions.Logging.ILogger,System.String)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="client">S3 client.</param>
+            <param name="bucket">The s3 bucket.</param>
+            <param name="logger">The logger.</param>
+            <param name="basePath">The base path within the bucket.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.GetJsonAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get content.
+            </summary>
+            <param name="id">The identifier which is the S3 key.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.IO.InvalidDataException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.GetBytesAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get content.
+            </summary>
+            <param name="id">The identifier which is the S3 key.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.IO.InvalidDataException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.GetAsync``1(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get content.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="id">The identifier which is the S3 key.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.NullReferenceException">Failed to deserialize industries</exception>
+            <exception cref="T:System.IO.InvalidDataException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.GetStreamAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get content.
+            </summary>
+            <param name="id">The identifier which is the S3 key.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:Amazon.S3.Model.GetObjectRequest">
+            </exception>
+            <exception cref="T:System.Exception">Failed to get blob [{res.HttpStatusCode}]</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.SaveAsync(System.Text.Json.JsonElement,System.String,System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Saves content.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="id">The identifier of the resource.</param>
+            <param name="metadata">The metadata.</param>
+            <param name="tags">The tags.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.SaveAsync(System.ReadOnlyMemory{System.Byte},System.String,System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Saves content.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="id">The identifier of the resource.</param>
+            <param name="metadata">The metadata.</param>
+            <param name="tags">The tags.</param>
+            <param name="mediaType">Type of the media.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.SaveAsync(System.IO.Stream,System.String,System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.Collections.Immutable.IImmutableDictionary{System.String,System.String},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Saves content.
+            </summary>
+            <param name="data">The data.</param>
+            <param name="id">The identifier of the resource.</param>
+            <param name="metadata">The metadata.</param>
+            <param name="tags">The tags.</param>
+            <param name="mediaType">Type of the media.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
+            <exception cref="T:System.Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.GetKey(System.String)">
+            <summary>
+            Gets s3 key.
+            </summary>
+            <param name="id">The identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory">
+            <summary>
+            Abstract S3 operations
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Create(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Creates the specified logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.#ctor(Microsoft.Extensions.Logging.ILogger{Weknow.EventSource.Backbone.Channels.S3Repository})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.#ctor(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Get(System.String,System.String)">
+            <summary>
+            Get repository instance.
+            </summary>
+            <param name="bucket">The bucket.</param>
+            <param name="basePath">The base path.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.CreateInternal(System.ValueTuple{System.String,System.String})">
+            <summary>
+            Creates repository.
+            </summary>
+            <param name="props">The props.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Finalize">
+            <summary>
+            Finalizes an instance of the <see cref="T:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory"/> class.
+            </summary>
+        </member>
+    </members>
+</doc>

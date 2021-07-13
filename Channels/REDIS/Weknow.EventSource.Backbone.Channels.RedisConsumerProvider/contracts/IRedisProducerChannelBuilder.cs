@@ -21,6 +21,6 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         IRedisConsumerChannelBuilder AddStorageStrategy(
             IConsumerStorageStrategy storageStrategy,
-            StorageType targetType);
+            EventBucketCategories targetType);
     }
 }

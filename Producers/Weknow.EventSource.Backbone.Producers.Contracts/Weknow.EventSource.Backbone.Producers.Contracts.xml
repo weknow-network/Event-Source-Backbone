@@ -485,6 +485,28 @@
             <param name="payload">The raw announcement data.</param>
             <returns>Return the message id</returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerStorageStrategy">
+            <summary>
+            Responsible to save information to storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerStorageStrategy.SaveBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Threading.CancellationToken)">
+            <summary>
+            Saves the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="bucket">Either Segments or Interceptions.</param>
+            <param name="type">The type.</param>
+            <param name="meta">The metadata.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns>
+            Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy">
             <summary>
             Responsible of splitting an instance into segments.

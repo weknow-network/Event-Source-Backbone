@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider.xml" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
+    <PackageReference Include="Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common" Version="1.0.7-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Producers.Contracts" Version="1.0.7-alpha" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -22,9 +23,17 @@ namespace Weknow.EventSource.Backbone
         /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
         /// <param name="type">The type of the storage.</param>
         /// <param name="meta">The meta fetch provider.</param>
+        /// <param name="getProperty">The get property.</param>
+        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Either Segments or Interceptions.
         /// </returns>
-        ValueTask<Bucket> LoadBucketAsync(string id, Bucket prevBucket, StorageType type, Func<string, string> meta);
+        ValueTask<Bucket> LoadBucketAsync(
+            string id,
+            Bucket prevBucket,
+            EventBucketCategories type, 
+            Metadata meta,
+            Func<string, string> getProperty,
+            CancellationToken cancellation = default);
     }
 }

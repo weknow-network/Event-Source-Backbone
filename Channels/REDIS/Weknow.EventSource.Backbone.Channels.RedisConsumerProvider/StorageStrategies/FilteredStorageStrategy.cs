@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -14,7 +15,7 @@ namespace Weknow.EventSource.Backbone
     internal class FilteredStorageStrategy: IConsumerStorageStrategyWithFilter
     {
         private readonly IConsumerStorageStrategy _storage;
-        private readonly StorageType _targetType;
+        private readonly EventBucketCategories _targetType;
 
         /// <summary>
         /// Initializes a new instance.
@@ -23,7 +24,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="targetType">Type of the target.</param>
         public FilteredStorageStrategy(
             IConsumerStorageStrategy storage,
-            StorageType targetType)
+            EventBucketCategories targetType)
         {
             _storage = storage;
             _targetType = targetType;
@@ -34,7 +35,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        bool IConsumerStorageStrategyWithFilter.IsOfTargetType(StorageType type) => (_targetType & type) == type;
+        bool IConsumerStorageStrategyWithFilter.IsOfTargetType(EventBucketCategories type) => (_targetType & type) == type;
 
         /// <summary>
         /// Load the bucket information.
@@ -43,13 +44,21 @@ namespace Weknow.EventSource.Backbone
         /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
         /// <param name="type">The type of the storage.</param>
         /// <param name="meta">The meta fetch provider.</param>
+        /// <param name="getProperty">The get property.</param>
+        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Either Segments or Interceptions.
         /// </returns>
-        async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(string id, Bucket prevBucket, StorageType type, Func<string, string> meta)
+        async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(
+                                                string id,
+                                                Bucket prevBucket,
+                                                EventBucketCategories type,
+                                                Metadata meta, 
+                                                Func<string, string> getProperty,
+                                                CancellationToken cancellation)
         {
             if ((_targetType & type) != type) return prevBucket;
-            var result = await _storage.LoadBucketAsync(id, prevBucket, type, meta);
+            var result = await _storage.LoadBucketAsync(id, prevBucket, type, meta, getProperty, cancellation);
             return result;
         } 
     }

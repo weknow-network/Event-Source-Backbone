@@ -47,7 +47,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         IRedisConsumerChannelBuilder IRedisConsumerChannelBuilder.AddStorageStrategy(
             IConsumerStorageStrategy storageStrategy,
-            StorageType targetType)
+            EventBucketCategories targetType)
         {
             var decorated = new FilteredStorageStrategy(storageStrategy, targetType);
             var strategy = _channel.StorageStrategy.Add(decorated);

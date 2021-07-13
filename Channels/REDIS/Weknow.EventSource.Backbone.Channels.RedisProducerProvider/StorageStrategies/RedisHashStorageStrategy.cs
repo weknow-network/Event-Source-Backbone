@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -40,10 +41,17 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions.</param>
         /// <param name="type">The type.</param>
+        /// <param name="meta">The metadata.</param>
+        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
-        async ValueTask<(string key, string metadata)[]> IProducerStorageStrategy.SaveBucketAsync(string id, Bucket bucket, StorageType type)
+        async ValueTask<IImmutableDictionary<string, string>> IProducerStorageStrategy.SaveBucketAsync(
+                                                                    string id,
+                                                                    Bucket bucket,
+                                                                    EventBucketCategories type,
+                                                                    Metadata meta, 
+                                                                    CancellationToken cancellation)
         {
             IDatabaseAsync db = await _dbTask;
 
@@ -52,7 +60,9 @@ namespace Weknow.EventSource.Backbone.Channels
                                                     new HashEntry(sgm.Key, sgm.Value))
                                             .ToArray();
             await db.HashSetAsync($"{type}~{id}", segmentsEntities);
-            return Array.Empty<(string key, string metadata)>();
+            return ImmutableDictionary<string, string>.Empty;
         }
+
+        
     }
 }

@@ -267,12 +267,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             ProducedAt = producedAt
                         };
 
-                        Bucket segmets = await GetBucketAsync(StorageType.Segments);
-                        Bucket interceptions = await GetBucketAsync(StorageType.Interceptions);
+                        Bucket segmets = await GetBucketAsync(EventBucketCategories.Segments);
+                        Bucket interceptions = await GetBucketAsync(EventBucketCategories.Interceptions);
 
                         #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
 
-                        async ValueTask<Bucket> GetBucketAsync(StorageType storageType)
+                        async ValueTask<Bucket> GetBucketAsync(EventBucketCategories storageType)
                         {
                             var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
                             Bucket bucket = Bucket.Empty;
@@ -280,18 +280,17 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             {
                                 foreach (var strategy in strategies)
                                 {
-                                    bucket = await strategy.LoadBucketAsync(id, bucket, storageType, GetMeta);
+                                    bucket = await strategy.LoadBucketAsync(id, bucket, storageType, meta, LocalGetProperty);
                                 }
                             }
                             else
                             {
-                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(id, bucket, storageType, GetMeta);
+                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(id, bucket, storageType, meta, LocalGetProperty);
                             }
 
                             return bucket;
 
-                            // local function 
-                            string GetMeta (string k) => (string)entries[k];
+                            string LocalGetProperty (string k) => (string)entries[k];
                         }
 
                         #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function

@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         IRedisProducerChannelBuilder AddStorageStrategy(
             IProducerStorageStrategy storageStrategy,
-            StorageType targetType,
+            EventBucketCategories targetType,
             Predicate<string>? filter = null);
     }
 }

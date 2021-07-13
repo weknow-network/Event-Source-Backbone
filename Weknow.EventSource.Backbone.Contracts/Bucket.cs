@@ -82,14 +82,22 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="pairs"></param>
         /// <returns></returns>
-        public Bucket TryAddRange(IEnumerable<(string key, byte[] value)> pairs)
+        public Bucket TryAddRange(IEnumerable<(string key, byte[] value)> pairs) => TryAddRange(pairs.Select(m => ((string key, byte[] value)?)m));
+
+        /// <summary>
+        /// Adds an elements with the specified key and value to the bucket if the key doesn't exists.
+        /// </summary>
+        /// <param name="pairs"></param>
+        /// <returns></returns>
+        public Bucket TryAddRange(IEnumerable<(string key, byte[] value)?> pairs)
         {
             var result = pairs.Aggregate(_data, (acc, pair) => 
             {
-                var (key, value) = pair;
-                if (acc.ContainsKey(key))
+#pragma warning disable CS8604 // Possible null reference argument.
+                if (!pair.HasValue || pair?.value == null || acc.ContainsKey(pair?.key))
                     return acc;
-                return acc.Add(key, value);
+                return acc.Add(pair?.key, pair?.value);
+#pragma warning restore CS8604 // Possible null reference argument.
             });
             return result;
         }

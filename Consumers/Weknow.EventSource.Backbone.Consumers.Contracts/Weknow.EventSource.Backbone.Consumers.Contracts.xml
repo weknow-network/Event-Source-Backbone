@@ -608,6 +608,29 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns>When completed</returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategy">
+            <summary>
+            Responsible to load information from storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategy.LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Load the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="prevBucket">The current bucket (previous item in the chain).</param>
+            <param name="type">The type of the storage.</param>
+            <param name="meta">The meta fetch provider.</param>
+            <param name="getProperty">The get property.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns>
+            Either Segments or Interceptions.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy">
             <summary>
             Responsible of building instance from segmented data.

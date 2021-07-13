@@ -47,7 +47,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         IRedisProducerChannelBuilder IRedisProducerChannelBuilder.AddStorageStrategy(
             IProducerStorageStrategy storageStrategy,
-            StorageType targetType,
+            EventBucketCategories targetType,
             Predicate<string>? filter)
         {
             var decorated = new FilteredStorageStrategy(storageStrategy, filter, targetType);

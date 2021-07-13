@@ -4,27 +4,6 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisConsumerProvider</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategy">
-            <summary>
-            Responsible to load information from storage.
-            The information can be either Segmentation or Interception.
-            When adding it via the builder it can be arrange in a chain in order of having
-            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
-            Alternative, chain can serve as a cache layer.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategy.LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
-            <summary>
-            Load the bucket information.
-            </summary>
-            <param name="id">The identifier.</param>
-            <param name="prevBucket">The current bucket (previous item in the chain).</param>
-            <param name="type">The type of the storage.</param>
-            <param name="meta">The meta fetch provider.</param>
-            <returns>
-            Either Segments or Interceptions.
-            </returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter">
             <summary>
             Responsible to load information from storage.
@@ -34,7 +13,7 @@
             Alternative, chain can serve as a cache layer.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter.IsOfTargetType(Weknow.EventSource.Backbone.StorageType)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter.IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Determines whether is of the right target type.
             </summary>
@@ -45,7 +24,7 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+        <member name="M:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.
@@ -197,7 +176,7 @@
             </summary>
             <param name="redisClientFactory">The redis client factory.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
             Load the bucket information.
             </summary>
@@ -205,6 +184,8 @@
             <param name="prevBucket">The current bucket (previous item in the chain).</param>
             <param name="type">The type of the storage.</param>
             <param name="meta">The meta fetch provider.</param>
+            <param name="getProperty">The get property.</param>
+            <param name="cancellation">The cancellation.</param>
             <returns>
             Either Segments or Interceptions.
             </returns>
@@ -218,7 +199,7 @@
             <param name="channel">The channel.</param>
             <param name="optionBuilder">The option builder.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#IRedisConsumerChannelBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#IRedisConsumerChannelBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.
@@ -340,21 +321,21 @@
             into different storage (For example GDPR's PII).
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.#ctor(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.StorageType)">
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.#ctor(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="storage">The actual storage provider.</param>
             <param name="targetType">Type of the target.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategyWithFilter#IsOfTargetType(Weknow.EventSource.Backbone.StorageType)">
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategyWithFilter#IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Determines whether is of the right target type.
             </summary>
             <param name="type">The type.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.StorageType,System.Func{System.String,System.String})">
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
             Load the bucket information.
             </summary>
@@ -362,6 +343,8 @@
             <param name="prevBucket">The current bucket (previous item in the chain).</param>
             <param name="type">The type of the storage.</param>
             <param name="meta">The meta fetch provider.</param>
+            <param name="getProperty">The get property.</param>
+            <param name="cancellation">The cancellation.</param>
             <returns>
             Either Segments or Interceptions.
             </returns>

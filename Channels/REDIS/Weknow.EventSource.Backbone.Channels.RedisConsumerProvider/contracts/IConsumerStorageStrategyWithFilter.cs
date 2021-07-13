@@ -20,6 +20,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="type">The type.</param>
 
-        bool IsOfTargetType(StorageType type);
+        bool IsOfTargetType(EventBucketCategories type);
     }
 }

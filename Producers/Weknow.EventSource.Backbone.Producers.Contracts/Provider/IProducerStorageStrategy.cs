@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -21,9 +23,17 @@ namespace Weknow.EventSource.Backbone
         /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions.</param>
         /// <param name="type">The type.</param>
+        /// <param name="meta">The metadata.</param>
+        /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
-        ValueTask<(string key, string metadata)[]> SaveBucketAsync(string id, Bucket bucket, StorageType type);
+        ValueTask<IImmutableDictionary<string, string>> SaveBucketAsync(
+            string id,
+            Bucket bucket, 
+            EventBucketCategories type, 
+            Metadata meta, 
+            CancellationToken cancellation = default);
     }
+
 }
