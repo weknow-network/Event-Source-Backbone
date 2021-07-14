@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Enable configuration.
     /// </summary>
-    public interface IRedisConsumerChannelBuilder : IConsumerOptionsBuilder
+    public interface IConsumerStoreStrategyBuilder : IConsumerOptionsBuilder
     {
         /// <summary>
         /// Adds the storage strategy (Segment / Interceptions).
@@ -19,8 +19,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IRedisConsumerChannelBuilder AddStorageStrategy(
+        IConsumerStoreStrategyBuilder AddStorageStrategy(
             IConsumerStorageStrategy storageStrategy,
-            EventBucketCategories targetType);
+            EventBucketCategories targetType = EventBucketCategories.All);
     }
 }

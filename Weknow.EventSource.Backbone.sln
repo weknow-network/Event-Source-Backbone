@@ -27,8 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Channels", "Channels", "{75
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{64FC6860-BD4C-4C11-BF6E-E99BB4D91723}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "S3", "S3", "{74ACCB9F-8BAB-4329-8BDB-8966ED995B7C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.IntegrationTests", "Tests\Weknow.EventSource.Backbone.IntegrationTests\Weknow.EventSource.Backbone.IntegrationTests.csproj", "{20A4298E-1929-4125-8D66-CABF330DE633}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.Channels.RedisProvider.Common", "Channels\REDIS\Weknow.EventSource.Backbone.Channels.RedisProvider.Common\Weknow.EventSource.Backbone.Channels.RedisProvider.Common.csproj", "{68387B20-DC7B-4C56-906E-9EC379677DE3}"

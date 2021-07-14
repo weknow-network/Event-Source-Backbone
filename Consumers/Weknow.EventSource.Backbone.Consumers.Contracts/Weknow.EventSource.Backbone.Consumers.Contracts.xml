@@ -391,6 +391,22 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerStoreStrategyBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStoreStrategyBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Adds the storage strategy (Segment / Interceptions).
+            Will use default storage (REDIS Hash) when empty.
+            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+            It important the consumer's storage will be in sync with this setting.
+            </summary>
+            <param name="storageStrategy">Storage strategy provider.</param>
+            <param name="targetType">Type of the target.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerBuilder">
             <summary>
             Event Source Consumer builder.

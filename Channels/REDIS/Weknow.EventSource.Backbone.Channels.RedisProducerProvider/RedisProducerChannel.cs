@@ -127,7 +127,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 }
                 else
                 {
-                    await _defaultStorageStrategy.SaveBucketAsync(id, payload.Segments, storageType, meta);
+                    await _defaultStorageStrategy.SaveBucketAsync(id, bucket, storageType, meta);
                 }
             }
 

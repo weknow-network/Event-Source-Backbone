@@ -7,7 +7,7 @@ using Weknow.EventSource.Backbone.Channels.RedisProvider;
 
 namespace Weknow.EventSource.Backbone
 {
-    internal class RedisProducerChannelBuilder : IRedisProducerChannelBuilder
+    internal class RedisProducerChannelBuilder : IProducerStoreStrategyBuilder
     {
         private readonly IProducerBuilder _builder;
         private readonly RedisProducerChannel _channel;
@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        IRedisProducerChannelBuilder IRedisProducerChannelBuilder.AddStorageStrategy(
+        IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder.AddStorageStrategy(
             IProducerStorageStrategy storageStrategy,
             EventBucketCategories targetType,
             Predicate<string>? filter)

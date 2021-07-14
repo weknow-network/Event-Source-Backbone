@@ -6,8 +6,6 @@ namespace Weknow.EventSource.Backbone
     public class ConsumerDefaultSegmentationStrategy :
                         IConsumerAsyncSegmentationStrategy
     {
-        private const string PREFIX = "@DEFAULT";
-
         ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.
                                 TryUnclassifyAsync<T>(
                                         Bucket segments,
@@ -15,7 +13,7 @@ namespace Weknow.EventSource.Backbone
                                         string argumentName,
                                         IEventSourceOptions options)
         {
-            string key = $"{PREFIX}~{operation}~{argumentName}";
+            string key = argumentName; 
             if (segments.TryGetValue(key, out ReadOnlyMemory<byte> data))
             {
                 T item = options.Serializer.Deserialize<T>(data);

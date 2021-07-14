@@ -85,7 +85,9 @@ namespace Weknow.EventSource.Backbone.Channels
             string? basePath = null)
         {
 
-            return _cache.GetOrAdd((bucket, basePath), CreateInternal);
+            var repo = _cache.GetOrAdd((bucket, basePath), CreateInternal);
+            repo.AddReference();
+            return repo;
         }
 
         #endregion // Get
@@ -104,27 +106,6 @@ namespace Weknow.EventSource.Backbone.Channels
         }
 
         #endregion // CreateInternal
-
-        #region Dispose Pattern
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            _client.Dispose();
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="S3RepositoryFactory"/> class.
-        /// </summary>
-        ~S3RepositoryFactory()
-        {
-            Dispose();
-        }
-
-        #endregion // Dispose Pattern
     }
 
 }

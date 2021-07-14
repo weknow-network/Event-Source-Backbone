@@ -28,9 +28,9 @@ namespace Weknow.EventSource.Backbone.Tests
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
-        private readonly CancellationToken _testScopeCancellation = GetCancellationToken();
-        private readonly IProducerOptionsBuilder _producerBuilder;
-        private readonly IConsumerOptionsBuilder _consumerBuilder;
+        protected readonly CancellationToken _testScopeCancellation = GetCancellationToken();
+        private readonly IProducerStoreStrategyBuilder _producerBuilder;
+        private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
         private string PARTITION = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
         private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
@@ -39,12 +39,16 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Ctor
 
-        public EndToEndTests(ITestOutputHelper outputHelper)
+        public EndToEndTests(
+            ITestOutputHelper outputHelper, 
+            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder> producerChannelBuilder = null,
+             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
         {
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
                                         _testScopeCancellation /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
+            _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
             var consumerSetting = RedisConsumerChannelSetting.Default;
             var claimTrigger = consumerSetting.ClaimingTrigger;
             claimTrigger.EmptyBatchCount = 5;
@@ -55,6 +59,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                         _testScopeCancellation /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */,
                                         claimingTrigger: claimTrigger);
+            _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);

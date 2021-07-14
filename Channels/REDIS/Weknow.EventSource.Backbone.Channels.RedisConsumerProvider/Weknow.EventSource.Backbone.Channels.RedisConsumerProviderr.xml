@@ -19,22 +19,6 @@
             </summary>
             <param name="type">The type.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder">
-            <summary>
-            Enable configuration.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IRedisConsumerChannelBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
-            <summary>
-            Adds the storage strategy (Segment / Interceptions).
-            Will use default storage (REDIS Hash) when empty.
-            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
-            It important the consumer's storage will be in sync with this setting.
-            </summary>
-            <param name="storageStrategy">Storage strategy provider.</param>
-            <param name="targetType">Type of the target.</param>
-            <returns></returns>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
             <summary>
             Initializes a new instance.
@@ -199,7 +183,7 @@
             <param name="channel">The channel.</param>
             <param name="optionBuilder">The option builder.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#IRedisConsumerChannelBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerChannelBuilder.Weknow#EventSource#Backbone#IConsumerStoreStrategyBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.

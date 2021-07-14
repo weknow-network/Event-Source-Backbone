@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
-using StackExchange.Redis;
+using Weknow.EventSource.Backbone.Channels;
 
-namespace Weknow.EventSource.Backbone.Channels
+using static Weknow.EventSource.Backbone.Channels.Constants;
+
+
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible to load information from S3 storage.
@@ -19,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Channels
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    internal class S3ConsumerStorageStrategy : IConsumerStorageStrategy
+    public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     {
         private readonly IS3Repository _repository;
 
@@ -69,31 +73,31 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Either Segments or Interceptions.
         /// </returns>
         async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(
-            string id, 
-            Bucket prevBucket, 
+            string id,
+            Bucket prevBucket,
             EventBucketCategories type,
             Metadata meta,
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
             var lookup = ImmutableDictionary.CreateRange(prevBucket);
-            string idsOfItemsStr = getProperty(Constants.Keys.Ids);
-            string[] idsOfItems = idsOfItemsStr.Split(Constants.Keys.IdsSeparator);
+            string json = getProperty($"{Constants.PROVIDER_ID}~{type}");
+            var keyPathPairs = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(
+                                                            json, SerializerOptionsWithIndent) ??
+                                                            Array.Empty<KeyValuePair<string, string>>();
 
-            var tasks = idsOfItems.Select(LocalFetchAsync);
+
+            var tasks = keyPathPairs.Select(LocalFetchAsync);
             var pairs = await Task.WhenAll(tasks);
 
             Bucket result = prevBucket.TryAddRange(pairs);
             return result;
 
-            async Task<(string key, byte[] value)?> LocalFetchAsync(string itemId)
+            async Task<(string key, byte[] value)?> LocalFetchAsync(KeyValuePair<string, string> item)
             {
-                if (lookup.ContainsKey(itemId)) return null;
-                string path = getProperty(itemId);
-                if (string.IsNullOrEmpty(path)) throw new ArgumentNullException(itemId);
-
+                string path = item.Value;
                 var response = await _repository.GetBytesAsync(path, cancellation);
-                return (itemId, response);
+                return (item.Key, response);
             }
         }
     }

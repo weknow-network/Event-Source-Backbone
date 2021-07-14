@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Channels
     /// <summary>
     /// Abstract S3 operations
     /// </summary>
-    public sealed class S3Repository : IS3Repository
+    public sealed class S3Repository : IS3Repository, IDisposable
     {
         private readonly string _bucket;
         private readonly ILogger _logger;
@@ -32,6 +32,7 @@ namespace Weknow.EventSource.Backbone.Channels
         private static readonly ImmutableHashSet<string> VALID_HEADERS = ImmutableHashSet<string>.Empty
                                         .Add("Content-Type");
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
+        private int _disposeCount = 0;
 
         #region Ctor
 
@@ -55,6 +56,16 @@ namespace Weknow.EventSource.Backbone.Channels
         }
 
         #endregion // Ctor
+
+        #region AddReference
+
+        /// <summary>
+        /// Adds the reference to the repository.
+        /// This reference will prevent disposal until having no active references.
+        /// </summary>
+        internal void AddReference() => Interlocked.Increment(ref _disposeCount);
+
+        #endregion // AddReference
 
         #region GetJsonAsync
 
@@ -263,7 +274,7 @@ namespace Weknow.EventSource.Backbone.Channels
             CancellationToken cancellation = default)
         {
             using var srm = new MemoryStream(data.ToArray()); // TODO: [bnaya 2021-07] consider AsStream -> https://www.nuget.org/packages/Microsoft.Toolkit.HighPerformance
-            var result = await SaveAsync(srm, id, metadata, tags, mediaType, cancellation );
+            var result = await SaveAsync(srm, id, metadata, tags, mediaType, cancellation);
             return result;
         }
 
@@ -372,6 +383,36 @@ namespace Weknow.EventSource.Backbone.Channels
         }
 
         #endregion // GetKey
-    }
 
+        #region Dispose Pattern
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool disposing)
+        {
+            if (disposing && Interlocked.Decrement(ref _disposeCount) > 0) return;
+            _client.Dispose();
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="S3RepositoryFactory"/> class.
+        /// </summary>
+        ~S3Repository()
+        {
+            Dispose(false);
+        }
+
+        #endregion // Dispose Pattern
+    }
 }

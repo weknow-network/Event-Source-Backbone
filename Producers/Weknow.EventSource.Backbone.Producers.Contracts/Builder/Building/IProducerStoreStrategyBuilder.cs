@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// Enable configuration.
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder" />
-    public interface IRedisProducerChannelBuilder : IProducerOptionsBuilder
+    public interface IProducerStoreStrategyBuilder : IProducerOptionsBuilder
     {
         /// <summary>
         /// Adds the storage strategy (Segment / Interceptions).
@@ -21,9 +21,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        IRedisProducerChannelBuilder AddStorageStrategy(
+        IProducerStoreStrategyBuilder AddStorageStrategy(
             IProducerStorageStrategy storageStrategy,
-            EventBucketCategories targetType,
+            EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null);
     }
 }

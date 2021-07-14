@@ -8,7 +8,7 @@ using Weknow.EventSource.Backbone.Channels.RedisProvider;
 
 namespace Weknow.EventSource.Backbone
 {
-    internal class RedisConsumerChannelBuilder : IRedisConsumerChannelBuilder
+    internal class RedisConsumerChannelBuilder : IConsumerStoreStrategyBuilder
     {
         private readonly IConsumerBuilder _builder;
         private readonly RedisConsumerChannel _channel;
@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IRedisConsumerChannelBuilder IRedisConsumerChannelBuilder.AddStorageStrategy(
+        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder.AddStorageStrategy(
             IConsumerStorageStrategy storageStrategy,
             EventBucketCategories targetType)
         {

@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IRedisProducerChannelBuilder UseRedisProducerChannel(
+        public static IProducerStoreStrategyBuilder UseRedisProducerChannel(
                             this IProducerBuilder builder,
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
@@ -59,7 +59,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IRedisProducerChannelBuilder UseRedisProducerChannel(
+        public static IProducerStoreStrategyBuilder UseRedisProducerChannel(
                             this IProducerBuilder builder,
                             ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,

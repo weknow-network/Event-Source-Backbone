@@ -24,11 +24,7 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     public static class Constants
     {
-        public static class Keys
-        {
-            public const string Ids = "__ids";
-            public const string IdsSeparator = "~|~";
-        }
+        public const string PROVIDER_ID = "S3_V1";
 
         public static readonly JsonStringEnumConverter EnumConvertor = new JsonStringEnumConverter(JsonNamingPolicy.CamelCase);
         public static readonly JsonSerializerOptions SerializerOptionsWithIndent = new JsonSerializerOptions

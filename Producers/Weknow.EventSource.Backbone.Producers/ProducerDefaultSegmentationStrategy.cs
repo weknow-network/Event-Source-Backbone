@@ -7,8 +7,6 @@ namespace Weknow.EventSource.Backbone
     public class ProducerDefaultSegmentationStrategy :
                         IProducerAsyncSegmentationStrategy
     {
-        private const string PREFIX = "@DEFAULT";
-
         ValueTask<Bucket> IProducerAsyncSegmentationStrategy.
                 TryClassifyAsync<T>(
                     Bucket segments,
@@ -18,7 +16,7 @@ namespace Weknow.EventSource.Backbone
                     IEventSourceOptions options)
         {
             ReadOnlyMemory<byte> data = options.Serializer.Serialize(producedData);
-            string key = $"{PREFIX}~{operation}~{argumentName}";
+            string key = argumentName;
             return segments.Add(key, data).ToValueTask();
         }
     }

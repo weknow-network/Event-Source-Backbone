@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
-namespace Weknow.EventSource.Backbone.Channels
+using Weknow.EventSource.Backbone.Channels;
+
+using static Weknow.EventSource.Backbone.Channels.Constants;
+
+
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible to save information to S3 storage.
@@ -17,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Channels
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    internal class S3ProducerStorageStrategy :  IProducerStorageStrategy
+    public class S3ProducerStorageStrategy :  IProducerStorageStrategy
     {
         private readonly IS3Repository _repository;
         private int _index = 0;
@@ -76,8 +82,8 @@ namespace Weknow.EventSource.Backbone.Channels
             var date = DateTime.UtcNow;
             var tasks = bucket.Select(LocalSaveAsync);
             var pairs = await Task.WhenAll(tasks);
-            ImmutableDictionary<string, string> result = ImmutableDictionary.CreateRange(pairs);
-            result = result.Add(Constants.Keys.Ids, string.Join(Constants.Keys.IdsSeparator, result.Keys));
+            string json = JsonSerializer.Serialize(pairs, SerializerOptionsWithIndent);
+            var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{type}", json);
             return result;
 
             async Task<KeyValuePair<string, string >> LocalSaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)

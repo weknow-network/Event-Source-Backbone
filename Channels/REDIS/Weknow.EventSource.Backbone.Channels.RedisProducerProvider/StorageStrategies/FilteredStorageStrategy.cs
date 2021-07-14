@@ -63,8 +63,8 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             if ((_targetType & type) != type) return ImmutableDictionary<string, string>.Empty;
             var filtered =  bucket.RemoveRange(_filter);
-            await _storage.SaveBucketAsync(id, filtered, type, meta, cancellation);
-            return ImmutableDictionary<string, string>.Empty;
+            var results = await _storage.SaveBucketAsync(id, filtered, type, meta, cancellation);
+            return results;
         }
     }
 }

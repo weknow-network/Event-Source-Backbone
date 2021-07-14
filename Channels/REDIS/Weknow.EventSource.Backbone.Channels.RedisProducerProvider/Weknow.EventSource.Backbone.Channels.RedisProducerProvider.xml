@@ -19,24 +19,6 @@
             </summary>
             <param name="type">The type.</param>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IRedisProducerChannelBuilder">
-            <summary>
-            Enable configuration.
-            </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder" />
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IRedisProducerChannelBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
-            <summary>
-            Adds the storage strategy (Segment / Interceptions).
-            Will use default storage (REDIS Hash) when empty.
-            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
-            It important the consumer's storage will be in sync with this setting.
-            </summary>
-            <param name="storageStrategy">Storage strategy provider.</param>
-            <param name="targetType">Type of the target.</param>
-            <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
-            <returns></returns>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
             <summary>
             Initializes a new instance.
@@ -134,7 +116,7 @@
             <param name="channel">The channel.</param>
             <param name="optionBuilder">The option builder.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProducerChannelBuilder.Weknow#EventSource#Backbone#IRedisProducerChannelBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
+        <member name="M:Weknow.EventSource.Backbone.RedisProducerChannelBuilder.Weknow#EventSource#Backbone#IProducerStoreStrategyBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.
