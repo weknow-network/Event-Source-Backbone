@@ -28,3 +28,70 @@ jobs:
       with:
           PROJECT_FILE_PATH: Weknow.EventSource.Backbone.Contracts/Weknow.EventSource.Backbone.Contracts.csproj
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props
+    - name: Publish Weknow.EventSource.Backbone
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Weknow.EventSource.Backbone/Weknow.EventSource.Backbone.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props         
+    - name: Publish Weknow.EventSource.Backbone.Producers.Contracts
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Producers/Weknow.EventSource.Backbone.Producers.Contracts/Weknow.EventSource.Backbone.Producers.Contracts.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props
+    - name: Publish Weknow.EventSource.Backbone.Producers
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Producers/Weknow.EventSource.Backbone.Producers/Weknow.EventSource.Backbone.Producers.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props
+    - name: Publish Weknow.EventSource.Backbone.Consumers.Contracts
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Consumers/Weknow.EventSource.Backbone.Consumers.Contracts/Weknow.EventSource.Backbone.Consumers.Contracts.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props
+    - name: Publish Weknow.EventSource.Backbone.Consumers
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Consumers/Weknow.EventSource.Backbone.Consumers/Weknow.EventSource.Backbone.Consumers.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props     
+    - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/S3/Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common/Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props           
+    - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/S3/Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider/Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props            
+    - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreConsumerProvider
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/S3/Weknow.EventSource.Backbone.Channels.S3StoreConsumerProvider/Weknow.EventSource.Backbone.Channels.S3StoreConsumerProvider.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props          
+    - name: Publish Weknow.EventSource.Backbone.Channels.RedisProvider.Common
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/REDIS/Weknow.EventSource.Backbone.Channels.RedisProvider.Common/Weknow.EventSource.Backbone.Channels.RedisProvider.Common.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props          
+    - name: Publish Weknow.EventSource.Backbone.Channels.RedisProducerProvider
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/REDIS/Weknow.EventSource.Backbone.Channels.RedisProducerProvider/Weknow.EventSource.Backbone.Channels.RedisProducerProvider.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props       
+    - name: Publish Weknow.EventSource.Backbone.Channels.RedisConsumerProvider
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Channels/REDIS/Weknow.EventSource.Backbone.Channels.RedisConsumerProvider/Weknow.EventSource.Backbone.Channels.RedisConsumerProvider.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props 
