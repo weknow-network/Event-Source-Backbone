@@ -12,7 +12,7 @@
     <None Remove="Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.*" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.1.1-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
