@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +18,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>When completed</returns>
+        /// <returns>
+        /// When completed
+        /// </returns>
         ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,

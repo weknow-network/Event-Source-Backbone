@@ -251,6 +251,21 @@
             <param name="shard">The shard key.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter">
+            <summary>
+            Responsible to save information to storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter.IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerStoreStrategyBuilder">
             <summary>
             Enable configuration.
@@ -337,7 +352,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -351,10 +366,19 @@
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
             <param name="forwards">Result of merging multiple channels.</param>
+            <param name="storageStrategy">The storage strategy.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Channel">
             <summary>
             Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.StorageStrategy">
+            <summary>
+            Gets the storage strategy.
+            By design the stream should hold minimal information while the main payload 
+            is segmented and can stored outside of the stream.
+            This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Logger">
@@ -440,7 +464,13 @@
             </summary>
             <param name="logger">The logger.</param>
             <returns></returns>
-            r
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
+            <summary>
+            Attach Storage Strategy.
+            </summary>
+            <param name="storageStrategy">The storage strategy.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
             <summary>
@@ -496,12 +526,15 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerChannelProvider.SendAsync(Weknow.EventSource.Backbone.Announcement)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerChannelProvider.SendAsync(Weknow.EventSource.Backbone.Announcement,System.Collections.Immutable.ImmutableArray{Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter})">
             <summary>
             Sends raw announcement.
             </summary>
             <param name="payload">The raw announcement data.</param>
-            <returns>Return the message id</returns>
+            <param name="storageStrategy">The storage strategy.</param>
+            <returns>
+            Return the message id
+            </returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerStorageStrategy">
             <summary>

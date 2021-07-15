@@ -21,7 +21,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private static int _index = 0;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
         private readonly Task<IDatabaseAsync> _dbTask;
-        internal ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
@@ -58,21 +57,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             _defaultStorageStrategy = new RedisHashStorageStrategy(_dbTask);
 
         }
-        /// <summary>
-        /// Copy ctor.
-        /// </summary>
-        /// <param name="self">The self.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
-        internal RedisProducerChannel(
-                        RedisProducerChannel self,
-                        ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
-        {
-            _logger = self._logger;
-            _resiliencePolicy = self._resiliencePolicy;
-            _dbTask = self._dbTask;
-            _defaultStorageStrategy = self._defaultStorageStrategy;
-            StorageStrategy = storageStrategy;
-        }
 
         #endregion // Ctor
 
@@ -82,10 +66,13 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// Sends raw announcement.
         /// </summary>
         /// <param name="payload">The raw announcement data.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns>
         /// Return the message id
         /// </returns>
-        public async ValueTask<string> SendAsync(Announcement payload)
+        public async ValueTask<string> SendAsync(
+            Announcement payload, 
+            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
         {
             IDatabaseAsync db = await _dbTask;
 
@@ -112,7 +99,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             async ValueTask StoreBucketAsync(EventBucketCategories storageType)
             {
-                var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
+                var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
                 Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
                 if (strategies.Any())
                 {

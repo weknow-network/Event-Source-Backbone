@@ -53,6 +53,10 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         IConsumerChannelProvider Channel { get; }
         /// <summary>
+        /// Gets the storage strategy.
+        /// </summary>
+        ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; }
+        /// <summary>
         /// Consumer interceptors (Timing: after serialization).
         /// </summary>
         /// <value>

@@ -74,8 +74,7 @@ namespace Weknow.EventSource.Backbone
                                         endpointEnvKey,
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();
-            IConsumerOptionsBuilder options = builder.UseChannel(channel);
-            var channelBuilder = new RedisConsumerChannelBuilder(builder, channel, options);
+            var channelBuilder = builder.UseChannel(channel);
             return channelBuilder;
         }
 

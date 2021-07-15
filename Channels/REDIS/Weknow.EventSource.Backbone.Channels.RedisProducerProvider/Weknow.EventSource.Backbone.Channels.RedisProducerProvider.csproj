@@ -18,5 +18,8 @@
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.RedisProvider.Common\Weknow.EventSource.Backbone.Channels.RedisProvider.Common.csproj" />
     <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="contracts\" />
+  </ItemGroup>
 
 </Project>

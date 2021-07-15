@@ -96,6 +96,17 @@
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerStoreStrategyBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Adds the storage strategy (Segment / Interceptions).
+            Will use default storage (REDIS Hash) when empty.
+            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+            It important the consumer's storage will be in sync with this setting.
+            </summary>
+            <param name="storageStrategy">Storage strategy provider.</param>
+            <param name="targetType">Type of the target.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
             <summary>
             Attach configuration.
@@ -229,7 +240,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -248,10 +259,16 @@
             <param name="consumerName">Optional Name of the consumer.
             Can use for observability.</param>
             <param name="resiliencePolicy">The resilience policy.</param>
+            <param name="storageStrategy">The storage strategy.</param>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Channel">
             <summary>
             Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.StorageStrategy">
+            <summary>
+            Gets the storage strategy.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Logger">
@@ -346,6 +363,13 @@
             Attach the channel.
             </summary>
             <param name="channel">The channel.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
+            <summary>
+            Attach the Storage Strategy.
+            </summary>
+            <param name="storageStrategy">The storage strategy.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
@@ -451,6 +475,41 @@
             When completed
             </returns>
             <exception cref="T:System.NotSupportedException">Channel must be define</exception>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.FilteredStorageStrategy">
+            <summary>
+            Wrap Channel Storage with key filtering of the bucket.
+            Useful for 'Chain of Responsibility' by saving different parts
+            into different storage (For example GDPR's PII).
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.#ctor(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="storage">The actual storage provider.</param>
+            <param name="targetType">Type of the target.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategyWithFilter#IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Load the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="prevBucket">The current bucket (previous item in the chain).</param>
+            <param name="type">The type of the storage.</param>
+            <param name="meta">The meta fetch provider.</param>
+            <param name="getProperty">The get property.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns>
+            Either Segments or Interceptions.
+            </returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerOptions.#ctor(Weknow.EventSource.Backbone.AckBehavior,System.Int32,Weknow.EventSource.Backbone.IDataSerializer,System.UInt32,System.Boolean)">
             <summary>

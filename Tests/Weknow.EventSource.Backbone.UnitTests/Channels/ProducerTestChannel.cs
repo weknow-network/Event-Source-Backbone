@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -37,7 +38,9 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// The announcement id
         /// </returns>
-        public async ValueTask<string> SendAsync(Announcement payload)
+        public async ValueTask<string> SendAsync(
+            Announcement payload,
+            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
         {
             await _channel.Writer.WriteAsync(payload);
             return Interlocked.Increment(ref _index).ToString();

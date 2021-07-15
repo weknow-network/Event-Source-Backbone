@@ -15,7 +15,8 @@ namespace Weknow.EventSource.Backbone
     public class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerOptionsBuilder,
-        IConsumerShardBuilder
+        IConsumerShardBuilder,
+        IConsumerStoreStrategyBuilder
     {
         private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
 
@@ -52,7 +53,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IConsumerOptionsBuilder IConsumerBuilder.UseChannel(
+        IConsumerStoreStrategyBuilder IConsumerBuilder.UseChannel(
                         IConsumerChannelProvider channel)
         {
             var prms = _plan.WithChannel(channel);
@@ -61,6 +62,29 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // UseChannel
+
+        #region AddStorageStrategy
+
+        /// <summary>
+        /// Adds the storage strategy (Segment / Interceptions).
+        /// Will use default storage (REDIS Hash) when empty.
+        /// When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+        /// It important the consumer's storage will be in sync with this setting.
+        /// </summary>
+        /// <param name="storageStrategy">Storage strategy provider.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <returns></returns>
+        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder.AddStorageStrategy(
+            IConsumerStorageStrategy storageStrategy,
+            EventBucketCategories targetType)
+        {
+            var decorated = new FilteredStorageStrategy(storageStrategy, targetType);
+            var prms = _plan.WithStorageStrategy(decorated);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // AddStorageStrategy
 
         #region WithOptions
 

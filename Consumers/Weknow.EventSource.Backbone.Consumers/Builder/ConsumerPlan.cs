@@ -53,6 +53,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="consumerName">Optional Name of the consumer.
         /// Can use for observability.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             IConsumerChannelProvider? channel = null,
@@ -66,7 +67,8 @@ namespace Weknow.EventSource.Backbone
             CancellationToken? cancellation = null,
             string? consumerGroup = null,
             string? consumerName = null,
-            AsyncPolicy? resiliencePolicy = null)
+            AsyncPolicy? resiliencePolicy = null,
+            IConsumerStorageStrategyWithFilter? storageStrategy = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -80,6 +82,9 @@ namespace Weknow.EventSource.Backbone
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
             ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
+            StorageStrategy = storageStrategy == null
+                  ? copyFrom.StorageStrategy
+                  : copyFrom.StorageStrategy.Add(storageStrategy);
         }
 
         #endregion // Ctor
@@ -92,6 +97,15 @@ namespace Weknow.EventSource.Backbone
         public IConsumerChannelProvider Channel { get; } = NopChannel.Empty;
 
         #endregion // Channel
+
+        #region StorageStrategy
+
+        /// <summary>
+        /// Gets the storage strategy.
+        /// </summary>
+        public ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty;
+
+        #endregion // StorageStrategy
 
         #region Logger
 
@@ -242,6 +256,20 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithChannel
+
+        #region WithStorageStrategy
+
+        /// <summary>
+        /// Attach the Storage Strategy.
+        /// </summary>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithStorageStrategy(IConsumerStorageStrategyWithFilter storageStrategy)
+        {
+            return new ConsumerPlan(this, storageStrategy: storageStrategy);
+        }
+
+        #endregion // WithStorageStrategy
 
         #region WithLogger
 

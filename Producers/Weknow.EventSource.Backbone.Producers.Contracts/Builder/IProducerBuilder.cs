@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IProducerOptionsBuilder UseChannel(
+        IProducerStoreStrategyBuilder UseChannel(
             IProducerChannelProvider channel);
 
         /// <summary>

@@ -39,6 +39,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
         /// <param name="forwards">Result of merging multiple channels.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
         private ProducerPlan(
             ProducerPlan copyFrom,
             IProducerChannelProvider? channel = null,
@@ -49,7 +50,8 @@ namespace Weknow.EventSource.Backbone
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
             IImmutableList<IProducerHooksBuilder>? routes = null,
-            IImmutableList<IProducerHooksBuilder>? forwards = null)
+            IImmutableList<IProducerHooksBuilder>? forwards = null,
+            IProducerStorageStrategyWithFilter? storageStrategy = null)
         {
             Channel = channel ?? copyFrom.Channel;
             Partition = partition ?? copyFrom.Partition;
@@ -60,6 +62,9 @@ namespace Weknow.EventSource.Backbone
             Routes = routes ?? copyFrom.Routes;
             Forwards = forwards ?? copyFrom.Forwards;
             Logger = logger;
+            StorageStrategy = storageStrategy == null
+                ? copyFrom.StorageStrategy 
+                : copyFrom.StorageStrategy.Add(storageStrategy);
         }
 
         #endregion // Ctor
@@ -72,6 +77,20 @@ namespace Weknow.EventSource.Backbone
         public IProducerChannelProvider Channel { get; } = NopChannel.Empty;
 
         #endregion // Channel
+
+        #region StorageStrategy
+
+        /// <summary>
+        /// Gets the storage strategy.
+        /// By design the stream should hold minimal information while the main payload 
+        /// is segmented and can stored outside of the stream.
+        /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
+        /// </summary>
+        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategy { get; } =
+                                            ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+
+
+        #endregion // StorageStrategy
 
         #region Logger
 
@@ -201,13 +220,26 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        /// r
         public ProducerPlan WithLogger(ILogger logger)
         {
             return new ProducerPlan(this, logger: logger);
         }
 
-        #endregion // WithOptions
+        #endregion // WithLogger
+
+        #region WithStorageStrategy
+
+        /// <summary>
+        /// Attach Storage Strategy.
+        /// </summary>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <returns></returns>
+        public ProducerPlan WithStorageStrategy(IProducerStorageStrategyWithFilter storageStrategy)
+        {
+            return new ProducerPlan(this, storageStrategy: storageStrategy);
+        }
+
+        #endregion // WithStorageStrategy
 
         #region WithOptions
 
@@ -318,7 +350,7 @@ namespace Weknow.EventSource.Backbone
         private class NopChannel : IProducerChannelProvider
         {
             public static readonly IProducerChannelProvider Empty = new NopChannel();
-            public ValueTask<string> SendAsync(Announcement payload)
+            public ValueTask<string> SendAsync(Announcement payload, ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
             {
                 throw new NotSupportedException("Channel must be assign");
             }

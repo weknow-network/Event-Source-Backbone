@@ -391,6 +391,21 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter">
+            <summary>
+            Responsible to load information from storage.
+            The information can be either Segmentation or Interception.
+            When adding it via the builder it can be arrange in a chain in order of having
+            'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
+            Alternative, chain can serve as a cache layer.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter.IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerStoreStrategyBuilder">
             <summary>
             Enable configuration.
@@ -471,6 +486,11 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
             <summary>
             Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.StorageStrategy">
+            <summary>
+            Gets the storage strategy.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Interceptors">
@@ -622,7 +642,9 @@
             <param name="func">The function.</param>
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>
-            <returns>When completed</returns>
+            <returns>
+            When completed
+            </returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategy">
             <summary>

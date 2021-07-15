@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -13,7 +14,10 @@ namespace Weknow.EventSource.Backbone
         /// Sends raw announcement.
         /// </summary>
         /// <param name="payload">The raw announcement data.</param>
-        /// <returns>Return the message id</returns>
-        ValueTask<string> SendAsync(Announcement payload);
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <returns>
+        /// Return the message id
+        /// </returns>
+        ValueTask<string> SendAsync(Announcement payload, ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy);
     }
 }

@@ -68,16 +68,16 @@ namespace Weknow.EventSource.Backbone
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-            var channel = new RedisProducerChannel(
+         // todo: plan
+               var channel = new RedisProducerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
                                         configuration,
                                         resiliencePolicy,
                                         endpointEnvKey,
                                         passwordEnvKey);
             cancellationToken.ThrowIfCancellationRequested();
-            IProducerOptionsBuilder result = builder.UseChannel(channel);
-            var fluent = new RedisProducerChannelBuilder(builder, channel, result);
-            return fluent;
+            var result = builder.UseChannel(channel);
+            return result;
         }
     }
 }

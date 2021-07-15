@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Weknow.EventSource.Backbone.Channels
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Wrap Channel Storage with key filtering of the bucket.

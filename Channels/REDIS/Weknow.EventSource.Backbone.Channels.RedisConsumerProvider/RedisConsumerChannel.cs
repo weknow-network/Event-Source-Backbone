@@ -32,7 +32,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private static int _index;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Consumer_{0}";
         private readonly RedisClientFactory _redisClientFactory;
-        internal ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
@@ -64,22 +63,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             _defaultStorageStrategy = new RedisHashStorageStrategy(_redisClientFactory);
         }
 
-        /// <summary>
-        /// Copy ctor.
-        /// </summary>
-        /// <param name="self">The self.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
-        internal RedisConsumerChannel(
-            RedisConsumerChannel self,
-            ImmutableArray<IConsumerStorageStrategyWithFilter> storageStrategy)
-        {
-            _logger = self._logger;
-            _setting = self._setting;
-            _redisClientFactory = self._redisClientFactory;
-            StorageStrategy = storageStrategy;
-            _defaultStorageStrategy = self._defaultStorageStrategy;
-        }
-
         #endregion // Ctor
 
         #region SubsribeAsync
@@ -98,7 +81,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
-                    CancellationToken cancellationToken)
+                    CancellationToken cancellationToken)    
         {
             while (!cancellationToken.IsCancellationRequested)
             { // connection errors
@@ -274,7 +257,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         async ValueTask<Bucket> GetBucketAsync(EventBucketCategories storageType)
                         {
-                            var strategies = StorageStrategy.Where(m => m.IsOfTargetType(storageType));
+                            var strategies = plan.StorageStrategy.Where(m => m.IsOfTargetType(storageType));
                             Bucket bucket = Bucket.Empty;
                             if (strategies.Any())
                             {

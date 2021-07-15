@@ -4,6 +4,41 @@
         <name>Weknow.EventSource.Backbone.Producers</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.FilteredStorageStrategy">
+            <summary>
+            Wrap Channel Storage with key filtering of the bucket.
+            Useful for 'Chain of Responsibility' by saving different parts
+            into different storage (For example GDPR's PII).
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.#ctor(Weknow.EventSource.Backbone.IProducerStorageStrategy,System.Predicate{System.String},Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="storage">The actual storage provider.</param>
+            <param name="filter">The filter according to keys.</param>
+            <param name="targetType">Type of the target.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IProducerStorageStrategyWithFilter#IsOfTargetType(Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Determines whether is of the right target type.
+            </summary>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.FilteredStorageStrategy.Weknow#EventSource#Backbone#IProducerStorageStrategy#SaveBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Threading.CancellationToken)">
+            <summary>
+            Saves the bucket information.
+            </summary>
+            <param name="id">The identifier.</param>
+            <param name="bucket">Either Segments or Interceptions.</param>
+            <param name="type">The type.</param>
+            <param name="meta">The metadata.</param>
+            <param name="cancellation">The cancellation.</param>
+            <returns>
+            Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerBuilder">
             <summary>
             Event Source producer builder.
@@ -46,6 +81,18 @@
             Choose the communication channel provider.
             </summary>
             <param name="channel">The channel provider.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerStoreStrategyBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
+            <summary>
+            Adds the storage strategy (Segment / Interceptions).
+            Will use default storage (REDIS Hash) when empty.
+            When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+            It important the consumer's storage will be in sync with this setting.
+            </summary>
+            <param name="storageStrategy">Storage strategy provider.</param>
+            <param name="targetType">Type of the target.</param>
+            <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerPartitionBuilder#Partition(System.String)">

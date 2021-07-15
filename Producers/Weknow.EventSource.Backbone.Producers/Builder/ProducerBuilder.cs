@@ -14,7 +14,8 @@ namespace Weknow.EventSource.Backbone
         IProducerBuilder,
         IProducerOptionsBuilder,
         IProducerShardBuilder,
-        IProducerHooksBuilder
+        IProducerHooksBuilder,
+        IProducerStoreStrategyBuilder
     {
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IProducerOptionsBuilder IProducerBuilder.UseChannel(
+        IProducerStoreStrategyBuilder IProducerBuilder.UseChannel(
                                                 IProducerChannelProvider channel)
         {
             var prms = Plan.UseChannel(channel);
@@ -97,6 +98,30 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // UseChannel
+
+        #region AddStorageStrategy
+
+        /// <summary>
+        /// Adds the storage strategy (Segment / Interceptions).
+        /// Will use default storage (REDIS Hash) when empty.
+        /// When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+        /// It important the consumer's storage will be in sync with this setting.
+        /// </summary>
+        /// <param name="storageStrategy">Storage strategy provider.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
+        /// <returns></returns>
+        IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder.AddStorageStrategy(
+                                            IProducerStorageStrategy storageStrategy, 
+                                            EventBucketCategories targetType, 
+                                            Predicate<string>? filter)
+        {
+            var decorated = new FilteredStorageStrategy(storageStrategy, filter, targetType);
+            var prms = Plan.WithStorageStrategy(decorated);
+            return new ProducerBuilder(prms);
+        }
+
+        #endregion // AddStorageStrategy
 
         #region Partition
 
