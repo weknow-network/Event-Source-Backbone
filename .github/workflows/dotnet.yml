@@ -32,7 +32,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props
  
     - name: Sleep (give NuGet chance to update) 
-      run: sleep ${{ variables.sleep }}
+      run: sleep 5m
       shell: bash
  
     - name: Publish Weknow.EventSource.Backbone
