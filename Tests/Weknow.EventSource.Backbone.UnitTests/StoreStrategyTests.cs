@@ -30,6 +30,7 @@ namespace Weknow.EventSource.Backbone
         private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly Channel<Announcement> ch;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
+        private readonly IProducerStorageStrategy _producerStorageStrategyA = A.Fake<IProducerStorageStrategy>();
 
         #region Ctor
 

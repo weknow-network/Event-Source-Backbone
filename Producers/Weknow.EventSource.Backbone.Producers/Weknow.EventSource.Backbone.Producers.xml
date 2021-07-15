@@ -95,7 +95,7 @@
             <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerPartitionBuilder#Partition(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerPartitionBuilder#Partition(System.String)">
             <summary>
             Partition key represent logical group of
             event source shards.
@@ -112,7 +112,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerShardBuilder#Shard(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerShardBuilder#Shard(System.String)">
             <summary>
             Shard key represent physical sequence.
             Use same shard when order is matter.

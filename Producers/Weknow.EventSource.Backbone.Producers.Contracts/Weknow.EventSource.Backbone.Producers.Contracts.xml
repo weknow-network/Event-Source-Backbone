@@ -84,6 +84,43 @@
             Apply configuration.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerPartitionBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerPartitionBuilder.Partition(System.String)">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <param name="partition">The partition key.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerShardBuilder">
+            <summary>
+            Enable configuration.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerShardBuilder.Shard(System.String)">
+            <summary>
+            Shard key represent physical sequence.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
+            <param name="shard">The shard key.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder">
             <summary>
             Event Source producer builder.
@@ -213,43 +250,6 @@
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IProducerPartitionBuilder">
-            <summary>
-            Enable configuration.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerPartitionBuilder.Partition(System.String)">
-            <summary>
-            Partition key represent logical group of 
-            event source shards.
-            For example assuming each ORDERING flow can have its 
-            own messaging sequence, yet can live concurrency with 
-            other ORDER's sequences.
-            The partition will let consumer the option to be notify and
-            consume multiple shards from single consumer.
-            This way the consumer can handle all orders in
-            central place without affecting sequence of specific order 
-            flow or limiting the throughput.
-            </summary>
-            <param name="partition">The partition key.</param>
-            <returns></returns>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.IProducerShardBuilder">
-            <summary>
-            Enable configuration.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerShardBuilder.Shard(System.String)">
-            <summary>
-            Shard key represent physical sequence.
-            Use same shard when order is matter.
-            For example: assuming each ORDERING flow can have its 
-            own messaging sequence, in this case you can split each 
-            ORDER into different shard and gain performance bust..
-            </summary>
-            <param name="shard">The shard key.</param>
-            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter">
             <summary>
