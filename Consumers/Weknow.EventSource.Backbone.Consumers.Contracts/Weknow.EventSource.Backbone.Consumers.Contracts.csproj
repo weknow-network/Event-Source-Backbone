@@ -12,7 +12,7 @@
     <None Remove=".\Weknow.EventSource.Backbone.Consumers.Contracts.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.9-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.0.*-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
