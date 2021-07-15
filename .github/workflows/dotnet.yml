@@ -1,5 +1,9 @@
 name: .NET Build & Publish NuGet
 
+variables:
+- name: sleep
+  value: 2m 
+  
 on:
   push:
     branches: [ master ]
@@ -32,7 +36,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props
  
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep ${{ variables.sleep }}
       shell: bash
  
     - name: Publish Weknow.EventSource.Backbone
