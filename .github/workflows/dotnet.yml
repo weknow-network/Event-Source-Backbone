@@ -1,8 +1,4 @@
 name: .NET Build & Publish NuGet
-
-variables:
-- name: sleep
-  value: 2m 
   
 on:
   push:
@@ -47,7 +43,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props         
  
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Producers.Contracts
@@ -58,7 +54,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props
   
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Producers
@@ -69,7 +65,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Consumers.Contracts
@@ -80,7 +76,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Consumers
@@ -91,7 +87,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props     
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common
@@ -102,7 +98,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props        
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider
@@ -113,7 +109,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props     
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreConsumerProvider
@@ -124,7 +120,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props   
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisProvider.Common
@@ -135,7 +131,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props  
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisProducerProvider
@@ -146,7 +142,7 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props       
           
     - name: Sleep (give NuGet chance to update) 
-      run: sleep 2m
+      run: sleep 5m
       shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisConsumerProvider
