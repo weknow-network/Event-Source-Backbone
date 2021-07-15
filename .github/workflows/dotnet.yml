@@ -1,0 +1,30 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore /property:Configuration=ProjRef
+    - name: Build
+      run: dotnet build  --configuration ProjRef --no-restore
+    - name: Test
+      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
+    - name: Publish Weknow.EventSource.Backbone.Contracts
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Weknow.EventSource.Backbone.Contracts/Weknow.EventSource.Backbone.Contracts.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
