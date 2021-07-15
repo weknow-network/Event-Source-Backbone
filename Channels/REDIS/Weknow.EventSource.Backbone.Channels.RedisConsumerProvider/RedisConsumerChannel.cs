@@ -263,12 +263,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             {
                                 foreach (var strategy in strategies)
                                 {
-                                    bucket = await strategy.LoadBucketAsync(id, bucket, storageType, meta, LocalGetProperty);
+                                    bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                                 }
                             }
                             else
                             {
-                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(id, bucket, storageType, meta, LocalGetProperty);
+                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                             }
 
                             return bucket;

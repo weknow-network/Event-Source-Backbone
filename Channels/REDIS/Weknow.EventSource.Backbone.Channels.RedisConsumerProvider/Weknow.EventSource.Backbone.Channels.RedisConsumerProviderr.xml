@@ -138,14 +138,13 @@
             </summary>
             <param name="redisClientFactory">The redis client factory.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,System.Func{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
             Load the bucket information.
             </summary>
-            <param name="id">The identifier.</param>
+            <param name="meta">The meta fetch provider.</param>
             <param name="prevBucket">The current bucket (previous item in the chain).</param>
             <param name="type">The type of the storage.</param>
-            <param name="meta">The meta fetch provider.</param>
             <param name="getProperty">The get property.</param>
             <param name="cancellation">The cancellation.</param>
             <returns>

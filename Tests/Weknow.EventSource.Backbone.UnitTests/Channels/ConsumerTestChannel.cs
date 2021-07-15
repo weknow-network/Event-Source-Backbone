@@ -28,13 +28,13 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Subscribe to the channel for specific metadata.
         /// </summary>
-        /// <param name="metadata">The metadata.</param>
+        /// <param name="plan">The metadata.</param>
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>When completed</returns>
         public async ValueTask SubsribeAsync(
-                    IConsumerPlan metadata,
+                    IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
                     CancellationToken cancellationToken)
@@ -45,6 +45,11 @@ namespace Weknow.EventSource.Backbone
                 try
                 {
                     var announcement = await _channel.Reader.ReadAsync(cancellationToken);
+                    foreach (var strategy in plan.StorageStrategy)
+                    {
+                        await strategy.LoadBucketAsync(announcement.Metadata, Bucket.Empty, EventBucketCategories.Segments, m => string.Empty);
+                        await strategy.LoadBucketAsync(announcement.Metadata, Bucket.Empty, EventBucketCategories.Interceptions, m => string.Empty);
+                    }
                     await func(announcement, Ack.Empty);
                 }
                 catch (ChannelClosedException) { }

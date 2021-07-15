@@ -42,6 +42,11 @@ namespace Weknow.EventSource.Backbone
             Announcement payload,
             ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
         {
+            foreach (var strategy in storageStrategy)
+            {
+                await strategy.SaveBucketAsync(payload.Metadata.MessageId, payload.Segments, EventBucketCategories.Segments, payload.Metadata);
+                await strategy.SaveBucketAsync(payload.Metadata.MessageId, payload.InterceptorsData, EventBucketCategories.Interceptions, payload.Metadata);
+            }
             await _channel.Writer.WriteAsync(payload);
             return Interlocked.Increment(ref _index).ToString();
         }

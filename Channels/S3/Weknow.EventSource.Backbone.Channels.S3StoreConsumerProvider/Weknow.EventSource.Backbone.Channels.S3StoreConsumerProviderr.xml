@@ -30,7 +30,7 @@
             <param name="basePath">The base path.</param>
             <param name="factory">The repository's factory.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.S3ConsumerStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Func{System.String,System.String},System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.S3ConsumerStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,System.Func{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
             Load the bucket information.
             </summary>

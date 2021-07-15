@@ -73,13 +73,13 @@ namespace Weknow.EventSource.Backbone
         /// Either Segments or Interceptions.
         /// </returns>
         async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(
-            string id,
+            Metadata meta,
             Bucket prevBucket,
             EventBucketCategories type,
-            Metadata meta,
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
+            string id = meta.MessageId;
             var lookup = ImmutableDictionary.CreateRange(prevBucket);
             string json = getProperty($"{Constants.PROVIDER_ID}~{type}");
             var keyPathPairs = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(

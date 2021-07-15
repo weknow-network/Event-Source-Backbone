@@ -84,6 +84,15 @@
             <param name="filter">The filter by key.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.ContainsKey(System.String)">
+            <summary>
+            Determines whether the specified key contains key.
+            </summary>
+            <param name="key">The key.</param>
+            <returns>
+              <c>true</c> if the specified key contains key; otherwise, <c>false</c>.
+            </returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.TryGetValue(System.String,System.ReadOnlyMemory{System.Byte}@)">
             <summary>
             Gets the value associated with the specified key.

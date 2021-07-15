@@ -159,6 +159,22 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // RemoveRange
 
+        #region ContainsKey
+
+        /// <summary>
+        /// Determines whether the specified key contains key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified key contains key; otherwise, <c>false</c>.
+        /// </returns>
+        public bool ContainsKey(string key)
+        {
+            return _data.ContainsKey(key);
+        }
+
+        #endregion // ContainsKey
+
         #region TryGetValue
 
         /// <summary>

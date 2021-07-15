@@ -31,6 +31,10 @@ namespace Weknow.EventSource.Backbone
         private readonly Channel<Announcement> ch;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStorageStrategy _producerStorageStrategyA = A.Fake<IProducerStorageStrategy>();
+        private readonly IProducerStorageStrategy _producerStorageStrategyB = A.Fake<IProducerStorageStrategy>();
+        private readonly IConsumerStorageStrategy _consumerStorageStrategyA = A.Fake<IConsumerStorageStrategy>();
+        private readonly IConsumerStorageStrategy _consumerStorageStrategyB = A.Fake<IConsumerStorageStrategy>();
+        private readonly IConsumerStorageStrategy _consumerStorageStrategyC = A.Fake<IConsumerStorageStrategy>();
 
         #region Ctor
 
@@ -50,10 +54,13 @@ namespace Weknow.EventSource.Backbone
         [Fact]
         public async Task Build_Serializer_Producer_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
+            bool LocalOnlyEmail(string key) => key == "email";
+            bool LocalAllButEmail(string key) => !LocalOnlyEmail(key);
 
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
+                        .AddStorageStrategy(_producerStorageStrategyA, filter: LocalOnlyEmail)
+                        .AddStorageStrategy(_producerStorageStrategyB, filter: LocalAllButEmail)
                         //.WithOptions(producerOption)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
@@ -68,6 +75,9 @@ namespace Weknow.EventSource.Backbone
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
+                         .AddStorageStrategy(_consumerStorageStrategyA)
+                         .AddStorageStrategy(_consumerStorageStrategyB, EventBucketCategories.Segments)
+                         .AddStorageStrategy(_consumerStorageStrategyC, EventBucketCategories.Interceptions)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
@@ -84,6 +94,62 @@ namespace Weknow.EventSource.Backbone
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.EarseAsync(4335))
                 .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _producerStorageStrategyA.SaveBucketAsync(
+                                                        A<string>.Ignored,
+                                                        A<Bucket>.That.Matches(m => m.ContainsKey("email")),
+                                                        A<EventBucketCategories>.Ignored,
+                                                        A<Metadata>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _producerStorageStrategyB.SaveBucketAsync(
+                                                        A<string>.Ignored,
+                                                        A<Bucket>.That.Matches(m => m.ContainsKey("email")),
+                                                        A<EventBucketCategories>.Ignored,
+                                                        A<Metadata>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _consumerStorageStrategyA.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Segments,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceOrMore();
+            A.CallTo(() => _consumerStorageStrategyA.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Interceptions,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceOrMore();
+            A.CallTo(() => _consumerStorageStrategyB.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Segments,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceOrMore();
+            A.CallTo(() => _consumerStorageStrategyB.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Interceptions,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => _consumerStorageStrategyC.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Interceptions,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceOrMore();
+            A.CallTo(() => _consumerStorageStrategyC.LoadBucketAsync(
+                                                        A<Metadata>.Ignored,
+                                                        A<Bucket>.Ignored,
+                                                        EventBucketCategories.Segments,
+                                                        A<Func<string, string>>.Ignored,
+                                                        A<CancellationToken>.Ignored))
+                .MustNotHaveHappened();
         }
 
         #endregion // Build_Serializer_Producer_Test

@@ -12,7 +12,7 @@ namespace Weknow.EventSource.Backbone
     /// Useful for 'Chain of Responsibility' by saving different parts
     /// into different storage (For example GDPR's PII).
     /// </summary>
-    internal class FilteredStorageStrategy: IConsumerStorageStrategyWithFilter
+    internal class FilteredStorageStrategy : IConsumerStorageStrategyWithFilter
     {
         private readonly IConsumerStorageStrategy _storage;
         private readonly EventBucketCategories _targetType;
@@ -40,26 +40,24 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Load the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="meta">The meta fetch provider.</param>
         /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
         /// <param name="type">The type of the storage.</param>
-        /// <param name="meta">The meta fetch provider.</param>
         /// <param name="getProperty">The get property.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Either Segments or Interceptions.
         /// </returns>
         async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(
-                                                string id,
+                                                Metadata meta,
                                                 Bucket prevBucket,
                                                 EventBucketCategories type,
-                                                Metadata meta, 
                                                 Func<string, string> getProperty,
                                                 CancellationToken cancellation)
         {
             if ((_targetType & type) != type) return prevBucket;
-            var result = await _storage.LoadBucketAsync(id, prevBucket, type, meta, getProperty, cancellation);
+            var result = await _storage.LoadBucketAsync(meta, prevBucket, type, getProperty, cancellation);
             return result;
-        } 
+        }
     }
 }

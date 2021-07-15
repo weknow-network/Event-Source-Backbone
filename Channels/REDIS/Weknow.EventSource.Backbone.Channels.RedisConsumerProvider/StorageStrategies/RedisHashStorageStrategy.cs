@@ -37,10 +37,9 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Load the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="meta">The meta fetch provider.</param>
         /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
         /// <param name="type">The type of the storage.</param>
-        /// <param name="meta">The meta fetch provider.</param>
         /// <param name="getProperty">The get property.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns>
@@ -48,14 +47,13 @@ namespace Weknow.EventSource.Backbone.Channels
         /// </returns>
         /// <exception cref="System.NotImplementedException"></exception>
         async ValueTask<Bucket> IConsumerStorageStrategy.LoadBucketAsync(
-            string id, 
-            Bucket prevBucket, 
-            EventBucketCategories type,
             Metadata meta,
+            Bucket prevBucket,
+            EventBucketCategories type,
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
-            string key = $"{type}~{id}";
+            string key = $"{type}~{meta.MessageId}";
             IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
             var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
