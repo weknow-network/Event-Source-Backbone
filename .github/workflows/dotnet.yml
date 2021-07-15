@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build  --configuration ProjRef --no-restore
     - name: Test
-      run: dotnet test Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
+      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
     - name: Publish Weknow.EventSource.Backbone.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
