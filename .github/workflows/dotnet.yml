@@ -29,3 +29,9 @@ jobs:
           PROJECT_FILE_PATH: Weknow.EventSource.Backbone.Contracts/Weknow.EventSource.Backbone.Contracts.csproj
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props
+    - name: Publish Weknow.EventSource.Backbone.Contracts
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+          PROJECT_FILE_PATH: Weknow.EventSource.Backbone/Weknow.EventSource.Backbone.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+          VERSION_FILE_PATH: Directory.Build.props
