@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch
 
 jobs:
   build:
@@ -23,9 +24,24 @@ jobs:
     - name: Build
       run: dotnet build  --configuration ProjRef --no-restore
 
+  test:
+
+    name: test
+    runs-on: ubuntu-latest
+	needs: [build]
+
+    steps:
 
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
+
+  test:
+
+    name: publish
+    runs-on: ubuntu-latest
+	needs: [test]
+
+    steps:
 
     - name: Publish Weknow.EventSource.Backbone.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
