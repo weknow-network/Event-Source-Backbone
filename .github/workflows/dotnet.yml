@@ -30,7 +30,6 @@ jobs:
       run: dotnet build  --configuration ProjRef --no-restore
 
   test:
-
     name: test
     runs-on: ubuntu-latest
     needs: [build]
@@ -40,8 +39,7 @@ jobs:
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
 
-  test:
-
+  publish:
     name: publish
     runs-on: ubuntu-latest
     needs: [test]
