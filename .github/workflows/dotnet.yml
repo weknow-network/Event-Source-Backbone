@@ -28,21 +28,13 @@ jobs:
       run: dotnet restore /property:Configuration=ProjRef
     - name: Build
       run: dotnet build  --configuration ProjRef --no-restore
-
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    needs: [build]
-
-    steps:
-
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
 
   publish:
     name: publish
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [build]
 
     steps:
 
