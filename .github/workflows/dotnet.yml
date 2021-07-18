@@ -22,18 +22,11 @@ jobs:
       run: dotnet restore /property:Configuration=ProjRef
     - name: Build
       run: dotnet build  --configuration ProjRef --no-restore
-      
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    steps:
+
+
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
-          
-  publish:
-    name: publish
-    runs-on: ubuntu-latest
-    steps:
+
     - name: Publish Weknow.EventSource.Backbone.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
