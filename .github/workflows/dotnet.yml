@@ -31,9 +31,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props
  
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
  
     - name: Publish Weknow.EventSource.Backbone
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -42,9 +42,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props         
  
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Producers.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -53,9 +53,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props
   
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Producers
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -64,9 +64,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Consumers.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -75,9 +75,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Consumers
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -86,9 +86,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props     
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -97,9 +97,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props        
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -108,9 +108,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props     
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.S3StoreConsumerProvider
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -119,9 +119,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props   
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisProvider.Common
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -130,9 +130,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props  
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisProducerProvider
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -141,9 +141,9 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props       
           
-    - name: Sleep (give NuGet chance to update) 
-      run: sleep 5m
-      shell: bash
+#    - name: Sleep (give NuGet chance to update) 
+#      run: sleep 5m
+#      shell: bash
       
     - name: Publish Weknow.EventSource.Backbone.Channels.RedisConsumerProvider
       uses: brandedoutcast/publish-nuget@v2.5.5
