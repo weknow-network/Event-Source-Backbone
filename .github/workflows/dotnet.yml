@@ -7,8 +7,9 @@ on:
     branches: [ master ]
 
 jobs:
-  - build:
+  build:
 
+    name: build
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +23,15 @@ jobs:
     - name: Build
       run: dotnet build  --configuration ProjRef --no-restore
       
-  - test:
+  test:
+    name: test
+    runs-on: ubuntu-latest
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
           
-  - publish:
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
     - name: Publish Weknow.EventSource.Backbone.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
