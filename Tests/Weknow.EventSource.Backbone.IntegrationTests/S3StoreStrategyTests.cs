@@ -22,18 +22,14 @@ namespace Weknow.EventSource.Backbone.Tests
 {
     public class S3StoreStrategyTests: EndToEndTests
     {
-        const string DATE_FORMAT = "yyyy-MM-ddZHH-MM-ss";
         const string BUCKET_KEY = "S3_EVENT_SOURCE_BUCKET";
         private static readonly string BUCKET = Environment.GetEnvironmentVariable(BUCKET_KEY) ?? string.Empty;
 
 
         public S3StoreStrategyTests(ITestOutputHelper outputHelper): 
             base(outputHelper,
-                (b, logger) => b.AddStorageStrategy(
-                            new S3ProducerStorageStrategy(logger, BUCKET)),
-                (b, logger) => b.AddStorageStrategy(
-                            new S3ConsumerStorageStrategy(logger, BUCKET))
-                )
+                (b, logger) => b.AddS3Strategy(logger, BUCKET),
+                (b, logger) => b.AddS3Strategy(logger, BUCKET))
         {
         }
 
