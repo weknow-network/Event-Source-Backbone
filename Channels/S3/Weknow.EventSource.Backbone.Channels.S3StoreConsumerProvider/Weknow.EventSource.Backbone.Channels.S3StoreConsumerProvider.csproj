@@ -12,8 +12,8 @@
     <None Remove="Weknow.EventSource.Backbone.Channels.S3StoreConsumerProviderr.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common" Version="1.1.5-alpha" />
-    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.1.5-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common" Version="1.1.6-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.1.6-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />

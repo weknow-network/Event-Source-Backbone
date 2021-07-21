@@ -12,7 +12,7 @@
     <None Remove="Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.1.5-alpha" />
+    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.1.6-alpha" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />

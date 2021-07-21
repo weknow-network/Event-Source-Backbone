@@ -245,25 +245,6 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder">
-            <summary>
-            Event Source producer builder.
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
-            <summary>
-            Attach logger.
-            </summary>
-            <param name="logger">The logger.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerLoggerBuilder.WithResiliencePolicy(Polly.AsyncPolicy)">
-            <summary>
-            Set resilience policy
-            </summary>
-            <param name="policy">The policy.</param>
-            <returns></returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder">
             <summary>
             Enable configuration.
@@ -390,6 +371,25 @@
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerLoggerBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerLoggerBuilder.WithLogger(Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+            Attach logger.
+            </summary>
+            <param name="logger">The logger.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerLoggerBuilder.WithResiliencePolicy(Polly.AsyncPolicy)">
+            <summary>
+            Set resilience policy
+            </summary>
+            <param name="policy">The policy.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter">
             <summary>

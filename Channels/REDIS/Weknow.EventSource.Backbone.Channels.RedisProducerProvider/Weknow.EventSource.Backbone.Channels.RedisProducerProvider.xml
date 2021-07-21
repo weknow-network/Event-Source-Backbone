@@ -52,7 +52,7 @@
             Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
             <summary>
             Uses REDIS producer channel.
             </summary>
@@ -66,7 +66,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisProducerChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.Threading.CancellationToken,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.Threading.CancellationToken,System.String,System.String)">
             <summary>
             Uses REDIS producer channel.
             </summary>

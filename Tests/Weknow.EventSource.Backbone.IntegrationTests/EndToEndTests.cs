@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone.Tests
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
         {
             _outputHelper = outputHelper;
-            _producerBuilder = ProducerBuilder.Empty.UseRedisProducerChannel(
+            _producerBuilder = ProducerBuilder.Empty.UseRedisChannel(
                                         _testScopeCancellation /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
@@ -55,7 +55,7 @@ namespace Weknow.EventSource.Backbone.Tests
             claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
             consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
 
-            _consumerBuilder = ConsumerBuilder.Empty.UseRedisConsumerChannel(
+            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         _testScopeCancellation /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */,
                                         claimingTrigger: claimTrigger);

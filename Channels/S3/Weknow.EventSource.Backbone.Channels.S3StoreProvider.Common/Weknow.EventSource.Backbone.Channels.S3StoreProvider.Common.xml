@@ -105,13 +105,13 @@
             Abstract S3 operations
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.#ctor(Amazon.S3.AmazonS3Client,System.String,Microsoft.Extensions.Logging.ILogger,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.#ctor(Amazon.S3.AmazonS3Client,Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="client">S3 client.</param>
-            <param name="bucket">The s3 bucket.</param>
             <param name="logger">The logger.</param>
+            <param name="bucket">The s3 bucket.</param>
             <param name="basePath">The base path within the bucket.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.S3Repository.AddReference">
@@ -246,7 +246,7 @@
             </summary>
             <param name="logger">The logger.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Get(System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.S3RepositoryFactory.Weknow#EventSource#Backbone#Channels#IS3RepositoryFactory#Get(System.String,System.String)">
             <summary>
             Get repository instance.
             </summary>

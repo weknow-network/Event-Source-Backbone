@@ -152,7 +152,7 @@
             </returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies,Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies,Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
             </summary>

@@ -190,14 +190,14 @@
             <param name="interceptor">The interceptor.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerLoggerBuilder#WithLogger(Microsoft.Extensions.Logging.ILogger)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerLoggerBuilder#WithLogger(Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Attach logger.
             </summary>
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerLoggerBuilder#WithResiliencePolicy(Polly.AsyncPolicy)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerLoggerBuilder#WithResiliencePolicy(Polly.AsyncPolicy)">
             <summary>
             Set resilience policy
             </summary>

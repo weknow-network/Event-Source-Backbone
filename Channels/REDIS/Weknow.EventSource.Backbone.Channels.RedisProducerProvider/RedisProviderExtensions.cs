@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IProducerStoreStrategyBuilder UseRedisProducerChannel(
+        public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
                             CancellationToken cancellationToken,
                             ILogger? logger = null,
@@ -42,7 +42,7 @@ namespace Weknow.EventSource.Backbone
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-            return UseRedisProducerChannel(builder, logger, configuration, resiliencePolicy, cancellationToken, endpointEnvKey, passwordEnvKey);
+            return UseRedisChannel(builder, logger, configuration, resiliencePolicy, cancellationToken, endpointEnvKey, passwordEnvKey);
         }
 
         #endregion // Overloads
@@ -59,7 +59,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public static IProducerStoreStrategyBuilder UseRedisProducerChannel(
+        public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
                             ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,
@@ -68,8 +68,7 @@ namespace Weknow.EventSource.Backbone
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-         // todo: plan
-               var channel = new RedisProducerChannel(
+            var channel = new RedisProducerChannel(
                                         logger ?? EventSourceFallbakLogger.Default,
                                         configuration,
                                         resiliencePolicy,
