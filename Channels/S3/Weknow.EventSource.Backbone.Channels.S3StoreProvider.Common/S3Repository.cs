@@ -25,6 +25,9 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     public sealed class S3Repository : IS3Repository, IDisposable
     {
+        const string BUCKET_KEY = "S3_EVENT_SOURCE_BUCKET";
+        private static readonly string BUCKET = Environment.GetEnvironmentVariable(BUCKET_KEY) ?? string.Empty;
+
         private readonly string _bucket;
         private readonly ILogger _logger;
         private readonly string? _basePath;
@@ -40,17 +43,17 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Initializes a new instance.
         /// </summary>
         /// <param name="client">S3 client.</param>
-        /// <param name="bucket">The s3 bucket.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="bucket">The s3 bucket.</param>
         /// <param name="basePath">The base path within the bucket.</param>
         public S3Repository(
                     AmazonS3Client client,
-                    string bucket,
                     ILogger logger,
+                    string? bucket = null,
                     string? basePath = null)
         {
             _client = client;
-            _bucket = bucket;
+            _bucket = bucket ?? BUCKET;
             _logger = logger;
             _basePath = basePath;
         }

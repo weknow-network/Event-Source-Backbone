@@ -50,7 +50,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="factory">The repository's factory.</param>
         public S3ConsumerStorageStrategy(
             ILogger logger,
-            string bucket,
+            string? bucket = null,
             string? basePath = null,
             IS3RepositoryFactory? factory = null)
         {

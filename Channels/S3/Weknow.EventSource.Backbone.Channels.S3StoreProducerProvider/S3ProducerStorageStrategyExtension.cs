@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone
         public static IProducerStoreStrategyBuilder AddS3Strategy(
             this IProducerStoreStrategyBuilder builder,
             ILogger logger,
-            string bucket,
+            string? bucket = null,
             string? basePath = null,
             EventBucketCategories targetType = EventBucketCategories.All)
         {

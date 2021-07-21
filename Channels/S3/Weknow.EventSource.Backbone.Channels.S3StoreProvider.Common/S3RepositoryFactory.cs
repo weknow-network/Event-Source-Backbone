@@ -80,9 +80,9 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="bucket">The bucket.</param>
         /// <param name="basePath">The base path.</param>
         /// <returns></returns>
-        public S3Repository Get(
-            string bucket,
-            string? basePath = null)
+        S3Repository IS3RepositoryFactory.Get(
+            string? bucket,
+            string? basePath)
         {
 
             var repo = _cache.GetOrAdd((bucket, basePath), CreateInternal);
@@ -100,9 +100,9 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="props">The props.</param>
         /// <returns></returns>
         private S3Repository CreateInternal(
-            (string bucket, string? basePath) props)
+            (string? bucket, string? basePath) props)
         {
-            return new S3Repository(_client, props.bucket, _logger, props.basePath);
+            return new S3Repository(_client, _logger, props.bucket, props.basePath);
         }
 
         #endregion // CreateInternal
