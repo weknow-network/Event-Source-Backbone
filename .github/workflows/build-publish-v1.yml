@@ -21,9 +21,9 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore -c Debug 
+      run: dotnet restore /property:Configuration=Debug 
           
-    - name: Build solution and generate NuGet package
+    - name: Build & generate NuGet package
       run: | 
         run: dotnet build Weknow.EventSource.Backbone.Contracts -c Debug --no-restore
         dotnet pack Weknow.EventSource.Backbone.Contracts -c Debug -o out --no-restore
