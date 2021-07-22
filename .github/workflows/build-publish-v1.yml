@@ -25,7 +25,7 @@ jobs:
           
     - name: Build solution and generate NuGet package
       run: | 
-        run: dotnet build  -c Debug --no-restore
+        run: dotnet build Weknow.EventSource.Backbone.Contracts -c Debug --no-restore
         dotnet pack Weknow.EventSource.Backbone.Contracts -c Debug -o out --no-restore
       
     - name: Add NuGet Source
