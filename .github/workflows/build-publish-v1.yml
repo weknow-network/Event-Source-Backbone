@@ -21,14 +21,15 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore /property:Configuration=ProjRef
-      
-    - name: Add NuGet Source
-      run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
+      run: dotnet restore -c Debug 
           
     - name: Build solution and generate NuGet package
       run: | 
-        dotnet pack Weknow.EventSource.Backbone.Contracts -c Release -o out  
+        run: dotnet build  -c Debug --no-restore
+        dotnet pack Weknow.EventSource.Backbone.Contracts -c Debug -o out --no-restore
+      
+    - name: Add NuGet Source
+      run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
 
     - name: Push generated package to GitHub registry
-      run: dotnet nuget push ./Weknow.EventSource.Backbone.Contracts/out/*.nupkg --skip-duplicate --no-symbols true
+      run: dotnet nuget push ./Weknow.EventSource.Backbone.Contracts/out/*.nupkg --skip-duplicate --no-symbols true --no-restore
