@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,15 +142,25 @@ namespace Weknow.EventSource.Backbone
 
                 string operation = arg.Metadata.Operation;
                 Type type = instance.GetType();
-                var binding = BindingFlags.Public | BindingFlags.Instance;
+                var binding = BindingFlags.Public |
+                              BindingFlags.Instance;
                 MethodInfo? method = type.GetMethod(operation, binding);
                 #region Validation
 
                 if (method == null)
                 {
-                    var ex = new ArgumentNullException("Cannot get method");
-                    _plan.Logger?.LogWarning(ex, "Consumer fail to get method");
-                    throw ex;
+                    var mtds = (from @interface in type.GetInterfaces()
+                              from m in type.GetInterfaceMap(@interface).TargetMethods
+                              let targetName = $"{@interface.FullName}.{operation}"
+                              where m.Name == targetName
+                                select m).ToArray();
+                    if (mtds.Length != 1)
+                    {
+                        var ex = new ArgumentNullException("Cannot get method");
+                        _plan.Logger?.LogWarning(ex, "Consumer fail to get method");
+                        throw ex;
+                    }
+                    method = mtds[0];
                 }
 
                 #endregion // Validation

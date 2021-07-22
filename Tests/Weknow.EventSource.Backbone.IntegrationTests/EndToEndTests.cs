@@ -418,6 +418,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Manual_ACK_Test
 
+        
         #region Claim_Test
 
         [Fact]

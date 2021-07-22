@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
@@ -13,4 +14,5 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         ValueTask ActivateAsync(int id);
         ValueTask EarseAsync(int id);
     }
+
 }
