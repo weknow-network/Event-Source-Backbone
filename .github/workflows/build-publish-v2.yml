@@ -39,7 +39,9 @@ jobs:
           VERSION_FILE_PATH: Directory.Build.props          
       
     - name: Add NuGet Source
-      run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name nuget "https://nuget.pkg.github.com/Bnayae/index.json"
+      run: |
+        dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name nuget "https://api.nuget.org/v3/index.json"
+#        dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
 
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./**/out/*.nupkg --source nuget --skip-duplicate --no-symbols true
