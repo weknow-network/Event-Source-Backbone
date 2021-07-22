@@ -1,0 +1,39 @@
+name: .NET Build & Publish NuGet V1
+  
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+jobs:
+  build:
+
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore /property:Configuration=ProjRef
+    - name: Build
+      run: dotnet build  --configuration ProjRef --no-restore
+    - name: Test
+      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
+      
+    - name: Add NuGet Source
+      run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
+          
+    - name: Build solution and generate NuGet package
+      run: |  
+        cd Weknow.EventSource.Backbone.Contracts
+        dotnet pack -c Release -o out  
+
+    - name: Push generated package to GitHub registry
+      run: dotnet nuget push ./Weknow.EventSource.Backbone.Contracts/out/*.nupkg --skip-duplicate --no-symbols true
