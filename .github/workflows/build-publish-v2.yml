@@ -42,4 +42,4 @@ jobs:
       run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
 
     - name: Push generated package to GitHub registry
-      run: dotnet nuget push ./**/out/*.nupkg --skip-duplicate --no-symbols true --no-restore
+      run: dotnet nuget push ./**/out/*.nupkg --skip-duplicate --no-symbols true
