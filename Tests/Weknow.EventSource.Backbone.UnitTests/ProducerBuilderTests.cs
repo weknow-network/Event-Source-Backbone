@@ -1,5 +1,8 @@
 using FakeItEasy;
 
+using Microsoft.Extensions.Logging;
+
+using System;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -17,7 +20,7 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
-        private readonly IProducerChannelProvider _channel;
+        private readonly Func<ILogger, IProducerChannelProvider> _channel;
         //private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
@@ -33,7 +36,7 @@ namespace Weknow.EventSource.Backbone
             _outputHelper = outputHelper;
             //_serializer = new JsonDataSerializer();
             ch = Channel.CreateUnbounded<Announcement>();
-            _channel = new ProducerTestChannel(ch);
+            _channel = _ => new ProducerTestChannel(ch);
         }
 
         #endregion // Ctor

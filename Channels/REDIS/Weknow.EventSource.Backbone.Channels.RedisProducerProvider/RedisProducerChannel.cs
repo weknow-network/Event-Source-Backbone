@@ -18,12 +18,43 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     {
         private readonly ILogger _logger;
         private readonly AsyncPolicy _resiliencePolicy;
-        private static int _index = 0;
-        private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
         private readonly Task<IDatabaseAsync> _dbTask;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="redis">The redis database promise.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
+        public RedisProducerChannel(
+                        Task<IDatabaseAsync> redis,
+                        ILogger logger,
+                        AsyncPolicy? resiliencePolicy)
+        {
+            _logger = logger;
+            _resiliencePolicy = resiliencePolicy ??
+                                Policy.Handle<Exception>()
+                                      .RetryAsync(3); 
+            _dbTask = redis;
+            _defaultStorageStrategy = new RedisHashStorageStrategy(redis);
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="redis">The redis database.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
+        public RedisProducerChannel(
+                        IDatabaseAsync redis,
+                        ILogger logger,
+                        AsyncPolicy? resiliencePolicy): 
+                this(Task.FromResult(redis), logger, resiliencePolicy)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance.
@@ -38,24 +69,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         Action<ConfigurationOptions>? configuration,
                         AsyncPolicy? resiliencePolicy,
                         string endpointEnvKey,
-                        string passwordEnvKey)
+                        string passwordEnvKey) : 
+                this(RedisClientFactory.CreateAsync(
+                                            logger, 
+                                            RedisUsageIntent.Write, 
+                                            configuration,
+                                            endpointEnvKey, 
+                                            passwordEnvKey), 
+                     logger, 
+                     resiliencePolicy)
         {
-            _logger = logger;
-            _resiliencePolicy = resiliencePolicy ??
-                                Policy.Handle<Exception>()
-                                      .RetryAsync(3); // TODO: [bnaya 2021-02] onRetry -> open telemetry
-            string name = string.Format(
-                                    CONNECTION_NAME_PATTERN,
-                                    Interlocked.Increment(ref _index));
-            var redisClientFactory = new RedisClientFactory(
-                                                logger,
-                                                name,
-                                                RedisUsageIntent.Write,
-                                                configuration,
-                                                endpointEnvKey, passwordEnvKey);
-            _dbTask = redisClientFactory.GetDbAsync();
-            _defaultStorageStrategy = new RedisHashStorageStrategy(_dbTask);
-
         }
 
         #endregion // Ctor

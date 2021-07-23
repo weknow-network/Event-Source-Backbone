@@ -427,7 +427,7 @@
             Event Source Consumer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerBuilder.UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerBuilder.UseChannel(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider})">
             <summary>
             Choose the communication channel provider.
             </summary>
@@ -439,7 +439,12 @@
             Represent the consuming completion..
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Partition">
+        <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBase">
+            <summary>
+            Common plan properties
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Partition">
             <summary>
             Partition key represent logical group of 
             event source shards.
@@ -456,7 +461,7 @@
             The partition.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Shard">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Shard">
             <summary>
             Shard key represent physical sequence.
             Use same shard when order is matter.
@@ -465,35 +470,30 @@
             ORDER into different shard and gain performance bust..
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.ConsumerGroup">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.ConsumerGroup">
             <summary>
             Gets the consumer group.
             Consumer Group allow a group of clients to cooperate
             consuming a different portion of the same stream of messages
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.ConsumerName">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.ConsumerName">
             <summary>
             Optional Name of the consumer.
             Can use for observability.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Cancellation">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Cancellation">
             <summary>
             Gets the cancellation token.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
-            <summary>
-            Gets the communication channel provider.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.StorageStrategy">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.StorageStrategy">
             <summary>
             Gets the storage strategy.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Interceptors">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Interceptors">
             <summary>
             Consumer interceptors (Timing: after serialization).
             </summary>
@@ -501,17 +501,17 @@
             The interceptors.
             </value>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Logger">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Logger">
             <summary>
             Gets the logger.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Options">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Options">
             <summary>
             Gets the configuration.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.SegmentationStrategies">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.SegmentationStrategies">
             <summary>
             Segmentation responsible of splitting an instance into segments.
             Segments is how the Consumer sending its raw data to
@@ -525,17 +525,43 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerPlan.WithShard(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerPlanBase.WithShard(System.String)">
             <summary>
             Attach the shard.
             </summary>
             <param name="shard">The shard.</param>
             <returns></returns>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.ResiliencePolicy">
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.ResiliencePolicy">
             <summary>
             Gets or sets the invocation resilience policy.
             </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerPlan">
+            <summary>
+            The actual concrete plan
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
+            <summary>
+            Gets a communication channel provider factory.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBuilder">
+            <summary>
+            Building phase of the plan
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBuilder.ChannelFactory">
+            <summary>
+            Gets a communication channel provider factory.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerPlanBuilder.Build">
+            <summary>
+            Builds the plan.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerMetadata">
             <summary>

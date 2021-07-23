@@ -1,5 +1,7 @@
 using FakeItEasy;
 
+using Microsoft.Extensions.Logging;
+
 using System;
 
 using Weknow.EventSource.Backbone.UnitTests.Entities;
@@ -13,7 +15,7 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IConsumerBuilder _builder = ConsumerBuilder.Empty;
-        private readonly IConsumerChannelProvider _channel = A.Fake<IConsumerChannelProvider>();
+        private readonly Func<ILogger, IConsumerChannelProvider> _channel = A.Fake<Func<ILogger, IConsumerChannelProvider>>();
         private readonly IConsumerAsyncSegmentationStrategy _segmentation = A.Fake<IConsumerAsyncSegmentationStrategy>();
         private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
         private readonly IConsumerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerAsyncInterceptor>();

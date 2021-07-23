@@ -5,18 +5,25 @@ using Polly;
 using System.Threading.Tasks;
 using Polly.CircuitBreaker;
 
-// TODO: [bnaya 2021-02] enable interception func
-
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     /// <summary>
     /// Define when to claim stale (long waiting) messages from other consumers
     /// </summary>
-    public class ResiliencePolicies
+    public record ResiliencePolicies
     {
         public static readonly ResiliencePolicies Empty = new ResiliencePolicies();
 
         #region Ctor
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="policy">The policy.</param>
+        public ResiliencePolicies(AsyncPolicy policy)
+        {
+            Policy = policy;
+        }
 
         /// <summary>
         /// Initializes a new instance.
@@ -44,11 +51,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             //BatchReading = DefaultReadingPolicy;
 
-            AsyncPolicy retryReading = Policy.Handle<Exception>()
+            AsyncPolicy retryReading = Polly.Policy.Handle<Exception>()
                   .RetryForeverAsync((ex, i, c) => onRetry_(ex, TimeSpan.Zero, i, c));
 
             
-            AsyncPolicy breaker = Policy.Handle<Exception>()
+            AsyncPolicy breaker = Polly.Policy.Handle<Exception>()
                             //.CircuitBreakerAsync(
                             //                10,
                                 //                TimeSpan.FromSeconds(20),
@@ -64,7 +71,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 onReset_,
                                 onHalfOpen_);
 
-            BatchReading = retryReading.WrapAsync(breaker);
+            Policy = retryReading.WrapAsync(breaker);
         }
 
         #endregion // Ctor
@@ -72,7 +79,34 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Gets or sets the batch reading policy.
         /// </summary>
-        public AsyncPolicy BatchReading { get; set; }
+        public AsyncPolicy Policy { get; set; }
 
+        #region Cast overloads
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="policy">The policy.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator ResiliencePolicies(AsyncPolicy policy)
+        {
+            return new ResiliencePolicies(policy);
+        }
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator AsyncPolicy(ResiliencePolicies instance)
+        {
+            return instance.Policy;
+        }
+
+        #endregion // Cast overloads
     }
 }

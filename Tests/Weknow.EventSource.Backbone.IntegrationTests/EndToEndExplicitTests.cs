@@ -30,7 +30,6 @@ namespace Weknow.EventSource.Backbone.Tests
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly IEventFlow _subscriber = A.Fake<IEventFlow>();
-        protected readonly CancellationToken _testScopeCancellation = GetCancellationToken();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
@@ -51,10 +50,10 @@ namespace Weknow.EventSource.Backbone.Tests
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
         {
             _outputHelper = outputHelper;
-            _producerBuilder = ProducerBuilder.Empty.UseRedisChannel(_testScopeCancellation);
+            _producerBuilder = ProducerBuilder.Empty.UseRedisChannel();
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
 
-            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(_testScopeCancellation);
+            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel();
             _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
 
             A.CallTo(() => _subscriber.Stage1Async(A<Person>.Ignored, A<string>.Ignored))
@@ -175,16 +174,13 @@ namespace Weknow.EventSource.Backbone.Tests
             string END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
             string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
             string key = $"{PARTITION}:{SHARD}";
-            var redisClientFactory = new RedisClientFactory(
+            IDatabaseAsync db = RedisClientFactory.CreateAsync(
                                                 _fakeLogger,
-                                                $"Test {DateTime.Now: yyyy-MM-dd HH_mm_ss}",
                                                 RedisUsageIntent.Admin,
-                                                null,
-                                                END_POINT_KEY, PASSWORD_KEY);
+                                                endpointKey: END_POINT_KEY,
+                                                passwordKey: PASSWORD_KEY).Result;
 
-            IDatabaseAsync db = redisClientFactory.GetDbAsync().Result;
             db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
-
         }
 
         #endregion // Dispose pattern

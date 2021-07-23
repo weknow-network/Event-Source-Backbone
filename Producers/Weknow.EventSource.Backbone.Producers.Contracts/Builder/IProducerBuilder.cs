@@ -1,4 +1,9 @@
 ﻿
+using System;
+using System.Threading;
+
+using Microsoft.Extensions.Logging;
+
 using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
@@ -14,7 +19,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
         IProducerStoreStrategyBuilder UseChannel(
-            IProducerChannelProvider channel);
+            Func<ILogger, IProducerChannelProvider> channel);
 
         /// <summary>
         /// Merges multiple channels of same contract into single

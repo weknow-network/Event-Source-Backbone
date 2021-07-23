@@ -22,16 +22,15 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     internal class RedisHashStorageStrategy :  IConsumerStorageStrategy
     {
-        private readonly RedisClientFactory _redisClientFactory;
+        private readonly Task<IDatabaseAsync> _dbTask;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="redisClientFactory">The redis client factory.</param>
-        public RedisHashStorageStrategy(
-                        RedisClientFactory redisClientFactory)
+        /// <param name="dbTask">The database task.</param>
+        public RedisHashStorageStrategy(Task<IDatabaseAsync> dbTask)
         {
-            _redisClientFactory = redisClientFactory;
+            _dbTask = dbTask;
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace Weknow.EventSource.Backbone.Channels
             CancellationToken cancellation)
         {
             string key = $"{type}~{meta.MessageId}";
-            IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
+            IDatabaseAsync db = await _dbTask;
             var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
             var results = prevBucket.TryAddRange(pairs);

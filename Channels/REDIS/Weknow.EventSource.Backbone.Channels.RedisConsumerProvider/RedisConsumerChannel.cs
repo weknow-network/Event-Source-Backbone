@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,9 +30,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
-        private static int _index;
-        private const string CONNECTION_NAME_PATTERN = "Event_Source_Consumer_{0}";
-        private readonly RedisClientFactory _redisClientFactory;
+        private readonly Task<IDatabaseAsync> _dbTask;
+        private readonly Task<IConnectionMultiplexer> _multiplexerTask;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
@@ -39,28 +39,64 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
+        /// <param name="redis">The redis provider promise.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="setting">The setting.</param>
+        public RedisConsumerChannel(
+                        Task<IConnectionMultiplexer> redis,
+                        ILogger logger,
+                        RedisConsumerChannelSetting? setting = null)
+        {
+            _logger = logger;
+            _multiplexerTask = redis;
+            _dbTask = GetDb();
+            _defaultStorageStrategy = new RedisHashStorageStrategy(_dbTask);
+            _setting = setting ?? RedisConsumerChannelSetting.Default;
+
+            async Task<IDatabaseAsync> GetDb()
+            {
+                var provider = await redis;
+                return provider.GetDatabase();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="redis">The redis database.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="setting">The setting.</param>
+        public RedisConsumerChannel(
+                        IConnectionMultiplexer redis,
+                        ILogger logger,
+                        RedisConsumerChannelSetting? setting = null) : 
+            this(Task.FromResult(redis), logger, setting)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         public RedisConsumerChannel(
-            ILogger logger,
-            RedisConsumerChannelSetting setting,
-            string endpointEnvKey,
-            string passwordEnvKey)
+                        ILogger logger,
+                        Action<ConfigurationOptions>? configuration = null,
+                        RedisConsumerChannelSetting? setting = null,
+                        string endpointEnvKey = CONSUMER_END_POINT_KEY,
+                        string passwordEnvKey = CONSUMER_PASSWORD_KEY) : this(
+                            RedisClientFactory.CreateProviderAsync(
+                                                    logger,
+                                                    RedisUsageIntent.Read, 
+                                                    configuration, 
+                                                    endpointEnvKey, 
+                                                    passwordEnvKey),
+                            logger,
+                            setting)
         {
-            _logger = logger;
-            _setting = setting;
-            string name = string.Format(
-                                    CONNECTION_NAME_PATTERN,
-                                    Interlocked.Increment(ref _index));
-            _redisClientFactory = new RedisClientFactory(
-                                                logger,
-                                                name,
-                                                RedisUsageIntent.Read,
-                                                setting.RedisConfiguration,
-                                                endpointEnvKey, passwordEnvKey);
-            _defaultStorageStrategy = new RedisHashStorageStrategy(_redisClientFactory);
         }
 
         #endregion // Ctor
@@ -84,8 +120,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     CancellationToken cancellationToken)    
         {
             while (!cancellationToken.IsCancellationRequested)
-            { // connection errors
-                IDatabaseAsync db = await _redisClientFactory.GetDbAsync();
+            { 
+                IDatabaseAsync db = await _dbTask;
 
                 if (plan.Shard != string.Empty)
                     await SubsribeShardAsync(db, plan, func, options, cancellationToken);
@@ -126,7 +162,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 try
                 {
                     // infinite until cancellation
-                    var keys = _redisClientFactory.GetKeysUnsafeAsync(
+                    var keys = GetKeysUnsafeAsync(
                                                             pattern: $"{partition}:*")
                                                     .WithCancellation(cancellationToken);
                     // TODO: [bnaya 2020-10] seem like memory leak, re-subscribe to same shard 
@@ -186,12 +222,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             CommandFlags flags = CommandFlags.None;
 
+            ILogger logger = plan.Logger;
             #region await db.CreateConsumerGroupIfNotExistsAsync(...)
+
 
             await db.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 plan.ConsumerGroup,
-                plan.Logger ?? _logger);
+                logger);
 
             #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
 
@@ -232,7 +270,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         if (channelType != CHANNEL_TYPE)
                         {
                             // TODO: [bnaya 2021-07] send metrics
-                            _logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
+                            logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
                             await AckAsync(result.Id);
                             continue;
                         }
@@ -291,7 +329,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var cancellableIds = results[local..].Select(m => m.Id);
                         var ack = new AckOnce(
                                         () => AckAsync(result.Id),
-                                        plan.Options.AckBehavior, _logger,
+                                        plan.Options.AckBehavior, logger,
                                         async () =>
                                         {
                                             batchCancellation.CancelSafe(); // cancel forward
@@ -316,7 +354,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 // TBD: circuit-breaker
                 try
                 {
-                    var r = await _setting.Policy.BatchReading.ExecuteAsync(async () =>
+                    var r = await _setting.Policy.Policy.ExecuteAsync(async () =>
                     {
                         StreamEntry[] values = Array.Empty<StreamEntry>();
                         values = await ReadSelfPending();
@@ -339,12 +377,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 }
                 catch (RedisTimeoutException ex)
                 {
-                    _logger.LogWarning(ex, "Event source [{source}] by [{consumer}]: Timeout", key, plan.ConsumerName);
+                    logger.LogWarning(ex, "Event source [{source}] by [{consumer}]: Timeout", key, plan.ConsumerName);
                     return Array.Empty<StreamEntry>();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Fail to read from event source [{source}] by [{consumer}]", key, plan.ConsumerName);
+                    logger.LogError(ex, "Fail to read from event source [{source}] by [{consumer}]", key, plan.ConsumerName);
                     return Array.Empty<StreamEntry>();
                 }
             }
@@ -494,5 +532,39 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // SubsribeShardAsync
+
+        #region GetKeysUnsafeAsync
+
+        /// <summary>
+        /// Gets the keys unsafe asynchronous.
+        /// </summary>
+        /// <param name="pattern">The pattern.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
+                            string pattern,
+                            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var multiplexer = await _multiplexerTask;
+            var distict = new HashSet<string>();
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                foreach (EndPoint endpoint in multiplexer.GetEndPoints())
+                {
+                    IServer server = multiplexer.GetServer(endpoint);
+                    // TODO: [bnaya 2020_09] check the pagination behavior
+                    await foreach (string key in server.KeysAsync(pattern: pattern))
+                    {
+                        if (distict.Contains(key))
+                            continue;
+                        distict.Add(key);
+                        yield return key;
+                    }
+                }
+            }
+        }
+
+        #endregion // GetKeysUnsafeAsync
+
     }
 }

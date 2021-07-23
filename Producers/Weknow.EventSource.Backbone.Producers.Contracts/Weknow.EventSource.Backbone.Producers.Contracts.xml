@@ -289,7 +289,7 @@
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerBuilder.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerBuilder.UseChannel(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider})">
             <summary>
             Choose the communication channel provider.
             </summary>
@@ -341,6 +341,117 @@
             <returns>Data which will be available to the 
             consumer stage of the interception.</returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerPlan">
+            <summary>
+            Plan contract
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IProducerPlanBase" />
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlan.Channel">
+            <summary>
+            Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlan.ForwardPlans">
+            <summary>
+            Gets the forwards pipelines.
+            Result of merging multiple channels.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerPlanBase">
+            <summary>
+            common plan properties
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Interceptors">
+            <summary>
+            Producer interceptors (Timing: after serialization).
+            </summary>
+            <value>
+            The interceptors.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Logger">
+            <summary>
+            Gets the logger.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Options">
+            <summary>
+            Gets the configuration.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Partition">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <value>
+            The partition.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.SegmentationStrategies">
+            <summary>
+            Segmentation responsible of splitting an instance into segments.
+            Segments is how the producer sending its raw data to
+            the consumer. It's in a form of dictionary when
+            keys represent the different segments
+            and the value represent serialized form of the segment's data.
+            </summary>
+            <example>
+            Examples for segments can be driven from regulation like
+            GDPR (personal, non-personal data),
+            Technical vs Business aspects, etc.
+            </example>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Shard">
+            <summary>
+            Shard key represent physical sequence.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.StorageStrategy">
+            <summary>
+            Gets the storage strategy.
+            By design the stream should hold minimal information while the main payload 
+            is segmented and can stored outside of the stream.
+            This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerPlanBuilder">
+            <summary>
+            Plan builder contract
+            </summary>
+            <seealso cref="T:Weknow.EventSource.Backbone.IProducerPlanBase" />
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBuilder.ChannelFactory">
+            <summary>
+            Gets the communication channel provider factory.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBuilder.Forwards">
+            <summary>
+            Gets the forwards pipelines.
+            Result of merging multiple channels.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerPlanBuilder.Build">
+            <summary>
+            Buildings the plan.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerPlan">
             <summary>
             Hold builder definitions.
@@ -352,11 +463,12 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider},Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerPlan},Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="copyFrom">The copy from.</param>
+            <param name="channelFactory">The channel.</param>
             <param name="channel">The channel.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
@@ -366,9 +478,15 @@
             <param name="interceptors">The interceptors.</param>
             <param name="routes">The routes.</param>
             <param name="forwards">Result of merging multiple channels.</param>
+            <param name="forwardPlans">The forward channels.</param>
             <param name="storageStrategy">The storage strategy.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Channel">
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.ChannelFactory">
+            <summary>
+            Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Weknow#EventSource#Backbone#IProducerPlan#Channel">
             <summary>
             Gets the communication channel provider.
             </summary>
@@ -445,17 +563,23 @@
             Result of merging multiple channels.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Weknow#EventSource#Backbone#IProducerPlan#ForwardPlans">
+            <summary>
+            Gets the forwards pipelines.
+            Result of merging multiple channels.
+            </summary>
+        </member>
         <member name="F:Weknow.EventSource.Backbone.ProducerPlan.Routes">
             <summary>
             Routes are sub-pipelines are results of merge operation
             which can split same payload into multiple partitions or shards.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.UseChannel(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider})">
             <summary>
             Assign channel.
             </summary>
-            <param name="channel">The channel.</param>
+            <param name="channelFactory">The channel factory.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithLogger(Microsoft.Extensions.Logging.ILogger)">
@@ -519,6 +643,12 @@
             Not operational channel
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IProducerChannelProvider" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.Weknow#EventSource#Backbone#IProducerPlanBuilder#Build">
+            <summary>
+            Builds this instance.
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerChannelProvider">
             <summary>

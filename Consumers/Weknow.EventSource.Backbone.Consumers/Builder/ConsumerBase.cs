@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// <typeparam name="T"></typeparam>
     public partial class ConsumerBase<T>
     {
-        private readonly ConsumerPlan _plan;
+        private readonly IConsumerPlan _plan;
         private readonly Func<ConsumerMetadata, T> _factory;
 
         #region Ctor
@@ -20,10 +20,10 @@ namespace Weknow.EventSource.Backbone
         /// <param name="plan">The plan.</param>
         /// <param name="factory">The factory.</param>
         public ConsumerBase(
-            ConsumerPlan plan,
+            IConsumerPlanBuilder plan,
             Func<ConsumerMetadata, T> factory)
         {
-            _plan = plan;
+            _plan = plan.Build();
             _factory = factory;
         }
 

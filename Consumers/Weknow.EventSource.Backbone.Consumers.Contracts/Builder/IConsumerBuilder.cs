@@ -1,4 +1,9 @@
 ﻿
+using System;
+using System.Threading;
+
+using Microsoft.Extensions.Logging;
+
 using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
@@ -13,6 +18,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
-        IConsumerStoreStrategyBuilder UseChannel(IConsumerChannelProvider channel);
+        IConsumerStoreStrategyBuilder UseChannel(Func<ILogger, IConsumerChannelProvider> channel);
     }
 }

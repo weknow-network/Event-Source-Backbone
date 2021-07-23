@@ -2,12 +2,17 @@
 
 using Polly;
 
+using System;
 using System.Collections.Immutable;
 using System.Threading;
 
 namespace Weknow.EventSource.Backbone
 {
-    public interface IConsumerPlan
+
+    /// <summary>
+    /// Common plan properties
+    /// </summary>
+    public interface IConsumerPlanBase
     {
         /// <summary>
         /// Partition key represent logical group of 
@@ -49,10 +54,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         CancellationToken Cancellation { get; }
         /// <summary>
-        /// Gets the communication channel provider.
-        /// </summary>
-        IConsumerChannelProvider Channel { get; }
-        /// <summary>
         /// Gets the storage strategy.
         /// </summary>
         ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; }
@@ -66,7 +67,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        ILogger? Logger { get; }
+        ILogger Logger { get; }
         /// <summary>
         /// Gets the configuration.
         /// </summary>

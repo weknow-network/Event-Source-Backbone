@@ -10,7 +10,7 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.#ctor(Weknow.EventSource.Backbone.IConsumerPlanBuilder,System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,`0})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -89,7 +89,7 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerBuilder#UseChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#IConsumerBuilder#UseChannel(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider})">
             <summary>
             Choose the communication channel provider.
             </summary>
@@ -240,11 +240,12 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider},Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="copyFrom">The copy from.</param>
+            <param name="channelFactory">The channel.</param>
             <param name="channel">The channel.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
@@ -261,7 +262,12 @@
             <param name="resiliencePolicy">The resilience policy.</param>
             <param name="storageStrategy">The storage strategy.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Channel">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.ChannelFactory">
+            <summary>
+            Gets the communication channel provider.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Weknow#EventSource#Backbone#IConsumerPlan#Channel">
             <summary>
             Gets the communication channel provider.
             </summary>
@@ -358,7 +364,7 @@
             Gets or sets the invocation resilience policy.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannel(Weknow.EventSource.Backbone.IConsumerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithChannelFactory(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider})">
             <summary>
             Attach the channel.
             </summary>
@@ -400,7 +406,7 @@
             <param name="partition">The partition.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.Weknow#EventSource#Backbone#IConsumerPlan#WithShard(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.Weknow#EventSource#Backbone#IConsumerPlanBase#WithShard(System.String)">
             <summary>
             Attach the shard.
             </summary>
@@ -457,24 +463,11 @@
             </param>
             <returns></returns>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.Weknow#EventSource#Backbone#IConsumerPlanBuilder#Build">
             <summary>
-            Not operational channel
+            Builds this instance.
             </summary>
-            <seealso cref="T:Weknow.EventSource.Backbone.IConsumerChannelProvider" />
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.NopChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
-            <summary>
-            Subscribe to the channel for specific metadata.
-            </summary>
-            <param name="plan">The consumer plan.</param>
-            <param name="func">The function.</param>
-            <param name="options">The options.</param>
-            <param name="cancellationToken">The cancellation token.</param>
-            <returns>
-            When completed
-            </returns>
-            <exception cref="T:System.NotSupportedException">Channel must be define</exception>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.FilteredStorageStrategy">
             <summary>

@@ -4,6 +4,22 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisProducerProvider</name>
     </assembly>
     <members>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.#ctor(System.Threading.Tasks.Task{StackExchange.Redis.IDatabaseAsync},Microsoft.Extensions.Logging.ILogger,Polly.AsyncPolicy)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="redis">The redis database promise.</param>
+            <param name="logger">The logger.</param>
+            <param name="resiliencePolicy">The resilience policy for retry.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.#ctor(StackExchange.Redis.IDatabaseAsync,Microsoft.Extensions.Logging.ILogger,Polly.AsyncPolicy)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="redis">The redis database.</param>
+            <param name="logger">The logger.</param>
+            <param name="resiliencePolicy">The resilience policy for retry.</param>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisProducerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
             <summary>
             Initializes a new instance.
@@ -52,13 +68,11 @@
             Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
             <summary>
             Uses REDIS producer channel.
             </summary>
             <param name="builder">The builder.</param>
-            <param name="cancellationToken">The cancellation token.</param>
-            <param name="logger">The logger.</param>
             <param name="configuration">The configuration.</param>
             <param name="resiliencePolicy">The resilience policy.</param>
             <param name="endpointEnvKey">The endpoint env key.</param>
@@ -66,17 +80,13 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.Threading.CancellationToken,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,StackExchange.Redis.IDatabaseAsync,Polly.AsyncPolicy)">
             <summary>
             Uses REDIS producer channel.
             </summary>
             <param name="builder">The builder.</param>
-            <param name="logger">The logger.</param>
-            <param name="configuration">The configuration.</param>
+            <param name="redis">The redis database.</param>
             <param name="resiliencePolicy">The resilience policy.</param>
-            <param name="cancellationToken">The cancellation token.</param>
-            <param name="endpointEnvKey">The endpoint env key.</param>
-            <param name="passwordEnvKey">The password env key.</param>
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>

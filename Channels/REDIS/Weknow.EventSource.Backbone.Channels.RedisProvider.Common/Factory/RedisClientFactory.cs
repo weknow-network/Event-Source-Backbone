@@ -16,74 +16,37 @@ using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Private;
 
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     /// <summary>
     /// REDIS client factory
     /// </summary>
-    public class RedisClientFactory : IRedisClientFactory
+    public static class RedisClientFactory
     {
         private static readonly TimeSpan RETRY_INTERVAL_DELAY = TimeSpan.FromMilliseconds(200);
         private const int RETRY_COUNT = 50;
-        private readonly Task<ConnectionMultiplexer> _multiplexerTask;
-        private Task<IDatabaseAsync>? _dbTask;
-
-        #region Ctor
+        private static int _index = 0;
+        private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RedisClientFactory" /> class.
+        /// Create REDIS  client.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="name">Identification for the connection within REDIS.</param>
-        /// <param name="intent">The usage intent.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The environment key of endpoint.</param>
-        /// <param name="passwordKey">The environment key of password.</param>
-        public RedisClientFactory(
-                    ILogger logger,
-                    string name,
-                    RedisUsageIntent intent,
-                    Action<ConfigurationOptions>? configuration,
-                    string endpointKey,
-                    string passwordKey)
-        {
-            _multiplexerTask = CreateAsync(
-                                        logger,
-                                        name,
-                                        intent,
-                                        configuration,
-                                        endpointKey,
-                                        passwordKey);
-        }
-
-        #endregion // Ctor
-
-        #region CreateAsync
-
-        /// <summary>
-        /// Create REDIS client.
-        /// </summary>
-        /// <returns></returns>
-        public Task<ConnectionMultiplexer> CreateAsync() => _multiplexerTask;
-
-        /// <summary>
-        /// Create REDIS client.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="name">The name.</param>
         /// <param name="intent">The intent.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="endpointKey">The endpoint key.</param>
         /// <param name="passwordKey">The password key.</param>
         /// <returns></returns>
+        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        private async Task<ConnectionMultiplexer> CreateAsync(
+        public static async Task<IConnectionMultiplexer> CreateProviderAsync(
                     ILogger logger,
-                    string name,
                     RedisUsageIntent intent,
-                    Action<ConfigurationOptions>? configuration,
-                    string endpointKey,
-                    string passwordKey)
+                    Action<ConfigurationOptions>? configuration = null,
+                    string endpointKey = CONSUMER_END_POINT_KEY,
+                    string passwordKey = CONSUMER_PASSWORD_KEY)
         {
             string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? "localhost";
             string? password = Environment.GetEnvironmentVariable(passwordKey);
@@ -92,7 +55,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             var writer = new StringWriter(sb);
 
             var redisConfiguration = ConfigurationOptions.Parse(endpoint);
-            redisConfiguration.ClientName = name;
+            redisConfiguration.ClientName = string.Format(
+                                    CONNECTION_NAME_PATTERN,
+                                    Interlocked.Increment(ref _index));
             switch (intent)
             {
                 case RedisUsageIntent.Admin:
@@ -104,7 +69,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             configuration?.Invoke(redisConfiguration);
             redisConfiguration.Password = password;
 
-            ConnectionMultiplexer redis;
+            IConnectionMultiplexer redis;
             TimeSpan delay = RETRY_INTERVAL_DELAY;
             for (int i = 1; i <= RETRY_COUNT; i++)
             {
@@ -129,50 +94,27 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "Fail to establish REDIS connection");
         }
 
-        #endregion // CreateAsync
-
-        #region CreateDbAsync
 
         /// <summary>
-        /// Creates the database asynchronous.
+        /// Create REDIS database client.
         /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="intent">The intent.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="endpointKey">The endpoint key.</param>
+        /// <param name="passwordKey">The password key.</param>
         /// <returns></returns>
-        public Task<IDatabaseAsync> GetDbAsync()
+        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
+        public static async Task<IDatabaseAsync> CreateAsync(
+                    ILogger logger,
+                    RedisUsageIntent intent,
+                    Action<ConfigurationOptions>? configuration = null,
+                    string endpointKey = CONSUMER_END_POINT_KEY,
+                    string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            _dbTask = _dbTask ?? GetDatabaseAsync();
-            return _dbTask;
-
-            async Task<IDatabaseAsync> GetDatabaseAsync()
-            {
-                ConnectionMultiplexer redis = await _multiplexerTask;
-                IDatabaseAsync db = redis.GetDatabase();
-                return db;
-            }
-        }
-
-        #endregion // CreateDbAsync
-
-        public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
-                            string pattern,
-                            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            var multiplexer = await _multiplexerTask;
-            var distict = new HashSet<string>();
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                foreach (EndPoint endpoint in multiplexer.GetEndPoints())
-                {
-                    IServer server = multiplexer.GetServer(endpoint);
-                    // TODO: [bnaya 2020_09] check the pagination behavior
-                    await foreach (string key in server.KeysAsync(pattern: pattern))
-                    {
-                        if (distict.Contains(key))
-                            continue;
-                        distict.Add(key);
-                        yield return key;
-                    }
-                }
-            }
+            var provider = await CreateProviderAsync(logger, intent, configuration, endpointKey, passwordKey);
+            return provider.GetDatabase();
         }
     }
 }

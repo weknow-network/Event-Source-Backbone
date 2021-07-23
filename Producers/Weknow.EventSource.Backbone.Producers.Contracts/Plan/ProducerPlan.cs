@@ -2,9 +2,12 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Private;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -13,10 +16,10 @@ namespace Weknow.EventSource.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
-    public class ProducerPlan
+    public class ProducerPlan : IProducerPlan, IProducerPlanBuilder
     {
         public static readonly ProducerPlan Empty = new ProducerPlan();
-       
+
         #region Ctor
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="copyFrom">The copy from.</param>
+        /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
@@ -39,9 +43,11 @@ namespace Weknow.EventSource.Backbone
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="routes">The routes.</param>
         /// <param name="forwards">Result of merging multiple channels.</param>
+        /// <param name="forwardPlans">The forward channels.</param>
         /// <param name="storageStrategy">The storage strategy.</param>
         private ProducerPlan(
             ProducerPlan copyFrom,
+            Func<ILogger, IProducerChannelProvider>? channelFactory = null,
             IProducerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
@@ -51,9 +57,11 @@ namespace Weknow.EventSource.Backbone
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
             IImmutableList<IProducerHooksBuilder>? routes = null,
             IImmutableList<IProducerHooksBuilder>? forwards = null,
+            IImmutableList<IProducerPlan>? forwardPlans = null,
             IProducerStorageStrategyWithFilter? storageStrategy = null)
         {
-            Channel = channel ?? copyFrom.Channel;
+            ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
+            _channel = channel ?? copyFrom._channel;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
             Options = options ?? copyFrom.Options;
@@ -61,9 +69,10 @@ namespace Weknow.EventSource.Backbone
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
             Forwards = forwards ?? copyFrom.Forwards;
-            Logger = logger;
+            _forwardPlans = forwardPlans ?? copyFrom._forwardPlans;            
+            Logger = logger ?? copyFrom.Logger;
             StorageStrategy = storageStrategy == null
-                ? copyFrom.StorageStrategy 
+                ? copyFrom.StorageStrategy
                 : copyFrom.StorageStrategy.Add(storageStrategy);
         }
 
@@ -74,7 +83,26 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IProducerChannelProvider Channel { get; } = NopChannel.Empty;
+        public Func<ILogger, IProducerChannelProvider> ChannelFactory { get; } = (logger) =>
+        {
+            string log = "Event Source Producer channel not set";
+            logger.LogError(log);
+            throw new ArgumentNullException(log);
+        };
+
+        private readonly IProducerChannelProvider? _channel;
+        /// <summary>
+        /// Gets the communication channel provider.
+        /// </summary>
+        IProducerChannelProvider IProducerPlan.Channel
+        {
+            get
+            {
+                if (_channel == null)
+                    throw new ArgumentNullException("Event Source Producer channel not set");
+                return _channel;
+            }
+        }
 
         #endregion // Channel
 
@@ -97,7 +125,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        public ILogger? Logger { get; } = null;
+        public ILogger Logger { get; } =  EventSourceFallbakLogger.Default;
 
         #endregion // Channel
 
@@ -186,6 +214,17 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Forwards
 
+        #region ForwardChannels
+
+        IImmutableList<IProducerPlan> _forwardPlans { get; } = ImmutableList<IProducerPlan>.Empty;
+        /// <summary>
+        /// Gets the forwards pipelines.
+        /// Result of merging multiple channels.
+        /// </summary>
+        IImmutableList<IProducerPlan> IProducerPlan.ForwardPlans => _forwardPlans;
+
+        #endregion // ForwardChannels
+
         #region Routes
 
         /// <summary>
@@ -204,11 +243,11 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Assign channel.
         /// </summary>
-        /// <param name="channel">The channel.</param>
+        /// <param name="channelFactory">The channel factory.</param>
         /// <returns></returns>
-        public ProducerPlan UseChannel(IProducerChannelProvider channel)
+        public ProducerPlan UseChannel(Func<ILogger, IProducerChannelProvider> channelFactory)
         {
-            return new ProducerPlan(this, channel: channel);
+            return new ProducerPlan(this, channelFactory: channelFactory);
         }
 
         #endregion // WithOptions
@@ -310,7 +349,7 @@ namespace Weknow.EventSource.Backbone
         public ProducerPlan AddSegmentation(
                                                 IProducerAsyncSegmentationStrategy segmentation)
         {
-            return new ProducerPlan(this, 
+            return new ProducerPlan(this,
                             segmentationStrategies: SegmentationStrategies.Add(segmentation));
         }
 
@@ -326,7 +365,7 @@ namespace Weknow.EventSource.Backbone
         public ProducerPlan AddInterceptor(
                                   IProducerAsyncInterceptor interceptor)
         {
-            return new ProducerPlan(this, 
+            return new ProducerPlan(this,
                             interceptors: Interceptors.Add(interceptor));
         }
 
@@ -357,5 +396,34 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // class NopChannel
+
+        // ---------------------------------------
+
+        #region Build
+
+        /// <summary>
+        /// Builds this instance.
+        /// </summary>
+        /// <returns></returns>
+        IProducerPlan IProducerPlanBuilder.Build()
+        {
+            if (Forwards.Count == 0)
+            {
+                var channel = ChannelFactory(Logger);
+                var plan = new ProducerPlan(this, channel: channel);
+                return plan;
+            }
+            var fws = Forwards.Select(fw =>
+            {
+                IProducerPlanBuilder p = fw.Plan;
+                IProducerPlan pln = p.Build();
+                return pln;
+            });
+
+
+            return new ProducerPlan(this, forwardPlans: ImmutableList.CreateRange(fws));
+        }
+
+        #endregion // Build
     }
 }

@@ -76,7 +76,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerBuilder#UseChannel(Weknow.EventSource.Backbone.IProducerChannelProvider)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerBuilder#UseChannel(System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider})">
             <summary>
             Choose the communication channel provider.
             </summary>
@@ -219,7 +219,7 @@
                         Channel.SendAsync(announcement)
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.ProducerPlan)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlanBuilder)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -274,7 +274,7 @@
             <param name="interceptorsData">The interceptors data.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>
@@ -285,7 +285,7 @@
             MUST BE PROTECTED, called from the generated code
             </remarks>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(Weknow.EventSource.Backbone.ProducerPlan,System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket,System.String,System.Func{Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(Weknow.EventSource.Backbone.IProducerPlan,System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket,System.String,System.Func{Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
             <summary>
             Sends the produced data via the channel.
             </summary>

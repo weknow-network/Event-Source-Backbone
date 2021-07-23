@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System;
+using System.Threading;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.CodeGeneration;
@@ -91,7 +92,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
         IProducerStoreStrategyBuilder IProducerBuilder.UseChannel(
-                                                IProducerChannelProvider channel)
+                                    Func<ILogger, IProducerChannelProvider> channel)
         {
             var prms = Plan.UseChannel(channel);
             return new ProducerBuilder(prms);
@@ -298,10 +299,10 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            var plan = Plan;
-            if (plan.SegmentationStrategies.Count == 0)
-                plan = plan.AddSegmentation(new ProducerDefaultSegmentationStrategy());
-
+            var planBuilder = Plan;
+            if (planBuilder.SegmentationStrategies.Count == 0)
+                planBuilder = planBuilder.AddSegmentation(new ProducerDefaultSegmentationStrategy());
+            var plan = ((IProducerPlanBuilder)planBuilder).Build();
             return new CodeGenerator("DynamicProxies")
                         .CreateProducerProxy<T, ProducerPipeline>(plan);
         }

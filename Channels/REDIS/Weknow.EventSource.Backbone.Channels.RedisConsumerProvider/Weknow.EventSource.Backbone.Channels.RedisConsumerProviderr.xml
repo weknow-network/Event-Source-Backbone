@@ -4,11 +4,28 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisConsumerProvider</name>
     </assembly>
     <members>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(System.Threading.Tasks.Task{StackExchange.Redis.IConnectionMultiplexer},Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="redis">The redis provider promise.</param>
+            <param name="logger">The logger.</param>
+            <param name="setting">The setting.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(StackExchange.Redis.IConnectionMultiplexer,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="redis">The redis database.</param>
+            <param name="logger">The logger.</param>
+            <param name="setting">The setting.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.#ctor(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
             <param name="setting">The setting.</param>
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
@@ -48,6 +65,14 @@
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.GetKeysUnsafeAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the keys unsafe asynchronous.
+            </summary>
+            <param name="pattern">The pattern.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.DelayWhenEmptyBehavior">
             <summary>
             Behavior of delay when empty
@@ -78,20 +103,30 @@
             Gets or sets the resilience policy.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting.RedisConfiguration">
-            <summary>
-            Gets or sets the redis configuration manipulation.
-            </summary>
-        </member>
         <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting.DelayWhenEmptyBehavior">
             <summary>
             Behavior of delay when empty
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting.op_Implicit(Polly.AsyncPolicy)~Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="policy">The policy.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies">
             <summary>
             Define when to claim stale (long waiting) messages from other consumers
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.#ctor(Polly.AsyncPolicy)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="policy">The policy.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.#ctor(System.Action{System.Exception,Polly.CircuitBreaker.CircuitState,System.TimeSpan,Polly.Context},System.Action{Polly.Context},System.Action,System.Func{System.Exception,System.TimeSpan,System.Int32,Polly.Context,System.Threading.Tasks.Task})">
             <summary>
@@ -102,10 +137,28 @@
             <param name="onHalfOpen">The on half open.</param>
             <param name="onRetry">The on retry.</param>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.BatchReading">
+        <member name="P:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.Policy">
             <summary>
             Gets or sets the batch reading policy.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.op_Implicit(Polly.AsyncPolicy)~Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="policy">The policy.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies.op_Implicit(Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies)~Polly.AsyncPolicy">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger">
             <summary>
@@ -132,11 +185,11 @@
             Alternative, chain can serve as a cache layer.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.#ctor(Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.#ctor(System.Threading.Tasks.Task{StackExchange.Redis.IDatabaseAsync})">
             <summary>
             Initializes a new instance.
             </summary>
-            <param name="redisClientFactory">The redis client factory.</param>
+            <param name="dbTask">The database task.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IConsumerStorageStrategy#LoadBucketAsync(Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,System.Func{System.String,System.String},System.Threading.CancellationToken)">
             <summary>
@@ -152,30 +205,43 @@
             </returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},Weknow.EventSource.Backbone.Channels.RedisProvider.ResiliencePolicies,Weknow.EventSource.Backbone.Channels.RedisProvider.StaleMessagesClaimingTrigger,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Func{Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting},System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
             </summary>
             <param name="builder">The builder.</param>
-            <param name="cancellationToken">The cancellation token.</param>
-            <param name="logger">The logger.</param>
+            <param name="setting">The setting.</param>
             <param name="redisConfiguration">The redis configuration.</param>
-            <param name="policy">The policy.</param>
-            <param name="claimingTrigger">The claiming trigger.</param>
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisConsumerChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.CancellationToken,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,Microsoft.Extensions.Logging.ILogger,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.
             </summary>
             <param name="builder">The builder.</param>
-            <param name="cancellationToken">The cancellation token.</param>
             <param name="setting">The setting.</param>
-            <param name="logger">The logger.</param>
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Threading.Tasks.Task{StackExchange.Redis.IConnectionMultiplexer},Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting)">
+            <summary>
+            Uses REDIS consumer channel.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="redisClient">The redis client.</param>
+            <param name="setting">The setting.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,StackExchange.Redis.IConnectionMultiplexer,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting)">
+            <summary>
+            Uses REDIS consumer channel.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="redisClient">The redis client.</param>
+            <param name="setting">The setting.</param>
             <returns></returns>
         </member>
     </members>

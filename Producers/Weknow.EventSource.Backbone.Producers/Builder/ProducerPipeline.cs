@@ -18,7 +18,7 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public abstract class ProducerPipeline
     {
-        private readonly ProducerPlan _plan;
+        private readonly IProducerPlan _plan;
 
         #region Ctor
 
@@ -26,9 +26,9 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        public ProducerPipeline(ProducerPlan plan)
+        public ProducerPipeline(IProducerPlanBuilder plan)
         {
-            _plan = plan;
+            _plan = plan.Build();
         }
 
         #endregion // Ctor
@@ -186,7 +186,7 @@ namespace Weknow.EventSource.Backbone
         /// </remarks>
         protected ValueTask SendAsync(
             string operation,
-            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
+            Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
 
@@ -212,12 +212,12 @@ namespace Weknow.EventSource.Backbone
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         private async ValueTask SendAsync(
-            ProducerPlan plan,
+            IProducerPlan plan,
             string id,
             Bucket payload,
             Bucket interceptorsData,
             string operation,
-            Func<ProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
+            Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             Metadata metadata = new Metadata
             {
@@ -245,16 +245,16 @@ namespace Weknow.EventSource.Backbone
                 InterceptorsData = interceptorsData
             };
 
-            if (plan.Forwards.Count == 0) // merged
+            if (plan.ForwardPlans.Count == 0) // merged
             {
                 await plan.Channel.SendAsync(announcement, plan.StorageStrategy);
                 return;
             }
 
-            foreach (var forward in plan.Forwards)
+            foreach (var forward in plan.ForwardPlans)
             {   // merged scenario
                 await SendAsync(
-                            forward.Plan,
+                            forward,
                             id,
                             payload,
                             interceptorsData,

@@ -16,17 +16,15 @@ namespace Weknow.EventSource.Backbone
 {
     public static class RedisProviderExtensions
     {
+        // TODO: [bnaya 2021-07] UseRedisChannelInjection: will look for IConnectionMultiplexer injection
+
         private const string PRODUCER_END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
         private const string PRODUCER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
 
-        #region Overloads
-
         /// <summary>
         /// Uses REDIS producer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
@@ -35,48 +33,50 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
-                            CancellationToken cancellationToken,
-                            ILogger? logger = null,
                             Action<ConfigurationOptions>? configuration = null,
                             AsyncPolicy? resiliencePolicy = null,
                             string endpointEnvKey = PRODUCER_END_POINT_KEY,
                             string passwordEnvKey = PRODUCER_PASSWORD_KEY)
         {
-            return UseRedisChannel(builder, logger, configuration, resiliencePolicy, cancellationToken, endpointEnvKey, passwordEnvKey);
+            var result = builder.UseChannel(LocalCreate);
+            return result;
+
+            IProducerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisProducerChannel(
+                                 logger ?? EventSourceFallbakLogger.Default,
+                                 configuration,
+                                 resiliencePolicy,
+                                 endpointEnvKey,
+                                 passwordEnvKey);
+                return channel;
+            }
         }
 
-        #endregion // Overloads
-
         /// <summary>
         /// Uses REDIS producer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
+        /// <param name="redis">The redis database.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
-                            ILogger? logger = null,
-                            Action<ConfigurationOptions>? configuration = null,
-                            AsyncPolicy? resiliencePolicy = null,
-                            CancellationToken cancellationToken = default,
-                            string endpointEnvKey = PRODUCER_END_POINT_KEY,
-                            string passwordEnvKey = PRODUCER_PASSWORD_KEY)
+                            IDatabaseAsync redis,
+                            AsyncPolicy? resiliencePolicy = null)
         {
-            var channel = new RedisProducerChannel(
-                                        logger ?? EventSourceFallbakLogger.Default,
-                                        configuration,
-                                        resiliencePolicy,
-                                        endpointEnvKey,
-                                        passwordEnvKey);
-            cancellationToken.ThrowIfCancellationRequested();
-            var result = builder.UseChannel(channel);
+            var result = builder.UseChannel(LocalCreate);
             return result;
+
+            IProducerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisProducerChannel(
+                                 redis,
+                                 logger ?? EventSourceFallbakLogger.Default,
+                                 resiliencePolicy);
+                return channel;
+            }
         }
     }
 }

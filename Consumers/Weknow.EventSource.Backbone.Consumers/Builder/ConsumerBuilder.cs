@@ -14,7 +14,6 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class ConsumerBuilder :
         IConsumerBuilder,
-        IConsumerOptionsBuilder,
         IConsumerShardBuilder,
         IConsumerStoreStrategyBuilder
     {
@@ -54,9 +53,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
         IConsumerStoreStrategyBuilder IConsumerBuilder.UseChannel(
-                        IConsumerChannelProvider channel)
+                        Func<ILogger, IConsumerChannelProvider> channel)
         {
-            var prms = _plan.WithChannel(channel);
+            var prms = _plan.WithChannelFactory(channel);
             var result = new ConsumerBuilder(prms);
             return result;
         }

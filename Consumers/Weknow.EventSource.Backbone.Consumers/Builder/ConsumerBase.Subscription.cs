@@ -49,7 +49,6 @@ namespace Weknow.EventSource.Backbone
                 _options = _plan.Options;
                 _maxMessages = _options.MaxMessages;
 
-
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,

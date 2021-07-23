@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
-    public class ConsumerPlan : IConsumerPlan
+    public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
 
@@ -31,14 +31,16 @@ namespace Weknow.EventSource.Backbone
             ResiliencePolicy = Policy.Handle<Exception>()
                           .WaitAndRetryAsync(3,
                                 (retryCount) => TimeSpan.FromSeconds(Math.Pow(2, retryCount)),
-                                 ((ex, duration, retryCount, ctx) => Logger?.LogWarning(ex,"Retry {count}", retryCount)));
+                                 ((ex, duration, retryCount, ctx) => Logger?.LogWarning(ex, "Retry {count}", retryCount)));
 
         }
+
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
         /// <param name="copyFrom">The copy from.</param>
+        /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
@@ -56,6 +58,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="storageStrategy">The storage strategy.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
+            Func<ILogger, IConsumerChannelProvider>? channelFactory = null,
             IConsumerChannelProvider? channel = null,
             string? partition = null,
             string? shard = null,
@@ -70,7 +73,8 @@ namespace Weknow.EventSource.Backbone
             AsyncPolicy? resiliencePolicy = null,
             IConsumerStorageStrategyWithFilter? storageStrategy = null)
         {
-            Channel = channel ?? copyFrom.Channel;
+            ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
+            _channel = channel ?? copyFrom._channel;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
             Logger = logger ?? copyFrom.Logger;
@@ -94,7 +98,26 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
-        public IConsumerChannelProvider Channel { get; } = NopChannel.Empty;
+        public Func<ILogger, IConsumerChannelProvider> ChannelFactory { get; } = (logger) =>
+        {
+            string log = "Event Source Consumer channel not set";
+            logger.LogError(log);
+            throw new ArgumentNullException(log);
+        };
+
+        private readonly IConsumerChannelProvider? _channel;
+        /// <summary>
+        /// Gets the communication channel provider.
+        /// </summary>
+        IConsumerChannelProvider IConsumerPlan.Channel
+        {
+            get
+            {
+                if (_channel == null)
+                    throw new ArgumentNullException("Event Source Consumer channel not set");
+                return _channel;
+            }
+        }
 
         #endregion // Channel
 
@@ -250,9 +273,9 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithChannel(IConsumerChannelProvider channel)
+        internal ConsumerPlan WithChannelFactory(Func<ILogger, IConsumerChannelProvider> channel)
         {
-            return new ConsumerPlan(this, channel: channel);
+            return new ConsumerPlan(this, channelFactory: channel);
         }
 
         #endregion // WithChannel
@@ -295,8 +318,8 @@ namespace Weknow.EventSource.Backbone
         internal ConsumerPlan WithCancellation(
                                         CancellationToken cancellation)
         {
-            
-            if(Cancellation == default)
+
+            if (Cancellation == default)
                 return new ConsumerPlan(this, cancellation: cancellation);
 
             var cts = CancellationTokenSource.CreateLinkedTokenSource(Cancellation, cancellation);
@@ -341,7 +364,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="shard">The shard.</param>
         /// <returns></returns>
-        IConsumerPlan IConsumerPlan.WithShard(string shard) => WithShard(shard);
+        IConsumerPlan IConsumerPlanBase.WithShard(string shard) => WithShard(shard);
         /// <summary>
         /// Attach the shard.
         /// </summary>
@@ -438,37 +461,21 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // ConsumerGroup
 
-        #region class NopChannel
+        // --------------------------------------------------------
+
+        #region Build
 
         /// <summary>
-        /// Not operational channel
+        /// Builds this instance.
         /// </summary>
-        /// <seealso cref="Weknow.EventSource.Backbone.IConsumerChannelProvider" />
-        private class NopChannel : IConsumerChannelProvider
+        /// <returns></returns>
+        IConsumerPlan IConsumerPlanBuilder.Build()
         {
-            public static readonly IConsumerChannelProvider Empty = new NopChannel();
-
-            /// <summary>
-            /// Subscribe to the channel for specific metadata.
-            /// </summary>
-            /// <param name="plan">The consumer plan.</param>
-            /// <param name="func">The function.</param>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns>
-            /// When completed
-            /// </returns>
-            /// <exception cref="NotSupportedException">Channel must be define</exception>
-            public ValueTask SubsribeAsync(
-                    IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
-                    CancellationToken cancellationToken)
-            {
-                throw new NotSupportedException("Channel must be define");
-            }
+            var channel = ChannelFactory(Logger);
+            var plan = new ConsumerPlan(this, channel: channel);
+            return plan;
         }
 
-        #endregion // class NopChannel    }
+        #endregion // Build
     }
 }

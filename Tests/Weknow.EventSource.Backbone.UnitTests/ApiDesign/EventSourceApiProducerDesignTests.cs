@@ -2,6 +2,7 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
+using System;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
@@ -19,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = A.Fake<IProducerBuilder>();
         private readonly ILogger _logger = A.Fake<ILogger>();
-        private readonly IProducerChannelProvider _channel = A.Fake<IProducerChannelProvider>();
+        private readonly Func<ILogger, IProducerChannelProvider> _channel = A.Fake<Func<ILogger, IProducerChannelProvider>>();
         private readonly IDataSerializer _serializer = A.Fake<IDataSerializer>();
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();

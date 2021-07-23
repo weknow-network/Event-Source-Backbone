@@ -1,83 +1,134 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 
-using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
-using Weknow.EventSource.Backbone.Private;
+
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Weknow.EventSource.Backbone
 {
     public static class RedisConsumerProviderExtensions
     {
-        private const string CONSUMER_END_POINT_KEY = "REDIS_EVENT_SOURCE_CONSUMER_ENDPOINT";
-        private const string CONSUMER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_CONSUMER_PASS";
+        // TODO: [bnaya 2021-07] UseRedisChannelInjection: will look for IConnectionMultiplexer injection
 
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="logger">The logger.</param>
+        /// <param name="setting">The setting.</param>
         /// <param name="redisConfiguration">The redis configuration.</param>
-        /// <param name="policy">The policy.</param>
-        /// <param name="claimingTrigger">The claiming trigger.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
-                            CancellationToken cancellationToken = default,
-                            ILogger? logger = null,
+                            Func<RedisConsumerChannelSetting, RedisConsumerChannelSetting> setting,
                             Action<ConfigurationOptions>? redisConfiguration = null,
-                            ResiliencePolicies? policy = null,
-                            StaleMessagesClaimingTrigger? claimingTrigger = null,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
-            var setting = new RedisConsumerChannelSetting
-            {
-                ClaimingTrigger = claimingTrigger ?? StaleMessagesClaimingTrigger.Default,
-                Policy = policy ?? ResiliencePolicies.Empty,
-                RedisConfiguration = redisConfiguration
-            };
+            var stg = setting?.Invoke(RedisConsumerChannelSetting.Default);
+            var channelBuilder = builder.UseChannel(LocalCreate);
+            return channelBuilder;
 
-            return UseRedisConsumerChannel(builder, cancellationToken, setting,
-                                            logger, endpointEnvKey, passwordEnvKey);
+            IConsumerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisConsumerChannel(
+                                        logger,
+                                        redisConfiguration,
+                                        stg,
+                                        endpointEnvKey,
+                                        passwordEnvKey);
+                return channel;
+            }
         }
 
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="setting">The setting.</param>
-        /// <param name="logger">The logger.</param>
         /// <param name="endpointEnvKey">The endpoint env key.</param>
         /// <param name="passwordEnvKey">The password env key.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder UseRedisConsumerChannel(
+        public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
-                            CancellationToken cancellationToken,
                             RedisConsumerChannelSetting? setting = null,
-                            ILogger? logger = null,
                             string endpointEnvKey = CONSUMER_END_POINT_KEY,
                             string passwordEnvKey = CONSUMER_PASSWORD_KEY)
         {
             var cfg = setting ?? RedisConsumerChannelSetting.Default;
-            var channel = new RedisConsumerChannel(
-                                        logger ?? EventSourceFallbakLogger.Default,
-                                        cfg,
-                                        endpointEnvKey,
-                                        passwordEnvKey);
-            cancellationToken.ThrowIfCancellationRequested();
-            var channelBuilder = builder.UseChannel(channel);
+            var channelBuilder = builder.UseChannel(LocalCreate);
             return channelBuilder;
+
+            IConsumerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisConsumerChannel(
+                                        logger,
+                                        setting: cfg,
+                                        endpointEnvKey: endpointEnvKey,
+                                        passwordEnvKey: passwordEnvKey);
+                return channel;
+            }
         }
 
+        /// <summary>
+        /// Uses REDIS consumer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="redisClient">The redis client.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns></returns>
+        public static IConsumerStoreStrategyBuilder UseRedisChannel(
+                            this IConsumerBuilder builder,
+                            Task<IConnectionMultiplexer> redisClient,
+                            RedisConsumerChannelSetting? setting = null)
+        {
+            var cfg = setting ?? RedisConsumerChannelSetting.Default;
+            var channelBuilder = builder.UseChannel(LocalCreate);
+            return channelBuilder;
+
+            IConsumerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisConsumerChannel(
+                                        redisClient,
+                                        logger,
+                                        setting);
+                return channel;
+            }
+        }
+
+        /// <summary>
+        /// Uses REDIS consumer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="redisClient">The redis client.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns></returns>
+        public static IConsumerStoreStrategyBuilder UseRedisChannel(
+                            this IConsumerBuilder builder,
+                            IConnectionMultiplexer redisClient,
+                            RedisConsumerChannelSetting? setting = null)
+        {
+            var cfg = setting ?? RedisConsumerChannelSetting.Default;
+            var channelBuilder = builder.UseChannel(LocalCreate);
+            return channelBuilder;
+
+            IConsumerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisConsumerChannel(
+                                        redisClient,
+                                        logger,
+                                        setting);
+                return channel;
+            }
+        }
 
     }
 }
