@@ -27,9 +27,9 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore /property:Configuration=ProjRef
     - name: Build
-      run: dotnet build  --configuration ProjRef --no-restore
+      run: dotnet build  --configuration ProjRef --no-restore -o out
     - name: Test
-      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal
+      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal -o out
 
     - name: Publish Weknow.EventSource.Backbone.Contracts
       uses: brandedoutcast/publish-nuget@v2.5.5
@@ -38,8 +38,10 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
           VERSION_FILE_PATH: Directory.Build.props          
       
-    - name: Add NuGet Source
-      run: dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
+#    - name: Add NuGet Source
+#      run: |
+#        dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name nuget "https://api.nuget.org/v3/index.json"
+#        dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Bnayae/index.json"
 
     - name: Push generated package to GitHub registry
-      run: dotnet nuget push ./**/out/*.nupkg --skip-duplicate --no-symbols true
+      run: dotnet nuget push ./**/out/*.nupkg -k ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true
