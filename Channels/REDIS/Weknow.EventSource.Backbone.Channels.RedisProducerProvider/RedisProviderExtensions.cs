@@ -114,11 +114,15 @@ namespace Weknow.EventSource.Backbone
 
             async Task<IDatabaseAsync> LocalGetDb()
             {
+                var multiplexer = serviceProvider.GetService<IConnectionMultiplexer>();
+                if (multiplexer != null)
+                    return multiplexer.GetDatabase();
+
                 var multiplexerTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
                 if (multiplexerTask == null)
                     throw new ArgumentNullException(nameof(IConnectionMultiplexer));
-                var multiplexer = await multiplexerTask;
-                IDatabaseAsync db = multiplexer.GetDatabase();
+                var instance = await multiplexerTask;
+                IDatabaseAsync db = instance.GetDatabase();
                 return db;
             }
         }

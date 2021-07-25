@@ -137,10 +137,13 @@ namespace Weknow.EventSource.Backbone
                             IServiceProvider serviceProvider,
                             RedisConsumerChannelSetting? setting = null)
         {
-            Task<IConnectionMultiplexer>? redisClient = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
-            if (redisClient == null)
-                throw new ArgumentNullException(nameof(redisClient));
-            return builder.UseRedisChannel(redisClient, setting);
+            var redisClient = serviceProvider.GetService<IConnectionMultiplexer>();
+            if (redisClient != null)
+                return builder.UseRedisChannel(redisClient, setting);
+            var redisClientTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
+            if (redisClientTask == null)
+                throw new ArgumentNullException(nameof(redisClientTask));
+            return builder.UseRedisChannel(redisClientTask, setting);
         }
 
     }
