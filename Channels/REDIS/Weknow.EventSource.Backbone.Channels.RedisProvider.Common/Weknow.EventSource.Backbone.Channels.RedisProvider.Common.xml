@@ -9,9 +9,34 @@
             REDIS client factory
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderBlocking(System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+            <summary>
+            Blocking Create REDIS client.
+            Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointKey">The endpoint key.</param>
+            <param name="passwordKey">The password key.</param>
+            <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderBlocking(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+            <summary>
+            Blocking Create REDIS client.
+            Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+            </summary>
+            <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointKey">The endpoint key.</param>
+            <param name="passwordKey">The password key.</param>
+            <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderAsync(System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
-            Create REDIS  client.
+            Create REDIS client.
             </summary>
             <param name="configuration">The configuration.</param>
             <param name="endpointKey">The endpoint key.</param>
@@ -22,7 +47,7 @@
         </member>
         <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderAsync(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
-            Create REDIS  client.
+            Create REDIS client.
             </summary>
             <param name="logger">The logger.</param>
             <param name="configuration">The configuration.</param>
@@ -32,15 +57,18 @@
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderLocalAsync(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderLocalAsync(Microsoft.Extensions.Logging.ILogger,System.Int32,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
-            Create REDIS  client.
+            Create REDIS client.
             </summary>
             <param name="logger">The logger.</param>
+            <param name="numberOfRetries">The number of retries.</param>
             <param name="configuration">The configuration.</param>
             <param name="endpointKey">The endpoint key.</param>
             <param name="passwordKey">The password key.</param>
             <returns></returns>
+            <exception cref="T:System.Text.StringBuilder">
+            </exception>
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         </member>

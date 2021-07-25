@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "weknoweventsourcebackbonewebeventtest.fullname" . }}
+  labels:
+    app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
+    chart: {{ template "weknoweventsourcebackbonewebeventtest.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
+    release: {{ .Release.Name }}
