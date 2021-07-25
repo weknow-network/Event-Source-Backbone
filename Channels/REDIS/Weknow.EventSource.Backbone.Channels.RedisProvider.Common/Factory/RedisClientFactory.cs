@@ -32,7 +32,47 @@ namespace Weknow.EventSource.Backbone
         private const string CONNECTION_NAME_PATTERN = "Event_Source_Producer_{0}";
 
         /// <summary>
-        /// Create REDIS  client.
+        /// Blocking Create REDIS client.
+        /// Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="endpointKey">The endpoint key.</param>
+        /// <param name="passwordKey">The password key.</param>
+        /// <returns></returns>
+        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
+        public static IConnectionMultiplexer CreateProviderBlocking(
+                    Action<ConfigurationOptions>? configuration = null,
+                    string endpointKey = CONSUMER_END_POINT_KEY,
+                    string passwordKey = CONSUMER_PASSWORD_KEY)
+        {
+            var task = CreateProviderLocalAsync(null, 1, configuration, endpointKey, passwordKey);
+            return task.Result;
+        }
+
+        /// <summary>
+        /// Blocking Create REDIS client.
+        /// Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="endpointKey">The endpoint key.</param>
+        /// <param name="passwordKey">The password key.</param>
+        /// <returns></returns>
+        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
+        public static IConnectionMultiplexer CreateProviderBlocking(
+                    ILogger logger,
+                    Action<ConfigurationOptions>? configuration = null,
+                    string endpointKey = CONSUMER_END_POINT_KEY,
+                    string passwordKey = CONSUMER_PASSWORD_KEY)
+        {
+            var task = CreateProviderLocalAsync(logger, 1, configuration, endpointKey, passwordKey);
+            return task.Result;
+        }
+
+        /// <summary>
+        /// Create REDIS client.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <param name="endpointKey">The endpoint key.</param>
@@ -45,11 +85,11 @@ namespace Weknow.EventSource.Backbone
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            return CreateProviderLocalAsync(null, configuration, endpointKey, passwordKey);
+            return CreateProviderLocalAsync(null, RETRY_COUNT, configuration, endpointKey, passwordKey);
         }
 
         /// <summary>
-        /// Create REDIS  client.
+        /// Create REDIS client.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
@@ -64,20 +104,25 @@ namespace Weknow.EventSource.Backbone
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            return CreateProviderLocalAsync(logger, configuration, endpointKey, passwordKey);
+            return CreateProviderLocalAsync(logger, RETRY_COUNT, configuration, endpointKey, passwordKey);
         }
+
         /// <summary>
-        /// Create REDIS  client.
+        /// Create REDIS client.
         /// </summary>
         /// <param name="logger">The logger.</param>
+        /// <param name="numberOfRetries">The number of retries.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="endpointKey">The endpoint key.</param>
         /// <param name="passwordKey">The password key.</param>
         /// <returns></returns>
+        /// <exception cref="StringBuilder">
+        /// </exception>
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         private static async Task<IConnectionMultiplexer> CreateProviderLocalAsync(
                     ILogger? logger,
+                    int numberOfRetries,
                     Action<ConfigurationOptions>? configuration = null,
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
@@ -98,7 +143,7 @@ namespace Weknow.EventSource.Backbone
 
             IConnectionMultiplexer redis;
             TimeSpan delay = RETRY_INTERVAL_DELAY;
-            for (int i = 1; i <= RETRY_COUNT; i++)
+            for (int i = 1; i <= numberOfRetries; i++)
             {
                 try
                 {
@@ -157,7 +202,7 @@ namespace Weknow.EventSource.Backbone
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            var provider = await CreateProviderLocalAsync(null, configuration, endpointKey, passwordKey);
+            var provider = await CreateProviderLocalAsync(null, RETRY_COUNT, configuration, endpointKey, passwordKey);
             return provider.GetDatabase();
         }
 
@@ -177,7 +222,7 @@ namespace Weknow.EventSource.Backbone
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            var provider = await CreateProviderLocalAsync(logger, configuration, endpointKey, passwordKey);
+            var provider = await CreateProviderLocalAsync(logger, RETRY_COUNT, configuration, endpointKey, passwordKey);
             return provider.GetDatabase();
         }
     }
