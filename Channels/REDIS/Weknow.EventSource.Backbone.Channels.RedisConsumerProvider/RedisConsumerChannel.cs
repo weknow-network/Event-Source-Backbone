@@ -69,7 +69,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         public RedisConsumerChannel(
                         IConnectionMultiplexer redis,
                         ILogger logger,
-                        RedisConsumerChannelSetting? setting = null) : 
+                        RedisConsumerChannelSetting? setting = null) :
             this(Task.FromResult(redis), logger, setting)
         {
         }
@@ -90,9 +90,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string passwordEnvKey = CONSUMER_PASSWORD_KEY) : this(
                             RedisClientFactory.CreateProviderAsync(
                                                     logger,
-                                                    RedisUsageIntent.Read, 
-                                                    configuration, 
-                                                    endpointEnvKey, 
+                                                    configuration,
+                                                    endpointEnvKey,
                                                     passwordEnvKey),
                             logger,
                             setting)
@@ -117,10 +116,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     IEventSourceConsumerOptions options,
-                    CancellationToken cancellationToken)    
+                    CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
-            { 
+            {
                 IDatabaseAsync db = await _dbTask;
 
                 if (plan.Shard != string.Empty)
@@ -162,8 +161,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 try
                 {
                     // infinite until cancellation
-                    var keys = GetKeysUnsafeAsync(
-                                                            pattern: $"{partition}:*")
+                    var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*")
                                                     .WithCancellation(cancellationToken);
                     // TODO: [bnaya 2020-10] seem like memory leak, re-subscribe to same shard 
                     await foreach (string key in keys)
@@ -306,12 +304,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             }
                             else
                             {
-                                bucket  = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
+                                bucket = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                             }
 
                             return bucket;
 
-                            string LocalGetProperty (string k) => (string)entries[k];
+                            string LocalGetProperty(string k) => (string)entries[k];
                         }
 
                         #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
@@ -443,8 +441,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         key,
                         plan.ConsumerGroup,
                         10,
-                        c.Name, 
-                        pendingInfo.LowestPendingMessageId, 
+                        c.Name,
+                        pendingInfo.LowestPendingMessageId,
                         pendingInfo.HighestPendingMessageId,
                         flags: CommandFlags.DemandMaster);
 
@@ -525,7 +523,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     await Task.Delay(newDelay, cancellationToken);
                     return newDelay;
                 }
-                return  TimeSpan.Zero;
+                return TimeSpan.Zero;
             }
 
             #endregion // DelayIfEmpty

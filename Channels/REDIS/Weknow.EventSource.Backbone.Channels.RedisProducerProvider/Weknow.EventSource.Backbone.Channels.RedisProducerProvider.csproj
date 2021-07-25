@@ -21,5 +21,8 @@
   <ItemGroup>
     <Folder Include="contracts\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+  </ItemGroup>
 
 </Project>

@@ -1,22 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
-
 using Polly;
-
 using StackExchange.Redis;
-
 using System;
 using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
-
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Weknow.EventSource.Backbone
 {
     public static class RedisConsumerProviderExtensions
     {
-        // TODO: [bnaya 2021-07] UseRedisChannelInjection: will look for IConnectionMultiplexer injection
-
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
@@ -128,6 +122,25 @@ namespace Weknow.EventSource.Backbone
                                         setting);
                 return channel;
             }
+        }
+
+        /// <summary>
+        /// Uses REDIS consumer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="setting">The setting.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">redisClient</exception>
+        public static IConsumerStoreStrategyBuilder UseRedisChannelInjection(
+                            this IConsumerBuilder builder,
+                            IServiceProvider serviceProvider,
+                            RedisConsumerChannelSetting? setting = null)
+        {
+            Task<IConnectionMultiplexer>? redisClient = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
+            if (redisClient == null)
+                throw new ArgumentNullException(nameof(redisClient));
+            return builder.UseRedisChannel(redisClient, setting);
         }
 
     }

@@ -1,14 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-
 using Polly;
-
 using StackExchange.Redis;
-
 using System;
-using System.Threading;
 using System.Threading.Tasks;
-
-using Weknow.EventSource.Backbone.Building;
+using Microsoft.Extensions.DependencyInjection;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
 
@@ -16,8 +11,6 @@ namespace Weknow.EventSource.Backbone
 {
     public static class RedisProviderExtensions
     {
-        // TODO: [bnaya 2021-07] UseRedisChannelInjection: will look for IConnectionMultiplexer injection
-
         private const string PRODUCER_END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
         private const string PRODUCER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
 
@@ -76,6 +69,57 @@ namespace Weknow.EventSource.Backbone
                                  logger ?? EventSourceFallbakLogger.Default,
                                  resiliencePolicy);
                 return channel;
+            }
+        }
+
+        /// <summary>
+        /// Uses REDIS producer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="redis">The redis database.</param>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public static IProducerStoreStrategyBuilder UseRedisChannel(
+                            this IProducerBuilder builder,
+                            Task<IDatabaseAsync> redis,
+                            AsyncPolicy? resiliencePolicy = null)
+        {
+            var result = builder.UseChannel(LocalCreate);
+            return result;
+
+            IProducerChannelProvider LocalCreate(ILogger logger)
+            {
+                var channel = new RedisProducerChannel(
+                                 redis,
+                                 logger ?? EventSourceFallbakLogger.Default,
+                                 resiliencePolicy);
+                return channel;
+            }
+        }
+
+        /// <summary>
+        /// Uses REDIS producer channel.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
+        /// <returns></returns>
+        public static IProducerStoreStrategyBuilder UseRedisChannelInjection(
+                            this IProducerBuilder builder,
+                            IServiceProvider serviceProvider,
+                            AsyncPolicy? resiliencePolicy = null)
+        {
+            return builder.UseRedisChannel(LocalGetDb(), resiliencePolicy);
+
+            async Task<IDatabaseAsync> LocalGetDb()
+            {
+                var multiplexerTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
+                if (multiplexerTask == null)
+                    throw new ArgumentNullException(nameof(IConnectionMultiplexer));
+                var multiplexer = await multiplexerTask;
+                IDatabaseAsync db = multiplexer.GetDatabase();
+                return db;
             }
         }
     }

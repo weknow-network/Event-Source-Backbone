@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone.Tests
         #region Ctor
 
         public EndToEndExplicitTests(
-            ITestOutputHelper outputHelper, 
+            ITestOutputHelper outputHelper,
             Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder> producerChannelBuilder = null,
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
         {
@@ -176,7 +176,7 @@ namespace Weknow.EventSource.Backbone.Tests
             string key = $"{PARTITION}:{SHARD}";
             IDatabaseAsync db = RedisClientFactory.CreateAsync(
                                                 _fakeLogger,
-                                                RedisUsageIntent.Admin,
+                                                cfg => cfg.AllowAdmin = true,
                                                 endpointKey: END_POINT_KEY,
                                                 passwordKey: PASSWORD_KEY).Result;
 

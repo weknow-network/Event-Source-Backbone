@@ -244,5 +244,15 @@
             <param name="setting">The setting.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannelInjection(Weknow.EventSource.Backbone.IConsumerBuilder,System.IServiceProvider,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting)">
+            <summary>
+            Uses REDIS consumer channel.
+            </summary>
+            <param name="builder">The builder.</param>
+            <param name="serviceProvider">The service provider.</param>
+            <param name="setting">The setting.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">redisClient</exception>
+        </member>
     </members>
 </doc>

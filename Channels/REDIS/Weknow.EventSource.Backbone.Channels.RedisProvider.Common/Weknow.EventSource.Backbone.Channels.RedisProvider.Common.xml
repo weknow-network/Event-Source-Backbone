@@ -4,37 +4,15 @@
         <name>Weknow.EventSource.Backbone.Channels.RedisProvider.Common</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent">
-            <summary>
-            REDIS Usage Intent
-            </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent.Read">
-            <summary>
-            Read
-            </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent.Write">
-            <summary>
-            Write
-            </summary>
-        </member>
-        <member name="F:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent.Admin">
-            <summary>
-            Enables a range of commands that are considered risky.
-            </summary>
-        </member>
-        <member name="T:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory">
+        <member name="T:Weknow.EventSource.Backbone.RedisClientFactory">
             <summary>
             REDIS client factory
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.CreateProviderAsync(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderAsync(System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Create REDIS  client.
             </summary>
-            <param name="logger">The logger.</param>
-            <param name="intent">The intent.</param>
             <param name="configuration">The configuration.</param>
             <param name="endpointKey">The endpoint key.</param>
             <param name="passwordKey">The password key.</param>
@@ -42,12 +20,46 @@
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
             <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisClientFactory.CreateAsync(Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisUsageIntent,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderAsync(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+            <summary>
+            Create REDIS  client.
+            </summary>
+            <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointKey">The endpoint key.</param>
+            <param name="passwordKey">The password key.</param>
+            <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateProviderLocalAsync(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+            <summary>
+            Create REDIS  client.
+            </summary>
+            <param name="logger">The logger.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointKey">The endpoint key.</param>
+            <param name="passwordKey">The password key.</param>
+            <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateAsync(System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
+            <summary>
+            Create REDIS database client.
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <param name="endpointKey">The endpoint key.</param>
+            <param name="passwordKey">The password key.</param>
+            <returns></returns>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+            <exception cref="T:StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisClientFactory.CreateAsync(Microsoft.Extensions.Logging.ILogger,System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Create REDIS database client.
             </summary>
             <param name="logger">The logger.</param>
-            <param name="intent">The intent.</param>
             <param name="configuration">The configuration.</param>
             <param name="endpointKey">The endpoint key.</param>
             <param name="passwordKey">The password key.</param>

@@ -39,7 +39,7 @@ namespace Weknow.EventSource.Backbone.Tests
         #region Ctor
 
         public EndToEndTests(
-            ITestOutputHelper outputHelper, 
+            ITestOutputHelper outputHelper,
             Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder> producerChannelBuilder = null,
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
         {
@@ -53,10 +53,10 @@ namespace Weknow.EventSource.Backbone.Tests
             claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
             consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
 
-            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel( 
+            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
-                                            ClaimingTrigger = claimTrigger                                            
+                                            ClaimingTrigger = claimTrigger
                                         });
             _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
 
@@ -417,7 +417,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Manual_ACK_Test
 
-        
+
         #region Claim_Test
 
         [Fact]
@@ -542,7 +542,7 @@ namespace Weknow.EventSource.Backbone.Tests
             string key = $"{PARTITION}:{SHARD}";
             IDatabaseAsync db = RedisClientFactory.CreateAsync(
                                                 _fakeLogger,
-                                                RedisUsageIntent.Admin,
+                                                cfg => cfg.AllowAdmin = true,
                                                 endpointKey: END_POINT_KEY,
                                                 passwordKey: PASSWORD_KEY).Result;
             db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
