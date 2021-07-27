@@ -137,7 +137,9 @@ namespace Microsoft.Extensions.Configuration
             {
                 builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(shortAppName))
-                    //.SetSampler<WDefaultSampler>()
+                    .AddSource("RedisProducerChannel")
+                    .AddSource("RedisConsumerChannel")
+                    //.SetSampler(new CustomSampler())
                     .AddAspNetCoreInstrumentation(m =>
                     {
                         m.Filter = OpenTelemetryFilter;
@@ -301,7 +303,28 @@ namespace Microsoft.Extensions.Configuration
                         options.ConfigureEndpointDefaults(c => c.Protocols = HttpProtocols.Http1AndHttp2);
                     });
                     webBuilder.UseStartup<TStartup>();
-                });
+                }).ConfigureLogging((context, builder) =>
+                    {
+                        builder.AddOpenTelemetry(options =>
+                        {
+                            options.IncludeScopes = true;
+                            options.ParseStateValues = true;
+                            options.IncludeFormattedMessage = true;
+                            //options.AddConsoleExporter();
+                        });
+                        //builder.AddOpenTelemetry(options =>
+                        //{
+                        //    options.IncludeScopes = true;
+                        //    options.ParseStateValues = true;
+                        //    options.IncludeFormattedMessage = true;
+                        //    options.AddOtlpExporter(options => options.Endpoint = new System.Uri(jaegerEndPoint));
+                        //    if (hostEnv.IsDevelopment())
+                        //    {
+                        //        builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
+                        //    }
+                        //    options.AddConsoleExporter();
+                        //});
+                    });
             return builder;
         }
 

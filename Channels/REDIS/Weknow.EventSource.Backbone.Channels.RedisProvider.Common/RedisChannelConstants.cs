@@ -19,6 +19,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider.Common
         {
             public const string SegmentsKeys = "segments-keys";
             public const string InterceptorsKeys = "interceptors-keys";
+            public const string TelemetryBaggage = "telemetry-baggage";
+            public const string TelemetrySpanId = "telemetry-span-id";
+            public const string TelemetryTraceId = "telemetry-trace-id";
         }
     }
 }

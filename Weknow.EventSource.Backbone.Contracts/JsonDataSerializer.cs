@@ -2,6 +2,8 @@
 using System.Text;
 using System.Text.Json;
 
+using static Weknow.Text.Json.Constants;
+
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -10,19 +12,16 @@ namespace Weknow.EventSource.Backbone
     /// <seealso cref="Weknow.EventSource.Backbone.IDataSerializer" />
     internal class JsonDataSerializer : IDataSerializer
     {
-        private static readonly JsonSerializerOptions DEFAULT_OPTIONS = new JsonSerializerOptions();
-
         private readonly JsonSerializerOptions _options;
 
         public JsonDataSerializer(JsonSerializerOptions? options = null)
         {
-            _options = options ?? DEFAULT_OPTIONS;
+            _options = options ?? SerializerOptions;
         }
 
         T IDataSerializer.Deserialize<T>(ReadOnlyMemory<byte> serializedData)
         {
-            T result = JsonSerializer.Deserialize<T>(serializedData.Span, _options);
-            if (result == null) throw new NullReferenceException("Deserialize results with null");
+            T result = JsonSerializer.Deserialize<T>(serializedData.Span, _options) ?? throw new ArgumentNullException("Deserialize results with null");
             return result;
         }
 

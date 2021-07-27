@@ -1,32 +1,35 @@
 ﻿using Microsoft.Extensions.Logging;
-
-using Polly;
-
 using StackExchange.Redis;
 
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 using Weknow.EventSource.Backbone.Private;
 
 using static System.Math;
 
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using Weknow.Text.Json;
+using OpenTelemetry.Context.Propagation;
+using OpenTelemetry;
 
-// TODO: Poly policies, multiple levels,
-// TODO: Claim from other inactive consumers
+// TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
         private const int MAX_DELAY = 5000;
+        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisConsumerChannel));
+        private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
@@ -333,7 +336,53 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             batchCancellation.CancelSafe(); // cancel forward
                                             await CancelAsync(cancellableIds);
                                         });
+
+                        //string? parentId = entries.ContainsKey(MetaKeys.TelemetrySpanId) ? entries[MetaKeys.TelemetrySpanId].ToString() : null;
+                        //var tags = new Dictionary<string, object?>
+                        //{
+                        //    [nameof(meta.Partition)] = meta.Partition,
+                        //    [nameof(meta.Shard)] = meta.Shard,
+                        //    [nameof(meta.MessageId)] = meta.MessageId
+                        //};
+                        //IDisposable? scope;
+                        //if (string.IsNullOrEmpty(parentId))
+                        //    scope = _activitySource.StartActivity(meta.Operation, ActivityKind.Consumer);
+                        //else
+                        //    scope = _activitySource.StartActivity(meta.Operation, ActivityKind.Consumer, parentId, tags.AsEnumerable());
+
+                        var parentContext = Propagator.Extract(default, entries, LocalExtractTraceContext);
+                        Baggage.Current = parentContext.Baggage;
+
+                        // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
+                        // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
+                        var activityName = $"{meta.Operation} receive";
+
+                        using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Consumer, parentContext.ActivityContext);
+                        // The OpenTelemetry messaging specification defines a number of attributes. These attributes are added here.
+                        meta.InjectTelemetryTags(activity);
+
+
                         await func(announcement, ack);
+
+                        IEnumerable<string> LocalExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
+                        {
+                            try
+                            {
+                                if (entries.TryGetValue(key, out var value))
+                                {
+                                    if (string.IsNullOrEmpty(value))
+                                        return Array.Empty<string>();
+                                    return new[] { value.ToString() };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Exception err = ex.FormatLazy();
+                                _logger.LogError(err, "Failed to extract trace context: {error}", err);
+                            }
+
+                            return Enumerable.Empty<string>();
+                        }
                     }
                 }
                 catch
@@ -429,33 +478,65 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 if (values.Length != 0) return values;
                 if (emptyBatchCount < _setting.ClaimingTrigger.EmptyBatchCount)
                     return values;
-
-                StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
-                foreach (var c in pendingInfo.Consumers)
+                try
                 {
-                    var self = c.Name == plan.ConsumerName;
-                    if (self) continue;
+                    StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
+                    foreach (var c in pendingInfo.Consumers)
+                    {
+                        var self = c.Name == plan.ConsumerName;
+                        if (self) continue;
+                        plan.Logger.LogInformation("\t\t{name}{self}: {count}", c.Name, self, c.PendingMessageCount);
+                        try
+                        {
+                            var pendMsgInfo = await db.StreamPendingMessagesAsync(
+                                key,
+                                plan.ConsumerGroup,
+                                10,
+                                c.Name,
+                                pendingInfo.LowestPendingMessageId,
+                                pendingInfo.HighestPendingMessageId,
+                                flags: CommandFlags.DemandMaster);
 
-                    plan.Logger?.LogInformation($"\t\t{c.Name}{self}: {c.PendingMessageCount}");
-                    var pendMsgInfo = await db.StreamPendingMessagesAsync(
-                        key,
-                        plan.ConsumerGroup,
-                        10,
-                        c.Name,
-                        pendingInfo.LowestPendingMessageId,
-                        pendingInfo.HighestPendingMessageId,
-                        flags: CommandFlags.DemandMaster);
+                            RedisValue[] ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+                            values = await db.StreamClaimAsync(key,
+                                                      plan.ConsumerGroup,
+                                                      c.Name,
+                                                      (int)_setting.ClaimingTrigger.MinIdleTime.TotalMilliseconds,
+                                                      ids,
+                                                      flags: CommandFlags.DemandMaster);
+                        }
+                        #region Exception Handling
 
-                    RedisValue[] ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
-                    values = await db.StreamClaimAsync(key,
-                                              plan.ConsumerGroup,
-                                              c.Name,
-                                              (int)_setting.ClaimingTrigger.MinIdleTime.TotalMilliseconds,
-                                              ids,
-                                              flags: CommandFlags.DemandMaster);
-                    if (values != null && values.Length != 0)
-                        return values;
+                        catch (RedisTimeoutException ex)
+                        {
+                            plan.Logger.LogWarning(ex, "Timeout (handle pending): {name}{self}", c.Name, self);
+                            continue;
+                        }
+
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Fail to claim pending: {name}{self}", c.Name, self);
+                        }
+
+                        #endregion // Exception Handling
+
+                        if (values != null && values.Length != 0)
+                            return values;
+                    }
                 }
+                #region Exception Handling
+
+                catch (RedisConnectionException ex)
+                {
+                    _logger.LogWarning(ex, "Fail to claim REDIS's pending");
+                }
+
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fail to claim pending");
+                }
+
+                #endregion // Exception Handling
 
                 return Array.Empty<StreamEntry>();
             }

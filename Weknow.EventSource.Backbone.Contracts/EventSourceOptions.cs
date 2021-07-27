@@ -1,6 +1,6 @@
 ﻿namespace Weknow.EventSource.Backbone
 {
-    public class EventSourceOptions: IEventSourceOptions
+    public class EventSourceOptions : IEventSourceOptions
     {
         private static readonly IDataSerializer DEFAULT_SERIALIZER = new JsonDataSerializer();
         public static readonly EventSourceOptions Empty = new EventSourceOptions();

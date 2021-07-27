@@ -20,7 +20,8 @@ namespace Microsoft.AspNetCore.Hosting
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <param name="extensionPoint">The extension point.</param>
-        public void HostRest(string[] args, Action<IHostBuilder>? extensionPoint = null) => HostService(args, extensionPoint, CreateRestHostBuilder);
+        public void HostRest(string[] args, Action<IHostBuilder>? extensionPoint = null) =>
+            HostService(args, extensionPoint, CreateRestHostBuilder);
 
         #endregion HostRest
 
