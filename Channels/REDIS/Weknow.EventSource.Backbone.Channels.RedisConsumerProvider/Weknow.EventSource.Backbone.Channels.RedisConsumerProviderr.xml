@@ -205,6 +205,13 @@
             </returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.AddEventConsumerTelemetry(OpenTelemetry.Trace.TracerProviderBuilder)">
+            <summary>
+            Adds the event consumer telemetry source (will result in tracing the consumer).
+            </summary>
+            <param name="builder">The builder.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.RedisConsumerProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IConsumerBuilder,System.Func{Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting,Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannelSetting},System.Action{StackExchange.Redis.ConfigurationOptions},System.String,System.String)">
             <summary>
             Uses REDIS consumer channel.

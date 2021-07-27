@@ -137,8 +137,8 @@ namespace Microsoft.Extensions.Configuration
             {
                 builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(shortAppName))
-                    .AddSource("RedisProducerChannel")
-                    .AddSource("RedisConsumerChannel")
+                    .AddEventConsumerTelemetry()
+                    .AddEventProducerTelemetry()
                     //.SetSampler(new CustomSampler())
                     .AddAspNetCoreInstrumentation(m =>
                     {

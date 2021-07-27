@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
+using OpenTelemetry.Trace;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -13,6 +14,13 @@ namespace Weknow.EventSource.Backbone
     {
         private const string PRODUCER_END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
         private const string PRODUCER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
+
+        /// <summary>
+        /// Adds the event producer telemetry source (will result in tracing the producer).
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static TracerProviderBuilder AddEventProducerTelemetry(this TracerProviderBuilder builder) => builder.AddSource(nameof(RedisProducerChannel));
 
         /// <summary>
         /// Uses REDIS producer channel.

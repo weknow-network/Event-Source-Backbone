@@ -1,9 +1,13 @@
-﻿using System.Diagnostics;
+﻿using OpenTelemetry.Trace;
+
+using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone
 {
     public static class RedisTelemetryrExtensions
     {
+        #region InjectTelemetryTags
+
         /// <summary>
         /// Adds standard open-telemetry tags (for redis).
         /// </summary>
@@ -20,5 +24,7 @@ namespace Weknow.EventSource.Backbone
             activity?.SetTag("messaging.message_id", meta.MessageId);
             activity?.SetTag("messaging.redis.key", $"{meta.Partition}:{meta.Shard}");
         }
+
+        #endregion // InjectTelemetryTags
     }
 }

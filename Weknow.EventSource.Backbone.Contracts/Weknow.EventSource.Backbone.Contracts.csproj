@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.6" />
+    <PackageReference Include="OpenTelemetry.Api" Version="1.1.0" />
     <PackageReference Include="Polly" Version="7.2.1" />
     <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.0.8" />
   </ItemGroup>

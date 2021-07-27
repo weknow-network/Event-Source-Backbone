@@ -6,11 +6,19 @@ using System.Threading.Tasks;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Trace;
 
 namespace Weknow.EventSource.Backbone
 {
     public static class RedisConsumerProviderExtensions
     {
+        /// <summary>
+        /// Adds the event consumer telemetry source (will result in tracing the consumer).
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static TracerProviderBuilder AddEventConsumerTelemetry(this TracerProviderBuilder builder) => builder.AddSource(nameof(RedisConsumerChannel));
+
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>

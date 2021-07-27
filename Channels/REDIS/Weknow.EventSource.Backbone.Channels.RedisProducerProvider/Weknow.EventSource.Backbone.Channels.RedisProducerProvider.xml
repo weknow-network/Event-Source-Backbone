@@ -83,6 +83,13 @@
             Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
             </returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.AddEventProducerTelemetry(OpenTelemetry.Trace.TracerProviderBuilder)">
+            <summary>
+            Adds the event producer telemetry source (will result in tracing the producer).
+            </summary>
+            <param name="builder">The builder.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.RedisProviderExtensions.UseRedisChannel(Weknow.EventSource.Backbone.IProducerBuilder,System.Action{StackExchange.Redis.ConfigurationOptions},Polly.AsyncPolicy,System.String,System.String)">
             <summary>
             Uses REDIS producer channel.

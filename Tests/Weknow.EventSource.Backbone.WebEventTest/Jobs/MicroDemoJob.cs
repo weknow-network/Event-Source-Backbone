@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
     public sealed class MicroDemoJob : HostedServiceBase, IDisposable
     {
         private readonly IConsumerSubscribeBuilder _builder;
-        private readonly ILogger<MicroDemoJob> _logger;
+        private readonly IEventFlow _producer;
 
         #region Ctor
 
@@ -31,15 +31,16 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="builder">The builder.</param>
-        /// <param name="microInfo">The micro information.</param>
+        /// <param name="consumerBuilder">The builder.</param>
+        /// <param name="producer">The producer.</param>
         public MicroDemoJob(
             ILogger<MicroDemoJob> logger,
-            IConsumerLoggerBuilder builder)
+            IConsumerLoggerBuilder consumerBuilder,
+            IEventFlow producer)
             : base(logger)
         {
-            _builder = builder.WithLogger(logger);
-            _logger = logger;
+            _builder = consumerBuilder.WithLogger(logger);
+            _producer = producer;
         }
 
         #endregion Ctor
@@ -52,7 +53,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Subscribe<IEventFlow>(meta => new Subscriber(meta, _logger), "Demo-GROUP");
+            _builder.Subscribe<IEventFlow>(meta => new Subscriber(meta, _logger, _producer), "Demo-GROUP");
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());
@@ -76,25 +77,35 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         {
             private readonly Metadata _metadata;
             private readonly ILogger _logger;
+            private readonly IEventFlow _producer;
 
-            public Subscriber(ConsumerMetadata metadata, ILogger logger)
+            public Subscriber(
+                ConsumerMetadata metadata,
+                ILogger logger,
+                IEventFlow producer)
             {
                 _metadata = metadata.Metadata;
                 _logger = logger;
+                _producer = producer;
             }
 
-            ValueTask IEventFlow.Stage1Async(Person PII, string payload)
+            async ValueTask IEventFlow.Stage1Async(Person PII, string payload)
             {
                 _logger.LogInformation("Consume First Stage {partition} {shard} {PII} {data}",
                     _metadata.Partition, _metadata.Shard, PII, payload);
 
-                return ValueTaskStatic.CompletedValueTask;
+                await _producer.Stage2Async(
+                    JsonDocument.Parse("{\"name\":\"john\"}").RootElement,
+                    JsonDocument.Parse("{\"data\":10}").RootElement);
             }
 
             ValueTask IEventFlow.Stage2Async(JsonElement PII, JsonElement data)
             {
-                throw new NotImplementedException();
+                _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
+                    _metadata.Partition, _metadata.Shard, PII, data);
+                return ValueTaskStatic.CompletedValueTask;
             }
         }
     }
+
 }
