@@ -10,10 +10,10 @@ namespace Weknow.EventSource.Backbone
         ValueTask<Bucket> IProducerAsyncSegmentationStrategy.
                 TryClassifyAsync<T>(
                     Bucket segments,
-                    string operation, 
-                    string argumentName, 
+                    string operation,
+                    string argumentName,
                     T producedData,
-                    IEventSourceOptions options)
+                    EventSourceOptions options)
         {
             ReadOnlyMemory<byte> data = options.Serializer.Serialize(producedData);
             string key = argumentName;

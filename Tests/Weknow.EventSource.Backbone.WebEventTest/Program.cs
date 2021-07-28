@@ -13,7 +13,7 @@ using Weknow.EventSource.Backbone.WebEventTest.Jobs;
 
 namespace Weknow.EventSource.Backbone.WebEventTest
 {
-    public class Program
+    public static class Program
     {
         private static readonly WeknowHosting<Startup> _hosting = new WeknowHosting<Startup>();
 

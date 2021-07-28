@@ -250,10 +250,12 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerOptionsBuilder.WithOptions(System.Func{Weknow.EventSource.Backbone.ConsumerOptions,Weknow.EventSource.Backbone.ConsumerOptions})">
             <summary>
-            Attach configuration.
+            Tune configuration.
             </summary>
+            <param name="optionsStrategy">The options strategy.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerPartitionBuilder">
             <summary>
@@ -346,7 +348,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ConsumerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IConsumerAsyncSegmentationStrategy#TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -437,6 +439,16 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerLifetime.Completion">
             <summary>
             Represent the consuming completion..
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerPlan">
+            <summary>
+            The actual concrete plan
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
+            <summary>
+            Gets a communication channel provider factory.
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBase">
@@ -537,16 +549,6 @@
             Gets or sets the invocation resilience policy.
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.IConsumerPlan">
-            <summary>
-            The actual concrete plan
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
-            <summary>
-            Gets a communication channel provider factory.
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBuilder">
             <summary>
             Building phase of the plan
@@ -588,27 +590,14 @@
             Cancel the consuming process.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.BatchSize">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.BatchSize">
             <summary>
             Gets the max batch size of reading messages per shard.
             The framework won't proceed to the next batch until all messages
             in the batch complete (or timeout when it set to acknowledge on timeout).
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.AckBehavior">
-            <summary>
-            Gets the acknowledge behavior.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.MaxMessages">
-            <summary>
-            Gets the maximum messages to consume before detaching the subscription.
-            any number > 0 will activate this mechanism.
-            
-            Will be evaluate against consuming attempt (either successful or faulted), not includes Polly retry policy
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IEventSourceConsumerOptions.KeepAlive">
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.KeepAlive">
             <summary>
             Gets a value indicating whether to prevent the consumer
             from being collect by the GC.
@@ -619,6 +608,23 @@
             <value>
               <c>true</c> if [keep alive]; otherwise, <c>false</c>.
             </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.AckBehavior">
+            <summary>
+            Gets the acknowledge behavior.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.MaxMessages">
+            <summary>
+            Gets the maximum messages to consume before detaching the subscription.
+            any number > 0 will activate this mechanism.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.TraceAsParent">
+            <summary>
+            Gets the threshold duration which limit considering producer call as parent,
+            Beyond this period the consumer span will refer the producer as Link (rather than parent).
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor">
             <summary>
@@ -660,7 +666,7 @@
             from producer to consumer. 
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.ConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to the channel for specific metadata.
             </summary>
@@ -708,7 +714,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy.TryUnclassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to
@@ -746,7 +752,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerSegmentationStrategy.TryUnclassify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Unclassify segmented data into an instance.
             Segments is how the producer sending its raw data to

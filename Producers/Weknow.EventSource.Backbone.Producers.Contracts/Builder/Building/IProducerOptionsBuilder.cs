@@ -9,6 +9,6 @@
         /// <summary>
         /// Apply configuration.
         /// </summary>
-        IProducerPartitionBuilder WithOptions(IEventSourceOptions options);
+        IProducerPartitionBuilder WithOptions(EventSourceOptions options);
     }
 }

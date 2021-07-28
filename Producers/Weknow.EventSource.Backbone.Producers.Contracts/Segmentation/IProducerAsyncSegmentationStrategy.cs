@@ -48,6 +48,6 @@ namespace Weknow.EventSource.Backbone
                         string operation,
                         string argumentName,
                         T producedData,
-                        IEventSourceOptions options);
+                        EventSourceOptions options);
     }
 }

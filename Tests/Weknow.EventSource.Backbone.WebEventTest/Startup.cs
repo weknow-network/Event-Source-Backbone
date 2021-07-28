@@ -59,6 +59,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
                 IConsumerLoggerBuilder consumer =
                 ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      .AddS3Strategy(logger)
+                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
                                      .Partition("demo")
                                      .Shard("default");
                 return consumer;

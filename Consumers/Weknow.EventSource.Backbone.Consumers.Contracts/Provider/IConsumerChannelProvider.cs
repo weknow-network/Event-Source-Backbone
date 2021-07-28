@@ -24,7 +24,7 @@ namespace Weknow.EventSource.Backbone
         ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
+                    ConsumerOptions options,
                     CancellationToken cancellationToken);
     }
 }

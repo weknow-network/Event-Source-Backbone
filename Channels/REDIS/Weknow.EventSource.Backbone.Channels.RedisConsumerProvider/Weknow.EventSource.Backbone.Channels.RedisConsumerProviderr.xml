@@ -30,7 +30,7 @@
             <param name="endpointEnvKey">The endpoint env key.</param>
             <param name="passwordEnvKey">The password env key.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.ConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to the channel for specific metadata.
             </summary>
@@ -42,7 +42,7 @@
             When completed
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribePartitionAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribePartitionAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.ConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to all shards under a partition.
             </summary>
@@ -55,7 +55,7 @@
             When completed
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeShardAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.SubsribeShardAsync(StackExchange.Redis.IDatabaseAsync,Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck,System.Threading.Tasks.ValueTask},Weknow.EventSource.Backbone.ConsumerOptions,System.Threading.CancellationToken)">
             <summary>
             Subscribe to specific shard.
             </summary>

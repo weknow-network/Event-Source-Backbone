@@ -81,7 +81,9 @@ namespace Weknow.EventSource.Backbone.CodeGeneration
                 il.Emit(OpCodes.Ret);
             }
             var type = typeBuilder.CreateTypeInfo() ?? throw new ArgumentNullException("Code Gen: CreateTypeInfo()");
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             return (T)Activator.CreateInstance(type, arguments) ?? throw new ArgumentNullException("Code Gen: Activator.CreateInstance");
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
     }
 }

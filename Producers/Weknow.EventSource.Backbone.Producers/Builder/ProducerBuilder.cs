@@ -113,8 +113,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
         IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder.AddStorageStrategy(
-                                            IProducerStorageStrategy storageStrategy, 
-                                            EventBucketCategories targetType, 
+                                            IProducerStorageStrategy storageStrategy,
+                                            EventBucketCategories targetType,
                                             Predicate<string>? filter)
         {
             var decorated = new FilteredStorageStrategy(storageStrategy, filter, targetType);
@@ -177,7 +177,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(IEventSourceOptions options)
+        IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(EventSourceOptions options)
         {
             var prms = Plan.WithOptions(options);
             return new ProducerBuilder(prms);
@@ -277,7 +277,7 @@ namespace Weknow.EventSource.Backbone
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);
-            
+
         }
 
         #endregion // WithLogger

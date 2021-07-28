@@ -107,11 +107,11 @@
             <param name="targetType">Type of the target.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerOptionsBuilder#WithOptions(System.Func{Weknow.EventSource.Backbone.ConsumerOptions,Weknow.EventSource.Backbone.ConsumerOptions})">
             <summary>
             Attach configuration.
             </summary>
-            <param name="options"></param>
+            <param name="optionsStrategy"></param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerPartitionBuilder#Partition(System.String)">
@@ -240,7 +240,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider},Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider},Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.ConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -392,7 +392,7 @@
             <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceConsumerOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithOptions(Weknow.EventSource.Backbone.ConsumerOptions)">
             <summary>
             Attach the options.
             </summary>
@@ -502,55 +502,6 @@
             <returns>
             Either Segments or Interceptions.
             </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerOptions.#ctor(Weknow.EventSource.Backbone.AckBehavior,System.Int32,Weknow.EventSource.Backbone.IDataSerializer,System.UInt32,System.Boolean)">
-            <summary>
-            Initializes a new instance.
-            </summary>
-            <param name="ackBehavior">The acknowledge behavior.</param>
-            <param name="batchSize">Gets the max batch size of reading messages per shard.
-            The framework won't proceed to the next batch until all messages
-            in the batch complete (or timeout when it set to acknowledge on timeout).</param>
-            <param name="serializer">The serializer.</param>
-            <param name="maxMessages">
-            Maximum messages to consume before detaching the subscription.
-            any number > 0 will activate this mechanism.
-            </param>
-            <param name="keepAlive">Gets a value indicating whether to prevent the consumer
-            from being collect by the GC.
-            True by default, when you hold the subscription disposable
-            you can set it to false. as long as you keeping the disposable in
-            object that isn't candidate for being collected the consumer will stay alive.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.BatchSize">
-            <summary>
-            Gets the max batch size of reading messages per shard.
-            The framework won't proceed to the next batch until all messages
-            in the batch complete (or timeout when it set to acknowledge on timeout).
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.KeepAlive">
-            <summary>
-            Gets a value indicating whether to prevent the consumer
-            from being collect by the GC.
-            True by default, when you hold the subscription disposable
-            you can set it to false. as long as you keeping the disposable in
-            object that isn't candidate for being collected the consumer will stay alive.
-            </summary>
-            <value>
-              <c>true</c> if [keep alive]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.AckBehavior">
-            <summary>
-            Gets the acknowledge behavior.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.MaxMessages">
-            <summary>
-            Gets the maximum messages to consume before detaching the subscription.
-            any number > 0 will activate this mechanism.
-            </summary>
         </member>
     </members>
 </doc>

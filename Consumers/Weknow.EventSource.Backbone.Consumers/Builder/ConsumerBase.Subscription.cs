@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone
             private readonly Func<ConsumerMetadata, T> _factory;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
-            private readonly IEventSourceConsumerOptions _options;
+            private readonly ConsumerOptions _options;
             private readonly uint _maxMessages;
             private readonly static ConcurrentDictionary<Subscription, object?> _keepAlive =
                                                 new ConcurrentDictionary<Subscription, object?>();
@@ -59,7 +59,6 @@ namespace Weknow.EventSource.Backbone
             }
 
             #endregion // Ctor
-
 
             #region Completion
 #pragma warning disable AMNF0001 // Asynchronous method name is not ending with 'Async'

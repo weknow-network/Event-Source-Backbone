@@ -79,7 +79,7 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerOptionsBuilder.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Apply configuration.
             </summary>
@@ -184,7 +184,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSegmentationStrategy.Classify``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -222,7 +222,7 @@
             </summary>
             <param name="sync">The synchronize.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.Building.ProducerSegmentationStrategyBridge.Weknow#EventSource#Backbone#IProducerAsyncSegmentationStrategy#TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to
@@ -463,7 +463,7 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider},Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IEventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerPlan},Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider},Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.EventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerPlan},Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter)">
             <summary>
             Initializes a new instance.
             </summary>
@@ -596,7 +596,7 @@
             <param name="storageStrategy">The storage strategy.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Withes the options.
             </summary>
@@ -702,7 +702,7 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy.TryClassifyAsync``1(Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0,Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Try to classifies instance into different segments.
             Segments is how the producer sending its raw data to

@@ -28,7 +28,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        IEventSourceOptions Options { get; }
+        EventSourceOptions Options { get; }
         /// <summary>
         /// Partition key represent logical group of 
         /// event source shards.

@@ -106,15 +106,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.OnSucceed,
-                                        maxMessages: 3 /* detach consumer after 3 messages*/);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 3 /* detach consumer after 3 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
@@ -172,15 +174,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.OnSucceed,
-                                        maxMessages: 4 /* detach consumer after 4 messages*/);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 4 /* detach consumer after 4 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
@@ -216,7 +220,6 @@ namespace Weknow.EventSource.Backbone.Tests
             #region ISequenceOperations producer = ...
 
             ISequenceOperations producer = _producerBuilder
-                                            //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -241,15 +244,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.OnFinally,
-                                        maxMessages: 3 /* detach consumer after 4 messages*/);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnFinally,
+                MaxMessages = 3 /* detach consumer after 4 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
                          .Partition(PARTITION)
                          .Shard(SHARD)
@@ -315,15 +320,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.Manual,
-                                        maxMessages: 4 /* detach consumer after 4 messages*/);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.Manual,
+                MaxMessages = 4 /* detach consumer after 4 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Partition(PARTITION)
                              .Shard(SHARD)
@@ -383,15 +390,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.Manual,
-                                        maxMessages: 3 /* detach consumer after 3 messages */);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.Manual,
+                MaxMessages = 3 /* detach consumer after 3 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Partition(PARTITION)
                              .Shard(SHARD)
@@ -451,15 +460,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.OnSucceed,
-                                        maxMessages: 3 /* detach consumer after 3 messages */);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 3 /* detach consumer after 3 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             var consumerPipe = _consumerBuilder
-                         .WithOptions(consumerOptions)
+                         .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Partition(PARTITION)
                              .Shard(SHARD)

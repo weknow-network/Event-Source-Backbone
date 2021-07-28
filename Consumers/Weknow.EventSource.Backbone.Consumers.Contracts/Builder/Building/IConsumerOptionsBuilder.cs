@@ -1,4 +1,6 @@
-﻿namespace Weknow.EventSource.Backbone.Building
+﻿using System;
+
+namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Enable configuration.
@@ -7,8 +9,10 @@
         : IConsumerHooksBuilder
     {
         /// <summary>
-        /// Attach configuration.
+        /// Tune configuration.
         /// </summary>
-        IConsumerHooksBuilder WithOptions(IEventSourceConsumerOptions options);
+        /// <param name="optionsStrategy">The options strategy.</param>
+        /// <returns></returns>
+        IConsumerHooksBuilder WithOptions(Func<ConsumerOptions, ConsumerOptions> optionsStrategy);
     }
 }

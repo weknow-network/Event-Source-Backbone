@@ -54,12 +54,12 @@ namespace Weknow.EventSource.Backbone.Building
             Bucket segments,
             string operation,
             string argumentName,
-            IEventSourceOptions options)
+            EventSourceOptions options)
         {
             var result = _sync.TryUnclassify<T>(
-                                            segments, 
-                                            operation, 
-                                            argumentName, 
+                                            segments,
+                                            operation,
+                                            argumentName,
                                             options);
             return result.ToValueTask();
         }

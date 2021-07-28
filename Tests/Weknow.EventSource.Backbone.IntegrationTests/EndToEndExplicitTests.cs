@@ -100,20 +100,22 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions(
-                                        AckBehavior.OnSucceed,
-                                        maxMessages: 2 /* detach consumer after 2 messages*/);
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 2 /* detach consumer after 2 messages*/
+            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(consumerOptions)
-                         .WithCancellation(cancellation)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
-                         .WithLogger(_fakeLogger)
-                         .Subscribe(meta => new Subscriber(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .WithOptions(o => consumerOptions)
+                             .WithCancellation(cancellation)
+                             .Partition(PARTITION)
+                             .Shard(SHARD)
+                             .WithLogger(_fakeLogger)
+                             .Subscribe(meta => new Subscriber(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -122,9 +124,9 @@ namespace Weknow.EventSource.Backbone.Tests
             #region Validation
 
             A.CallTo(() => _subscriber.Stage1Async(A<Person>.Ignored, A<string>.Ignored))
-                .MustHaveHappenedOnceExactly();
+                        .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.Stage2Async(A<JsonElement>.Ignored, A<JsonElement>.Ignored))
-                .MustHaveHappenedOnceExactly();
+                        .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
         }

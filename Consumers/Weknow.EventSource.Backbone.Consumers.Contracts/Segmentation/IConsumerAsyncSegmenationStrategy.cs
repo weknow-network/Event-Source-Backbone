@@ -42,6 +42,6 @@ namespace Weknow.EventSource.Backbone
                 Bucket segments,
                 string operation,
                 string argumentName,
-                IEventSourceOptions options);
+                EventSourceOptions options);
     }
 }

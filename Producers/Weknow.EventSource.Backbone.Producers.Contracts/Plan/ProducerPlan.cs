@@ -52,7 +52,7 @@ namespace Weknow.EventSource.Backbone
             string? partition = null,
             string? shard = null,
             ILogger? logger = null,
-            IEventSourceOptions? options = null,
+            EventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IProducerAsyncInterceptor>? interceptors = null,
             IImmutableList<IProducerHooksBuilder>? routes = null,
@@ -69,7 +69,7 @@ namespace Weknow.EventSource.Backbone
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
             Forwards = forwards ?? copyFrom.Forwards;
-            _forwardPlans = forwardPlans ?? copyFrom._forwardPlans;            
+            _forwardPlans = forwardPlans ?? copyFrom._forwardPlans;
             Logger = logger ?? copyFrom.Logger;
             StorageStrategy = storageStrategy == null
                 ? copyFrom.StorageStrategy
@@ -125,7 +125,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        public ILogger Logger { get; } =  EventSourceFallbakLogger.Default;
+        public ILogger Logger { get; } = EventSourceFallbakLogger.Default;
 
         #endregion // Channel
 
@@ -168,7 +168,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public IEventSourceOptions Options { get; } = EventSourceOptions.Empty;
+        public EventSourceOptions Options { get; init; } = new EventSourceOptions();
 
         #endregion // Options
 
@@ -287,8 +287,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public ProducerPlan WithOptions(
-                                        IEventSourceOptions options)
+        public ProducerPlan WithOptions(EventSourceOptions options)
         {
             return new ProducerPlan(this, options: options);
         }

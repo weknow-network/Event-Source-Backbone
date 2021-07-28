@@ -124,7 +124,7 @@
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.IEventSourceOptions)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerOptionsBuilder#WithOptions(Weknow.EventSource.Backbone.EventSourceOptions)">
             <summary>
             Apply configuration.
             </summary>
@@ -250,7 +250,7 @@
             <param name="producedData">The produced data.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy,Weknow.EventSource.Backbone.IEventSourceOptions,System.String,System.String,``0)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy,Weknow.EventSource.Backbone.EventSourceOptions,System.String,System.String,``0)">
             <summary>
             Bridge classification of single operation's argument.
             Get the argument data and pass it to the segmentation strategies.

@@ -115,7 +115,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         private async ValueTask<Bucket> ClassifyArgumentAsync<T>(
             IProducerAsyncSegmentationStrategy strategy,
-            IEventSourceOptions options,
+            EventSourceOptions options,
             string operation,
             string argumentName,
             T producedData)

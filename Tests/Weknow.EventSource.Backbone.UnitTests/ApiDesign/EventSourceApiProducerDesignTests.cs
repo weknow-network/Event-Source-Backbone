@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         public async Task Build_API_Merge_Producer_Test()
         {
             var producerA =
-                _builder.UseChannel(_channel)                        
+                _builder.UseChannel(_channel)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .AddInterceptor(_rawAsyncInterceptor);
@@ -80,7 +80,7 @@ namespace Weknow.EventSource.Backbone
         [Fact]
         public async Task Build_API_Serializer_Producer_Test()
         {
-            var option = new EventSourceOptions(_serializer);
+            var option = new EventSourceOptions { Serializer = _serializer };
 
             ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)

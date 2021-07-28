@@ -11,7 +11,7 @@ namespace Weknow.EventSource.Backbone
                                         Bucket segments,
                                         string operation,
                                         string argumentName,
-                                        IEventSourceOptions options)
+                                        EventSourceOptions options)
         {
             string key = argumentName;
             if (segments.TryGetValue(key, out ReadOnlyMemory<byte> data))

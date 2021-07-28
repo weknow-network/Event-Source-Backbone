@@ -36,7 +36,7 @@ namespace Weknow.EventSource.Backbone
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
+                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
             while (!_channel.Reader.Completion.IsCompleted &&

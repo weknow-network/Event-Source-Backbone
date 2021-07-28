@@ -29,7 +29,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     {
         private const int MAX_DELAY = 5000;
         private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisConsumerChannel));
-        private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
@@ -118,7 +117,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
+                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -152,7 +151,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IDatabaseAsync db,
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
+                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
             var subscriptions = new Queue<Task>();
@@ -215,7 +214,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     IDatabaseAsync db,
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    IEventSourceConsumerOptions options,
+                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
             string key = $"{plan.Partition}:{plan.Shard}";
@@ -343,10 +342,13 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
                         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
                         var activityName = $"{meta.Operation} consume";
+
+                        bool traceAsParent = (DateTimeOffset.UtcNow - meta.ProducedAt) < plan.Options.TraceAsParent;
+                        ActivityContext parentActivityContext = traceAsParent ? parentContext : default(ActivityContext);
                         using var activity = ACTIVITY_SOURCE.StartActivity(
                                                                 activityName,
                                                                 ActivityKind.Consumer,
-                                                                default(ActivityContext), links: new[] { new ActivityLink(parentContext) });
+                                                                parentActivityContext, links: new[] { new ActivityLink(parentContext) });
                         meta.InjectTelemetryTags(activity);
 
                         #region IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)

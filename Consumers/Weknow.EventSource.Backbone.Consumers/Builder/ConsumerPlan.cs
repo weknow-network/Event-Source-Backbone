@@ -63,7 +63,7 @@ namespace Weknow.EventSource.Backbone
             string? partition = null,
             string? shard = null,
             ILogger? logger = null,
-            IEventSourceConsumerOptions? options = null,
+            ConsumerOptions? options = null,
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
             IImmutableList<IConsumerAsyncInterceptor>? interceptors = null,
             IImmutableList<IConsumerHooksBuilder>? routes = null,
@@ -178,7 +178,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public IEventSourceConsumerOptions Options { get; } = ConsumerOptions.Empty;
+        public ConsumerOptions Options { get; } = new ConsumerOptions();
 
         #endregion // Options
 
@@ -336,7 +336,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithOptions(IEventSourceConsumerOptions options)
+        internal ConsumerPlan WithOptions(ConsumerOptions options)
         {
             return new ConsumerPlan(this, options: options);
         }

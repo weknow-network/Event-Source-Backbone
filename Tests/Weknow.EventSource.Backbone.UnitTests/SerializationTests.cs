@@ -29,7 +29,7 @@ namespace Weknow.EventSource.Backbone
                 Operation = "operation1"
             };
 
-            var serializer = EventSourceOptions.Empty.Serializer;
+            var serializer = new EventSourceOptions().Serializer;
 
             var buffer = serializer.Serialize(meta);
             var deserialize = serializer.Deserialize<Metadata>(buffer);
