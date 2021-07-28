@@ -339,18 +339,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #region Start Telemetry Span
 
-                        ActivityContext parentContext = meta.ExtractSpan(entries, LocalExtractTraceContext);
+                        ActivityContext parentContext = meta.ExtractSpan(entries, ExtractTraceContext);
                         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
                         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
                         var activityName = $"{meta.Operation} consume";
-                        using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Consumer, parentContext);
+                        using var activity = ACTIVITY_SOURCE.StartActivity(
+                                                                activityName,
+                                                                ActivityKind.Consumer,
+                                                                default(ActivityContext), links: new[] { new ActivityLink(parentContext) });
                         meta.InjectTelemetryTags(activity);
 
-                        #endregion // Start Telemetry Span
+                        #region IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
 
-                        await func(announcement, ack);
-
-                        IEnumerable<string> LocalExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
+                        IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
                         {
                             try
                             {
@@ -361,14 +362,24 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                     return new[] { value.ToString() };
                                 }
                             }
+                            #region Exception Handling
+
                             catch (Exception ex)
                             {
                                 Exception err = ex.FormatLazy();
                                 _logger.LogError(err, "Failed to extract trace context: {error}", err);
                             }
 
+                            #endregion // Exception Handling
+
                             return Enumerable.Empty<string>();
                         }
+
+                        #endregion // IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
+
+                        #endregion // Start Telemetry Span
+
+                        await func(announcement, ack);
                     }
                 }
                 catch
@@ -408,6 +419,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     });
                     return r;
                 }
+                #region Exception Handling
+
                 catch (RedisTimeoutException ex)
                 {
                     logger.LogWarning(ex, "Event source [{source}] by [{consumer}]: Timeout", key, plan.ConsumerName);
@@ -418,6 +431,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     logger.LogError(ex, "Fail to read from event source [{source}] by [{consumer}]", key, plan.ConsumerName);
                     return Array.Empty<StreamEntry>();
                 }
+
+                #endregion // Exception Handling
             }
 
             #endregion // ReadBatchAsync
