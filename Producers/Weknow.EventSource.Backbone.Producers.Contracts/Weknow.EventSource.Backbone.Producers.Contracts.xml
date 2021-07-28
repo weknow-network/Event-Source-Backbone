@@ -742,12 +742,16 @@
             <param name="injectStrategy">The injection strategy.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.InjectConnonTelemetryTags(Weknow.EventSource.Backbone.Metadata,System.Diagnostics.Activity)">
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.StartSpanScope``1(System.Diagnostics.Activity,Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableArray{``0}.Builder,System.Action{System.Collections.Immutable.ImmutableArray{``0}.Builder,System.String,System.String})">
             <summary>
-            Adds standard open-telemetry tags (for redis).
+            Starts telemetry span scope.
             </summary>
-            <param name="meta">The meta.</param>
+            <typeparam name="T"></typeparam>
             <param name="activity">The activity.</param>
+            <param name="meta">The meta.</param>
+            <param name="entriesBuilder">The entries builder.</param>
+            <param name="injectStrategy">The injection strategy.</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

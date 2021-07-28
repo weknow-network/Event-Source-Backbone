@@ -337,18 +337,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             await CancelAsync(cancellableIds);
                                         });
 
-
-                        var parentContext = Propagator.Extract(default, entries, LocalExtractTraceContext);
+                        //using var activity = ACTIVITY_SOURCE.StartSpanScope(meta, entries, LocalExtractTraceContext) ?? default;
+                        PropagationContext parentContext = Propagator.Extract(default, entries, LocalExtractTraceContext);
                         Baggage.Current = parentContext.Baggage;
 
                         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
                         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-                        var activityName = $"{meta.Operation} receive";
-
+                        var activityName = $"{meta.Operation} consume";
                         using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Consumer, parentContext.ActivityContext);
-                        // The OpenTelemetry messaging specification defines a number of attributes. These attributes are added here.
                         meta.InjectTelemetryTags(activity);
-
 
                         await func(announcement, ack);
 
@@ -473,7 +470,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     {
                         var self = c.Name == plan.ConsumerName;
                         if (self) continue;
-                        plan.Logger.LogInformation("\t\t{name}{self}: {count}", c.Name, self, c.PendingMessageCount);
                         try
                         {
                             var pendMsgInfo = await db.StreamPendingMessagesAsync(
@@ -486,12 +482,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 flags: CommandFlags.DemandMaster);
 
                             RedisValue[] ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+                            if (ids.Length == 0)
+                                continue;
+                            plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                            // will claim messages ony if older than _setting.ClaimingTrigger.MinIdleTime
                             values = await db.StreamClaimAsync(key,
                                                       plan.ConsumerGroup,
                                                       c.Name,
                                                       (int)_setting.ClaimingTrigger.MinIdleTime.TotalMilliseconds,
                                                       ids,
                                                       flags: CommandFlags.DemandMaster);
+                            if (values.Length != 0)
+                                plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
                         }
                         #region Exception Handling
 

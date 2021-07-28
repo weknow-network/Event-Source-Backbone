@@ -32,6 +32,24 @@ namespace Weknow.EventSource.Backbone
             // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
             var activityName = $"{meta.Operation} send";
             Activity? activity = activitySource.StartActivity(activityName, ActivityKind.Producer);
+            return activity.StartSpanScope(meta, entriesBuilder, injectStrategy);
+        }
+
+        /// <summary>
+        /// Starts telemetry span scope.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="activity">The activity.</param>
+        /// <param name="meta">The meta.</param>
+        /// <param name="entriesBuilder">The entries builder.</param>
+        /// <param name="injectStrategy">The injection strategy.</param>
+        /// <returns></returns>
+        public static Activity? StartSpanScope<T>(
+                        this Activity? activity,
+                        Metadata meta,
+                        ImmutableArray<T>.Builder entriesBuilder,
+                        Action<ImmutableArray<T>.Builder, string, string> injectStrategy)
+        {
             // Depending on Sampling (and whether a listener is registered or not), the
             // activity above may not be created.
             // If it is created, then propagate its context.
@@ -48,28 +66,9 @@ namespace Weknow.EventSource.Backbone
             Propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), entriesBuilder, injectStrategy);
 
             // The OpenTelemetry messaging specification defines a number of attributes. These attributes are added here.
-            meta.InjectConnonTelemetryTags(activity);
             return activity;
         }
 
         #endregion // StartSpanScope
-
-        #region InjectConnonTelemetryTags
-
-        /// <summary>
-        /// Adds standard open-telemetry tags (for redis).
-        /// </summary>
-        /// <param name="meta">The meta.</param>
-        /// <param name="activity">The activity.</param>
-        private static void InjectConnonTelemetryTags(this Metadata meta, Activity? activity)
-        {
-            // These tags are added demonstrating the semantic conventions of the OpenTelemetry messaging specification
-            // See:
-            //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
-            activity?.SetTag("messaging.destination", meta.Operation);
-            activity?.SetTag("messaging.message_id", meta.MessageId);
-        }
-
-        #endregion // InjectConnonTelemetryTags
     }
 }

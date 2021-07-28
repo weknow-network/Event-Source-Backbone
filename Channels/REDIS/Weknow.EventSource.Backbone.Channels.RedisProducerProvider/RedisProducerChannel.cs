@@ -188,7 +188,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             Task<RedisValue> LocalStreamAddAsync()
             {
                 var telemetryBuilder = commonEntries.ToBuilder();
-                using var activity = ACTIVITY_SOURCE.StartSpanScope(meta, telemetryBuilder, LocalInjectTelemetry) ?? default;
+                //using var activity = ACTIVITY_SOURCE.StartSpanScope(meta, telemetryBuilder, LocalInjectTelemetry) ?? default;
+                var activityName = $"{meta.Operation} produce";
+                Activity? activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Producer);
+                using var _ = activity.StartSpanScope(meta, telemetryBuilder, LocalInjectTelemetry);
                 meta.InjectTelemetryTags(activity);
 
                 var entries = telemetryBuilder.ToArray();

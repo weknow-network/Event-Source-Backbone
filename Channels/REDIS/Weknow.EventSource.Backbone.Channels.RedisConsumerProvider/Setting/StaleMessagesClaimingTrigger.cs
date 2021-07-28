@@ -16,7 +16,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// Empty batch count define number of empty fetching cycle in a row 
         /// which will trigger operation of trying to get stale messages from other consumers.
         /// </summary>
-        public ushort EmptyBatchCount { get; set; } = 100;
+        public ushort EmptyBatchCount { get; set; } = 1000;
 
         /// <summary>
         /// The minimum message idle time to allow the reassignment of the message(s).

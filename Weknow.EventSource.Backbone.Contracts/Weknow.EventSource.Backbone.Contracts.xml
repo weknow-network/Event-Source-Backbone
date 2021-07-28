@@ -340,5 +340,12 @@
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
         </member>
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.InjectMetaTelemetryTags(Weknow.EventSource.Backbone.Metadata,System.Diagnostics.Activity)">
+            <summary>
+            Adds standard open-telemetry tags (for redis).
+            </summary>
+            <param name="meta">The meta.</param>
+            <param name="activity">The activity.</param>
+        </member>
     </members>
 </doc>

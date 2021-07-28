@@ -27,7 +27,12 @@ namespace Weknow.EventSource.Backbone
             //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
             activity?.SetTag("messaging.system", "redis-stream");
             activity?.SetTag("messaging.destination_kind", "topic");
+
+            activity?.SetTag("messaging.destination", meta.Operation);
+            activity?.SetTag("messaging.message_id", meta.MessageId);
             activity?.SetTag("messaging.redis.key", $"{meta.Partition}:{meta.Shard}");
+
+            meta.InjectMetaTelemetryTags(activity);
         }
 
         #endregion // InjectTelemetryTags
