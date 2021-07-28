@@ -12,20 +12,18 @@ namespace Weknow.EventSource.Backbone
     {
         private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
-        #region StartSpanScope
+        #region ExtractSpan
 
         /// <summary>
-        /// Starts telemetry span scope.
+        /// Extract telemetry span's parent info
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="activitySource">The activity source.</param>
         /// <param name="meta">The meta.</param>
         /// <param name="entries">The entries for extraction.</param>
         /// <param name="injectStrategy">The injection strategy.</param>
         /// <returns></returns>
-        public static Activity? StartSpanScope<T>(
-                        this ActivitySource activitySource,
-                        Metadata meta,
+        public static ActivityContext ExtractSpan<T>(
+                        this Metadata meta,
                         T entries,
                         Func<T, string, IEnumerable<string>> injectStrategy)
         {
@@ -34,12 +32,9 @@ namespace Weknow.EventSource.Backbone
 
             // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
             // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-            var activityName = $"{meta.Operation} consume";
-
-            using var activity = activitySource.StartActivity(activityName, ActivityKind.Consumer, parentContext.ActivityContext);
-            return activity;
+            return parentContext.ActivityContext;
         }
 
-        #endregion // StartSpanScope
+        #endregion // ExtractSpan
     }
 }

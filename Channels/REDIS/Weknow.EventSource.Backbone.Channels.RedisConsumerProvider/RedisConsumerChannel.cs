@@ -337,15 +337,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             await CancelAsync(cancellableIds);
                                         });
 
-                        //using var activity = ACTIVITY_SOURCE.StartSpanScope(meta, entries, LocalExtractTraceContext) ?? default;
-                        PropagationContext parentContext = Propagator.Extract(default, entries, LocalExtractTraceContext);
-                        Baggage.Current = parentContext.Baggage;
+                        #region Start Telemetry Span
 
+                        ActivityContext parentContext = meta.ExtractSpan(entries, LocalExtractTraceContext);
                         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
                         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
                         var activityName = $"{meta.Operation} consume";
-                        using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Consumer, parentContext.ActivityContext);
+                        using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Consumer, parentContext);
                         meta.InjectTelemetryTags(activity);
+
+                        #endregion // Start Telemetry Span
 
                         await func(announcement, ack);
 

@@ -14,29 +14,7 @@ namespace Weknow.EventSource.Backbone
         #region StartSpanScope
 
         /// <summary>
-        /// Starts telemetry span scope.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="activitySource">The activity source.</param>
-        /// <param name="meta">The meta.</param>
-        /// <param name="entriesBuilder">The entries builder.</param>
-        /// <param name="injectStrategy">The injection strategy.</param>
-        /// <returns></returns>
-        public static Activity? StartSpanScope<T>(
-                        this ActivitySource activitySource,
-                        Metadata meta,
-                        ImmutableArray<T>.Builder entriesBuilder,
-                        Action<ImmutableArray<T>.Builder, string, string> injectStrategy)
-        {
-            // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
-            // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-            var activityName = $"{meta.Operation} send";
-            Activity? activity = activitySource.StartActivity(activityName, ActivityKind.Producer);
-            return activity.StartSpanScope(meta, entriesBuilder, injectStrategy);
-        }
-
-        /// <summary>
-        /// Starts telemetry span scope.
+        /// Inject telemetry span to the channel property.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="activity">The activity.</param>
@@ -44,7 +22,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="entriesBuilder">The entries builder.</param>
         /// <param name="injectStrategy">The injection strategy.</param>
         /// <returns></returns>
-        public static Activity? StartSpanScope<T>(
+        public static void InjectSpan<T>(
                         this Activity? activity,
                         Metadata meta,
                         ImmutableArray<T>.Builder entriesBuilder,
@@ -61,12 +39,8 @@ namespace Weknow.EventSource.Backbone
             }
             ActivityContext contextToInject = Activity.Current?.Context ?? default;
 
-
             // Inject the ActivityContext into the message metadata to propagate trace context to the receiving service.
             Propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), entriesBuilder, injectStrategy);
-
-            // The OpenTelemetry messaging specification defines a number of attributes. These attributes are added here.
-            return activity;
         }
 
         #endregion // StartSpanScope

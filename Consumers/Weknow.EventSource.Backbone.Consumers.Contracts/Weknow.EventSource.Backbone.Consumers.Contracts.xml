@@ -770,12 +770,11 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.StartSpanScope``1(System.Diagnostics.ActivitySource,Weknow.EventSource.Backbone.Metadata,``0,System.Func{``0,System.String,System.Collections.Generic.IEnumerable{System.String}})">
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.ExtractSpan``1(Weknow.EventSource.Backbone.Metadata,``0,System.Func{``0,System.String,System.Collections.Generic.IEnumerable{System.String}})">
             <summary>
-            Starts telemetry span scope.
+            Extract telemetry span's parent info
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="activitySource">The activity source.</param>
             <param name="meta">The meta.</param>
             <param name="entries">The entries for extraction.</param>
             <param name="injectStrategy">The injection strategy.</param>
