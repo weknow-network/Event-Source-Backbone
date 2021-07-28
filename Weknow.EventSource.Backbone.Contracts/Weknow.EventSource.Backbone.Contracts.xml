@@ -235,6 +235,21 @@
             Bucket storage type
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceConstants">
+            <summary>
+            Constants
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE">
+            <summary>
+            The name of redis consumer channel source
+            </summary>
+        </member>
+        <member name="F:Weknow.EventSource.Backbone.EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE">
+            <summary>
+            The name of redis producer channel source
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Private.EventSourceFallbakLogger">
             <summary>
             Best practice is to supply proper logger and 
@@ -323,6 +338,13 @@
             Json serializer (this is the default serializer)
             </summary>
             <seealso cref="T:Weknow.EventSource.Backbone.IDataSerializer" />
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.ListenToEventSourceRedisChannel(OpenTelemetry.Trace.TracerProviderBuilder)">
+            <summary>
+            Adds the event consumer telemetry source (will result in tracing the consumer).
+            </summary>
+            <param name="builder">The builder.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.InjectMetaTelemetryTags(Weknow.EventSource.Backbone.Metadata,System.Diagnostics.Activity)">
             <summary>

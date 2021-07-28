@@ -13,13 +13,6 @@ namespace Weknow.EventSource.Backbone
     public static class RedisConsumerProviderExtensions
     {
         /// <summary>
-        /// Adds the event consumer telemetry source (will result in tracing the consumer).
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <returns></returns>
-        public static TracerProviderBuilder AddEventConsumerTelemetry(this TracerProviderBuilder builder) => builder.AddSource(nameof(RedisConsumerChannel));
-
-        /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>

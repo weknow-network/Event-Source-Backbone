@@ -1,5 +1,6 @@
 ﻿using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
+using OpenTelemetry.Trace;
 
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,16 @@ namespace Weknow.EventSource.Backbone
 {
     public static class TelemetryrExtensions
     {
+        /// <summary>
+        /// Adds the event consumer telemetry source (will result in tracing the consumer).
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <returns></returns>
+        public static TracerProviderBuilder ListenToEventSourceRedisChannel(this TracerProviderBuilder builder) =>
+                                                                builder.AddSource(
+                                                                    EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE,
+                                                                    EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
+
         #region InjectMetaTelemetryTags
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     internal class RedisProducerChannel : IProducerChannelProvider
     {
-        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisProducerChannel));
+        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
         private readonly ILogger _logger;
         private readonly AsyncPolicy _resiliencePolicy;
         private readonly Task<IDatabaseAsync> _dbTask;

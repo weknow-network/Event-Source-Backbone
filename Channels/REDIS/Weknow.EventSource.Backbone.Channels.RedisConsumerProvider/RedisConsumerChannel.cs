@@ -28,7 +28,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
         private const int MAX_DELAY = 5000;
-        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisConsumerChannel));
+        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE);
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
