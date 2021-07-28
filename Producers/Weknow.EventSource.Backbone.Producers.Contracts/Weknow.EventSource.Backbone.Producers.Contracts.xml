@@ -731,5 +731,23 @@
             Technical vs Business aspects, etc.
             </example>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.StartSpanScope``1(System.Diagnostics.ActivitySource,Weknow.EventSource.Backbone.Metadata,System.Collections.Immutable.ImmutableArray{``0}.Builder,System.Action{System.Collections.Immutable.ImmutableArray{``0}.Builder,System.String,System.String})">
+            <summary>
+            Starts telemetry span scope.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="activitySource">The activity source.</param>
+            <param name="meta">The meta.</param>
+            <param name="entriesBuilder">The entries builder.</param>
+            <param name="injectStrategy">The injection strategy.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.TelemetryrExtensions.InjectConnonTelemetryTags(Weknow.EventSource.Backbone.Metadata,System.Diagnostics.Activity)">
+            <summary>
+            Adds standard open-telemetry tags (for redis).
+            </summary>
+            <param name="meta">The meta.</param>
+            <param name="activity">The activity.</param>
+        </member>
     </members>
 </doc>

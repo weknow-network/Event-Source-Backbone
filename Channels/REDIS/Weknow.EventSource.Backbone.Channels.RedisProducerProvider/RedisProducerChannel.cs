@@ -20,14 +20,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
     internal class RedisProducerChannel : IProducerChannelProvider
     {
+        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisProducerChannel));
         private readonly ILogger _logger;
         private readonly AsyncPolicy _resiliencePolicy;
         private readonly Task<IDatabaseAsync> _dbTask;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
         // Open Telemetry
-        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisProducerChannel));
-        private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
+        //private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisProducerChannel));
+        //private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
         #region Ctor
 
@@ -141,25 +142,25 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             // local method 
             NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
-            var spanContext = Activity.Current?.Context;
-            ImmutableArray<NameValueEntry> entriesBuilder = ImmutableArray.Create(
+            ImmutableArray<NameValueEntry> commonEntries = ImmutableArray.Create(
                 KV(nameof(meta.MessageId), id),
                 KV(nameof(meta.Operation), meta.Operation),
                 KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds()),
                 KV(nameof(meta.ChannelType), CHANNEL_TYPE)
-            //KV(MetaKeys.TelemetrySpanId, Activity.Current?.SpanId.ToHexString()),
-            //KV(MetaKeys.TelemetryTraceId, Activity.Current?.TraceId.ToHexString())
-            //KV(MetaKeys.TelemetryBaggage, Baggage.Current.Serialize())
             );
 
             #endregion // var entries = new NameValueEntry[]{...}
 
-            await StoreBucketAsync(EventBucketCategories.Segments);
-            await StoreBucketAsync(EventBucketCategories.Interceptions);
+            await LocalStoreBucketAsync(EventBucketCategories.Segments);
+            await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
+
+            RedisValue messageId = await _resiliencePolicy.ExecuteAsync(LocalStreamAddAsync);
+
+            return messageId;
 
             #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            async ValueTask StoreBucketAsync(EventBucketCategories storageType)
+            async ValueTask LocalStoreBucketAsync(EventBucketCategories storageType)
             {
                 var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
                 Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
@@ -170,7 +171,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
                         foreach (var item in metaItems)
                         {
-                            entriesBuilder = entriesBuilder.Add(KV(item.Key, item.Value));
+                            commonEntries = commonEntries.Add(KV(item.Key, item.Value));
                         }
                     }
                 }
@@ -182,50 +183,32 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            RedisValue messageId = await _resiliencePolicy.ExecuteAsync(LocalStreamAddAsync);
-
-            return messageId;
+            #region LocalStreamAddAsync
 
             Task<RedisValue> LocalStreamAddAsync()
             {
-                // TODO: [bnaya 2021-07] move to base class
-                // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
-                // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-                var activityName = $"{meta.Operation} send";
-                using var activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Producer);
-                // Depending on Sampling (and whether a listener is registered or not), the
-                // activity above may not be created.
-                // If it is created, then propagate its context.
-                // If it is not created, the propagate the Current context,
-                // if any.
-                ActivityContext contextToInject = default;
-                if (activity != null)
-                {
-                    contextToInject = activity.Context;
-                }
-                else if (Activity.Current != null)
-                {
-                    contextToInject = Activity.Current.Context;
-                }
-
-
-                var telemetryBuilder = entriesBuilder.ToBuilder();
-                // Inject the ActivityContext into the message metadata to propagate trace context to the receiving service.
-                Propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), telemetryBuilder, LocalInjectTelemetry);
-
-                // The OpenTelemetry messaging specification defines a number of attributes. These attributes are added here.
+                var telemetryBuilder = commonEntries.ToBuilder();
+                using var activity = ACTIVITY_SOURCE.StartSpanScope(meta, telemetryBuilder, LocalInjectTelemetry) ?? default;
                 meta.InjectTelemetryTags(activity);
 
                 var entries = telemetryBuilder.ToArray();
                 return db.StreamAddAsync(meta.Key(), entries,
                                                flags: CommandFlags.DemandMaster);
-
-                // TODO: [bnaya 2021-07] Open Issue at the telemetry client: make it immutable friendly
-                void LocalInjectTelemetry(ImmutableArray<NameValueEntry>.Builder builder, string key, string value)
-                {
-                    builder.Add(KV(key, value));
-                }
             }
+
+            #endregion // LocalStreamAddAsync
+
+            #region LocalInjectTelemetry
+
+            void LocalInjectTelemetry(
+                            ImmutableArray<NameValueEntry>.Builder builder,
+                            string key,
+                            string value)
+            {
+                builder.Add(KV(key, value));
+            }
+
+            #endregion // LocalInjectTelemetry
         }
 
         #endregion // SendAsync

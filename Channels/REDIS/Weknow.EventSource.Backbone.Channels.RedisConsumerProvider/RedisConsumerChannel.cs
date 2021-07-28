@@ -337,18 +337,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             await CancelAsync(cancellableIds);
                                         });
 
-                        //string? parentId = entries.ContainsKey(MetaKeys.TelemetrySpanId) ? entries[MetaKeys.TelemetrySpanId].ToString() : null;
-                        //var tags = new Dictionary<string, object?>
-                        //{
-                        //    [nameof(meta.Partition)] = meta.Partition,
-                        //    [nameof(meta.Shard)] = meta.Shard,
-                        //    [nameof(meta.MessageId)] = meta.MessageId
-                        //};
-                        //IDisposable? scope;
-                        //if (string.IsNullOrEmpty(parentId))
-                        //    scope = _activitySource.StartActivity(meta.Operation, ActivityKind.Consumer);
-                        //else
-                        //    scope = _activitySource.StartActivity(meta.Operation, ActivityKind.Consumer, parentId, tags.AsEnumerable());
 
                         var parentContext = Propagator.Extract(default, entries, LocalExtractTraceContext);
                         Baggage.Current = parentContext.Baggage;
