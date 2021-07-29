@@ -138,7 +138,7 @@ namespace Microsoft.Extensions.Configuration
                 builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
                     .AddService(shortAppName))
                     .ListenToEventSourceRedisChannel()
-                    //.SetSampler(new CustomSampler())
+                    // .SetSampler<AlwaysOnSampler>()
                     .AddAspNetCoreInstrumentation(m =>
                     {
                         m.Filter = OpenTelemetryFilter;

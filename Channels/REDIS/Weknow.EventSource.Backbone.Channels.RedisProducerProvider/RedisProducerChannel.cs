@@ -26,10 +26,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private readonly Task<IDatabaseAsync> _dbTask;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
-        // Open Telemetry
-        //private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(nameof(RedisProducerChannel));
-        //private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
-
         #region Ctor
 
         /// <summary>
