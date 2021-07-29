@@ -156,7 +156,9 @@ namespace Microsoft.Extensions.Configuration
                             //    m.FlushInterval
                             //}
                             )
-                    .AddOtlpExporter(options => options.Endpoint = new System.Uri(jaegerEndPoint));
+                    .AddOtlpExporter(options => options.Endpoint = new System.Uri(jaegerEndPoint))
+                    .SetSampler(TestSampler.Create(LogLevel.Information));
+                ;
                 if (hostEnv.IsDevelopment())
                 {
                     builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);

@@ -147,42 +147,17 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // var entries = new NameValueEntry[]{...}
 
-            await LocalStoreBucketAsync(EventBucketCategories.Segments);
-            await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
-
             RedisValue messageId = await _resiliencePolicy.ExecuteAsync(LocalStreamAddAsync);
 
             return messageId;
 
-            #region ValueTask StoreBucketAsync(StorageType storageType) // local function
-
-            async ValueTask LocalStoreBucketAsync(EventBucketCategories storageType)
-            {
-                var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
-                Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
-                if (strategies.Any())
-                {
-                    foreach (var strategy in strategies)
-                    {
-                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
-                        foreach (var item in metaItems)
-                        {
-                            commonEntries = commonEntries.Add(KV(item.Key, item.Value));
-                        }
-                    }
-                }
-                else
-                {
-                    await _defaultStorageStrategy.SaveBucketAsync(id, bucket, storageType, meta);
-                }
-            }
-
-            #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
-
             #region LocalStreamAddAsync
 
-            Task<RedisValue> LocalStreamAddAsync()
+            async Task<RedisValue> LocalStreamAddAsync()
             {
+                await LocalStoreBucketAsync(EventBucketCategories.Segments);
+                await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
+
                 var telemetryBuilder = commonEntries.ToBuilder();
                 var activityName = $"{meta.Operation} produce";
                 using Activity? activity = ACTIVITY_SOURCE.StartActivity(activityName, ActivityKind.Producer);
@@ -190,23 +165,50 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 meta.InjectTelemetryTags(activity);
                 var entries = telemetryBuilder.ToArray();
 
-                return db.StreamAddAsync(meta.Key(), entries,
+                using var scope = SuppressInstrumentationScope.Begin();
+                var result = await db.StreamAddAsync(meta.Key(), entries,
                                                flags: CommandFlags.DemandMaster);
+                return result;
+
+                #region ValueTask StoreBucketAsync(StorageType storageType) // local function
+
+                async ValueTask LocalStoreBucketAsync(EventBucketCategories storageType)
+                {
+                    var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
+                    Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
+                    if (strategies.Any())
+                    {
+                        foreach (var strategy in strategies)
+                        {
+                            var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
+                            foreach (var item in metaItems)
+                            {
+                                commonEntries = commonEntries.Add(KV(item.Key, item.Value));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        await _defaultStorageStrategy.SaveBucketAsync(id, bucket, storageType, meta);
+                    }
+                }
+
+                #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
+
+                #region LocalInjectTelemetry
+
+                void LocalInjectTelemetry(
+                                ImmutableArray<NameValueEntry>.Builder builder,
+                                string key,
+                                string value)
+                {
+                    builder.Add(KV(key, value));
+                }
+
+                #endregion // LocalInjectTelemetry
             }
 
             #endregion // LocalStreamAddAsync
-
-            #region LocalInjectTelemetry
-
-            void LocalInjectTelemetry(
-                            ImmutableArray<NameValueEntry>.Builder builder,
-                            string key,
-                            string value)
-            {
-                builder.Add(KV(key, value));
-            }
-
-            #endregion // LocalInjectTelemetry
         }
 
         #endregion // SendAsync
