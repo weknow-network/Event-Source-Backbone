@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.CodeGeneration;
@@ -113,13 +114,20 @@ namespace Weknow.EventSource.Backbone
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
         IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder.AddStorageStrategy(
-                                            IProducerStorageStrategy storageStrategy,
+                                            Func<ILogger, ValueTask<IProducerStorageStrategy>> storageStrategy,
                                             EventBucketCategories targetType,
                                             Predicate<string>? filter)
         {
-            var decorated = new FilteredStorageStrategy(storageStrategy, filter, targetType);
-            var prms = Plan.WithStorageStrategy(decorated);
+            var prms = Plan.WithStorageStrategy(Local);
             return new ProducerBuilder(prms);
+
+            async Task<IProducerStorageStrategyWithFilter> Local(ILogger logger)
+            {
+                var strategy = await storageStrategy(logger);
+                var decorated = new FilteredStorageStrategy(strategy, filter, targetType);
+                return decorated;
+            }
+
         }
 
         #endregion // AddStorageStrategy

@@ -1,5 +1,8 @@
 ﻿
+using Microsoft.Extensions.Logging;
+
 using System;
+using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -19,8 +22,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IConsumerStoreStrategyBuilder AddStorageStrategy(
-            IConsumerStorageStrategy storageStrategy,
+        IConsumerStoreStrategyBuilder AddStorageStrategyFactory(
+            Func<ILogger, ValueTask<IConsumerStorageStrategy>> storageStrategy,
             EventBucketCategories targetType = EventBucketCategories.All);
     }
 }

@@ -83,7 +83,7 @@
             <param name="channel">The channel provider.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerStoreStrategyBuilder#AddStorageStrategy(Weknow.EventSource.Backbone.IProducerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#IProducerStoreStrategyBuilder#AddStorageStrategy(System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.IProducerStorageStrategy}},Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.

@@ -247,7 +247,8 @@ namespace Weknow.EventSource.Backbone
 
             if (plan.ForwardPlans.Count == 0) // merged
             {
-                await plan.Channel.SendAsync(announcement, plan.StorageStrategy);
+                var strategies = await plan.StorageStrategiesAsync;
+                await plan.Channel.SendAsync(announcement, strategies);
                 return;
             }
 

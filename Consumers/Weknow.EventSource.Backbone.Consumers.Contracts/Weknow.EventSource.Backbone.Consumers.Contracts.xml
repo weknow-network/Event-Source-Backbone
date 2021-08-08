@@ -413,7 +413,7 @@
             Enable configuration.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.IConsumerStoreStrategyBuilder.AddStorageStrategy(Weknow.EventSource.Backbone.IConsumerStorageStrategy,Weknow.EventSource.Backbone.EventBucketCategories)">
+        <member name="M:Weknow.EventSource.Backbone.IConsumerStoreStrategyBuilder.AddStorageStrategyFactory(System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.IConsumerStorageStrategy}},Weknow.EventSource.Backbone.EventBucketCategories)">
             <summary>
             Adds the storage strategy (Segment / Interceptions).
             Will use default storage (REDIS Hash) when empty.
@@ -449,6 +449,11 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.Channel">
             <summary>
             Gets a communication channel provider factory.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlan.StorageStrategiesAsync">
+            <summary>
+            Gets the storage strategies.
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBase">
@@ -498,11 +503,6 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Cancellation">
             <summary>
             Gets the cancellation token.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.StorageStrategy">
-            <summary>
-            Gets the storage strategy.
             </summary>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Interceptors">
@@ -557,6 +557,11 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBuilder.ChannelFactory">
             <summary>
             Gets a communication channel provider factory.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBuilder.StorageStrategyFactories">
+            <summary>
+            Gets the storage strategy factories.
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.IConsumerPlanBuilder.Build">

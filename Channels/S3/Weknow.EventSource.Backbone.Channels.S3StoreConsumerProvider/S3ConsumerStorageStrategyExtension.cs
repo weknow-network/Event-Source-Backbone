@@ -1,6 +1,8 @@
 ﻿
 using Microsoft.Extensions.Logging;
 
+using System.Threading.Tasks;
+
 using Weknow.EventSource.Backbone.Channels;
 
 
@@ -15,22 +17,25 @@ namespace Weknow.EventSource.Backbone
         /// Adds the S3 storage strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="logger">The logger.</param>
         /// <param name="bucket">The bucket.</param>
         /// <param name="basePath">The base path.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder AddS3Strategy(
             this IConsumerStoreStrategyBuilder builder,
-            ILogger logger,
             string? bucket = null,
             string? basePath = null,
             EventBucketCategories targetType = EventBucketCategories.All)
         {
-            var factory = S3RepositoryFactory.Create(logger);
-            var repo = factory.Get(bucket, basePath);
-            var strategy = new S3ConsumerStorageStrategy(repo);
-            var result = builder.AddStorageStrategy(strategy);
+            var result = builder.AddStorageStrategyFactory(Local, targetType);
+
+            ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
+            {
+                var factory = S3RepositoryFactory.Create(logger);
+                var repo = factory.Get(bucket, basePath);
+                var strategy = new S3ConsumerStorageStrategy(repo);
+                return strategy.ToValueTask<IConsumerStorageStrategy>();
+            }
             return result;
         }
 

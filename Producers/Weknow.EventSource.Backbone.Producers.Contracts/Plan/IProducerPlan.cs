@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,12 +14,20 @@ namespace Weknow.EventSource.Backbone
     /// Plan contract
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IProducerPlanBase" />
-    public interface IProducerPlan: IProducerPlanBase
+    public interface IProducerPlan : IProducerPlanBase
     {
         /// <summary>
         /// Gets the communication channel provider.
         /// </summary>
         IProducerChannelProvider Channel { get; }
+
+        /// <summary>
+        /// Gets the storage strategy.
+        /// By design the stream should hold minimal information while the main payload 
+        /// is segmented and can stored outside of the stream.
+        /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
+        /// </summary>
+        Task<ImmutableArray<IProducerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }
 
         /// <summary>
         /// Gets the forwards pipelines.

@@ -48,15 +48,15 @@
             Extension methods for S3 storage strategy.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.S3ProducerStorageStrategyExtension.AddS3Strategy(Weknow.EventSource.Backbone.IProducerStoreStrategyBuilder,Microsoft.Extensions.Logging.ILogger,System.String,System.String,Weknow.EventSource.Backbone.EventBucketCategories)">
+        <member name="M:Weknow.EventSource.Backbone.S3ProducerStorageStrategyExtension.AddS3Strategy(Weknow.EventSource.Backbone.IProducerStoreStrategyBuilder,System.String,System.String,Weknow.EventSource.Backbone.EventBucketCategories,System.Predicate{System.String})">
             <summary>
             Adds the S3 storage strategy.
             </summary>
             <param name="builder">The builder.</param>
-            <param name="logger">The logger.</param>
             <param name="bucket">The bucket.</param>
             <param name="basePath">The base path.</param>
             <param name="targetType">Type of the target.</param>
+            <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
             <returns></returns>
         </member>
     </members>

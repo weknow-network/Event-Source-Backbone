@@ -85,7 +85,6 @@ namespace Weknow.EventSource.Backbone
                 Announcement arg,
                 IAck ack)
             {
-
                 CancellationToken cancellation = _plan.Cancellation;
                 Metadata meta = arg.Metadata;
 

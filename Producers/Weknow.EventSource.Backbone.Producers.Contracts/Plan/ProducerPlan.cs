@@ -19,6 +19,7 @@ namespace Weknow.EventSource.Backbone
     public class ProducerPlan : IProducerPlan, IProducerPlanBuilder
     {
         public static readonly ProducerPlan Empty = new ProducerPlan();
+        private static readonly Task<ImmutableArray<IProducerStorageStrategyWithFilter>> EMPTY_STORAGE_STRATEGY = Task.FromResult(ImmutableArray<IProducerStorageStrategyWithFilter>.Empty);
 
         #region Ctor
 
@@ -44,7 +45,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="routes">The routes.</param>
         /// <param name="forwards">Result of merging multiple channels.</param>
         /// <param name="forwardPlans">The forward channels.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <param name="storageStrategyFactories">The storage strategy.</param>
         private ProducerPlan(
             ProducerPlan copyFrom,
             Func<ILogger, IProducerChannelProvider>? channelFactory = null,
@@ -58,7 +59,7 @@ namespace Weknow.EventSource.Backbone
             IImmutableList<IProducerHooksBuilder>? routes = null,
             IImmutableList<IProducerHooksBuilder>? forwards = null,
             IImmutableList<IProducerPlan>? forwardPlans = null,
-            IProducerStorageStrategyWithFilter? storageStrategy = null)
+            Func<ILogger, Task<IProducerStorageStrategyWithFilter>>? storageStrategyFactories = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -71,9 +72,9 @@ namespace Weknow.EventSource.Backbone
             Forwards = forwards ?? copyFrom.Forwards;
             _forwardPlans = forwardPlans ?? copyFrom._forwardPlans;
             Logger = logger ?? copyFrom.Logger;
-            StorageStrategy = storageStrategy == null
-                ? copyFrom.StorageStrategy
-                : copyFrom.StorageStrategy.Add(storageStrategy);
+            StorageStrategyFactories = storageStrategyFactories == null
+                ? copyFrom.StorageStrategyFactories
+                : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
         }
 
         #endregion // Ctor
@@ -106,7 +107,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Channel
 
-        #region StorageStrategy
+        #region StorageStrategyFactories
 
         /// <summary>
         /// Gets the storage strategy.
@@ -114,11 +115,18 @@ namespace Weknow.EventSource.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategy { get; } =
-                                            ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+        public ImmutableArray<Func<ILogger, Task<IProducerStorageStrategyWithFilter>>> StorageStrategyFactories { get; } =
+                                            ImmutableArray<Func<ILogger, Task<IProducerStorageStrategyWithFilter>>>.Empty;
 
 
-        #endregion // StorageStrategy
+        #endregion // StorageStrategyFactories
+        /// <summary>
+        /// Gets the storage strategy.
+        /// By design the stream should hold minimal information while the main payload 
+        /// is segmented and can stored outside of the stream.
+        /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
+        /// </summary>
+        public Task<ImmutableArray<IProducerStorageStrategyWithFilter>> StorageStrategiesAsync { get; init; } = EMPTY_STORAGE_STRATEGY;
 
         #region Logger
 
@@ -273,9 +281,9 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
-        public ProducerPlan WithStorageStrategy(IProducerStorageStrategyWithFilter storageStrategy)
+        public ProducerPlan WithStorageStrategy(Func<ILogger, Task<IProducerStorageStrategyWithFilter>> storageStrategy)
         {
-            return new ProducerPlan(this, storageStrategy: storageStrategy);
+            return new ProducerPlan(this, storageStrategyFactories: storageStrategy);
         }
 
         #endregion // WithStorageStrategy
@@ -409,7 +417,10 @@ namespace Weknow.EventSource.Backbone
             if (Forwards.Count == 0)
             {
                 var channel = ChannelFactory(Logger);
-                var plan = new ProducerPlan(this, channel: channel);
+                var plan = new ProducerPlan(this, channel: channel)
+                {
+                    StorageStrategiesAsync = LocalAsync()
+                };
                 return plan;
             }
             var fws = Forwards.Select(fw =>
@@ -420,7 +431,17 @@ namespace Weknow.EventSource.Backbone
             });
 
 
-            return new ProducerPlan(this, forwardPlans: ImmutableList.CreateRange(fws));
+            return new ProducerPlan(this, forwardPlans: ImmutableList.CreateRange(fws))
+            {
+                StorageStrategiesAsync = LocalAsync()
+            };
+
+            async Task<ImmutableArray<IProducerStorageStrategyWithFilter>> LocalAsync()
+            {
+                var strategies = await Task.WhenAll(StorageStrategyFactories.Select(m => m(Logger)));
+                return ImmutableArray.CreateRange(strategies);
+            }
+
         }
 
         #endregion // Build

@@ -20,13 +20,13 @@ using Xunit.Abstractions;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
-    public class S3StoreStrategyExplicitTests: EndToEndExplicitTests
+    public class S3StoreStrategyExplicitTests : EndToEndExplicitTests
     {
 
-        public S3StoreStrategyExplicitTests(ITestOutputHelper outputHelper): 
+        public S3StoreStrategyExplicitTests(ITestOutputHelper outputHelper) :
             base(outputHelper,
-                (b, logger) => b.AddS3Strategy(logger),
-                (b, logger) => b.AddS3Strategy(logger))
+                (b, logger) => b.AddS3Strategy(),
+                (b, logger) => b.AddS3Strategy())
         {
         }
 

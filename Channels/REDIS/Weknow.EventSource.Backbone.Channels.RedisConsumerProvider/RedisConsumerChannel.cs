@@ -295,7 +295,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         async ValueTask<Bucket> GetBucketAsync(EventBucketCategories storageType)
                         {
-                            var strategies = plan.StorageStrategy.Where(m => m.IsOfTargetType(storageType));
+                            IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
+                            strategies = strategies.Where(m => m.IsOfTargetType(storageType));
                             Bucket bucket = Bucket.Empty;
                             if (strategies.Any())
                             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
@@ -66,12 +67,5 @@ namespace Weknow.EventSource.Backbone
         /// ORDER into different shard and gain performance bust..
         /// </summary>
         string Shard { get; }
-        /// <summary>
-        /// Gets the storage strategy.
-        /// By design the stream should hold minimal information while the main payload 
-        /// is segmented and can stored outside of the stream.
-        /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
-        /// </summary>
-        ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategy { get; }
     }
 }

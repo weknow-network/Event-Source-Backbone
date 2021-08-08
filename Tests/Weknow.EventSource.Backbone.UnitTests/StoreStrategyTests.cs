@@ -61,8 +61,8 @@ namespace Weknow.EventSource.Backbone
 
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
-                        .AddStorageStrategy(_producerStorageStrategyA, filter: LocalOnlyEmail)
-                        .AddStorageStrategy(_producerStorageStrategyB, filter: LocalAllButEmail)
+                        .AddStorageStrategy(l => _producerStorageStrategyA.ToValueTask(), filter: LocalOnlyEmail)
+                        .AddStorageStrategy(l => _producerStorageStrategyB.ToValueTask(), filter: LocalAllButEmail)
                         //.WithOptions(producerOption)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
@@ -77,9 +77,9 @@ namespace Weknow.EventSource.Backbone
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
-                         .AddStorageStrategy(_consumerStorageStrategyA)
-                         .AddStorageStrategy(_consumerStorageStrategyB, EventBucketCategories.Segments)
-                         .AddStorageStrategy(_consumerStorageStrategyC, EventBucketCategories.Interceptions)
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyA.ToValueTask())
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyB.ToValueTask(), EventBucketCategories.Segments)
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyC.ToValueTask(), EventBucketCategories.Interceptions)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")

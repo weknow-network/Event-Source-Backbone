@@ -4,6 +4,7 @@ using Polly;
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -73,14 +74,22 @@ namespace Weknow.EventSource.Backbone
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder.AddStorageStrategy(
-            IConsumerStorageStrategy storageStrategy,
+        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder.AddStorageStrategyFactory(
+            Func<ILogger, ValueTask<IConsumerStorageStrategy>> storageStrategy,
             EventBucketCategories targetType)
         {
-            var decorated = new FilteredStorageStrategy(storageStrategy, targetType);
-            var prms = _plan.WithStorageStrategy(decorated);
+
+            var prms = _plan.WithStorageStrategy(Local);
             var result = new ConsumerBuilder(prms);
+
             return result;
+
+            async Task<IConsumerStorageStrategyWithFilter> Local(ILogger logger)
+            {
+                var strategy = await storageStrategy(logger);
+                var decorated = new FilteredStorageStrategy(strategy, targetType);
+                return decorated;
+            }
         }
 
         #endregion // AddStorageStrategy

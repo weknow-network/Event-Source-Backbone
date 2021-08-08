@@ -5,6 +5,7 @@ using Polly;
 using System;
 using System.Collections.Immutable;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -17,6 +18,11 @@ namespace Weknow.EventSource.Backbone
         /// Gets a communication channel provider factory.
         /// </summary>
         Func<ILogger, IConsumerChannelProvider> ChannelFactory { get; }
+
+        /// <summary>
+        /// Gets the storage strategy factories.
+        /// </summary>
+        ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>> StorageStrategyFactories { get; }
 
         /// <summary>
         /// Builds the plan.

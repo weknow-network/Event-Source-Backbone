@@ -4,6 +4,7 @@ using Polly;
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace Weknow.EventSource.Backbone
     public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
+        private static readonly Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> EMPTY_STORAGE_STRATEGIES = Task.FromResult(ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty);
 
         #region Ctor
 
@@ -55,7 +57,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="consumerName">Optional Name of the consumer.
         /// Can use for observability.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <param name="storageStrategyFactories">The storage strategy.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             Func<ILogger, IConsumerChannelProvider>? channelFactory = null,
@@ -71,7 +73,7 @@ namespace Weknow.EventSource.Backbone
             string? consumerGroup = null,
             string? consumerName = null,
             AsyncPolicy? resiliencePolicy = null,
-            IConsumerStorageStrategyWithFilter? storageStrategy = null)
+            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -86,9 +88,9 @@ namespace Weknow.EventSource.Backbone
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
             ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
-            StorageStrategy = storageStrategy == null
-                  ? copyFrom.StorageStrategy
-                  : copyFrom.StorageStrategy.Add(storageStrategy);
+            StorageStrategyFactories = storageStrategyFactories == null
+                  ? copyFrom.StorageStrategyFactories
+                  : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
         }
 
         #endregion // Ctor
@@ -121,14 +123,23 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Channel
 
-        #region StorageStrategy
+        #region StorageStrategyFactories
 
         /// <summary>
         /// Gets the storage strategy.
         /// </summary>
-        public ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; } = ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty;
+        public ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>> StorageStrategyFactories { get; } = ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>>.Empty;
 
-        #endregion // StorageStrategy
+        #endregion // StorageStrategyFactories
+
+        #region StorageStrategies
+
+        /// <summary>
+        /// Gets the storage strategies.
+        /// </summary>
+        public Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; init; } = EMPTY_STORAGE_STRATEGIES;
+
+        #endregion // StorageStrategies
 
         #region Logger
 
@@ -287,9 +298,9 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithStorageStrategy(IConsumerStorageStrategyWithFilter storageStrategy)
+        internal ConsumerPlan WithStorageStrategy(Func<ILogger, Task<IConsumerStorageStrategyWithFilter>> storageStrategy)
         {
-            return new ConsumerPlan(this, storageStrategy: storageStrategy);
+            return new ConsumerPlan(this, storageStrategyFactories: storageStrategy);
         }
 
         #endregion // WithStorageStrategy
@@ -472,8 +483,18 @@ namespace Weknow.EventSource.Backbone
         IConsumerPlan IConsumerPlanBuilder.Build()
         {
             var channel = ChannelFactory(Logger);
-            var plan = new ConsumerPlan(this, channel: channel);
+            var plan = new ConsumerPlan(this, channel: channel)
+            {
+                StorageStrategiesAsync = LocalAsync()
+            };
+
             return plan;
+
+            async Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> LocalAsync()
+            {
+                var strategies = await Task.WhenAll(StorageStrategyFactories.Select(m => m(Logger)));
+                return ImmutableArray.CreateRange(strategies);
+            }
         }
 
         #endregion // Build

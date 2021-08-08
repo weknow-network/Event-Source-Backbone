@@ -1,5 +1,8 @@
 ﻿
+using Microsoft.Extensions.Logging;
+
 using System;
+using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -22,7 +25,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
         IProducerStoreStrategyBuilder AddStorageStrategy(
-            IProducerStorageStrategy storageStrategy,
+            Func<ILogger, ValueTask<IProducerStorageStrategy>> storageStrategy,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null);
     }

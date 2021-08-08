@@ -47,18 +47,18 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             {
                 ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
                 IEventFlow producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy(logger)
+                                     .AddS3Strategy()
                                      .Partition("demo")
                                      .Shard("default")
+                                     .WithLogger(logger)
                                      .Build<IEventFlow>();
                 return producer;
             });
             services.AddSingleton(ioc =>
             {
-                ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
                 IConsumerLoggerBuilder consumer =
-                ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy(logger)
+                            ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
+                                     .AddS3Strategy()
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
                                      .Partition("demo")
                                      .Shard("default");
@@ -66,7 +66,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             });
 
             services.AddControllers()
-                                                      .WithStandardWeknow();
+                            .WithStandardWeknow();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

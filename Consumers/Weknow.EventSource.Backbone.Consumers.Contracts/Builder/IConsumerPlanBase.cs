@@ -5,6 +5,7 @@ using Polly;
 using System;
 using System.Collections.Immutable;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -53,10 +54,6 @@ namespace Weknow.EventSource.Backbone
         /// Gets the cancellation token.
         /// </summary>
         CancellationToken Cancellation { get; }
-        /// <summary>
-        /// Gets the storage strategy.
-        /// </summary>
-        ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategy { get; }
         /// <summary>
         /// Consumer interceptors (Timing: after serialization).
         /// </summary>
