@@ -18,6 +18,8 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// Return the message id
         /// </returns>
-        ValueTask<string> SendAsync(Announcement payload, ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy);
+        ValueTask<string> SendAsync(
+            Announcement payload,
+            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy);
     }
 }
