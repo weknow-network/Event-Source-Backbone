@@ -31,13 +31,13 @@ jobs:
     - name: Test
       run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal -o out
 
-    - name: Publish Weknow.EventSource.Backbone.Contracts
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-          PROJECT_FILE_PATH: Weknow.EventSource.Backbone.Contracts/Weknow.EventSource.Backbone.Contracts.csproj
-          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
-          VERSION_FILE_PATH: Directory.Build.props          
-      
+#    - name: Publish Weknow.EventSource.Backbone.Contracts
+#      uses: brandedoutcast/publish-nuget@v2.5.5
+#      with:
+#          PROJECT_FILE_PATH: Weknow.EventSource.Backbone.Contracts/Weknow.EventSource.Backbone.Contracts.csproj
+#          NUGET_KEY: ${{secrets.NUGET_API_EVENT_SOURCE_KEY}}
+#          VERSION_FILE_PATH: Directory.Build.props          
+#      
 #    - name: Add NuGet Source
 #      run: |
 #        dotnet nuget add source --username Bnayae --password ${{ secrets.NUGET_API_EVENT_SOURCE_KEY }} --store-password-in-clear-text --name nuget "https://api.nuget.org/v3/index.json"
