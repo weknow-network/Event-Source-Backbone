@@ -127,64 +127,83 @@ namespace Weknow.EventSource.Backbone
                     string endpointKey = CONSUMER_END_POINT_KEY,
                     string passwordKey = CONSUMER_PASSWORD_KEY)
         {
-            string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? "localhost";
-            string? password = Environment.GetEnvironmentVariable(passwordKey);
+            string? endpoint = Environment.GetEnvironmentVariable(endpointKey);
 
-            var sb = new StringBuilder();
-            var writer = new StringWriter(sb);
-
-            var redisConfiguration = ConfigurationOptions.Parse(endpoint);
-            redisConfiguration.ClientName = string.Format(
-                                    CONNECTION_NAME_PATTERN,
-                                    Interlocked.Increment(ref _index));
-
-            configuration?.Invoke(redisConfiguration);
-            redisConfiguration.Password = password;
-
-            IConnectionMultiplexer redis;
-            TimeSpan delay = RETRY_INTERVAL_DELAY;
-            for (int i = 1; i <= numberOfRetries; i++)
+            try
             {
-                try
+                if (endpoint == null)
+                    throw new KeyNotFoundException($"REDIS KEY [{endpointKey}] is missing from env variables");
+
+                string? password = Environment.GetEnvironmentVariable(passwordKey);
+
+                var sb = new StringBuilder();
+                var writer = new StringWriter(sb);
+
+                var redisConfiguration = ConfigurationOptions.Parse(endpoint);
+                redisConfiguration.ClientName = string.Format(
+                                        CONNECTION_NAME_PATTERN,
+                                        Interlocked.Increment(ref _index));
+
+                configuration?.Invoke(redisConfiguration);
+                redisConfiguration.Password = password;
+
+                IConnectionMultiplexer redis;
+                TimeSpan delay = RETRY_INTERVAL_DELAY;
+                for (int i = 1; i <= numberOfRetries; i++)
                 {
-                    redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
-                    if (logger != null)
-                        logger.LogInformation(sb.ToString());
-                    else
-                        Console.WriteLine(sb);
-                    return redis;
-                }
-                catch (Exception ex)
-                {
-                    writer.Flush();
-                    if (i >= RETRY_COUNT)
+                    try
                     {
-                        string msg = $"Fail to create REDIS client [final retry ({i})]. {Environment.NewLine}{sb}";
+                        redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
                         if (logger != null)
-                            logger.LogError(ex.FormatLazy(), msg);
+                            logger.LogInformation(sb.ToString());
                         else
-                            Console.WriteLine(msg);
-                        throw;
+                            Console.WriteLine(sb);
+                        return redis;
                     }
-                    if (i % 10 == 0)
+                    catch (Exception ex)
                     {
-                        string msg = $"Fail to create REDIS client [retry = {i}]. {Environment.NewLine}{sb}";
-                        if (logger != null)
-                            logger.LogWarning(ex.FormatLazy(), msg);
+                        writer.Flush();
+                        if (i >= RETRY_COUNT)
+                        {
+                            string msg = $"Fail to create REDIS client [final retry ({i})]. {Environment.NewLine}{sb}";
+                            if (logger != null)
+                                logger.LogError(ex.FormatLazy(), msg);
+                            else
+                                Console.WriteLine(msg);
+                            throw;
+                        }
+                        if (i % 10 == 0)
+                        {
+                            string msg = $"Fail to create REDIS client [retry = {i}]. {Environment.NewLine}{sb}";
+                            if (logger != null)
+                                logger.LogWarning(ex.FormatLazy(), msg);
+                            else
+                                Console.WriteLine(msg);
+                        }
+                        if (delay < MAX_RETRY_INTERVAL_DELAY)
+                        {
+                            delay = delay.Add(delay);
+                            await Task.Delay(delay);
+                        }
                         else
-                            Console.WriteLine(msg);
+                            await Task.Delay(MAX_RETRY_INTERVAL_DELAY);
                     }
-                    if (delay < MAX_RETRY_INTERVAL_DELAY)
-                    {
-                        delay = delay.Add(delay);
-                        await Task.Delay(delay);
-                    }
-                    else
-                        await Task.Delay(MAX_RETRY_INTERVAL_DELAY);
                 }
             }
+            catch (Exception ex)
+            {
+                if (logger != null)
+                    logger.LogError(ex.FormatLazy());
+                else
+                    Console.WriteLine($"REDIS CONNECTION ERROR: {ex.FormatLazy()}");
+            }
 
-            throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "Fail to establish REDIS connection");
+            string err = $"Fail to establish REDIS connection [env: {endpointKey}, endpoint:{endpoint}]";
+            if (logger != null)
+                logger.LogError(err);
+            else
+                Console.WriteLine(err);
+            throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, err);
         }
 
 
