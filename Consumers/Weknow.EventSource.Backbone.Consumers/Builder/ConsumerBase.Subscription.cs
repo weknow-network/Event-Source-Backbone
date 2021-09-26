@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         private class Subscription : IConsumerLifetime
         {
             private readonly IConsumerPlan _plan;
-            private readonly Func<ConsumerMetadata, T> _factory;
+            private readonly T _handler;
             private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
             private readonly ConsumerOptions _options;
@@ -28,23 +28,24 @@ namespace Weknow.EventSource.Backbone
             private readonly static ConcurrentDictionary<Subscription, object?> _keepAlive =
                                                 new ConcurrentDictionary<Subscription, object?>();
             private readonly TaskCompletionSource<object?> _completion = new TaskCompletionSource<object?>();
+
             // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
             private long _consumeCounter;
 
             #region Ctor
 
             /// <summary>
-            /// Initializes a new instance.
+            /// Initializes a new subscription.
             /// </summary>
             /// <param name="plan">The plan.</param>
-            /// <param name="factory">The factory.</param>
+            /// <param name="handler">The factory.</param>
             public Subscription(
                 IConsumerPlan plan,
-                Func<ConsumerMetadata, T> factory)
+                T handler)
             {
                 var channel = plan.Channel;
                 _plan = plan;
-                _factory = factory;
+                _handler = handler;
                 if (plan.Options.KeepAlive)
                     _keepAlive.TryAdd(this, null);
 
@@ -85,6 +86,18 @@ namespace Weknow.EventSource.Backbone
                 Announcement arg,
                 IAck ack)
             {
+                #region Validation
+
+                if (_handler == null)
+                {
+                    var err = "Must supply non-null instance for the subscription";
+                    var ex = new ArgumentNullException(err);
+                    _plan.Logger?.LogWarning(ex, err);
+                    throw ex;
+                }
+
+                #endregion // Validation
+
                 CancellationToken cancellation = _plan.Cancellation;
                 Metadata meta = arg.Metadata;
 
@@ -100,27 +113,10 @@ namespace Weknow.EventSource.Backbone
                 #endregion // Increment & Validation Max Messages Limit
 
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
-                T instance = _factory(consumerMeta);
-                #region Validation
-
-                if (instance == null)
-                    throw new NullReferenceException("_factory(consumerMeta)");
-
-                #endregion // Validation
 
                 var logger = _plan.Logger;
                 logger.LogDebug("Consuming event: {0}", meta.Key());
 
-                #region Validation
-
-                if (instance == null)
-                {
-                    var ex = new ArgumentNullException("Cannot create instance");
-                    _plan.Logger?.LogWarning(ex, "Consumer fail to create instance");
-                    throw ex;
-                }
-
-                #endregion // Validation
 
                 #region _plan.Interceptors.InterceptAsync(...)
 
@@ -141,7 +137,7 @@ namespace Weknow.EventSource.Backbone
                 #region MethodInfo? method = type.GetMethod(operation)
 
                 string operation = arg.Metadata.Operation;
-                Type type = instance.GetType();
+                Type type = _handler.GetType();
                 var binding = BindingFlags.Public |
                               BindingFlags.Instance;
                 MethodInfo? method = type.GetMethod(operation, binding);
@@ -203,7 +199,8 @@ namespace Weknow.EventSource.Backbone
                     {
                         await _plan.ResiliencePolicy.ExecuteAsync(async () =>
                         {
-                            var res = method.Invoke(instance, arguments);
+                            ConsumerMetadata._metaContext.Value = consumerMeta;
+                            var res = method.Invoke(_handler, arguments);
                             if (res is ValueTask vtsk) await vtsk;
                             if (res is Task tsk) await tsk;
                         });

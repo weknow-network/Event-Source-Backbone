@@ -76,7 +76,9 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public static class MetadataExtensions
     {
-        public static readonly Metadata Empty = new Metadata();
+        private const string EMPTY_KEY = "~EMPTY~";
+
+        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY };
 
         #region Duration
 
@@ -95,5 +97,14 @@ namespace Weknow.EventSource.Backbone
         public static string Key(this Metadata meta) => $"{meta.Partition}:{meta.Shard}";
 
         #endregion // Key
+
+        #region IsEmpty
+
+        /// <summary>
+        /// Indicate whether it an empty metadata
+        /// </summary>
+        public static bool IsEmpty(this Metadata meta) => meta.MessageId == EMPTY_KEY;
+
+        #endregion // IsEmpty
     }
 }

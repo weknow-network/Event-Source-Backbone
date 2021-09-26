@@ -11,7 +11,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// Subscribe consumer.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="factory">The factory.</param>
+        /// <param name="instance">The factory.</param>
         /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
         /// consuming a different portion of the same stream of messages</param>
         /// <param name="consumerName">
@@ -24,8 +24,8 @@ namespace Weknow.EventSource.Backbone.Building
         /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
         /// </returns>
         IConsumerLifetime Subscribe<T>(
-            Func<ConsumerMetadata, T> factory,
-            string? consumerGroup = null, 
+            T instance,
+            string? consumerGroup = null,
             string? consumerName = null);
     }
 }

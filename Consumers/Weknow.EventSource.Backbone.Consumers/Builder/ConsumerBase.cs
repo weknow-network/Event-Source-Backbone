@@ -10,7 +10,7 @@ namespace Weknow.EventSource.Backbone
     public partial class ConsumerBase<T>
     {
         private readonly IConsumerPlan _plan;
-        private readonly Func<ConsumerMetadata, T> _factory;
+        private readonly T _handler;
 
         #region Ctor
 
@@ -18,13 +18,13 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        /// <param name="factory">The factory.</param>
+        /// <param name="handler">The events handler.</param>
         public ConsumerBase(
             IConsumerPlanBuilder plan,
-            Func<ConsumerMetadata, T> factory)
+            T handler)
         {
             _plan = plan.Build();
-            _factory = factory;
+            _handler = handler;
         }
 
         #endregion // Ctor
@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         public IConsumerLifetime Subscribe()
         {
-            var subscription = new Subscription(_plan, _factory);
+            var subscription = new Subscription(_plan, _handler);
             return subscription;
         }
 

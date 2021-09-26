@@ -230,6 +230,11 @@
             Gets the partition:shard as key.
             </summary>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.MetadataExtensions.IsEmpty(Weknow.EventSource.Backbone.Metadata)">
+            <summary>
+            Indicate whether it an empty metadata
+            </summary>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.EventBucketCategories">
             <summary>
             Bucket storage type

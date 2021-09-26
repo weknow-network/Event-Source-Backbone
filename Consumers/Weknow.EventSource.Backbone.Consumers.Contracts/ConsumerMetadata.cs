@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Weknow.EventSource.Backbone
@@ -9,8 +10,15 @@ namespace Weknow.EventSource.Backbone
     /// It represent the operation's intent or represent event.
     /// </summary>
     [DebuggerDisplay("{Metadata.Partition}/{Metadata.Shard} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
-    public sealed class ConsumerMetadata 
+    public sealed class ConsumerMetadata
     {
+        internal static readonly AsyncLocal<ConsumerMetadata> _metaContext = new AsyncLocal<ConsumerMetadata>();
+
+        /// <summary>
+        /// Get the metadata context
+        /// </summary>
+        public static ConsumerMetadata? Context => _metaContext.Value;
+
         #region Ctor
 
         /// <summary>
@@ -46,5 +54,21 @@ namespace Weknow.EventSource.Backbone
         public CancellationToken ConsumingCancellation { get; }
 
         #endregion // ConsumingCancellation
+
+        #region Cast overloads
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator Metadata(ConsumerMetadata? instance)
+        {
+            return instance?.Metadata ?? MetadataExtensions.Empty;
+        }
+
+        #endregion // Cast overloads
     }
 }

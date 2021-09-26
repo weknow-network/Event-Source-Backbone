@@ -276,7 +276,7 @@ namespace Weknow.EventSource.Backbone
         /// Subscribe consumer.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="factory">The factory.</param>
+        /// <param name="eventHandler">Handling interface for the events.</param>
         /// <param name="consumerGroup">
         /// Consumer Group allow a group of clients to cooperate
         /// consuming a different portion of the same stream of messages
@@ -289,7 +289,7 @@ namespace Weknow.EventSource.Backbone
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe<T>(
-            Func<ConsumerMetadata, T> factory,
+            T eventHandler,
             string? consumerGroup,
             string? consumerName)
 
@@ -307,7 +307,7 @@ namespace Weknow.EventSource.Backbone
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            var consumer = new ConsumerBase<T>(plan, factory);
+            var consumer = new ConsumerBase<T>(plan, eventHandler);
             var subscription = consumer.Subscribe();
             return subscription;
         }

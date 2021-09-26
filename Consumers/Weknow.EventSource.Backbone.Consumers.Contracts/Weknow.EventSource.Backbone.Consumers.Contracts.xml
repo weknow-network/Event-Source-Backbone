@@ -301,12 +301,12 @@
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe``1(System.Func{Weknow.EventSource.Backbone.ConsumerMetadata,``0},System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe``1(``0,System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="factory">The factory.</param>
+            <param name="instance">The factory.</param>
             <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
             consuming a different portion of the same stream of messages</param>
             <param name="consumerName">
@@ -577,6 +577,11 @@
             It represent the operation's intent or represent event.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerMetadata.Context">
+            <summary>
+            Get the metadata context
+            </summary>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerMetadata.#ctor(Weknow.EventSource.Backbone.Metadata,System.Threading.CancellationToken)">
             <summary>
             Initializes a new instance.
@@ -594,6 +599,15 @@
             <summary>
             Cancel the consuming process.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerMetadata.op_Implicit(Weknow.EventSource.Backbone.ConsumerMetadata)~Weknow.EventSource.Backbone.Metadata">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerOptions.BatchSize">
             <summary>

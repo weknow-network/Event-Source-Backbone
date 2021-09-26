@@ -84,7 +84,7 @@ namespace Weknow.EventSource.Backbone
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")
-                         .Subscribe(meta => _subscriber);
+                         .Subscribe(_subscriber);
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();

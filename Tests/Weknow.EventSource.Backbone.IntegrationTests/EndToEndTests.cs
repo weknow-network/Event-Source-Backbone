@@ -121,7 +121,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -190,7 +190,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
-                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -260,7 +260,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
-                         .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -336,7 +336,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                              .WithLogger(_fakeLogger)
-                             .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -406,7 +406,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
                              .WithLogger(_fakeLogger)
-                             .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -478,12 +478,12 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithLogger(_fakeLogger);
 
             await using IConsumerLifetime otherSubscription = consumerPipe
-                             .Subscribe(meta => otherSubscriber, "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(otherSubscriber, "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
 
             await otherSubscription.Completion;
 
             await using IConsumerLifetime subscription = consumerPipe
-                             .Subscribe(meta => _subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 

@@ -60,6 +60,5 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // Cast overloads
-
     }
 }

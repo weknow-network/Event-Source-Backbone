@@ -53,7 +53,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Subscribe<IEventFlow>(meta => new Subscriber(meta, _logger, _producer), "Demo-GROUP");
+            _builder.Subscribe<IEventFlow>(new Subscriber(_logger, _producer), "Demo-GROUP");
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());
@@ -75,24 +75,24 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 
         private class Subscriber : IEventFlow
         {
-            private readonly Metadata _metadata;
             private readonly ILogger _logger;
             private readonly IEventFlow _producer;
 
             public Subscriber(
-                ConsumerMetadata metadata,
+                //ConsumerMetadata metadata,
                 ILogger logger,
                 IEventFlow producer)
             {
-                _metadata = metadata.Metadata;
                 _logger = logger;
                 _producer = producer;
             }
 
             async ValueTask IEventFlow.Stage1Async(Person PII, string payload)
             {
+                Metadata? meta = ConsumerMetadata.Context;
+
                 _logger.LogInformation("Consume First Stage {partition} {shard} {PII} {data}",
-                    _metadata.Partition, _metadata.Shard, PII, payload);
+                    meta?.Partition, meta?.Shard, PII, payload);
 
                 await _producer.Stage2Async(
                     JsonDocument.Parse("{\"name\":\"john\"}").RootElement,
@@ -101,8 +101,9 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 
             ValueTask IEventFlow.Stage2Async(JsonElement PII, JsonElement data)
             {
+                var meta = ConsumerMetadata.Context;
                 _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
-                    _metadata.Partition, _metadata.Shard, PII, data);
+                    meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
                 return ValueTaskStatic.CompletedValueTask;
             }
         }
