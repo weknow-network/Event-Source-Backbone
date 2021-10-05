@@ -308,11 +308,11 @@ namespace Weknow.EventSource.Backbone
         /// Withes the partition.
         /// </summary>
         /// <param name="partition">The partition.</param>
+        /// <param name="shard">The shard.</param>
         /// <returns></returns>
-        public ProducerPlan WithPartition(
-                                                string partition)
+        public ProducerPlan WithPartition(string partition, string? shard = null)
         {
-            return new ProducerPlan(this, partition: partition);
+            return new ProducerPlan(this, partition: partition, shard: shard ?? this.Shard);
         }
 
         #endregion // WithPartition

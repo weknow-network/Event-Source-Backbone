@@ -4,6 +4,20 @@
         <name>Weknow.EventSource.Backbone.Producers.Contracts</name>
     </assembly>
     <members>
+        <member name="T:Weknow.EventSource.Backbone.Building.IBuildRouter`1">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,Weknow.EventSource.Backbone.IProducerPlanRoute})">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="routeStrategy">The routing strategy.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerHooksBuilder">
             <summary>
             Event Source producer builder.
@@ -140,6 +154,12 @@
             </summary>
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder.Router``1">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge">
             <summary>
@@ -389,23 +409,6 @@
             Gets the configuration.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Partition">
-            <summary>
-            Partition key represent logical group of 
-            event source shards.
-            For example assuming each ORDERING flow can have its 
-            own messaging sequence, yet can live concurrency with 
-            other ORDER's sequences.
-            The partition will let consumer the option to be notify and
-            consume multiple shards from single consumer.
-            This way the consumer can handle all orders in
-            central place without affecting sequence of specific order 
-            flow or limiting the throughput.
-            </summary>
-            <value>
-            The partition.
-            </value>
-        </member>
         <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.SegmentationStrategies">
             <summary>
             Segmentation responsible of splitting an instance into segments.
@@ -419,15 +422,6 @@
             GDPR (personal, non-personal data),
             Technical vs Business aspects, etc.
             </example>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.IProducerPlanBase.Shard">
-            <summary>
-            Shard key represent physical sequence.
-            Use same shard when order is matter.
-            For example: assuming each ORDERING flow can have its 
-            own messaging sequence, in this case you can split each 
-            ORDER into different shard and gain performance bust..
-            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerPlanBuilder">
             <summary>
@@ -459,6 +453,37 @@
             Buildings the plan.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IProducerPlanRoute">
+            <summary>
+            common plan routing properties
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanRoute.Partition">
+            <summary>
+            Partition key represent logical group of 
+            event source shards.
+            For example assuming each ORDERING flow can have its 
+            own messaging sequence, yet can live concurrency with 
+            other ORDER's sequences.
+            The partition will let consumer the option to be notify and
+            consume multiple shards from single consumer.
+            This way the consumer can handle all orders in
+            central place without affecting sequence of specific order 
+            flow or limiting the throughput.
+            </summary>
+            <value>
+            The partition.
+            </value>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanRoute.Shard">
+            <summary>
+            Shard key represent physical sequence.
+            Use same shard when order is matter.
+            For example: assuming each ORDERING flow can have its 
+            own messaging sequence, in this case you can split each 
+            ORDER into different shard and gain performance bust..
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerPlan">
             <summary>
@@ -619,11 +644,12 @@
             <param name="options">The options.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String)">
             <summary>
             Withes the partition.
             </summary>
             <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithShard(System.String)">
