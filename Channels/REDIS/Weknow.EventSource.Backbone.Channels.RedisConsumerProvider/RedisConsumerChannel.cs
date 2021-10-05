@@ -122,12 +122,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                IDatabaseAsync db = await _dbTask;
+                try
+                {
+                    IDatabaseAsync db = await _dbTask;
 
-                if (plan.Shard != string.Empty)
-                    await SubsribeShardAsync(db, plan, func, options, cancellationToken);
-                else
-                    await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+                    if (plan.Shard != string.Empty)
+                        await SubsribeShardAsync(db, plan, func, options, cancellationToken);
+                    else
+                        await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fail to subscribe into the [{partition}->{shard}] event stream",
+                        plan.Partition, plan.Shard);
+                    throw;
+                }
 
             }
         }

@@ -64,11 +64,12 @@
             Alternative, chain can serve as a cache layer.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.#ctor(System.Threading.Tasks.Task{StackExchange.Redis.IDatabaseAsync})">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.#ctor(System.Threading.Tasks.Task{StackExchange.Redis.IDatabaseAsync},Microsoft.Extensions.Logging.ILogger)">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="dbTask">The database task.</param>
+            <param name="logger">The logger.</param>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisHashStorageStrategy.Weknow#EventSource#Backbone#IProducerStorageStrategy#SaveBucketAsync(System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.EventBucketCategories,Weknow.EventSource.Backbone.Metadata,System.Threading.CancellationToken)">
             <summary>

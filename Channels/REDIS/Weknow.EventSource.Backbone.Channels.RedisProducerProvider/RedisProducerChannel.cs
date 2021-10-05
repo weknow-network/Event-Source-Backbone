@@ -57,7 +57,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 Policy.Handle<Exception>()
                                       .RetryAsync(3);
             _dbTask = redis;
-            _defaultStorageStrategy = new RedisHashStorageStrategy(redis);
+            _defaultStorageStrategy = new RedisHashStorageStrategy(redis, logger);
         }
 
         /// <summary>
@@ -129,8 +129,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             Announcement payload,
             ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
         {
-            IDatabaseAsync db = await _dbTask;
-
             Metadata meta = payload.Metadata;
             string id = meta.MessageId;
 
@@ -165,10 +163,20 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 meta.InjectTelemetryTags(activity);
                 var entries = telemetryBuilder.ToArray();
 
-                using var scope = SuppressInstrumentationScope.Begin();
-                var result = await db.StreamAddAsync(meta.Key(), entries,
-                                               flags: CommandFlags.DemandMaster);
-                return result;
+                try
+                {
+                    IDatabaseAsync db = await _dbTask;
+                    using var scope = SuppressInstrumentationScope.Begin();
+                    var result = await db.StreamAddAsync(meta.Key(), entries,
+                                                   flags: CommandFlags.DemandMaster);
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Fail to push event [{id}] into the [{partition}->{shard}] stream: {operation}",
+                        meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
+                    throw;
+                }
 
                 #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 

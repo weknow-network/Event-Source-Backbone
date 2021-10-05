@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -118,20 +119,31 @@ namespace Weknow.EventSource.Backbone
                             IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
+            ILogger logger = serviceProvider.GetService<ILogger<IProducerBuilder>>() ?? throw new ArgumentNullException();
+
             return builder.UseRedisChannel(LocalGetDb(), resiliencePolicy);
 
             async Task<IDatabaseAsync> LocalGetDb()
             {
-                var multiplexer = serviceProvider.GetService<IConnectionMultiplexer>();
-                if (multiplexer != null)
-                    return multiplexer.GetDatabase();
+                try
+                {
 
-                var multiplexerTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
-                if (multiplexerTask == null)
-                    throw new ArgumentNullException(nameof(IConnectionMultiplexer));
-                var instance = await multiplexerTask;
-                IDatabaseAsync db = instance.GetDatabase();
-                return db;
+                    var multiplexer = serviceProvider.GetService<IConnectionMultiplexer>();
+                    if (multiplexer != null)
+                        return multiplexer.GetDatabase();
+
+                    var multiplexerTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
+                    if (multiplexerTask == null)
+                        throw new ArgumentNullException(nameof(IConnectionMultiplexer));
+                    var instance = await multiplexerTask;
+                    IDatabaseAsync db = instance.GetDatabase();
+                    return db;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogCritical(ex, $"Fail to init REDIS multiplexer");
+                    throw;
+                }
             }
         }
     }

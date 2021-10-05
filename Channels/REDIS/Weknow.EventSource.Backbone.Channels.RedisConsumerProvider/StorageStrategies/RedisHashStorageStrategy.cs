@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone.Channels
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    internal class RedisHashStorageStrategy :  IConsumerStorageStrategy
+    internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     {
         private readonly Task<IDatabaseAsync> _dbTask;
 
@@ -53,6 +53,7 @@ namespace Weknow.EventSource.Backbone.Channels
             CancellationToken cancellation)
         {
             string key = $"{type}~{meta.MessageId}";
+
             IDatabaseAsync db = await _dbTask;
             var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));

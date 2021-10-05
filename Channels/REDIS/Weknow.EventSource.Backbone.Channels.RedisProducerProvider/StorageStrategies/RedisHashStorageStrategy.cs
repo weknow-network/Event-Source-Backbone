@@ -21,18 +21,22 @@ namespace Weknow.EventSource.Backbone.Channels
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    internal class RedisHashStorageStrategy :  IProducerStorageStrategy
+    internal class RedisHashStorageStrategy : IProducerStorageStrategy
     {
         private readonly Task<IDatabaseAsync> _dbTask;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
         /// <param name="dbTask">The database task.</param>
+        /// <param name="logger">The logger.</param>
         public RedisHashStorageStrategy(
-                        Task<IDatabaseAsync> dbTask)
+                        Task<IDatabaseAsync> dbTask,
+                        ILogger logger)
         {
             _dbTask = dbTask;
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,19 +54,27 @@ namespace Weknow.EventSource.Backbone.Channels
                                                                     string id,
                                                                     Bucket bucket,
                                                                     EventBucketCategories type,
-                                                                    Metadata meta, 
+                                                                    Metadata meta,
                                                                     CancellationToken cancellation)
         {
-            IDatabaseAsync db = await _dbTask;
+            try
+            {
+                IDatabaseAsync db = await _dbTask;
 
-            var segmentsEntities = bucket
-                                            .Select(sgm =>
-                                                    new HashEntry(sgm.Key, sgm.Value))
-                                            .ToArray();
-            await db.HashSetAsync($"{type}~{id}", segmentsEntities);
-            return ImmutableDictionary<string, string>.Empty;
+                var segmentsEntities = bucket
+                                                .Select(sgm =>
+                                                        new HashEntry(sgm.Key, sgm.Value))
+                                                .ToArray();
+                await db.HashSetAsync($"{type}~{id}", segmentsEntities);
+                return ImmutableDictionary<string, string>.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{partition}->{shard}] stream: {operation}",
+                    id, type, meta.Partition, meta.Shard, meta.Operation);
+                throw;
+            }
         }
 
-        
     }
 }
