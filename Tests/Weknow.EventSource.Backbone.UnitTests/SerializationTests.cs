@@ -24,6 +24,7 @@ namespace Weknow.EventSource.Backbone
             var meta = new Metadata
             {
                 MessageId = "message1",
+                Environment = "env1",
                 Partition = "partition1",
                 Shard = "shard1",
                 Operation = "operation1"

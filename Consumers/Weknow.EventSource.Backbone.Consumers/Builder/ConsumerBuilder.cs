@@ -111,6 +111,24 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // WithOptions
 
+        #region Environment
+
+        /// <summary>
+        /// Include the environment as prefix of the stream key.
+        /// for example: production:partition-name:shard-name
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <returns></returns>
+        IConsumerPartitionBuilder IConsumerEnvironmentBuilder.Environment(string environment)
+        {
+            var prms = _plan.WithEnvironment(environment);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // Environment
+
+
         #region Partition
 
         /// <summary>

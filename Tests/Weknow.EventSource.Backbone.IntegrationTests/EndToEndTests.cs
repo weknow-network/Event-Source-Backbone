@@ -93,6 +93,61 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Ctor
 
+        #region Environmet_Test
+
+        [Fact]
+        public async Task Environmet_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperations producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment("Test")
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .Build<ISequenceOperations>();
+
+            #endregion // ISequenceOperations producer = ...
+
+            await SendSequenceAsync(producer);
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 3 /* detach consumer after 3 messages*/
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Environment("Test")
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // Environmet_Test
+
         #region OnSucceed_ACK_Test
 
         [Fact]
@@ -700,6 +755,7 @@ namespace Weknow.EventSource.Backbone.Tests
             string[] keys =
                 {
                     $"{PARTITION}:{SHARD}",
+                    $"Test:{PARTITION}:{SHARD}",
                     $"p0.{PARTITION}:p1.{SHARD}",
                     $"p2.{PARTITION}:{SHARD}",
                     $"{PARTITION}.s0:{SHARD}.s1",

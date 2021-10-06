@@ -226,7 +226,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
-            string key = $"{plan.Partition}:{plan.Shard}";
+            string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
@@ -291,6 +291,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var meta = new Metadata
                         {
                             MessageId = id,
+                            Environment = plan.Environment,
                             Partition = plan.Partition,
                             Shard = plan.Shard,
                             Operation = operation,

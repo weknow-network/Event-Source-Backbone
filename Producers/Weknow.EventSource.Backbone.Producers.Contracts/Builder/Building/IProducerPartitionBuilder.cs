@@ -1,7 +1,8 @@
 ﻿namespace Weknow.EventSource.Backbone.Building
 {
+
     /// <summary>
-    /// Enable configuration.
+    /// Partition key represent logical group
     /// </summary>
     public interface IProducerPartitionBuilder
     {

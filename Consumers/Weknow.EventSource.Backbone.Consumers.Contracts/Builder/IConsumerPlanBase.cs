@@ -16,6 +16,13 @@ namespace Weknow.EventSource.Backbone
     public interface IConsumerPlanBase
     {
         /// <summary>
+        /// Environment (part of the stream key).
+        /// </summary>
+        /// <value>
+        /// The partition.
+        /// </value>
+        string Environment { get; }
+        /// <summary>
         /// Partition key represent logical group of 
         /// event source shards.
         /// For example assuming each ORDERING flow can have its 
@@ -94,6 +101,26 @@ namespace Weknow.EventSource.Backbone
         /// Gets or sets the invocation resilience policy.
         /// </summary>
         AsyncPolicy ResiliencePolicy { get; }
-
     }
+
+    /// <summary>
+    /// Metadata extensions
+    /// </summary>
+    public static class IConsumerPlanBaseExtensions
+    {
+        #region Key
+
+        /// <summary>
+        /// Gets the partition:shard as key.
+        /// </summary>
+        public static string Key(this IConsumerPlanBase meta)
+        {
+            if (string.IsNullOrEmpty(meta.Environment))
+                return $"{meta.Partition}:{meta.Shard}";
+            return $"{meta.Environment}:{meta.Partition}:{meta.Shard}";
+        }
+
+        #endregion // Key
+    }
+
 }

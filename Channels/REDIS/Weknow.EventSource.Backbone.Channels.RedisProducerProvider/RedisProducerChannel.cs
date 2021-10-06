@@ -167,7 +167,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 {
                     IDatabaseAsync db = await _dbTask;
                     using var scope = SuppressInstrumentationScope.Begin();
-                    var result = await db.StreamAddAsync(meta.Key(), entries,
+                    var k = meta.Key();
+                    var result = await db.StreamAddAsync(k, entries,
                                                    flags: CommandFlags.DemandMaster);
                     return result;
                 }

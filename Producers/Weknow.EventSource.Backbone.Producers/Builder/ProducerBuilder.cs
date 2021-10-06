@@ -14,7 +14,6 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class ProducerBuilder :
         IProducerBuilder,
-        IProducerOptionsBuilder,
         IProducerShardBuilder,
         IProducerHooksBuilder,
         IProducerStoreStrategyBuilder
@@ -132,6 +131,20 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // AddStorageStrategy
 
+        #region Environment
+
+        /// <summary>
+        /// Origin environment of the message
+        /// </summary>
+        /// <returns></returns>
+        IProducerPartitionBuilder IProducerEnvironmentBuilder.Environment(string environment)
+        {
+            var prms = Plan.WithEnvironment(environment);
+            return new ProducerBuilder(prms);
+        }
+
+        #endregion // Environment
+
         #region Partition
 
         /// <summary>
@@ -148,7 +161,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="partition">The partition key.</param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         IProducerShardBuilder IProducerPartitionBuilder.Partition(string partition)
         {
             var prms = Plan.WithPartition(partition);
@@ -185,7 +197,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        IProducerPartitionBuilder IProducerOptionsBuilder.WithOptions(EventSourceOptions options)
+        IProducerEnvironmentBuilder IProducerOptionsBuilder.WithOptions(EventSourceOptions options)
         {
             var prms = Plan.WithOptions(options);
             return new ProducerBuilder(prms);

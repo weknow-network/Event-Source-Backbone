@@ -44,6 +44,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="copyFrom">The copy from.</param>
         /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
+        /// <param name="environment">The environment.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
         /// <param name="logger">The logger.</param>
@@ -62,6 +63,7 @@ namespace Weknow.EventSource.Backbone
             ConsumerPlan copyFrom,
             Func<ILogger, IConsumerChannelProvider>? channelFactory = null,
             IConsumerChannelProvider? channel = null,
+            string? environment = null,
             string? partition = null,
             string? shard = null,
             ILogger? logger = null,
@@ -77,6 +79,7 @@ namespace Weknow.EventSource.Backbone
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
+            Environment = environment ?? copyFrom.Environment;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
             Logger = logger ?? copyFrom.Logger;
@@ -150,6 +153,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Channel
 
+        #region Environment
+
+        /// <summary>
+        /// Environment (part of the stream key)
+        /// </summary>
+        public string Environment { get; } = string.Empty;
+
+        #endregion // Environment
+
         #region Partition
 
         /// <summary>
@@ -164,9 +176,6 @@ namespace Weknow.EventSource.Backbone
         /// central place without affecting sequence of specific order 
         /// flow or limiting the throughput.
         /// </summary>
-        /// <value>
-        /// The partition.
-        /// </value>
         public string Partition { get; } = string.Empty;
 
         #endregion // Partition
@@ -353,6 +362,20 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithOptions
+
+        #region WithEnvironment
+
+        /// <summary>
+        /// Attach the environment.
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithEnvironment(string environment)
+        {
+            return new ConsumerPlan(this, environment: environment);
+        }
+
+        #endregion // WithEnvironment
 
         #region WithPartition
 

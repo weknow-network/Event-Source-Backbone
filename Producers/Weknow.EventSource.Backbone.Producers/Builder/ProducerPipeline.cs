@@ -222,6 +222,7 @@ namespace Weknow.EventSource.Backbone
             Metadata metadata = new Metadata
             {
                 MessageId = id,
+                Environment = plan.Environment,
                 Partition = plan.Partition,
                 Shard = plan.Shard,
                 Operation = operation

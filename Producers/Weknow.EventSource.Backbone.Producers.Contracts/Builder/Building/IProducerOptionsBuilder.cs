@@ -4,11 +4,11 @@
     /// Enable configuration.
     /// </summary>
     public interface IProducerOptionsBuilder
-        : IProducerPartitionBuilder
+        : IProducerEnvironmentBuilder
     {
         /// <summary>
         /// Apply configuration.
         /// </summary>
-        IProducerPartitionBuilder WithOptions(EventSourceOptions options);
+        IProducerEnvironmentBuilder WithOptions(EventSourceOptions options);
     }
 }

@@ -16,6 +16,10 @@ namespace Weknow.EventSource.Backbone
     public interface IProducerPlanRoute
     {
         /// <summary>
+        /// The origin environment of the message
+        /// </summary>
+        string Environment { get; }
+        /// <summary>
         /// Partition key represent logical group of 
         /// event source shards.
         /// For example assuming each ORDERING flow can have its 
@@ -27,9 +31,6 @@ namespace Weknow.EventSource.Backbone
         /// central place without affecting sequence of specific order 
         /// flow or limiting the throughput.
         /// </summary>
-        /// <value>
-        /// The partition.
-        /// </value>
         string Partition { get; }
         /// <summary>
         /// Shard key represent physical sequence.

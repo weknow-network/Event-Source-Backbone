@@ -36,6 +36,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="copyFrom">The copy from.</param>
         /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
+        /// <param name="environment">The environment.</param>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
         /// <param name="logger">The logger.</param>
@@ -50,6 +51,7 @@ namespace Weknow.EventSource.Backbone
             ProducerPlan copyFrom,
             Func<ILogger, IProducerChannelProvider>? channelFactory = null,
             IProducerChannelProvider? channel = null,
+            string? environment = null,
             string? partition = null,
             string? shard = null,
             ILogger? logger = null,
@@ -63,6 +65,7 @@ namespace Weknow.EventSource.Backbone
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
+            Environment = environment ?? copyFrom.Environment;
             Partition = partition ?? copyFrom.Partition;
             Shard = shard ?? copyFrom.Shard;
             Options = options ?? copyFrom.Options;
@@ -137,6 +140,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Channel
 
+        #region Environment
+
+        /// <summary>
+        /// Origin environment of the message
+        /// </summary>
+        public string Environment { get; } = string.Empty;
+
+        #endregion // Environment
+
         #region Partition
 
         /// <summary>
@@ -151,9 +163,6 @@ namespace Weknow.EventSource.Backbone
         /// central place without affecting sequence of specific order 
         /// flow or limiting the throughput.
         /// </summary>
-        /// <value>
-        /// The partition.
-        /// </value>
         public string Partition { get; } = string.Empty;
 
         #endregion // Partition
@@ -302,6 +311,37 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // WithOptions
 
+        #region WithEnvironment
+
+        /// <summary>
+        /// Withes the environment.
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <param name="partition">The partition.</param>
+        /// <param name="shard">The shard.</param>
+        /// <param name="type">The type (only for partition and shard).</param>
+        /// <returns></returns>
+        public ProducerPlan WithEnvironment(
+            string environment,
+            string? partition = null,
+            string? shard = null,
+            RouteAssignmentType type = RouteAssignmentType.Replace)
+        {
+            switch (type)
+            {
+                case RouteAssignmentType.Prefix:
+                    return new ProducerPlan(this, environment: environment, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}");
+                case RouteAssignmentType.Replace:
+                    return new ProducerPlan(this, environment: environment, partition: partition ?? this.Partition, shard: shard ?? this.Shard);
+                case RouteAssignmentType.Suffix:
+                    return new ProducerPlan(this, environment: environment, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}");
+                default:
+                    return this;
+            }
+        }
+
+        #endregion // WithEnvironment
+
         #region WithPartition
 
         /// <summary>
@@ -311,7 +351,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        public ProducerPlan WithPartition(string partition, string? shard = null, RouteAssignmentType type = RouteAssignmentType.Replace)
+        public ProducerPlan WithPartition(string partition, string? shard = null,
+            RouteAssignmentType type = RouteAssignmentType.Replace)
         {
             switch (type)
             {

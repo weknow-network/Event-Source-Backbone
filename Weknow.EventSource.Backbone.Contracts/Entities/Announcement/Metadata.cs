@@ -43,6 +43,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion Operation 
 
+        #region Environment
+
+        /// <summary>
+        /// Gets the origin environment of the message.
+        /// </summary>
+        public string Environment { get; init; } = string.Empty;
+
+        #endregion  Environment
+
         #region Partition
 
         /// <summary>
@@ -94,7 +103,12 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the partition:shard as key.
         /// </summary>
-        public static string Key(this Metadata meta) => $"{meta.Partition}:{meta.Shard}";
+        public static string Key(this Metadata meta)
+        {
+            if (string.IsNullOrEmpty(meta.Environment))
+                return $"{meta.Partition}:{meta.Shard}";
+            return $"{meta.Environment}:{meta.Partition}:{meta.Shard}";
+        }
 
         #endregion // Key
 

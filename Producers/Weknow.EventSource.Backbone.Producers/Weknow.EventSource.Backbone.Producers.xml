@@ -95,6 +95,12 @@
             <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerEnvironmentBuilder#Environment(System.String)">
+            <summary>
+            Origin environment of the message
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerPartitionBuilder#Partition(System.String)">
             <summary>
             Partition key represent logical group of
@@ -110,7 +116,6 @@
             </summary>
             <param name="partition">The partition key.</param>
             <returns></returns>
-            <exception cref="T:System.NotImplementedException"></exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerShardBuilder#Shard(System.String)">
             <summary>

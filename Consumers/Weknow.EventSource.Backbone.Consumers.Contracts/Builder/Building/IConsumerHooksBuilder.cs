@@ -6,7 +6,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerHooksBuilder
-        : IConsumerPartitionBuilder
+        : IConsumerEnvironmentBuilder
     {
         /// <summary>
         /// Withes the cancellation token.

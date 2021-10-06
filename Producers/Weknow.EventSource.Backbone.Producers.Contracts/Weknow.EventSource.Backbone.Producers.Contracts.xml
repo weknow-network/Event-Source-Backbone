@@ -37,6 +37,18 @@
             <param name="type">The type.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IProducerEnvironmentBuilder">
+            <summary>
+            Origin environment of the message
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerEnvironmentBuilder.Environment(System.String)">
+            <summary>
+            Origin environment of the message
+            </summary>
+            <param name="environment">The environment.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerHooksBuilder">
             <summary>
             Event Source producer builder.
@@ -119,7 +131,7 @@
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerPartitionBuilder">
             <summary>
-            Enable configuration.
+            Partition key represent logical group
             </summary>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IProducerPartitionBuilder.Partition(System.String)">
@@ -483,6 +495,11 @@
             common plan routing properties
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.IProducerPlanRoute.Environment">
+            <summary>
+            The origin environment of the message
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.IProducerPlanRoute.Partition">
             <summary>
             Partition key represent logical group of 
@@ -496,9 +513,6 @@
             central place without affecting sequence of specific order 
             flow or limiting the throughput.
             </summary>
-            <value>
-            The partition.
-            </value>
         </member>
         <member name="P:Weknow.EventSource.Backbone.IProducerPlanRoute.Shard">
             <summary>
@@ -520,13 +534,14 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider},Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.EventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerPlan},System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Task{Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter}})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.#ctor(Weknow.EventSource.Backbone.ProducerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IProducerChannelProvider},Weknow.EventSource.Backbone.IProducerChannelProvider,System.String,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.EventSourceOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IProducerHooksBuilder},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IProducerPlan},System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Task{Weknow.EventSource.Backbone.IProducerStorageStrategyWithFilter}})">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="copyFrom">The copy from.</param>
             <param name="channelFactory">The channel.</param>
             <param name="channel">The channel.</param>
+            <param name="environment">The environment.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
             <param name="logger">The logger.</param>
@@ -569,6 +584,11 @@
             Gets the logger.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Environment">
+            <summary>
+            Origin environment of the message
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Partition">
             <summary>
             Partition key represent logical group of 
@@ -582,9 +602,6 @@
             central place without affecting sequence of specific order 
             flow or limiting the throughput.
             </summary>
-            <value>
-            The partition.
-            </value>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ProducerPlan.Shard">
             <summary>
@@ -666,6 +683,16 @@
             Withes the options.
             </summary>
             <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithEnvironment(System.String,System.String,System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
+            <summary>
+            Withes the environment.
+            </summary>
+            <param name="environment">The environment.</param>
+            <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
+            <param name="type">The type (only for partition and shard).</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">

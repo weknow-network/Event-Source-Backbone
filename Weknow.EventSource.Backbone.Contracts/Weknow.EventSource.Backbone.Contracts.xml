@@ -200,6 +200,11 @@
             Gets or sets the operation.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.Metadata.Environment">
+            <summary>
+            Gets the origin environment of the message.
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.Metadata.Partition">
             <summary>
             Gets or sets the partition.

@@ -145,6 +145,19 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerEnvironmentBuilder">
+            <summary>
+            Event Source producer builder.
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerEnvironmentBuilder.Environment(System.String)">
+            <summary>
+            Include the environment as prefix of the stream key.
+            for example: production:partition-name:shard-name
+            </summary>
+            <param name="environment">The environment.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerFilterBuilder">
             <summary>
             Event Source producer builder.
@@ -461,6 +474,14 @@
             Common plan properties
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Environment">
+            <summary>
+            Environment (part of the stream key).
+            </summary>
+            <value>
+            The partition.
+            </value>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.Partition">
             <summary>
             Partition key represent logical group of 
@@ -547,6 +568,16 @@
         <member name="P:Weknow.EventSource.Backbone.IConsumerPlanBase.ResiliencePolicy">
             <summary>
             Gets or sets the invocation resilience policy.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBaseExtensions">
+            <summary>
+            Metadata extensions
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerPlanBaseExtensions.Key(Weknow.EventSource.Backbone.IConsumerPlanBase)">
+            <summary>
+            Gets the partition:shard as key.
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerPlanBuilder">

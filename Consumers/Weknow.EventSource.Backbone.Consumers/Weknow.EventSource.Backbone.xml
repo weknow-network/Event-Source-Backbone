@@ -114,6 +114,14 @@
             <param name="optionsStrategy"></param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerEnvironmentBuilder#Environment(System.String)">
+            <summary>
+            Include the environment as prefix of the stream key.
+            for example: production:partition-name:shard-name
+            </summary>
+            <param name="environment">The environment.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerPartitionBuilder#Partition(System.String)">
             <summary>
             Partition key represent logical group of
@@ -240,13 +248,14 @@
             Initializes a new instance.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider},Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.ConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Task{Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter}})">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.#ctor(Weknow.EventSource.Backbone.ConsumerPlan,System.Func{Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.IConsumerChannelProvider},Weknow.EventSource.Backbone.IConsumerChannelProvider,System.String,System.String,System.String,Microsoft.Extensions.Logging.ILogger,Weknow.EventSource.Backbone.ConsumerOptions,System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.IConsumerAsyncInterceptor},System.Collections.Immutable.IImmutableList{Weknow.EventSource.Backbone.Building.IConsumerHooksBuilder},System.Nullable{System.Threading.CancellationToken},System.String,System.String,Polly.AsyncPolicy,System.Func{Microsoft.Extensions.Logging.ILogger,System.Threading.Tasks.Task{Weknow.EventSource.Backbone.IConsumerStorageStrategyWithFilter}})">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="copyFrom">The copy from.</param>
             <param name="channelFactory">The channel.</param>
             <param name="channel">The channel.</param>
+            <param name="environment">The environment.</param>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
             <param name="logger">The logger.</param>
@@ -287,6 +296,11 @@
             Gets the logger.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Environment">
+            <summary>
+            Environment (part of the stream key)
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Partition">
             <summary>
             Partition key represent logical group of 
@@ -300,9 +314,6 @@
             central place without affecting sequence of specific order 
             flow or limiting the throughput.
             </summary>
-            <value>
-            The partition.
-            </value>
         </member>
         <member name="P:Weknow.EventSource.Backbone.ConsumerPlan.Shard">
             <summary>
@@ -402,6 +413,13 @@
             Attach the options.
             </summary>
             <param name="options">The options.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithEnvironment(System.String)">
+            <summary>
+            Attach the environment.
+            </summary>
+            <param name="environment">The environment.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerPlan.WithPartition(System.String)">
