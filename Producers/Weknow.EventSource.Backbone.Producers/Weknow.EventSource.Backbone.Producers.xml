@@ -235,7 +235,7 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#Building#IBuildRouter{T}#Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IBuildRouter{T}#Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Weknow.EventSource.Backbone.Building
+namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>

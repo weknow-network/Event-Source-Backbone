@@ -1,4 +1,4 @@
-﻿namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// the type of the routing assignment

@@ -4,13 +4,13 @@
         <name>Weknow.EventSource.Backbone.Producers.Contracts</name>
     </assembly>
     <members>
-        <member name="T:Weknow.EventSource.Backbone.Building.IBuildRouter`1">
+        <member name="T:Weknow.EventSource.Backbone.IBuildRouter`1">
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
+        <member name="M:Weknow.EventSource.Backbone.IBuildRouter`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
@@ -18,7 +18,7 @@
             <param name="routeStrategy">The routing strategy.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
+        <member name="M:Weknow.EventSource.Backbone.IBuildRouter`1.Build(System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
             <summary>
             Enable partition assignment.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
@@ -27,7 +27,7 @@
             <param name="type">The type.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.String,System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
+        <member name="M:Weknow.EventSource.Backbone.IBuildRouter`1.Build(System.String,System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
             <summary>
             Enable partition assignment.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
@@ -180,11 +180,6 @@
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.Building.RouteAssignmentType">
-            <summary>
-            the type of the routing assignment
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge">
             <summary>
             Bridge segmentation
@@ -327,6 +322,11 @@
             <param name="targetType">Type of the target.</param>
             <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.RouteAssignmentType">
+            <summary>
+            the type of the routing assignment
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerBuilder">
             <summary>
@@ -668,7 +668,7 @@
             <param name="options">The options.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
             <summary>
             Withes the partition.
             </summary>
