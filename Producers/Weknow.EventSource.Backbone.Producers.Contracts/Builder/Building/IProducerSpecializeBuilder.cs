@@ -1,4 +1,6 @@
-﻿namespace Weknow.EventSource.Backbone.Building
+﻿using System;
+
+namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Event Source producer builder.
@@ -19,6 +21,13 @@
         /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
         /// <returns></returns>
         T Build<T>()
-            where T: class;
+            where T : class;
+
+        /// <summary>
+        /// Enable dynamic transformation of the stream id before sending.
+        /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+        /// </summary>
+        IBuildRouter<T> Router<T>()
+            where T : class;
     }
 }

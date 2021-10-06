@@ -308,11 +308,22 @@ namespace Weknow.EventSource.Backbone
         /// Withes the partition.
         /// </summary>
         /// <param name="partition">The partition.</param>
+        /// <param name="shard">The shard.</param>
+        /// <param name="type">The type.</param>
         /// <returns></returns>
-        public ProducerPlan WithPartition(
-                                                string partition)
+        public ProducerPlan WithPartition(string partition, string? shard = null, RouteAssignmentType type = RouteAssignmentType.Replace)
         {
-            return new ProducerPlan(this, partition: partition);
+            switch (type)
+            {
+                case RouteAssignmentType.Prefix:
+                    return new ProducerPlan(this, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}");
+                case RouteAssignmentType.Replace:
+                    return new ProducerPlan(this, partition: partition, shard: shard ?? this.Shard);
+                case RouteAssignmentType.Suffix:
+                    return new ProducerPlan(this, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}");
+                default:
+                    return this;
+            }
         }
 
         #endregion // WithPartition

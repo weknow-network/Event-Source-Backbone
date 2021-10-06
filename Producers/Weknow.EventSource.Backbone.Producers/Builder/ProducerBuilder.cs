@@ -285,7 +285,6 @@ namespace Weknow.EventSource.Backbone
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);
-
         }
 
         #endregion // WithLogger
@@ -307,7 +306,21 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>()
         {
-            var planBuilder = Plan;
+            return BuildInternal<T>(Plan);
+        }
+
+        #endregion // Build
+
+        #region BuildInternal
+
+        /// <summary>
+        /// Builds .
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="planBuilder">The plan builder.</param>
+        /// <returns></returns>
+        internal static T BuildInternal<T>(ProducerPlan planBuilder)
+        {
             if (planBuilder.SegmentationStrategies.Count == 0)
                 planBuilder = planBuilder.AddSegmentation(new ProducerDefaultSegmentationStrategy());
             var plan = ((IProducerPlanBuilder)planBuilder).Build();
@@ -315,6 +328,66 @@ namespace Weknow.EventSource.Backbone
                         .CreateProducerProxy<T, ProducerPipeline>(plan);
         }
 
-        #endregion // Build
+        #endregion // BuildInternal
+
+        /// <summary>
+        /// Enable dynamic transformation of the stream id before sending.
+        /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        IBuildRouter<T> IProducerSpecializeBuilder.Router<T>() => new Router<T>(Plan);
+
+        #region Router
+
+        /// <summary>
+        /// Enable dynamic transformation of the stream id before sending.
+        /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        private class Router<T> : IBuildRouter<T> where T : class
+        {
+            private readonly ProducerPlan _plan;
+
+            #region Ctor
+
+            /// <summary>
+            /// Initializes a new instance.
+            /// </summary>
+            /// <param name="plan">The plan.</param>
+            public Router(ProducerPlan plan)
+            {
+                _plan = plan;
+            }
+
+            #endregion // Ctor
+
+            /// <summary>
+            /// Enable dynamic transformation of the stream id before sending.
+            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            /// </summary>
+            /// <param name="routeStrategy">The routing strategy.</param>
+            /// <returns></returns>
+            T IBuildRouter<T>.Build(Func<IProducerPlanRoute, (string? partition, string? shard)> routeStrategy)
+            {
+                var (partition, shard) = routeStrategy(_plan);
+                var plan = _plan.WithPartition(partition ?? _plan.Partition, shard);
+                return BuildInternal<T>(plan);
+            }
+
+            T IBuildRouter<T>.Build(string partition, RouteAssignmentType type)
+            {
+                var plan = _plan.WithPartition(partition, type: type);
+                return BuildInternal<T>(plan);
+            }
+
+            T IBuildRouter<T>.Build(string partition, string shard, RouteAssignmentType type)
+            {
+                var plan = _plan.WithPartition(partition, shard, type);
+                return BuildInternal<T>(plan);
+            }
+        }
+
+        #endregion // Router
     }
 }

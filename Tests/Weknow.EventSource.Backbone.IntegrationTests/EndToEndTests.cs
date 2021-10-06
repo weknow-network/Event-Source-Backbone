@@ -28,6 +28,11 @@ namespace Weknow.EventSource.Backbone.Tests
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperations _subscriberPrefix = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperations _subscriberPrefix1 = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperations _subscriberSuffix = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperations _subscriberSuffix1 = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperations _subscriberDynamic = A.Fake<ISequenceOperations>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
@@ -426,6 +431,148 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Manual_ACK_Test
 
+        #region Route_Test
+
+        [Fact]
+        public async Task Route_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            var producerBuilder = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger);
+            ISequenceOperations producer = producerBuilder.Build<ISequenceOperations>();
+            ISequenceOperations producerPrefix = producerBuilder.Router<ISequenceOperations>().Build("p0.", "p1.");
+            ISequenceOperations producerPrefix1 = producerBuilder.Router<ISequenceOperations>().Build("p2.");
+            ISequenceOperations producerSuffix = producerBuilder.Router<ISequenceOperations>().Build(".s0", ".s1", RouteAssignmentType.Suffix);
+            ISequenceOperations producerSuffix1 = producerBuilder.Router<ISequenceOperations>().Build(".s2", RouteAssignmentType.Suffix);
+            ISequenceOperations producerDynamic = producerBuilder.Router<ISequenceOperations>().Build(m => ($"d.{m.Partition}", $"{m.Shard}.d"));
+
+            #endregion // ISequenceOperations producer = ...
+
+            await SendSequenceAsync(producer);
+            await SendSequenceAsync(producerPrefix, "p0");
+            await SendSequenceAsync(producerPrefix1, "p1");
+            await SendSequenceAsync(producerSuffix, "s0");
+            await SendSequenceAsync(producerSuffix1, "s1");
+            await SendSequenceAsync(producerDynamic, "d");
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 3 /* detach consumer after 3 messages*/
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition($"p0.{PARTITION}")
+                         .Shard($"p1.{SHARD}")
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberPrefix, "CONSUMER_GROUP_P1", $"TEST-P1 {DateTime.UtcNow:HH:mm:ss}");
+
+            await using IConsumerLifetime subscriptionPrefix1 = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition($"p2.{PARTITION}")
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberPrefix1, "CONSUMER_GROUP_P2", $"TEST-P2 {DateTime.UtcNow:HH:mm:ss}");
+
+            await using IConsumerLifetime subscriptionSuffix = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition($"{PARTITION}.s0")
+                         .Shard($"{SHARD}.s1")
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberSuffix, "CONSUMER_GROUP_S1", $"TEST-S1 {DateTime.UtcNow:HH:mm:ss}");
+
+            await using IConsumerLifetime subscriptionSuffix1 = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition($"{PARTITION}.s2")
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberSuffix1, "CONSUMER_GROUP_S2", $"TEST-S2 {DateTime.UtcNow:HH:mm:ss}");
+
+            await using IConsumerLifetime subscriptionDynamic = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition($"d.{PARTITION}")
+                         .Shard($"{SHARD}.d")
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberDynamic, "CONSUMER_GROUP_D", $"TEST-D {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await Task.WhenAll(
+                subscription.Completion,
+                subscriptionPrefix.Completion,
+                subscriptionPrefix1.Completion,
+                subscriptionSuffix.Completion,
+                subscriptionSuffix1.Completion);
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriberPrefix.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberPrefix.LoginAsync("admin", "p0"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberPrefix.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriberPrefix1.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberPrefix1.LoginAsync("admin", "p1"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberPrefix1.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriberSuffix.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberSuffix.LoginAsync("admin", "s0"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberSuffix.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriberSuffix1.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberSuffix1.LoginAsync("admin", "s1"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberSuffix1.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriberDynamic.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberDynamic.LoginAsync("admin", "d"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberDynamic.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // Route_Test
 
         #region Claim_Test
 
@@ -513,10 +660,10 @@ namespace Weknow.EventSource.Backbone.Tests
         /// Sends standard test sequence.
         /// </summary>
         /// <param name="producer">The producer.</param>
-        private static async Task SendSequenceAsync(ISequenceOperations producer)
+        private static async Task SendSequenceAsync(ISequenceOperations producer, string pass = "1234")
         {
             await producer.RegisterAsync(new User());
-            await producer.LoginAsync("admin", "1234");
+            await producer.LoginAsync("admin", pass);
             await producer.EarseAsync(4335);
         }
 
@@ -550,13 +697,24 @@ namespace Weknow.EventSource.Backbone.Tests
             GC.SuppressFinalize(this);
             string END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
             string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
-            string key = $"{PARTITION}:{SHARD}";
+            string[] keys =
+                {
+                    $"{PARTITION}:{SHARD}",
+                    $"p0.{PARTITION}:p1.{SHARD}",
+                    $"p2.{PARTITION}:{SHARD}",
+                    $"{PARTITION}.s0:{SHARD}.s1",
+                    $"{PARTITION}.s2:{SHARD}",
+                    $"d.{PARTITION}:{SHARD}.d",
+                };
             IDatabaseAsync db = RedisClientFactory.CreateAsync(
                                                 _fakeLogger,
                                                 cfg => cfg.AllowAdmin = true,
                                                 endpointKey: END_POINT_KEY,
                                                 passwordKey: PASSWORD_KEY).Result;
-            db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
+            foreach (string key in keys)
+            {
+                db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
+            }
 
         }
 

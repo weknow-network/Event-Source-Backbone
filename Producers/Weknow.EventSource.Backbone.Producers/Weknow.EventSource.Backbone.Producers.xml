@@ -206,6 +206,43 @@
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.BuildInternal``1(Weknow.EventSource.Backbone.ProducerPlan)">
+            <summary>
+            Builds .
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="planBuilder">The plan builder.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Router``1">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerBuilder.Router`1">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.#ctor(Weknow.EventSource.Backbone.ProducerPlan)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="plan">The plan.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#Building#IBuildRouter{T}#Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
+            <summary>
+            Enable dynamic transformation of the stream id before sending.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="routeStrategy">The routing strategy.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerPipeline">
             <summary>
             Handle the producing pipeline
@@ -219,7 +256,7 @@
                         Channel.SendAsync(announcement)
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlanBuilder)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlanBuilder@)">
             <summary>
             Initializes a new instance.
             </summary>
