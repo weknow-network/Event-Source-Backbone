@@ -368,10 +368,22 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="routeStrategy">The routing strategy.</param>
             /// <returns></returns>
-            T IBuildRouter<T>.Build(Func<IProducerPlanRoute, IProducerPlanRoute> routeStrategy)
+            T IBuildRouter<T>.Build(Func<IProducerPlanRoute, (string? partition, string? shard)> routeStrategy)
             {
-                var route = routeStrategy(_plan);
-                var plan = _plan.WithPartition(_plan.Partition, _plan.Shard);
+                var (partition, shard) = routeStrategy(_plan);
+                var plan = _plan.WithPartition(partition ?? _plan.Partition, shard);
+                return BuildInternal<T>(plan);
+            }
+
+            T IBuildRouter<T>.Build(string partition, RouteAssignmentType type)
+            {
+                var plan = _plan.WithPartition(partition, type: type);
+                return BuildInternal<T>(plan);
+            }
+
+            T IBuildRouter<T>.Build(string partition, string shard, RouteAssignmentType type)
+            {
+                var plan = _plan.WithPartition(partition, shard, type);
                 return BuildInternal<T>(plan);
             }
         }

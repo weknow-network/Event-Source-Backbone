@@ -26,7 +26,7 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        public ProducerPipeline(IProducerPlanBuilder plan)
+        public ProducerPipeline(ref IProducerPlanBuilder plan)
         {
             _plan = plan.Build();
         }

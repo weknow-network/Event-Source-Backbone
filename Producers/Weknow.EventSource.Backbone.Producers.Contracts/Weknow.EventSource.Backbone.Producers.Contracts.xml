@@ -10,12 +10,31 @@
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,Weknow.EventSource.Backbone.IProducerPlanRoute})">
+        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             </summary>
             <param name="routeStrategy">The routing strategy.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
+            <summary>
+            Enable partition assignment.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="partition">The partition.</param>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IBuildRouter`1.Build(System.String,System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
+            <summary>
+            Enable partition assignment.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="partition">The partition.</param>
+            <param name="shard">The shard.</param>
+            <param name="type">The type.</param>
             <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IProducerHooksBuilder">
@@ -159,6 +178,11 @@
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.RouteAssignmentType">
+            <summary>
+            the type of the routing assignment
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Building.ProducerInterceptorBridge">
@@ -644,12 +668,13 @@
             <param name="options">The options.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithPartition(System.String,System.String,Weknow.EventSource.Backbone.Building.RouteAssignmentType)">
             <summary>
             Withes the partition.
             </summary>
             <param name="partition">The partition.</param>
             <param name="shard">The shard.</param>
+            <param name="type">The type.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPlan.WithShard(System.String)">
