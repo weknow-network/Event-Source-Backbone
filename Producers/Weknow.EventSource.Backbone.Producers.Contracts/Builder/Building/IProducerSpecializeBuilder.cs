@@ -27,7 +27,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// Enable dynamic transformation of the stream id before sending.
         /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
         /// </summary>
-        IBuildRouter<T> Router<T>()
+        IProducerOverrideBuilder<T> Override<T>()
             where T : class;
     }
 }

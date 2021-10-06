@@ -375,11 +375,22 @@ namespace Weknow.EventSource.Backbone
         /// Withes the shard.
         /// </summary>
         /// <param name="shard">The shard.</param>
+        /// <param name="type">The type.</param>
         /// <returns></returns>
-        public ProducerPlan WithShard(
-                                                string shard)
+        public ProducerPlan WithShard(string shard,
+            RouteAssignmentType type = RouteAssignmentType.Replace)
         {
-            return new ProducerPlan(this, shard: shard);
+            switch (type)
+            {
+                case RouteAssignmentType.Prefix:
+                    return new ProducerPlan(this, shard: $"{shard}{this.Shard}");
+                case RouteAssignmentType.Replace:
+                    return new ProducerPlan(this, shard: shard ?? this.Shard);
+                case RouteAssignmentType.Suffix:
+                    return new ProducerPlan(this, shard: $"{this.Shard}{shard}");
+                default:
+                    return this;
+            }
         }
 
         #endregion // WithShard

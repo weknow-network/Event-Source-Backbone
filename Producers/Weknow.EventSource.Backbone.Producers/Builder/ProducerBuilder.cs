@@ -348,7 +348,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        IBuildRouter<T> IProducerSpecializeBuilder.Router<T>() => new Router<T>(Plan);
+        IProducerOverrideBuilder<T> IProducerSpecializeBuilder.Override<T>() => new Router<T>(Plan);
 
         #region Router
 
@@ -357,7 +357,7 @@ namespace Weknow.EventSource.Backbone
         /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        private class Router<T> : IBuildRouter<T> where T : class
+        private class Router<T> : IProducerOverrideBuilder<T> where T : class
         {
             private readonly ProducerPlan _plan;
 
@@ -374,30 +374,82 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
+            #region Build
+
             /// <summary>
-            /// Enable dynamic transformation of the stream id before sending.
+            /// Builds the producer.
+            /// </summary>
+            /// <returns></returns>
+            T IProducerOverrideBuildBuilder<T>.Build() => BuildInternal<T>(_plan);
+
+            #endregion // Build
+
+            #region Strategy
+
+            /// <summary>
+            /// Dynamic override of the stream id before sending.
             /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             /// </summary>
             /// <param name="routeStrategy">The routing strategy.</param>
             /// <returns></returns>
-            T IBuildRouter<T>.Build(Func<IProducerPlanRoute, (string? partition, string? shard)> routeStrategy)
+            IProducerOverrideBuildBuilder<T> IProducerOverrideBuilder<T>.Strategy(Func<IProducerPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy)
             {
-                var (partition, shard) = routeStrategy(_plan);
-                var plan = _plan.WithPartition(partition ?? _plan.Partition, shard);
-                return BuildInternal<T>(plan);
+                var (environment, partition, shard) = routeStrategy(_plan);
+                var plan = _plan.WithEnvironment(environment ?? _plan.Environment, partition, shard);
+                return new Router<T>(plan);
             }
 
-            T IBuildRouter<T>.Build(string partition, RouteAssignmentType type)
+            #endregion // Strategy
+
+            #region Environment
+
+            /// <summary>
+            /// Override the environment.
+            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            /// </summary>
+            /// <param name="environment">The environment.</param>
+            /// <returns></returns>
+            IProducerOverridePartitionBuilder<T> IProducerOverrideEnvironmentBuilder<T>.Environment(string environment)
+            {
+                var plan = _plan.WithEnvironment(environment ?? _plan.Environment);
+                return new Router<T>(plan);
+            }
+
+            #endregion // Environment
+
+            #region Partition
+
+            /// <summary>
+            /// Override the partition.
+            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            /// </summary>
+            /// <param name="partition">The partition.</param>
+            /// <param name="type">The type.</param>
+            /// <returns></returns>
+            IProducerOverrideShardBuilder<T> IProducerOverridePartitionBuilder<T>.Partition(string partition, RouteAssignmentType type)
             {
                 var plan = _plan.WithPartition(partition, type: type);
-                return BuildInternal<T>(plan);
+                return new Router<T>(plan);
             }
 
-            T IBuildRouter<T>.Build(string partition, string shard, RouteAssignmentType type)
+            #endregion // Partition
+
+            #region Shard
+
+            /// <summary>
+            /// Override the shard.
+            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            /// </summary>
+            /// <param name="shard">The shard.</param>
+            /// <param name="type">The type.</param>
+            /// <returns></returns>
+            IProducerOverrideBuildBuilder<T> IProducerOverrideShardBuilder<T>.Shard(string shard, RouteAssignmentType type)
             {
-                var plan = _plan.WithPartition(partition, shard, type);
-                return BuildInternal<T>(plan);
+                var plan = _plan.WithShard(shard, type);
+                return new Router<T>(plan);
             }
+
+            #endregion // Shard
         }
 
         #endregion // Router

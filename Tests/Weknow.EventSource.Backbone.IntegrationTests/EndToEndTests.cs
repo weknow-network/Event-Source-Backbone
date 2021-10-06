@@ -486,10 +486,10 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Manual_ACK_Test
 
-        #region Route_Test
+        #region Override_Test
 
         [Fact]
-        public async Task Route_Test()
+        public async Task Override_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -499,11 +499,28 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger);
             ISequenceOperations producer = producerBuilder.Build<ISequenceOperations>();
-            ISequenceOperations producerPrefix = producerBuilder.Router<ISequenceOperations>().Build("p0.", "p1.");
-            ISequenceOperations producerPrefix1 = producerBuilder.Router<ISequenceOperations>().Build("p2.");
-            ISequenceOperations producerSuffix = producerBuilder.Router<ISequenceOperations>().Build(".s0", ".s1", RouteAssignmentType.Suffix);
-            ISequenceOperations producerSuffix1 = producerBuilder.Router<ISequenceOperations>().Build(".s2", RouteAssignmentType.Suffix);
-            ISequenceOperations producerDynamic = producerBuilder.Router<ISequenceOperations>().Build(m => ($"d.{m.Partition}", $"{m.Shard}.d"));
+            ISequenceOperations producerPrefix = producerBuilder
+                .Override<ISequenceOperations>()
+                .Environment("qa")
+                .Partition("p0.")
+                .Shard("p1.")
+                .Build();
+            ISequenceOperations producerPrefix1 = producerBuilder
+                .Override<ISequenceOperations>()
+                .Partition("p2.").Build();
+            ISequenceOperations producerSuffix = producerBuilder
+                .Override<ISequenceOperations>()
+                .Partition(".s0", RouteAssignmentType.Suffix)
+                .Shard(".s1", RouteAssignmentType.Suffix)
+                .Build();
+            ISequenceOperations producerSuffix1 = producerBuilder
+                .Override<ISequenceOperations>()
+                .Partition(".s2", RouteAssignmentType.Suffix)
+                .Build();
+            ISequenceOperations producerDynamic = producerBuilder
+                .Override<ISequenceOperations>()
+                .Strategy(m => (m.Environment, $"d.{m.Partition}", $"{m.Shard}.d"))
+                .Build();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -534,6 +551,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment("qa")
                          .Partition($"p0.{PARTITION}")
                          .Shard($"p1.{SHARD}")
                          .WithLogger(_fakeLogger)
@@ -627,7 +645,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // Validation
         }
 
-        #endregion // Route_Test
+        #endregion // Override_Test
 
         #region Claim_Test
 
@@ -756,7 +774,7 @@ namespace Weknow.EventSource.Backbone.Tests
                 {
                     $"{PARTITION}:{SHARD}",
                     $"Test:{PARTITION}:{SHARD}",
-                    $"p0.{PARTITION}:p1.{SHARD}",
+                    $"qa:p0.{PARTITION}:p1.{SHARD}",
                     $"p2.{PARTITION}:{SHARD}",
                     $"{PARTITION}.s0:{SHARD}.s1",
                     $"{PARTITION}.s2:{SHARD}",

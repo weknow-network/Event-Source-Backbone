@@ -219,7 +219,7 @@
             <param name="planBuilder">The plan builder.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Router``1">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Override``1">
             <summary>
             Enable dynamic transformation of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
@@ -240,12 +240,44 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IBuildRouter{T}#Build(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String}})">
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideBuildBuilder{T}#Build">
             <summary>
-            Enable dynamic transformation of the stream id before sending.
+            Builds the producer.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideBuilder{T}#Strategy(System.Func{Weknow.EventSource.Backbone.IProducerPlanRoute,System.ValueTuple{System.String,System.String,System.String}})">
+            <summary>
+            Dynamic override of the stream id before sending.
             Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             </summary>
             <param name="routeStrategy">The routing strategy.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideEnvironmentBuilder{T}#Environment(System.String)">
+            <summary>
+            Override the environment.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="environment">The environment.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverridePartitionBuilder{T}#Partition(System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
+            <summary>
+            Override the partition.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="partition">The partition.</param>
+            <param name="type">The type.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideShardBuilder{T}#Shard(System.String,Weknow.EventSource.Backbone.RouteAssignmentType)">
+            <summary>
+            Override the shard.
+            Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            </summary>
+            <param name="shard">The shard.</param>
+            <param name="type">The type.</param>
             <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.ProducerPipeline">
