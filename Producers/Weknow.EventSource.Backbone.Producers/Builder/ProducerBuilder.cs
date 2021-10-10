@@ -339,7 +339,7 @@ namespace Weknow.EventSource.Backbone
         {
             var planBuilder = Plan;
             if (planBuilder.SegmentationStrategies.Count == 0)
-                planBuilder = Plan.AddSegmentation(new ProducerDefaultSegmentationStrategy());
+                planBuilder = planBuilder.AddSegmentation(new ProducerDefaultSegmentationStrategy());
             var plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
             return factory(plan);
         }
@@ -404,6 +404,29 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <returns></returns>
             T IProducerOverrideBuildBuilder<T>.Build() => BuildInternal<T>(_plan);
+
+            /// <summary>
+            /// <![CDATA[ Ceate Producer proxy for specific events sequence.
+            /// Event sequence define by an interface which declare the
+            /// operations which in time will be serialized into event's
+            /// messages.
+            /// This interface can be use as a proxy in the producer side,
+            /// and as adapter on the consumer side.
+            /// All method of the interface should represent one-way communication pattern
+            /// and return Task or ValueTask (not Task<T> or ValueTask<T>).
+            /// Nothing but method allowed on this interface]]>
+            /// </summary>
+            /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
+            /// <param name="factory">The factory.</param>
+            /// <returns></returns>
+            T IProducerOverrideBuildBuilder<T>.Build(Func<IProducerPlan, T> factory)
+            {
+                var planBuilder = _plan;
+                if (planBuilder.SegmentationStrategies.Count == 0)
+                    planBuilder = planBuilder.AddSegmentation(new ProducerDefaultSegmentationStrategy());
+                var plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
+                return factory(plan);
+            }
 
             #endregion // Build
 

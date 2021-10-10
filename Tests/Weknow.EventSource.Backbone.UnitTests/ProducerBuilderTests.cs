@@ -114,7 +114,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Build<ISequenceOperationsProducer>(plan => new SequenceOperationsProducerFactory(plan));
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -124,6 +124,31 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Build_Factory_Producer_Test
+
+        #region Build_Factory_Override_Producer_Test
+
+        [Fact]
+        public async Task Build_Factory_Override_Producer_Test()
+        {
+            //var option = new EventSourceOptions(_serializer);
+
+            ISequenceOperationsProducer producer =
+                _builder.UseChannel(_channel)
+                        //.WithOptions(option)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .Override<ISequenceOperationsProducer>()
+                        .Environment("QA")
+                        .BuildSequenceOperationsProducer();
+
+            await producer.RegisterAsync(new User());
+            await producer.LoginAsync("admin", "1234");
+            await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
+        }
+
+        #endregion // Build_Factory_Override_Producer_Test
 
         #region Build_Interceptor_Producer_Test
 

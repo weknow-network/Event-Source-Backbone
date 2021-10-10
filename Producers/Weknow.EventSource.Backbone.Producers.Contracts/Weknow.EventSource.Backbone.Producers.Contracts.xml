@@ -153,6 +153,22 @@
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder.Build``1(System.Func{Weknow.EventSource.Backbone.IProducerPlan,``0})">
+            <summary>
+            <![CDATA[ Ceate Producer proxy for specific events sequence.
+            Event sequence define by an interface which declare the
+            operations which in time will be serialized into event's
+            messages.
+            This interface can be use as a proxy in the producer side,
+            and as adapter on the consumer side.
+            All method of the interface should represent one-way communication pattern
+            and return Task or ValueTask (not Task<T> or ValueTask<T>).
+            Nothing but method allowed on this interface]]>
+            </summary>
+            <typeparam name="T">The contract of the proxy / adapter</typeparam>
+            <param name="factory">The factory.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IProducerSpecializeBuilder.Override``1">
             <summary>
             Enable dynamic transformation of the stream id before sending.
@@ -312,6 +328,21 @@
             <summary>
             Builds the producer.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IProducerOverrideBuildBuilder`1.Build(System.Func{Weknow.EventSource.Backbone.IProducerPlan,`0})">
+            <summary>
+            <![CDATA[ Ceate Producer proxy for specific events sequence.
+            Event sequence define by an interface which declare the
+            operations which in time will be serialized into event's
+            messages.
+            This interface can be use as a proxy in the producer side,
+            and as adapter on the consumer side.
+            All method of the interface should represent one-way communication pattern
+            and return Task or ValueTask (not Task<T> or ValueTask<T>).
+            Nothing but method allowed on this interface]]>
+            </summary>
+            <param name="factory">The factory.</param>
             <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerOverrideBuilder`1">
