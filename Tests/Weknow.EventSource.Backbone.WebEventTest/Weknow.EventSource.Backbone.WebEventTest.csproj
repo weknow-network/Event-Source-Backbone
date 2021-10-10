@@ -29,5 +29,9 @@
     <ProjectReference Include="..\..\Consumers\Weknow.EventSource.Backbone.Consumers\Weknow.EventSource.Backbone.Consumers.csproj" />
     <ProjectReference Include="..\..\Producers\Weknow.EventSource.Backbone.Producers\Weknow.EventSource.Backbone.Producers.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\src-gen\Weknow.EventSource.Backbone.SrcGen\Weknow.EventSource.Backbone.SrcGen.csproj"  ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
 
 </Project>
