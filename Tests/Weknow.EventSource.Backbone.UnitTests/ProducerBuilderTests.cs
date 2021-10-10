@@ -7,6 +7,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.UnitTests;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
@@ -100,6 +101,29 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Build_Serializer_Producer_Test
+
+        #region Build_Factory_Producer_Test
+
+        [Fact]
+        public async Task Build_Factory_Producer_Test()
+        {
+            //var option = new EventSourceOptions(_serializer);
+
+            ISequenceOperationsProducer producer =
+                _builder.UseChannel(_channel)
+                        //.WithOptions(option)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .Build<ISequenceOperationsProducer>(plan => new SequenceOperationsProducerFactory(plan));
+
+            await producer.RegisterAsync(new User());
+            await producer.LoginAsync("admin", "1234");
+            await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
+        }
+
+        #endregion // Build_Factory_Producer_Test
 
         #region Build_Interceptor_Producer_Test
 

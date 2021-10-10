@@ -26,9 +26,19 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
+        [Obsolete("Reflection", true)]
         public ProducerPipeline(ref IProducerPlanBuilder plan)
         {
             _plan = plan.Build();
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        public ProducerPipeline(IProducerPlan plan)
+        {
+            _plan = plan;
         }
 
         #endregion // Ctor
@@ -46,12 +56,12 @@ namespace Weknow.EventSource.Backbone
         /// <remarks>
         /// MUST BE PROTECTED, called from the generated code
         /// </remarks>
-        protected Func<ProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdaptor<T>(
+        protected Func<IProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdaptor<T>(
                                             string operation,
                                             string argumentName,
                                             T producedData)
         {
-            return (ProducerPlan plan, Bucket payload) =>
+            return (IProducerPlan plan, Bucket payload) =>
                                  ClassifyArgumentAsync(
                                                  plan,
                                                  payload,
@@ -75,7 +85,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="producedData">The produced data.</param>
         /// <returns></returns>
         private async ValueTask<Bucket> ClassifyArgumentAsync<T>(
-                                                ProducerPlan plan,
+                                                IProducerPlan plan,
                                                 Bucket payload,
                                                 string operation,
                                                 string argumentName,
@@ -186,7 +196,7 @@ namespace Weknow.EventSource.Backbone
         /// </remarks>
         protected ValueTask SendAsync(
             string operation,
-            Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
+            params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
 

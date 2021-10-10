@@ -211,6 +211,22 @@
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Build``1(System.Func{Weknow.EventSource.Backbone.IProducerPlan,``0})">
+            <summary>
+            <![CDATA[ Ceate Producer proxy for specific events sequence.
+            Event sequence define by an interface which declare the
+            operations which in time will be serialized into event's
+            messages.
+            This interface can be use as a proxy in the producer side,
+            and as adapter on the consumer side.
+            All method of the interface should represent one-way communication pattern
+            and return Task or ValueTask (not Task<T> or ValueTask<T>).
+            Nothing but method allowed on this interface]]>
+            </summary>
+            <typeparam name="T">The contract of the proxy / adapter</typeparam>
+            <param name="factory">The factory.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.BuildInternal``1(Weknow.EventSource.Backbone.ProducerPlan)">
             <summary>
             Builds .
@@ -299,6 +315,12 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlan)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="plan">The plan.</param>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.CreateClassificationAdaptor``1(System.String,System.String,``0)">
             <summary>
             Classify the operation payload from method arguments.
@@ -312,7 +334,7 @@
             MUST BE PROTECTED, called from the generated code
             </remarks>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.ProducerPlan,Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0)">
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0)">
             <summary>
             Classifies the operation's argument.
             </summary>
