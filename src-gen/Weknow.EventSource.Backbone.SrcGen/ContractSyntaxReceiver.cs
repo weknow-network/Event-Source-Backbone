@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
 {
     internal class ContractSyntaxReceiver : ISyntaxReceiver
     {
-        public ImmutableArray<TypeDeclarationSyntax> ConsumerContracts = ImmutableArray<TypeDeclarationSyntax>.Empty;
+        public ImmutableArray<(TypeDeclarationSyntax type, string? name)> ConsumerContracts = ImmutableArray<(TypeDeclarationSyntax type, string? name)>.Empty;
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
@@ -26,9 +26,12 @@ namespace Weknow.EventSource.Backbone
                            where n == "GenerateEventSourceProducerContractAttribute" ||
                                  n == "GenerateEventSourceProducerContract" 
                            select a;
-                if (!atts.Any()) return;
-
-                ConsumerContracts = ConsumerContracts.Add(tds);
+                var first = atts.FirstOrDefault();
+                if (first == null) return;
+                var arg = first.ArgumentList?.Arguments.FirstOrDefault();
+                // TODO: [bnaya 2021-10] ask Avi
+                var val = arg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
+                ConsumerContracts = ConsumerContracts.Add((tds, val));  
             }
         }
     }

@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone
         {
             if (context.SyntaxReceiver is not ContractSyntaxReceiver syntax) return;
 
-            foreach (var item in syntax.ConsumerContracts)
+            foreach (var (item, name) in syntax.ConsumerContracts)
             {
                 var source = new StringBuilder();
                 source.AppendLine("using System.Threading.Tasks;");
@@ -44,8 +44,8 @@ namespace Weknow.EventSource.Backbone
                     
                 }
                 CopyDocumentation(source, item, "\t");
-                source.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\")]");
-                source.AppendLine($"\tpublic interface {Convert(item.Identifier.ValueText)}");
+                source.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
+                source.AppendLine($"\tpublic interface {name ?? Convert(item.Identifier.ValueText)}");
                 source.AppendLine("\t{");
 
                 foreach (var method in item.Members)

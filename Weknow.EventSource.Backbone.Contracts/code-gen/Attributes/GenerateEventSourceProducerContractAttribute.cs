@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
-    [AttributeUsage(AttributeTargets.Interface)]
+    [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false)]
     public class GenerateEventSourceProducerContractAttribute : Attribute
     {
         /// <summary>
