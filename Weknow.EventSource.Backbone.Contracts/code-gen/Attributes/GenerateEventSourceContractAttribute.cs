@@ -7,12 +7,21 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone
 {
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false)]
-    public class GenerateEventSourceProducerContractAttribute : Attribute
+    public class GenerateEventSourceContractAttribute : Attribute
     {
+        public GenerateEventSourceContractAttribute(EventSourceGenType generateType)
+        {
+            Type = generateType;
+        }
         /// <summary>
         /// The name of the roducer interface.
         /// If missing the generator will use a convention.
         /// </summary>
         public string? Name { get; init; }
+
+        /// <summary>
+        /// Type of the generation
+        /// </summary>
+        public EventSourceGenType Type { get; }
     }
 }

@@ -13,25 +13,36 @@ namespace Weknow.EventSource.Backbone
 {
     internal class ContractSyntaxReceiver : ISyntaxReceiver
     {
-        public ImmutableArray<(TypeDeclarationSyntax type, string? name)> ConsumerContracts = ImmutableArray<(TypeDeclarationSyntax type, string? name)>.Empty;
+        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)> ConsumerContracts =
+            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)>.Empty;
+        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)> ProducerContracts =
+            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)>.Empty;
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
             if (syntaxNode is TypeDeclarationSyntax tds &&
                     tds.Kind() == SyntaxKind.InterfaceDeclaration)
             {
+                ExtractAttribute(tds, "GenerateEventSourceProducerContract");
+            }
+
+            void ExtractAttribute(TypeDeclarationSyntax tds, string targetAttribute)
+            {
                 var atts = from al in tds.AttributeLists
                            from a in al.Attributes
                            let n = a.Name.ToString()
-                           where n == "GenerateEventSourceProducerContractAttribute" ||
-                                 n == "GenerateEventSourceProducerContract" 
+                           where n == "GenerateEventSourceContractAttribute" ||
+                                 n == "GenerateEventSourceContract"
                            select a;
                 var first = atts.FirstOrDefault();
                 if (first == null) return;
-                var arg = first.ArgumentList?.Arguments.FirstOrDefault();
+                var nameArg = first.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Name");
                 // TODO: [bnaya 2021-10] ask Avi
-                var val = arg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
-                ConsumerContracts = ConsumerContracts.Add((tds, val));  
+                var name = nameArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
+
+
+                var ctorArg = first.ArgumentList?.Arguments.First().GetText().ToString();//.First(m => m.Kind() == SyntaxKind.ConstructorDeclaration) as ConstructorDeclarationSyntax;
+                ConsumerContracts = ConsumerContracts.Add((tds, name, ctorArg ?? "NONE"));
             }
         }
     }

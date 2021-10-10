@@ -140,10 +140,15 @@
             An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
             </returns>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceProducerContractAttribute.Name">
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.Name">
             <summary>
             The name of the roducer interface.
             If missing the generator will use a convention.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.Type">
+            <summary>
+            Type of the generation
             </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.Announcement">
