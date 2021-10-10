@@ -11,22 +11,23 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+
     internal class ContractSyntaxReceiver : ISyntaxReceiver
     {
-        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)> ConsumerContracts =
-            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)>.Empty;
-        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)> ProducerContracts =
-            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind)>.Empty;
+        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind, string suffix)> ConsumerContracts =
+            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind, string suffix)>.Empty;
+        public ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind, string suffix)> ProducerContracts =
+            ImmutableArray<(TypeDeclarationSyntax type, string? name, string kind, string suffix)>.Empty;
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
             if (syntaxNode is TypeDeclarationSyntax tds &&
                     tds.Kind() == SyntaxKind.InterfaceDeclaration)
             {
-                ExtractAttribute(tds, "GenerateEventSourceProducerContract");
+                ExtractAttribute(tds);
             }
 
-            void ExtractAttribute(TypeDeclarationSyntax tds, string targetAttribute)
+            void ExtractAttribute(TypeDeclarationSyntax tds)
             {
                 var atts = from al in tds.AttributeLists
                            from a in al.Attributes
@@ -34,15 +35,20 @@ namespace Weknow.EventSource.Backbone
                            where n == "GenerateEventSourceContractAttribute" ||
                                  n == "GenerateEventSourceContract"
                            select a;
-                var first = atts.FirstOrDefault();
-                if (first == null) return;
-                var nameArg = first.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Name");
-                // TODO: [bnaya 2021-10] ask Avi
-                var name = nameArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
+                foreach (var att in atts)
+                {
 
+                    // TODO: [bnaya 2021-10] ask Avi
+                    var nameArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Name");
+                    var name = nameArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
-                var ctorArg = first.ArgumentList?.Arguments.First().GetText().ToString();//.First(m => m.Kind() == SyntaxKind.ConstructorDeclaration) as ConstructorDeclarationSyntax;
-                ConsumerContracts = ConsumerContracts.Add((tds, name, ctorArg ?? "NONE"));
+                    var ctorArg = att.ArgumentList?.Arguments.First().GetText().ToString();
+                    string kind = ctorArg?.Substring("EventSourceGenType.".Length) ?? "NONE";
+
+                    var autoSuffixArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "AutoSuffix");
+                    var autoSuffix = autoSuffixArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "") == "true" ? kind : string.Empty;
+                    ConsumerContracts = ConsumerContracts.Add((tds, name, kind, autoSuffix));
+                }
             }
         }
     }

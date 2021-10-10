@@ -146,6 +146,11 @@
             If missing the generator will use a convention.
             </summary>
         </member>
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.AutoSuffix">
+            <summary>
+            When true, generate auto suffix for the generated interface name (Producer / Consumer accorsing to the ctor's generateType)
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.Type">
             <summary>
             Type of the generation

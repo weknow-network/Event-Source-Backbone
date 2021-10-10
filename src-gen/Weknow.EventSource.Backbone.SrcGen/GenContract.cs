@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone
         {
             if (context.SyntaxReceiver is not ContractSyntaxReceiver syntax) return;
 
-            foreach (var (item, name, kind) in syntax.ConsumerContracts)
+            foreach (var (item, name, kind, suffix) in syntax.ConsumerContracts)
             {
                 if (kind == "NONE")
                 {
@@ -51,7 +51,7 @@ namespace Weknow.EventSource.Backbone
                 }
                 CopyDocumentation(source, item, "\t");
                 source.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
-                source.AppendLine($"\tpublic interface {name ?? Convert(item.Identifier.ValueText, kind)}");
+                source.AppendLine($"\tpublic interface {name ?? Convert(item.Identifier.ValueText, kind)}{suffix}");
                 source.AppendLine("\t{");
 
                 foreach (var method in item.Members)
@@ -75,17 +75,19 @@ namespace Weknow.EventSource.Backbone
                     source.AppendLine("}");
                 }
 
-                context.AddSource($"{Convert(item.Identifier.ValueText, kind)}.cs", source.ToString());
+                context.AddSource($"{Convert(item.Identifier.ValueText, kind)}{suffix}.cs", source.ToString());
+
+                #region Convert
 
                 string Convert(string txt, string kind)
                 {
-                    if (kind == "EventSourceGenType.Producer")
+                    if (kind == "Producer")
                     {
                         return txt.Replace("Consumer", "Producer")
                                                      .Replace("Publisher", "Subscriber")
                                                      .Replace("Pub", "Sub");
                     }
-                    if (kind == "EventSourceGenType.Consumer")
+                    if (kind == "Consumer")
                     {
                         return txt.Replace("Producer", "Consumer")
                                                      .Replace("Subscriber", "Publisher")
@@ -93,6 +95,10 @@ namespace Weknow.EventSource.Backbone
                     }
                     return "ERROR";
                 }
+
+                #endregion // Convert
+
+                #region CopyDocumentation
 
                 void CopyDocumentation(StringBuilder source, CSharpSyntaxNode mds, string indent = "\t\t")
                 {
@@ -105,6 +111,8 @@ namespace Weknow.EventSource.Backbone
                         source.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
                     }
                 }
+
+                #endregion // CopyDocumentation
             }
         }
     }
