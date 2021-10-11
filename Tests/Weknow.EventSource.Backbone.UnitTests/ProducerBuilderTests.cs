@@ -3,6 +3,7 @@ using FakeItEasy;
 using Microsoft.Extensions.Logging;
 
 using System;
+using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -54,27 +55,31 @@ namespace Weknow.EventSource.Backbone
                         .AddInterceptor(_rawAsyncInterceptor);
 
             var producerB =
-                _builder.UseTestProducerChannel()
+                _builder.UseTestProducerChannel1()
                         .Partition("NGOs")
                         .Shard("NGO #2782228")
                         .UseSegmentation(_segmentationStrategy);
 
             var producerC =
-                _builder.UseChannel(_channel)
+                _builder.UseTestProducerChannel2()
                         .Partition("Fans")
                         .Shard("Geek: @someone")
                         .UseSegmentation(_otherSegmentationStrategy);
 
 
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                                     _builder
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
-                                        .Build<ISequenceOperationsProducer>();
+                                        .BuildSequenceOfProducer();
 
-            await producer.RegisterAsync(new User());
-            await producer.LoginAsync("admin", "1234");
-            await producer.EarseAsync(4335);
+            string[] ids1 = await producer.RegisterAsync(new User());
+            string[] ids2 = await producer.LoginAsync("admin", "1234");
+            string[] ids3 = await producer.EarseAsync(4335);
+
+            Assert.True(ids1.SequenceEqual(new[] { "1", "A", "#a" }));
+            Assert.True(ids2.SequenceEqual(new[] { "2", "B", "#b" }));
+            Assert.True(ids3.SequenceEqual(new[] { "3", "C", "#c" }));
         }
 
         #endregion // Build_Merge_Producer_Test
@@ -139,10 +144,13 @@ namespace Weknow.EventSource.Backbone
                         .Shard("Org: #RedSocks")
                         .BuildSequenceOfProducer();
 
-            var ids1 = await producer.RegisterAsync(new User());
-            var ids2 = await producer.LoginAsync("admin", "1234");
-            var ids3 = await producer.EarseAsync(4335);
+            string id1 = await producer.RegisterAsync(new User());
+            string id2 = await producer.LoginAsync("admin", "1234");
+            string id3 = await producer.EarseAsync(4335);
 
+            Assert.Equal("1", id1);
+            Assert.Equal("2", id2);
+            Assert.Equal("3", id3);
             var message = await ch.Reader.ReadAsync();
         }
 

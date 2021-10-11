@@ -79,6 +79,10 @@ namespace Weknow.EventSource.Backbone
 
             var prms = Plan.AddForward(first);
             prms = prms.AddForward(second);
+            foreach (var p in others)
+            {
+                prms = prms.AddForward(p);
+            }
             return new ProducerBuilder(prms);
         }
 

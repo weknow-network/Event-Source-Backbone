@@ -73,7 +73,7 @@ namespace Weknow.EventSource.Backbone
 
                         source.Append("\t\tpublic ValueTask");
                         if (isProducer)
-                            source.Append("<EventKey[]>");
+                            source.Append("<EventKeys>");
                         source.Append($" {mds.Identifier.ValueText}(");
 
                         var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");

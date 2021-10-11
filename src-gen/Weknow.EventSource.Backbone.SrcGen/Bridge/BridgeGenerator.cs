@@ -42,6 +42,8 @@ namespace Weknow.EventSource.Backbone
                                                        .ChildNodes()?
                                                        .FirstOrDefault() as IdentifierNameSyntax;
                 if (contractSyntaxt == null) throw new ArgumentNullException("GenerateEventSourceBridge");
+                var semantic = context.Compilation.GetSemanticModel(att.SyntaxTree);
+                var declaration = semantic.GetDeclaredSymbol(contractSyntaxt);
                 // TODO: [bnaya 2021] for Avi: how can I get the TypeDeclarationSyntax from contractSyntaxt
 
                 //var x = contractSyntaxt.Identifier.ValueText;

@@ -49,7 +49,7 @@ namespace Weknow.EventSource.Backbone
                         .AddInterceptor(_rawAsyncInterceptor);
 
             var producerB =
-                _builder.UseTestProducerChannel()
+                _builder.UseTestProducerChannel1()
                         .Partition("NGOs")
                         .Shard("NGO #2782228")
                         .UseSegmentation(_segmentationStrategy);

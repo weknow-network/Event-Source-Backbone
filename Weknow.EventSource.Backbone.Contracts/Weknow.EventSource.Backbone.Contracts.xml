@@ -277,11 +277,6 @@
             Indicate whether it an empty metadata
             </summary>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.EventBucketCategories">
-            <summary>
-            Bucket storage type
-            </summary>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.EventKey">
             <summary>
             Event Id
@@ -342,6 +337,140 @@
             <returns>
             The result of the conversion.
             </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventKeys">
+            <summary>
+            Event Id
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(Weknow.EventSource.Backbone.EventKey[])">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.EventKey})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Text.Json.JsonElement[])">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Collections.Generic.IEnumerable{System.Text.Json.JsonElement})">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="keys">The keys.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            An enumerator that can be used to iterate through the collection.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.ToString">
+            <summary>
+            Converts to string.
+            </summary>
+            <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(System.String[])~Weknow.EventSource.Backbone.EventKeys">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(System.Collections.Immutable.ImmutableArray{Weknow.EventSource.Backbone.EventKey})~Weknow.EventSource.Backbone.EventKeys">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~System.Collections.Immutable.ImmutableArray{Weknow.EventSource.Backbone.EventKey}">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~System.String[]">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~System.String">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(System.Text.Json.JsonElement[])~Weknow.EventSource.Backbone.EventKeys">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~System.Text.Json.JsonElement[]">
+            <summary>
+            Performs an implicit conversion from <see cref="T:Weknow.EventSource.Backbone.EventKeys"/> to <see cref="T:System.Text.Json.JsonElement"/>.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventBucketCategories">
+            <summary>
+            Bucket storage type
+            </summary>
         </member>
         <member name="T:Weknow.EventSource.Backbone.EventSourceConstants">
             <summary>

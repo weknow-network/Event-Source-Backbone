@@ -195,7 +195,7 @@ namespace Weknow.EventSource.Backbone
         /// <remarks>
         /// MUST BE PROTECTED, called from the generated code
         /// </remarks>
-        protected ValueTask<EventKey[]> SendAsync(
+        protected ValueTask<EventKeys> SendAsync(
             string operation,
             params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
@@ -222,7 +222,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="operation">The operation.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
-        private async ValueTask<EventKey[]> SendAsync(
+        private async ValueTask<EventKeys> SendAsync(
             IProducerPlan plan,
             string id,
             Bucket payload,
@@ -260,13 +260,14 @@ namespace Weknow.EventSource.Backbone
             if (plan.ForwardPlans.Count == 0) // merged
             {
                 var strategies = await plan.StorageStrategiesAsync;
-                EventKey k = await plan.Channel.SendAsync(announcement, strategies);
-                return new[] { k };
+                var ch = plan.Channel;
+                EventKey k = await ch.SendAsync(announcement, strategies);
+                return new EventKeys(k);
             }
 
             var keys = plan.ForwardPlans.Select(async forward =>
             {   // merged scenario
-                EventKey[] k = await SendAsync(
+                EventKeys k = await SendAsync(
                              forward,
                              id,
                              payload,
@@ -276,7 +277,7 @@ namespace Weknow.EventSource.Backbone
                 return k;
             });
             var res = await Task.WhenAll(keys);
-            return res.SelectMany(m => m).ToArray();
+            return new EventKeys(res.SelectMany(m => m));
         }
 
         #endregion // SendAsync
