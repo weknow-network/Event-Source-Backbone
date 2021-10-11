@@ -8,10 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static Weknow.EventSource.Backbone.Helper;
+
 namespace Weknow.EventSource.Backbone
 {
     [Generator]
-    public class GenContract : ISourceGenerator
+    public class ContractGenerator : ISourceGenerator
     {
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -22,13 +24,17 @@ namespace Weknow.EventSource.Backbone
         {
             if (context.SyntaxReceiver is not ContractSyntaxReceiver syntax) return;
 
-            foreach (var (item, name, kind, suffix) in syntax.ConsumerContracts)
+            foreach (var (item, name, kind, suffix) in syntax.Contracts)
             {
+                #region Validation
+
                 if (kind == "NONE")
                 {
                     context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
                     continue;
                 }
+
+                #endregion // Validation
 
                 var source = new StringBuilder();
                 source.AppendLine("using System.Threading.Tasks;");
@@ -76,27 +82,6 @@ namespace Weknow.EventSource.Backbone
                 }
 
                 context.AddSource($"{Convert(item.Identifier.ValueText, kind)}{suffix}.cs", source.ToString());
-
-                #region Convert
-
-                string Convert(string txt, string kind)
-                {
-                    if (kind == "Producer")
-                    {
-                        return txt.Replace("Consumer", "Producer")
-                                                     .Replace("Publisher", "Subscriber")
-                                                     .Replace("Pub", "Sub");
-                    }
-                    if (kind == "Consumer")
-                    {
-                        return txt.Replace("Producer", "Consumer")
-                                                     .Replace("Subscriber", "Publisher")
-                                                     .Replace("Sub", "Pub");
-                    }
-                    return "ERROR";
-                }
-
-                #endregion // Convert
 
                 #region CopyDocumentation
 

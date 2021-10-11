@@ -14,13 +14,13 @@ namespace Weknow.EventSource.Backbone
             Type = generateType;
         }
         /// <summary>
-        /// The name of the roducer interface.
+        /// The name of the interface.
         /// If missing the generator will use a convention.
         /// </summary>
         public string? Name { get; init; }
 
         /// <summary>
-        /// When true, generate auto suffix for the generated interface name (Producer / Consumer accorsing to the ctor's generateType)
+        /// When true, generate auto suffix for the generated interface name (Producer / Consumer according to the ctor's generateType)
         /// </summary>
         public bool AutoSuffix { get; init; }
 
