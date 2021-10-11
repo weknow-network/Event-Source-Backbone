@@ -261,6 +261,49 @@
             Bucket storage type
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.EventKey">
+            <summary>
+            Event Id
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.#ctor(System.String)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="id">The identifier.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.#ctor(System.Text.Json.JsonElement)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="id">The identifier.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.ToString">
+            <summary>
+            Converts to string.
+            </summary>
+            <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(Weknow.EventSource.Backbone.EventKey)~System.String">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="id">The identifier.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(Weknow.EventSource.Backbone.EventKey)~System.Text.Json.JsonElement">
+            <summary>
+            Performs an implicit conversion from <see cref="!:EventId"/> to <see cref="T:System.Text.Json.JsonElement"/>.
+            </summary>
+            <param name="id">The identifier.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.EventSourceConstants">
             <summary>
             Constants

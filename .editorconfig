@@ -2,3 +2,6 @@
 
 # RCS1124: Inline local variable.
 dotnet_diagnostic.RCS1124.severity = none
+
+# IDE0008: Use explicit type
+csharp_style_var_elsewhere = true
