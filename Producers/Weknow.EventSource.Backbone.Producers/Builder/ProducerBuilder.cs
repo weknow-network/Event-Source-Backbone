@@ -416,7 +416,6 @@ namespace Weknow.EventSource.Backbone
             /// and return Task or ValueTask (not Task<T> or ValueTask<T>).
             /// Nothing but method allowed on this interface]]>
             /// </summary>
-            /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
             /// <param name="factory">The factory.</param>
             /// <returns></returns>
             T IProducerOverrideBuildBuilder<T>.Build(Func<IProducerPlan, T> factory)

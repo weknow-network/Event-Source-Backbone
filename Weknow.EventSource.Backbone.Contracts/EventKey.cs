@@ -75,7 +75,7 @@ namespace Weknow.EventSource.Backbone
         public static implicit operator string(EventKey id) => id.ToString();
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="EventId"/> to <see cref="JsonElement"/>.
+        /// Performs an implicit conversion from <see cref="EventKey"/> to <see cref="JsonElement"/>.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>
