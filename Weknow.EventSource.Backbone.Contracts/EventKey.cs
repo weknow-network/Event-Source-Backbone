@@ -72,7 +72,25 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// The result of the conversion.
         /// </returns>
+        public static implicit operator EventKey(string id) => new EventKey(id);
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator string(EventKey id) => id.ToString();
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator EventKey(JsonElement id) => new EventKey(id);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="EventKey"/> to <see cref="JsonElement"/>.

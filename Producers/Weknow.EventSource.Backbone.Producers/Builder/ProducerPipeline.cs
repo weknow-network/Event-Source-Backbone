@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -194,7 +195,7 @@ namespace Weknow.EventSource.Backbone
         /// <remarks>
         /// MUST BE PROTECTED, called from the generated code
         /// </remarks>
-        protected ValueTask SendAsync(
+        protected ValueTask<EventKey[]> SendAsync(
             string operation,
             params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
@@ -221,7 +222,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="operation">The operation.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
-        private async ValueTask SendAsync(
+        private async ValueTask<EventKey[]> SendAsync(
             IProducerPlan plan,
             string id,
             Bucket payload,
@@ -259,20 +260,23 @@ namespace Weknow.EventSource.Backbone
             if (plan.ForwardPlans.Count == 0) // merged
             {
                 var strategies = await plan.StorageStrategiesAsync;
-                await plan.Channel.SendAsync(announcement, strategies);
-                return;
+                EventKey k = await plan.Channel.SendAsync(announcement, strategies);
+                return new[] { k };
             }
 
-            foreach (var forward in plan.ForwardPlans)
+            var keys = plan.ForwardPlans.Select(async forward =>
             {   // merged scenario
-                await SendAsync(
-                            forward,
-                            id,
-                            payload,
-                            interceptorsData,
-                            operation,
-                            classifyAdaptors);
-            }
+                EventKey[] k = await SendAsync(
+                             forward,
+                             id,
+                             payload,
+                             interceptorsData,
+                             operation,
+                             classifyAdaptors);
+                return k;
+            });
+            var res = await Task.WhenAll(keys);
+            return res.SelectMany(m => m).ToArray();
         }
 
         #endregion // SendAsync

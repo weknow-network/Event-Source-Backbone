@@ -307,7 +307,25 @@
             A <see cref="T:System.String" /> that represents this instance.
             </returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(System.String)~Weknow.EventSource.Backbone.EventKey">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="id">The identifier.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(Weknow.EventSource.Backbone.EventKey)~System.String">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="id">The identifier.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(System.Text.Json.JsonElement)~Weknow.EventSource.Backbone.EventKey">
             <summary>
             Performs an implicit conversion.
             </summary>
