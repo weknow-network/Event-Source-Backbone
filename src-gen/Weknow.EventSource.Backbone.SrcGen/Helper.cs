@@ -32,5 +32,23 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Convert
+
+
+        #region CopyDocumentation
+
+        public static void CopyDocumentation(StringBuilder source, string kind, CSharpSyntaxNode mds, string indent = "\t\t")
+        {
+            var trivia = mds.GetLeadingTrivia()
+                            .Where(t =>
+                                    t.Kind() == SyntaxKind.MultiLineDocumentationCommentTrivia ||
+                                    t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+            foreach (var doc in trivia)
+            {
+                source.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
+            }
+        }
+
+        #endregion // CopyDocumentation
+
     }
 }

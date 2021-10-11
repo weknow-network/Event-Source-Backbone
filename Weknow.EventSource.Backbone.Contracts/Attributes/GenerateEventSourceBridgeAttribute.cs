@@ -29,6 +29,12 @@ namespace Weknow.EventSource.Backbone
         public string? Name { get; init; }
 
         /// <summary>
+        /// The namespace.
+        /// If missing the generator will use same namespace as the interface.
+        /// </summary>
+        public string? Namespace { get; init; }
+
+        /// <summary>
         /// When true, generate auto suffix for the generated interface name (Producer / Consumer according to the ctor's generateType)
         /// </summary>
         public bool AutoSuffix { get; init; }

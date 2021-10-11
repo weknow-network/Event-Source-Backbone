@@ -59,16 +59,18 @@ namespace Weknow.EventSource.Backbone
                     source.AppendLine("{");
 
                 }
-                CopyDocumentation(source, item, "\t");
+                CopyDocumentation(source, kind, item, "\t");
+
+                string fileName = $"{name ?? Convert(item.Identifier.ValueText, kind)}{suffix}";
                 source.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
-                source.AppendLine($"\tpublic interface {name ?? Convert(item.Identifier.ValueText, kind)}{suffix}");
+                source.AppendLine($"\tpublic interface {fileName}");
                 source.AppendLine("\t{");
 
                 foreach (var method in item.Members)
                 {
                     if (method is MethodDeclarationSyntax mds)
                     {
-                        CopyDocumentation(source, mds);
+                        CopyDocumentation(source, kind, mds);
 
 
                         source.Append("\t\tpublic ValueTask");
@@ -89,23 +91,7 @@ namespace Weknow.EventSource.Backbone
                     source.AppendLine("}");
                 }
 
-                context.AddSource($"{Convert(item.Identifier.ValueText, kind)}{suffix}.cs", source.ToString());
-
-                #region CopyDocumentation
-
-                void CopyDocumentation(StringBuilder source, CSharpSyntaxNode mds, string indent = "\t\t")
-                {
-                    var trivia = mds.GetLeadingTrivia()
-                                    .Where(t =>
-                                            t.Kind() == SyntaxKind.MultiLineDocumentationCommentTrivia ||
-                                            t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
-                    foreach (var doc in trivia)
-                    {
-                        source.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
-                    }
-                }
-
-                #endregion // CopyDocumentation
+                context.AddSource($"{fileName}.cs", source.ToString());
             }
         }
     }
