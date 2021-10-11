@@ -40,16 +40,16 @@ namespace Weknow.EventSource.Backbone
                 var contractSyntaxt = (att.ArgumentList?.Arguments[1]?.Expression as TypeOfExpressionSyntax)?.Type;
                 if (contractSyntaxt == null) throw new ArgumentNullException("GenerateEventSourceBridge");
                 var semantic = context.Compilation.GetSemanticModel(att.SyntaxTree);
-                var declaration = semantic.GetSymbolInfo(contractSyntaxt).Symbol?.DeclaringSyntaxReferences[0].GetSyntax() as InterfaceDeclarationSyntax;
+                var declaration = semantic.GetSymbolInfo(contractSyntaxt).Symbol as ITypeSymbol;
                 // TODO: [bnaya 2021] for Avi: how can I get the TypeDeclarationSyntax from contractSyntaxt
 
                 if (declaration != null)
                 {
-                    foreach (var item in declaration.Members)
+                    foreach (var item in declaration.GetMembers())
                     {
-                        if (item is MethodDeclarationSyntax mds)
+                        if (item is IMethodSymbol ms)
                         {
-                            src.AppendLine($"// Interface method, {mds.Identifier.ValueText}");
+                            src.AppendLine($"// Interface method, {ms.Name}");
                         }
                     }
                 }
