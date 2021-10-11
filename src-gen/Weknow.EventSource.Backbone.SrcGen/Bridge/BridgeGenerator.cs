@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,11 +40,7 @@ namespace Weknow.EventSource.Backbone
                 var autoSuffixArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "AutoSuffix");
                 var suffix = autoSuffixArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "") == "true" ? kind : string.Empty;
 
-                var contractSyntaxt = att.ArgumentList?.Arguments[1]
-                                                       ?.Expression
-                                                       .NormalizeWhitespace()?
-                                                       .ChildNodes()?
-                                                       .FirstOrDefault() as IdentifierNameSyntax;
+                var contractSyntaxt = (att.ArgumentList?.Arguments[1]?.Expression as TypeOfExpressionSyntax)?.Type;
                 if (contractSyntaxt == null) throw new ArgumentNullException("GenerateEventSourceBridge");
 
                 var interfaceName = contractSyntaxt.Identifier.ValueText;
