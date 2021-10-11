@@ -36,9 +36,12 @@ namespace Weknow.EventSource.Backbone
 
                 #endregion // Validation
 
+                var isProducer = kind == "Producer";
+
                 var source = new StringBuilder();
                 source.AppendLine("using System.Threading.Tasks;");
                 source.AppendLine("using System.CodeDom.Compiler;");
+                source.AppendLine("using Weknow.EventSource.Backbone;");
                 source.AppendLine();
 
                 if (item.Parent is NamespaceDeclarationSyntax ns)
@@ -47,7 +50,8 @@ namespace Weknow.EventSource.Backbone
                     {
                         foreach (var c in ns.Parent.ChildNodes())
                         {
-                            if (c is UsingDirectiveSyntax use) source.AppendLine(use.ToFullString());
+                            if (c is UsingDirectiveSyntax use)
+                                source.AppendLine(use.ToFullString());
                         }
                         source.AppendLine();
                     }
@@ -66,7 +70,11 @@ namespace Weknow.EventSource.Backbone
                     {
                         CopyDocumentation(source, mds);
 
-                        source.Append($"\t\tpublic ValueTask {mds.Identifier.ValueText}(");
+
+                        source.Append("\t\tpublic ValueTask");
+                        if (isProducer)
+                            source.Append("<EventKey[]>");
+                        source.Append($" {mds.Identifier.ValueText}(");
 
                         var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
                         source.Append("\t\t\t");

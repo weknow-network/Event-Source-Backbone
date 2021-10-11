@@ -125,6 +125,29 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build_Factory_Producer_Test
 
+        #region Build_Factory_Producer_WithReturn_Test
+
+        [Fact]
+        public async Task Build_Factory_Producer_WithReturn_Test()
+        {
+            //var option = new EventSourceOptions(_serializer);
+
+            ISequenceOfProducer producer =
+                _builder.UseChannel(_channel)
+                        //.WithOptions(option)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSequenceOfProducer();
+
+            var ids1 = await producer.RegisterAsync(new User());
+            var ids2 = await producer.LoginAsync("admin", "1234");
+            var ids3 = await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
+        }
+
+        #endregion // Build_Factory_Producer_WithReturn_Test
+
         #region Build_Factory_Override_Producer_Test
 
         [Fact]
