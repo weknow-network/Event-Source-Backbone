@@ -13,86 +13,60 @@ using static Weknow.EventSource.Backbone.Helper;
 namespace Weknow.EventSource.Backbone
 {
     [Generator]
-    public class ContractGenerator : ISourceGenerator
+    internal class ContractGenerator : GeneratorBase
     {
-        public void Initialize(GeneratorInitializationContext context)
+        const string TARGET_ATTRIBUTE = "GenerateEventSourceContract";
+
+        public ContractGenerator() : base(TARGET_ATTRIBUTE)
         {
-            context.RegisterForSyntaxNotifications(() => new ContractSyntaxReceiver());
+
         }
 
-        public void Execute(GeneratorExecutionContext context)
+        /// <summary>
+        /// Called when [execute].
+        /// </summary>
+        /// <param name="builder">The source builder.</param>
+        /// <param name="context">The context.</param>
+        /// <param name="info">The information.</param>
+        /// <param name="interfaceName">Name of the interface.</param>
+        /// <returns>
+        /// File name
+        /// </returns>
+        protected override string OnExecute(
+            StringBuilder builder,
+            GeneratorExecutionContext context,
+            SyntaxReceiverResult info,
+            string interfaceName)
         {
-            if (context.SyntaxReceiver is not ContractSyntaxReceiver syntax) return;
+            var (item, att, name, kind, suffix, ns, isProducer) = info;
 
-            foreach (var (item, name, kind, suffix) in syntax.Contracts)
+            CopyDocumentation(builder, kind, item, "\t");
+
+            builder.AppendLine($"\tpublic interface {interfaceName}");
+            builder.AppendLine("\t{");
+
+            foreach (var method in item.Members)
             {
-                #region Validation
-
-                if (kind == "NONE")
+                if (method is MethodDeclarationSyntax mds)
                 {
-                    context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
-                    continue;
+                    CopyDocumentation(builder, kind, mds);
+
+
+                    builder.Append("\t\tpublic ValueTask");
+                    if (isProducer)
+                        builder.Append("<EventKeys>");
+                    builder.Append($" {mds.Identifier.ValueText}(");
+
+                    var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
+                    builder.Append("\t\t\t");
+                    builder.Append(string.Join(", ", ps));
+                    builder.AppendLine(");");
+                    builder.AppendLine();
                 }
-
-                #endregion // Validation
-
-                var isProducer = kind == "Producer";
-
-                var source = new StringBuilder();
-                source.AppendLine("using System.Threading.Tasks;");
-                source.AppendLine("using System.CodeDom.Compiler;");
-                source.AppendLine("using Weknow.EventSource.Backbone;");
-                source.AppendLine();
-
-                if (item.Parent is NamespaceDeclarationSyntax ns)
-                {
-                    if (ns.Parent != null)
-                    {
-                        foreach (var c in ns.Parent.ChildNodes())
-                        {
-                            if (c is UsingDirectiveSyntax use)
-                                source.AppendLine(use.ToFullString());
-                        }
-                        source.AppendLine();
-                    }
-                    source.AppendLine($"namespace {ns.Name}");
-                    source.AppendLine("{");
-
-                }
-                CopyDocumentation(source, kind, item, "\t");
-
-                string fileName = $"{name ?? Convert(item.Identifier.ValueText, kind)}{suffix}";
-                source.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
-                source.AppendLine($"\tpublic interface {fileName}");
-                source.AppendLine("\t{");
-
-                foreach (var method in item.Members)
-                {
-                    if (method is MethodDeclarationSyntax mds)
-                    {
-                        CopyDocumentation(source, kind, mds);
-
-
-                        source.Append("\t\tpublic ValueTask");
-                        if (isProducer)
-                            source.Append("<EventKeys>");
-                        source.Append($" {mds.Identifier.ValueText}(");
-
-                        var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
-                        source.Append("\t\t\t");
-                        source.Append(string.Join(", ", ps));
-                        source.AppendLine(");");
-                        source.AppendLine();
-                    }
-                }
-                source.AppendLine("\t}");
-                if (item.Parent is NamespaceDeclarationSyntax)
-                {
-                    source.AppendLine("}");
-                }
-
-                context.AddSource($"{fileName}.cs", source.ToString());
             }
+            builder.AppendLine("\t}");
+
+            return interfaceName;
         }
     }
 }

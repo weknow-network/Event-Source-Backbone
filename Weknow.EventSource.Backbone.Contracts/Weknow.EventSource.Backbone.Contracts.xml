@@ -4,45 +4,19 @@
         <name>Weknow.EventSource.Backbone.Contracts</name>
     </assembly>
     <members>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBridgeAttribute.Contract">
-            <summary>
-            Gets the interface contract.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBridgeAttribute.Name">
-            <summary>
-            The name of the of the Extension method (without the build prefix).
-            If missing the generator will use a convention.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBridgeAttribute.Namespace">
-            <summary>
-            The namespace.
-            If missing the generator will use same namespace as the interface.
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBridgeAttribute.AutoSuffix">
-            <summary>
-            When true, generate auto suffix for the generated interface name (Producer / Consumer according to the ctor's generateType)
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBridgeAttribute.GenerateType">
-            <summary>
-            Type of the generation (default = false)
-            </summary>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.Name">
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBaseAttribute.Name">
             <summary>
             The name of the interface.
             If missing the generator will use a convention.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.AutoSuffix">
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBaseAttribute.Namespace">
             <summary>
-            When true, generate auto suffix for the generated interface name (Producer / Consumer according to the ctor's generateType)
+            The Namespace.
+            If missing the generator will use a convention.
             </summary>
         </member>
-        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceContractAttribute.Type">
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBaseAttribute.Type">
             <summary>
             Type of the generation
             </summary>

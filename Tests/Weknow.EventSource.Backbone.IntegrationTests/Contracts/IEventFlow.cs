@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
-
+    [GenerateEventSourceContract(EventSourceGenType.Producer)]
     public interface IEventFlow
     {
         /// <summary>
