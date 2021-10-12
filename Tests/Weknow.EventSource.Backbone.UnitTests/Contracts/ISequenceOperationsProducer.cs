@@ -4,6 +4,11 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public interface ISequenceOperationsProducer
     {
+        /// <summary>
+        /// Registers the asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         ValueTask RegisterAsync(User user);
         ValueTask UpdateAsync(User user);
         ValueTask LoginAsync(string email, string password);

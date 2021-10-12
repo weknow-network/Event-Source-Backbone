@@ -42,9 +42,14 @@ namespace Weknow.EventSource.Backbone
                 Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
             string fileName = $"{prefix}Bridge";
 
-            builder.AppendLine($"\tpublic class {fileName}: ProducerPipeline, {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine("\t/// <summary>");
+            builder.AppendLine($"\t/// Bridge {kind} of {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine("\t/// </summary>");
+            builder.AppendLine($"\tinternal class {fileName}: ProducerPipeline, {overrideInterfaceName ?? interfaceName}");
             builder.AppendLine("\t{");
 
+            builder.AppendLine($"\t\tpublic {fileName}(IProducerPlan plan) : base(plan){{}}");
+            builder.AppendLine();
             foreach (var method in item.Members)
             {
                 if (method is not MethodDeclarationSyntax mds)
@@ -53,24 +58,28 @@ namespace Weknow.EventSource.Backbone
                 CopyDocumentation(builder, kind, mds);
 
                 string mtdName = mds.Identifier.ValueText;
-                builder.Append("\t\tpublic ValueTask");
+                builder.Append("\t\tasync ValueTask");
                 if (isProducer)
                     builder.Append("<EventKeys>");
-                builder.Append($" {mtdName}(");
+                builder.Append($" {interfaceName}.{mtdName}(");
 
                 var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
                 builder.Append("\t\t\t");
                 builder.Append(string.Join(", ", ps));
                 builder.AppendLine(")");
-                builder.AppendLine("\t\t\t{");
+                builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tvar operation = nameof({interfaceName}.{mtdName});");
-                foreach (var p in mds.ParameterList.Parameters)
+                int i = 0;
+                var prms = mds.ParameterList.Parameters;
+                foreach (var p in prms)
                 {
                     var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\tvar classification0 = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
-
+                    builder.AppendLine($"\t\t\tvar classification{i} = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
+                    i++;
                 }
-                builder.AppendLine("\t\t\t}");
+                var classifications = Enumerable.Range(0, prms.Count).Select(m => $"classification{m}");
+                builder.AppendLine($"\t\t\treturn await SendAsync(operation, {string.Join(", ", classifications)});");
+                builder.AppendLine("\t\t}");
                 builder.AppendLine();
 
             }

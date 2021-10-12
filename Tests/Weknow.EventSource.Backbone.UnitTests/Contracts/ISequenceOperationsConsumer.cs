@@ -3,6 +3,7 @@
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     [GenerateEventSourceContract(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
+    [GenerateEventSourceBridge(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
     public interface ISequenceOperationsConsumer
     {
         ValueTask RegisterAsync(User user);

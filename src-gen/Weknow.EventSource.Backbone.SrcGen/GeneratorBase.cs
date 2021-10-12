@@ -61,10 +61,13 @@ namespace Weknow.EventSource.Backbone
 
                 #endregion // Validation
 
+                string[] defaultUsing = { "using System.Threading.Tasks;", "using System.CodeDom.Compiler;", "using Weknow.EventSource.Backbone;" };
+
                 var builder = new StringBuilder();
-                builder.AppendLine("using System.Threading.Tasks;");
-                builder.AppendLine("using System.CodeDom.Compiler;");
-                builder.AppendLine("using Weknow.EventSource.Backbone;");
+                foreach (var u in defaultUsing)
+                {
+                    builder.AppendLine(u);
+                }
                 builder.AppendLine();
 
                 var overrideNS = ns;
@@ -73,7 +76,11 @@ namespace Weknow.EventSource.Backbone
                     foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
                     {
                         if (c is UsingDirectiveSyntax use)
-                            builder.AppendLine(use.ToFullString());
+                        {
+                            var u = use.ToFullString().Trim();
+                            if (!defaultUsing.Any(m => m == u))
+                                builder.AppendLine(u);
+                        }
                     }
                     builder.AppendLine();
                     overrideNS = ns_?.Name?.ToString();
@@ -82,12 +89,14 @@ namespace Weknow.EventSource.Backbone
                 builder.AppendLine("{");
                 CopyDocumentation(builder, kind, item, "\t");
 
-                string interfaceName = name ?? $"{Convert(item.Identifier.ValueText, kind)}{suffix}";
+                string interfaceName = name ?? Convert(item.Identifier.ValueText, kind);
+                if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
+                    interfaceName = $"{interfaceName}{suffix}";
                 builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
                 string fileName = OnExecute(builder, context, info, interfaceName);
                 builder.AppendLine("}");
 
-                context.AddSource($"{fileName}.cs", builder.ToString());
+                context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
             }
         }
     }
