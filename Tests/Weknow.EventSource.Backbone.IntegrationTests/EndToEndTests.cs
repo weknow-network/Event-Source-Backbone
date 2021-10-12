@@ -267,6 +267,71 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // GeneratedContract_Test
 
+        #region GeneratedContract_Factory_Test
+
+        [Fact]
+        public async Task GeneratedContract_Factory_Test()
+        {
+            #region ISequenceOperations producer1 = ...
+
+            ISequenceOperationsProducer producer1 = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer1 = ...
+
+            #region ISequenceOperations producer2 = ...
+
+            IProducerSequenceOperations producer2 = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildProducerSequenceOperations();
+
+            #endregion // ISequenceOperations producer2 = ...
+
+            await SendSequenceAsync(producer1);
+            await SendSequenceAsync(producer2);
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 6 /* detach consumer after 6 messages*/
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_autoSubscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _autoSubscriber.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedTwiceExactly();
+            A.CallTo(() => _autoSubscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedTwiceExactly();
+            A.CallTo(() => _autoSubscriber.EarseAsync(4335))
+                .MustHaveHappenedTwiceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // GeneratedContract_Factory_Test
+
         #region OnSucceed_ACK_WithFailure_Test
 
         [Fact]

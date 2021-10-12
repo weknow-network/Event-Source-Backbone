@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     [GenerateEventSourceContract(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
+    [GenerateEventSourceBridge(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
     [GenerateEventSourceContract(EventSourceGenType.Producer)]
+    [GenerateEventSourceBridge(EventSourceGenType.Producer)]
     [GenerateEventSourceContract(EventSourceGenType.Consumer)]
     public interface ISequenceOperations
     {
