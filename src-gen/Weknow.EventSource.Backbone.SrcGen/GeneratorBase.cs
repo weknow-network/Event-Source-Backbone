@@ -92,7 +92,6 @@ namespace Weknow.EventSource.Backbone
                 string interfaceName = name ?? Convert(item.Identifier.ValueText, kind);
                 if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
                     interfaceName = $"{interfaceName}{suffix}";
-                builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
                 string fileName = OnExecute(builder, context, info, interfaceName);
                 builder.AppendLine("}");
 

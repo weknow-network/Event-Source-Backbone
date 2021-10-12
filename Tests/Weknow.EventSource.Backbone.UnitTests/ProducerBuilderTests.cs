@@ -71,7 +71,7 @@ namespace Weknow.EventSource.Backbone
                                     _builder
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
-                                        .BuildSequenceOfProducer();
+                                        .CustomBuildSequenceOfProducer();
 
             string[] ids1 = await producer.RegisterAsync(new User());
             string[] ids2 = await producer.LoginAsync("admin", "1234");
@@ -106,6 +106,54 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Build_Serializer_Producer_Test
+
+        #region Build_GeneratedFactory_Producer_Test
+
+        [Fact]
+        public async Task Build_GeneratedFactory_Producer_Test()
+        {
+            //var option = new EventSourceOptions(_serializer);
+
+            ISequenceOfProducer producer =
+                _builder.UseChannel(_channel)
+                        //.WithOptions(option)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSequenceOfProducer();
+
+            await producer.RegisterAsync(new User());
+            await producer.LoginAsync("admin", "1234");
+            await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
+        }
+
+        #endregion // Build_GeneratedFactory_Producer_Test
+
+        #region Build_GeneratedFactory_Override_Producer_Test
+
+        [Fact]
+        public async Task Build_GeneratedFactory_Override_Producer_Test()
+        {
+            //var option = new EventSourceOptions(_serializer);
+
+            ISequenceOfProducer producer =
+                _builder.UseChannel(_channel)
+                        //.WithOptions(option)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .Override<ISequenceOfProducer>()
+                        .Environment("QA")
+                        .BuildSequenceOfProducer();
+
+            await producer.RegisterAsync(new User());
+            await producer.LoginAsync("admin", "1234");
+            await producer.EarseAsync(4335);
+
+            var message = await ch.Reader.ReadAsync();
+        }
+
+        #endregion // Build_GeneratedFactory_Override_Producer_Test
 
         #region Build_Factory_Producer_Test
 
@@ -142,7 +190,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .BuildSequenceOfProducer();
+                        .CustomBuildSequenceOfProducer();
 
             string id1 = await producer.RegisterAsync(new User());
             string id2 = await producer.LoginAsync("admin", "1234");
@@ -203,4 +251,5 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build_Interceptor_Producer_Test
     }
+
 }

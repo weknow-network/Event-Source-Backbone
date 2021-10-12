@@ -41,7 +41,7 @@ namespace Weknow.EventSource.Backbone
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
             CopyDocumentation(builder, kind, item, "\t");
-
+            builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}");
             builder.AppendLine("\t{");
 

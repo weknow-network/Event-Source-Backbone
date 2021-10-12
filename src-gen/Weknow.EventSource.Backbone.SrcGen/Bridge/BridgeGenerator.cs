@@ -31,6 +31,9 @@ namespace Weknow.EventSource.Backbone
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
+            builder.AppendLine("\tusing Weknow.EventSource.Backbone.Building;");
+            builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
+
             var verrideInterfaceArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "InterfaceName");
             var overrideInterfaceName = verrideInterfaceArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
@@ -83,6 +86,24 @@ namespace Weknow.EventSource.Backbone
                 builder.AppendLine();
 
             }
+            builder.AppendLine("\t}");
+
+            // ========== Extensions ===============
+            builder.AppendLine($"\tpublic static class {fileName}Extensions");
+            builder.AppendLine("\t{");
+
+            builder.AppendLine($"\t\tpublic static {interfaceName} Build{prefix}(");
+            builder.AppendLine("\t\t\tthis IProducerSpecializeBuilder builder)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\treturn builder.Build<{interfaceName}>(plan => new {fileName}(plan));");
+            builder.AppendLine("\t\t}");
+
+            builder.AppendLine($"\t\tpublic static {interfaceName} Build{prefix}(");
+            builder.AppendLine($"\t\t\tthis IProducerOverrideBuildBuilder<{interfaceName}> builder)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\treturn builder.Build(plan => new {fileName}(plan));");
+            builder.AppendLine("\t\t}");
+
             builder.AppendLine("\t}");
 
             return fileName;

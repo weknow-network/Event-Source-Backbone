@@ -813,6 +813,103 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.ProducerPipeline">
+            <summary>
+            Handle the producing pipeline
+            CodeGenerator : generate class which inherit from ProducerPipeline
+            ---------- ProducerPipeline - pipeline which invoke on each call  -----------
+                     classify-commands = 
+                        parameters.Select
+                            CreateClassificationAdaptor(operation, argumentName, producedData)
+                                return ClassifyArgumentAsync
+                     SendAsync(operation, classifyAdaptors) // recursive
+                        Channel.SendAsync(announcement)
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlanBuilder@)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="plan">The plan.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.#ctor(Weknow.EventSource.Backbone.IProducerPlan)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="plan">The plan.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.CreateClassificationAdaptor``1(System.String,System.String,``0)">
+            <summary>
+            Classify the operation payload from method arguments.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="operation">The operation.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="producedData">The produced data.</param>
+            <returns></returns>
+            <remarks>
+            MUST BE PROTECTED, called from the generated code
+            </remarks>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.String,System.String,``0)">
+            <summary>
+            Classifies the operation's argument.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="plan">The plan.</param>
+            <param name="payload">The payload.</param>
+            <param name="operation">The operation.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="producedData">The produced data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.ClassifyArgumentAsync``1(Weknow.EventSource.Backbone.IProducerAsyncSegmentationStrategy,Weknow.EventSource.Backbone.EventSourceOptions,System.String,System.String,``0)">
+            <summary>
+            Bridge classification of single operation's argument.
+            Get the argument data and pass it to the segmentation strategies.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="strategy">The strategy.</param>
+            <param name="options">The options.</param>
+            <param name="operation">The operation.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="producedData">The produced data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.InterceptAsync(System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.IProducerAsyncInterceptor},Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket)">
+            <summary>
+            Call interceptors and store their intercepted data
+            (which will be use by the consumer's interceptors).
+            </summary>
+            <param name="interceptors">The interceptors.</param>
+            <param name="metadata">The metadata.</param>
+            <param name="payload">The payload.</param>
+            <param name="interceptorsData">The interceptors data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(System.String,System.Func{Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
+            <summary>
+            Sends the produced data via the channel.
+            </summary>
+            <param name="operation">The operation.</param>
+            <param name="classifyAdaptors">The classify strategy adaptors.</param>
+            <returns></returns>
+            <remarks>
+            MUST BE PROTECTED, called from the generated code
+            </remarks>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ProducerPipeline.SendAsync(Weknow.EventSource.Backbone.IProducerPlan,System.String,Weknow.EventSource.Backbone.Bucket,Weknow.EventSource.Backbone.Bucket,System.String,System.Func{Weknow.EventSource.Backbone.IProducerPlan,Weknow.EventSource.Backbone.Bucket,System.Threading.Tasks.ValueTask{Weknow.EventSource.Backbone.Bucket}}[])">
+            <summary>
+            Sends the produced data via the channel.
+            </summary>
+            <param name="plan">The plan.</param>
+            <param name="id">The identifier.</param>
+            <param name="payload">The payload.</param>
+            <param name="interceptorsData">The interceptors data.</param>
+            <param name="operation">The operation.</param>
+            <param name="classifyAdaptors">The classify strategy adaptors.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IProducerChannelProvider">
             <summary>
             Channel provider responsible for passing the actual message 
