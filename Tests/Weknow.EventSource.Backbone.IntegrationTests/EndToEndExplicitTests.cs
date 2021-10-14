@@ -115,7 +115,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithLogger(_fakeLogger)
-                             .Subscribe(new Subscriber(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .SubscribeDeprecated(new Subscriber(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 

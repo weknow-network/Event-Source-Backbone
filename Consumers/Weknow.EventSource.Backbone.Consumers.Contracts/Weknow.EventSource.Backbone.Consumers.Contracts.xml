@@ -314,7 +314,7 @@
             Event Source producer builder.
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe``1(``0,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.SubscribeDeprecated``1(``0,System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
@@ -326,6 +326,32 @@
             Optional Name of the consumer.
             Can use for observability.
             </param>
+            <returns>
+            Remove subscription.
+            keeping the disposable will prevent the consumer to be collected
+            by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe(Weknow.EventSource.Backbone.ISubscriptionBridge[])">
+            <summary>
+            Subscribe consumer.
+            </summary>
+            <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            <returns>
+            Remove subscription.
+            keeping the disposable will prevent the consumer to be collected
+            by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe(Weknow.EventSource.Backbone.ISubscriptionBridge[],System.String,System.String)">
+            <summary>
+            Subscribe consumer.
+            </summary>
+            <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages</param>
+            <param name="consumerName">Optional Name of the consumer.
+            Can use for observability.</param>
             <returns>
             Remove subscription.
             keeping the disposable will prevent the consumer to be collected
@@ -717,6 +743,19 @@
             <param name="plan">The plan.</param>
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ISubscriptionBridge">
+            <summary>
+            Subscription Bridge convention
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ISubscriptionBridge.BridgeAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge)">
+            <summary>
+            Bridges to the subscriber implementation.
+            </summary>
+            <param name="announcement">The announcement.</param>
+            <param name="consumerBridge">The consumer bridge.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.IConsumerBridge.GetParameterAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
             <summary>

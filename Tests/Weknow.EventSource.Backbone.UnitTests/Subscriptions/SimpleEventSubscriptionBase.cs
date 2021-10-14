@@ -13,10 +13,10 @@ namespace Weknow.EventSource.Backbone
     /// Base class for subscription of ISimpleEventConsumer
     /// </summary>
     /// <seealso cref="ISimpleEventConsumer" />
-    public abstract class SimpleEventSubscriptionBase
+    public abstract class SimpleEventSubscriptionBase : ISubscriptionBridge
     {
 
-        public async Task BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+        async Task ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
             switch (announcement.Metadata.Operation)
             {

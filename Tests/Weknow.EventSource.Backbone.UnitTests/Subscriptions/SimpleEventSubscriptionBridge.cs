@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
     /// In-Memory Channel (excellent for testing)
     /// </summary>
     /// <seealso cref="Weknow.EventSource.Backbone.IProducerChannelProvider" />
-    public class SimpleEventSubscriptionBridge
+    public class SimpleEventSubscriptionBridge : ISubscriptionBridge
     {
         private readonly ISimpleEventConsumer _target;
 
@@ -30,7 +30,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
-        public async Task BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+        async Task ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
             switch (announcement.Metadata.Operation)
             {

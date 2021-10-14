@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -25,6 +26,19 @@ namespace Weknow.EventSource.Backbone
         {
             _plan = plan.Build();
             _handlers = handlers;
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="handlers">Per method handler, handle methods calls.</param>
+        public ConsumerBase(
+            IConsumerPlanBuilder plan,
+            ISubscriptionBridge[] handlers)
+        {
+            _plan = plan.Build();
+            _handlers = handlers.Select<ISubscriptionBridge, Func<Announcement, IConsumerBridge, Task>>(m => m.BridgeAsync).ToArray();
         }
 
         #endregion // Ctor

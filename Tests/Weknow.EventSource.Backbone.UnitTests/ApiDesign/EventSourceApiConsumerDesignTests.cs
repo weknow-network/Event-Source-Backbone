@@ -42,7 +42,7 @@ namespace Weknow.EventSource.Backbone
                          .Partition("ORDERS")
                          // .Shard("ORDER-AHS7821X")
                          .WithLogger(_logger)
-                         .Subscribe(_subscriber);
+                         .SubscribeDeprecated(_subscriber);
 
         }
 

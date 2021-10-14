@@ -53,7 +53,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Subscribe<IEventFlow>(new Subscriber(_logger, _producer), "Demo-GROUP");
+            _builder.SubscribeDeprecated<IEventFlow>(new Subscriber(_logger, _producer), "Demo-GROUP");
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());

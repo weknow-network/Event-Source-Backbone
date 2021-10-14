@@ -34,8 +34,8 @@ namespace Weknow.EventSource.Backbone
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
         private readonly ISimpleEventConsumer _simpleEventConsumer = A.Fake<ISimpleEventConsumer>();
-        private readonly SimpleEventSubscription _simpleInheritSubscription;
-        private readonly SimpleEventSubscriptionBridge _simpleBridgeSubscription;
+        private readonly ISubscriptionBridge _simpleInheritSubscription;
+        private readonly ISubscriptionBridge _simpleBridgeSubscription;
 
         #region Ctor
 
@@ -79,7 +79,7 @@ namespace Weknow.EventSource.Backbone
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")
-                         .Subscribe(_simpleInheritSubscription.BridgeAsync);
+                         .Subscribe(_simpleInheritSubscription);
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();
@@ -165,7 +165,7 @@ namespace Weknow.EventSource.Backbone
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")
-                         .Subscribe(_subscriber);
+                         .SubscribeDeprecated(_subscriber);
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();
