@@ -20,13 +20,13 @@ namespace Weknow.EventSource.Backbone
             {
                 return txt.Replace("Consumer", "Producer")
                                              .Replace("Publisher", "Subscriber")
-                                             .Replace("Pub", "Sub");
+                                             .Replace("Pub", "Sub").Trim();
             }
             if (kind == "Consumer")
             {
                 return txt.Replace("Producer", "Consumer")
                                              .Replace("Subscriber", "Publisher")
-                                             .Replace("Sub", "Pub");
+                                             .Replace("Sub", "Pub").Trim();
             }
             return "ERROR";
         }

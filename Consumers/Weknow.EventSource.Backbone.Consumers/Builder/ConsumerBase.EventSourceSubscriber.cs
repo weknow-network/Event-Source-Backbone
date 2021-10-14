@@ -38,7 +38,7 @@ namespace Weknow.EventSource.Backbone
             /// Initializes a new subscription.
             /// </summary>
             /// <param name="plan">The plan.</param>
-            /// <param name="handlers">Per method handlers, handle methods calls.</param>
+            /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
 
             public EventSourceSubscriber(
                 IConsumerPlan plan,
@@ -51,13 +51,13 @@ namespace Weknow.EventSource.Backbone
 
                 _options = _plan.Options;
                 _maxMessages = _options.MaxMessages;
+                _handlers = handlers;
 
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,
                                                     plan.Options,
                                                     _cancellation.Token);
-                _handlers = handlers;
             }
 
             #endregion // Ctor

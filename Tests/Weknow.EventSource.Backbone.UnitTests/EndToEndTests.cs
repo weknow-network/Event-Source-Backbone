@@ -33,6 +33,10 @@ namespace Weknow.EventSource.Backbone
         private readonly Channel<Announcement> ch;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
 
+        private readonly ISimpleEventConsumer _simpleEventConsumer = A.Fake<ISimpleEventConsumer>();
+        private readonly SimpleEventSubscription _simpleInheritSubscription;
+        private readonly SimpleEventSubscriptionBridge _simpleBridgeSubscription;
+
         #region Ctor
 
         public EndToEndTests(ITestOutputHelper outputHelper)
@@ -42,14 +46,102 @@ namespace Weknow.EventSource.Backbone
             ch = Channel.CreateUnbounded<Announcement>();
             _producerChannel = _ => new ProducerTestChannel(ch);
             _consumerChannel = _ => new ConsumerTestChannel(ch);
+            _simpleInheritSubscription = new SimpleEventSubscription(_simpleEventConsumer);
+            _simpleBridgeSubscription = new SimpleEventSubscriptionBridge(_simpleEventConsumer);
         }
 
         #endregion // Ctor
 
-        #region Build_Serializer_Producer_Test
+        #region End2End_CustomBaseSubscription_Test
 
         [Fact]
-        public async Task Build_Serializer_Producer_Test()
+        public async Task End2End_CustomBaseSubscription_Test()
+        {
+            //var producerOption = new EventSourceOptions(_serializer);
+
+            ISimpleEventProducer producer =
+                _producerBuilder.UseChannel(_producerChannel)
+                        //.WithOptions(producerOption)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSimpleEventProducer();
+
+            await producer.ExecuteAsync("Id", 1);
+            await producer.RunAsync(1, DateTime.Now);
+            await producer.RunAsync(2, DateTime.Now);
+
+            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
+
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
+                 _consumerBuilder.UseChannel(_consumerChannel)
+                         //.WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
+                         .Partition("Organizations")
+                         .Shard("Org: #RedSocks")
+                         .Subscribe(_simpleInheritSubscription.BridgeAsync);
+
+            ch.Writer.Complete();
+            await subscription.DisposeAsync();
+            await ch.Reader.Completion;
+
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync("Id", 1))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(1, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(2, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        #endregion // End2End_CustomBaseSubscription_Test
+
+        #region End2End_CustomSubscriptionBridge_Test
+
+        [Fact]
+        public async Task End2End_CustomSubscriptionBridge_Test()
+        {
+            //var producerOption = new EventSourceOptions(_serializer);
+
+            ISimpleEventProducer producer =
+                _producerBuilder.UseChannel(_producerChannel)
+                        //.WithOptions(producerOption)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSimpleEventProducer();
+
+            await producer.ExecuteAsync("Id", 1);
+            await producer.RunAsync(1, DateTime.Now);
+            await producer.RunAsync(2, DateTime.Now);
+
+            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
+
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
+                 _consumerBuilder.UseChannel(_consumerChannel)
+                         //.WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
+                         .Partition("Organizations")
+                         .Shard("Org: #RedSocks")
+                         .Subscribe(_simpleBridgeSubscription.BridgeAsync);
+
+            ch.Writer.Complete();
+            await subscription.DisposeAsync();
+            await ch.Reader.Completion;
+
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync("Id", 1))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(1, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(2, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        #endregion // End2End_CustomSubscriptionBridge_Test
+
+        #region End2End_Test
+
+        [Fact]
+        public async Task End2End_Test()
         {
             //var producerOption = new EventSourceOptions(_serializer);
 
@@ -87,6 +179,6 @@ namespace Weknow.EventSource.Backbone
                 .MustHaveHappenedOnceExactly();
         }
 
-        #endregion // Build_Serializer_Producer_Test
+        #endregion // End2End_Test
     }
 }

@@ -33,6 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="context">The context.</param>
         /// <param name="info">The information.</param>
         /// <param name="interfaceName">Name of the interface.</param>
+        /// <param name="generateFrom">Source of the generation.</param>
         /// <returns>
         /// File name
         /// </returns>
@@ -40,7 +41,8 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
-            string interfaceName);
+            string interfaceName,
+            string generateFrom);
 
 
         public void Execute(GeneratorExecutionContext context)
@@ -93,12 +95,13 @@ namespace Weknow.EventSource.Backbone
             }
             builder.AppendLine($"namespace {overrideNS ?? "Weknow.EventSource.Backbone"}");
             builder.AppendLine("{");
-            CopyDocumentation(builder, kind, item, "\t");
+            //CopyDocumentation(builder, kind, item, "\t");
 
-            string interfaceName = name ?? Convert(item.Identifier.ValueText, kind);
+            string generateFrom = item.Identifier.ValueText;
+            string interfaceName = name ?? Convert(generateFrom, kind);
             if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
                 interfaceName = $"{interfaceName}{suffix}";
-            string fileName = OnExecute(builder, context, info, interfaceName);
+            string fileName = OnExecute(builder, context, info, interfaceName, generateFrom);
             builder.AppendLine("}");
 
             context.AddSource($"{fileName}.{kind}.cs", builder.ToString());

@@ -38,12 +38,17 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
-            string interfaceName)
+            string interfaceName,
+            string generateFrom)
         {
 
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
             CopyDocumentation(builder, kind, item, "\t");
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}");
             builder.AppendLine("\t{");

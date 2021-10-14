@@ -27,20 +27,22 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
-            string interfaceName)
+            string interfaceName,
+            string generateFrom)
         {
             if (info.Kind == "Producer")
             {
-                return OnExecuteProducer(builder, context, info, interfaceName);
+                return OnExecuteProducer(builder, context, info, interfaceName, generateFrom);
             }
-            return OnExecuteConsumer(builder, context, info, interfaceName);
+            return OnExecuteConsumer(builder, context, info, interfaceName, generateFrom);
         }
 
         protected string OnExecuteConsumer(
             StringBuilder builder,
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
-            string interfaceName)
+            string interfaceName,
+            string generateFrom)
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
@@ -126,7 +128,8 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
-            string interfaceName)
+            string interfaceName,
+            string generateFrom)
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
