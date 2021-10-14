@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+    internal static class SyntaxReceiverResultExtentions
+    {
+        public static SyntaxReceiverResult OverrideName(this SyntaxReceiverResult source, string name)
+        {
+            return new SyntaxReceiverResult(source.Type, name, source.Namespace, source.Kind, source.Att);
+        }
+    }
+
     internal class SyntaxReceiverResult
     {
         public SyntaxReceiverResult(

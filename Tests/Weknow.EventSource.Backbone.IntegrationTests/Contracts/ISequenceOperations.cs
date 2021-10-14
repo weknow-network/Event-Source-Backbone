@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
-    [GenerateEventSourceContract(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
+    [GenerateEventSource(EventSourceGenType.Producer, Name = "IProducerSequenceOperations", ContractOnly = true)]
     [GenerateEventSourceBridge(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
-    [GenerateEventSourceContract(EventSourceGenType.Producer)]
-    [GenerateEventSourceBridge(EventSourceGenType.Producer)]
-    [GenerateEventSourceContract(EventSourceGenType.Consumer)]
+    [GenerateEventSource(EventSourceGenType.Producer)]
+    //[GenerateEventSourceBridge(EventSourceGenType.Producer)]
+    [GenerateEventSource(EventSourceGenType.Consumer, ContractOnly = true)]
     public interface ISequenceOperations
     {
         ValueTask RegisterAsync(User user);

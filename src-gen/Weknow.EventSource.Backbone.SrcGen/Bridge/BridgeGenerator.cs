@@ -48,7 +48,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Bridge {kind} of {overrideInterfaceName ?? interfaceName}");
             builder.AppendLine("\t/// </summary>");
-            builder.AppendLine($"\tinternal class {fileName}: ProducerPipeline, {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine($"\tpublic class {fileName}: ProducerPipeline, {overrideInterfaceName ?? interfaceName}");
             builder.AppendLine("\t{");
 
             builder.AppendLine($"\t\tpublic {fileName}(IProducerPlan plan) : base(plan){{}}");

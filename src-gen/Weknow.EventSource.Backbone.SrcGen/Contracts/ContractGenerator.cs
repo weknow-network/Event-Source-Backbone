@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,8 @@ namespace Weknow.EventSource.Backbone
     [Generator]
     internal class ContractGenerator : GeneratorBase
     {
-        const string TARGET_ATTRIBUTE = "GenerateEventSourceContract";
+        const string TARGET_ATTRIBUTE = "GenerateEventSource";
+        private readonly BridgeGenerator _bridge = new BridgeGenerator();
 
         public ContractGenerator() : base(TARGET_ATTRIBUTE)
         {
@@ -38,6 +40,7 @@ namespace Weknow.EventSource.Backbone
             SyntaxReceiverResult info,
             string interfaceName)
         {
+
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
             CopyDocumentation(builder, kind, item, "\t");
@@ -65,6 +68,13 @@ namespace Weknow.EventSource.Backbone
                 }
             }
             builder.AppendLine("\t}");
+
+            var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
+            var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
+
+            info = info.OverrideName(interfaceName);
+            if (!contractOnly)
+                _bridge.ExecuteSingle(context, info);
 
             return interfaceName;
         }

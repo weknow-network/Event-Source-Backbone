@@ -51,7 +51,6 @@ namespace Weknow.EventSource.Backbone
                 var nameArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Name");
                 var name = nameArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
-
                 var nsArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Namespace");
                 var ns = nsArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 

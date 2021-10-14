@@ -4,6 +4,11 @@
         <name>Weknow.EventSource.Backbone.Contracts</name>
     </assembly>
     <members>
+        <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceAttribute.ContractOnly">
+            <summary>
+            When true, it will only generate the contract interface(i.e. won't generate the bridge).
+            </summary>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.GenerateEventSourceBaseAttribute.Name">
             <summary>
             The name of the interface.

@@ -49,54 +49,59 @@ namespace Weknow.EventSource.Backbone
 
             foreach (var info in syntax.Contracts)
             {
-                var (item, att, name, kind, suffix, ns, isProducer) = info;
+                ExecuteSingle(context, info);
+            }
+        }
 
-                #region Validation
+        public void ExecuteSingle(GeneratorExecutionContext context, SyntaxReceiverResult info)
+        {
+            var (item, att, name, kind, suffix, ns, isProducer) = info;
 
-                if (kind == "NONE")
+            #region Validation
+
+            if (kind == "NONE")
+            {
+                context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
+                return;
+            }
+
+            #endregion // Validation
+
+            string[] defaultUsing = { "using System.Threading.Tasks;", "using System.CodeDom.Compiler;", "using Weknow.EventSource.Backbone;" };
+
+            var builder = new StringBuilder();
+            foreach (var u in defaultUsing)
+            {
+                builder.AppendLine(u);
+            }
+            builder.AppendLine();
+
+            var overrideNS = ns;
+            if (overrideNS == null && item.Parent is NamespaceDeclarationSyntax ns_)
+            {
+                foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
                 {
-                    context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
-                    continue;
-                }
-
-                #endregion // Validation
-
-                string[] defaultUsing = { "using System.Threading.Tasks;", "using System.CodeDom.Compiler;", "using Weknow.EventSource.Backbone;" };
-
-                var builder = new StringBuilder();
-                foreach (var u in defaultUsing)
-                {
-                    builder.AppendLine(u);
+                    if (c is UsingDirectiveSyntax use)
+                    {
+                        var u = use.ToFullString().Trim();
+                        if (!defaultUsing.Any(m => m == u))
+                            builder.AppendLine(u);
+                    }
                 }
                 builder.AppendLine();
-
-                var overrideNS = ns;
-                if (overrideNS == null && item.Parent is NamespaceDeclarationSyntax ns_)
-                {
-                    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
-                    {
-                        if (c is UsingDirectiveSyntax use)
-                        {
-                            var u = use.ToFullString().Trim();
-                            if (!defaultUsing.Any(m => m == u))
-                                builder.AppendLine(u);
-                        }
-                    }
-                    builder.AppendLine();
-                    overrideNS = ns_?.Name?.ToString();
-                }
-                builder.AppendLine($"namespace {overrideNS ?? "Weknow.EventSource.Backbone"}");
-                builder.AppendLine("{");
-                CopyDocumentation(builder, kind, item, "\t");
-
-                string interfaceName = name ?? Convert(item.Identifier.ValueText, kind);
-                if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
-                    interfaceName = $"{interfaceName}{suffix}";
-                string fileName = OnExecute(builder, context, info, interfaceName);
-                builder.AppendLine("}");
-
-                context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
+                overrideNS = ns_?.Name?.ToString();
             }
+            builder.AppendLine($"namespace {overrideNS ?? "Weknow.EventSource.Backbone"}");
+            builder.AppendLine("{");
+            CopyDocumentation(builder, kind, item, "\t");
+
+            string interfaceName = name ?? Convert(item.Identifier.ValueText, kind);
+            if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
+                interfaceName = $"{interfaceName}{suffix}";
+            string fileName = OnExecute(builder, context, info, interfaceName);
+            builder.AppendLine("}");
+
+            context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
         }
     }
 }

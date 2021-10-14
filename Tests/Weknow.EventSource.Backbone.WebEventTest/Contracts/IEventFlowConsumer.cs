@@ -10,8 +10,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest
     /// <summary>
     /// Consumer contract
     /// </summary>
-    //[GenerateEventSourceContract(EventSourceGenType.Producer)]
-    [GenerateEventSourceContract(EventSourceGenType.Producer)]
+    //[GenerateEventSource(EventSourceGenType.Producer)]
+    [GenerateEventSource(EventSourceGenType.Producer)]
     public interface IEventFlowConsumer
     {
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class GenerateEventSourceBaseAttribute : Attribute
     {
         public GenerateEventSourceBaseAttribute(EventSourceGenType generateType)
