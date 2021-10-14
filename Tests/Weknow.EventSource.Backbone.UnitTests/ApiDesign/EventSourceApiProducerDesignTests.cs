@@ -66,7 +66,7 @@ namespace Weknow.EventSource.Backbone
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
                                         .WithLogger(_logger)
-                                        .Build<ISequenceOperationsProducer>();
+                                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -88,7 +88,7 @@ namespace Weknow.EventSource.Backbone
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
                         .WithLogger(_logger)
-                        .Build<ISequenceOperationsProducer>();
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -111,7 +111,7 @@ namespace Weknow.EventSource.Backbone
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
                         .WithLogger(_logger)
-                        .Build<ISequenceOperationsProducer>();
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

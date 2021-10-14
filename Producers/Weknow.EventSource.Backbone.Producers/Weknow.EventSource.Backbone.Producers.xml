@@ -196,21 +196,6 @@
             <param name="logger">The logger.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Build``1">
-            <summary>
-            <![CDATA[ Ceate Producer proxy for specific events sequence.
-            Event sequence define by an interface which declare the
-            operations which in time will be serialized into event's
-            messages.
-            This interface can be use as a proxy in the producer side,
-            and as adapter on the consumer side.
-            All method of the interface should represent one-way communication pattern
-            and return Task or ValueTask (not Task<T> or ValueTask<T>).
-            Nothing but method allowed on this interface]]>
-            </summary>
-            <typeparam name="T">The contract of the proxy / adapter</typeparam>
-            <returns></returns>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Build``1(System.Func{Weknow.EventSource.Backbone.IProducerPlan,``0})">
             <summary>
             <![CDATA[ Ceate Producer proxy for specific events sequence.
@@ -225,14 +210,6 @@
             </summary>
             <typeparam name="T">The contract of the proxy / adapter</typeparam>
             <param name="factory">The factory.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.BuildInternal``1(Weknow.EventSource.Backbone.ProducerPlan)">
-            <summary>
-            Builds .
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="planBuilder">The plan builder.</param>
             <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Weknow#EventSource#Backbone#Building#IProducerSpecializeBuilder#Override``1">
@@ -255,12 +232,6 @@
             Initializes a new instance.
             </summary>
             <param name="plan">The plan.</param>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideBuildBuilder{T}#Build">
-            <summary>
-            Builds the producer.
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ProducerBuilder.Router`1.Weknow#EventSource#Backbone#IProducerOverrideBuildBuilder{T}#Build(System.Func{Weknow.EventSource.Backbone.IProducerPlan,`0})">
             <summary>

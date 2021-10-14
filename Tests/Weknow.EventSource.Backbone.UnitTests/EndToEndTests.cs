@@ -240,7 +240,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(producerOption)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Build<ISequenceOperationsProducer>();
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

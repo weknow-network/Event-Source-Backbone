@@ -101,13 +101,13 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment("Test")
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -156,12 +156,12 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -214,7 +214,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<ISequenceOperationsProducer>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer1 = ...
 
@@ -225,7 +225,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<IProducerSequenceOperations>();
+                                            .BuildProducerSequenceOperations();
 
             #endregion // ISequenceOperations producer2 = ...
 
@@ -339,12 +339,12 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -410,11 +410,11 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -480,11 +480,11 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -556,11 +556,11 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -629,29 +629,29 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger);
-            ISequenceOperations producer = producerBuilder.Build<ISequenceOperations>();
-            ISequenceOperations producerPrefix = producerBuilder
-                .Override<ISequenceOperations>()
+            ISequenceOperationsProducer producer = producerBuilder.BuildSequenceOperationsProducer();
+            ISequenceOperationsProducer producerPrefix = producerBuilder
+                .Override<ISequenceOperationsProducer>()
                 .Environment("qa")
                 .Partition("p0.")
                 .Shard("p1.")
-                .Build();
-            ISequenceOperations producerPrefix1 = producerBuilder
-                .Override<ISequenceOperations>()
-                .Partition("p2.").Build();
-            ISequenceOperations producerSuffix = producerBuilder
-                .Override<ISequenceOperations>()
+                .BuildSequenceOperationsProducer();
+            ISequenceOperationsProducer producerPrefix1 = producerBuilder
+                .Override<ISequenceOperationsProducer>()
+                .Partition("p2.").BuildSequenceOperationsProducer();
+            ISequenceOperationsProducer producerSuffix = producerBuilder
+                .Override<ISequenceOperationsProducer>()
                 .Partition(".s0", RouteAssignmentType.Suffix)
                 .Shard(".s1", RouteAssignmentType.Suffix)
-                .Build();
-            ISequenceOperations producerSuffix1 = producerBuilder
-                .Override<ISequenceOperations>()
+                .BuildSequenceOperationsProducer();
+            ISequenceOperationsProducer producerSuffix1 = producerBuilder
+                .Override<ISequenceOperationsProducer>()
                 .Partition(".s2", RouteAssignmentType.Suffix)
-                .Build();
-            ISequenceOperations producerDynamic = producerBuilder
-                .Override<ISequenceOperations>()
+                .BuildSequenceOperationsProducer();
+            ISequenceOperationsProducer producerDynamic = producerBuilder
+                .Override<ISequenceOperationsProducer>()
                 .Strategy(m => (m.Environment, $"d.{m.Partition}", $"{m.Shard}.d"))
-                .Build();
+                .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 
@@ -787,11 +787,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region ISequenceOperations producer = ...
 
-            ISequenceOperations producer = _producerBuilder
+            ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
-                                            .Build<ISequenceOperations>();
+                                            .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
 

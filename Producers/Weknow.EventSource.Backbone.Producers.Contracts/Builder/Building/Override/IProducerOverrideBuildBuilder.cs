@@ -9,12 +9,6 @@ namespace Weknow.EventSource.Backbone
     public interface IProducerOverrideBuildBuilder<T> where T : class
     {
         /// <summary>
-        /// Builds the producer.
-        /// </summary>
-        /// <returns></returns>
-        T Build();
-
-        /// <summary>
         /// <![CDATA[ Ceate Producer proxy for specific events sequence.
         /// Event sequence define by an interface which declare the
         /// operations which in time will be serialized into event's

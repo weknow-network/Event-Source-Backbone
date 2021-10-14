@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.CodeGeneration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -319,24 +318,6 @@ namespace Weknow.EventSource.Backbone
         /// Nothing but method allowed on this interface]]>
         /// </summary>
         /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
-        /// <returns></returns>
-        T IProducerSpecializeBuilder.Build<T>()
-        {
-            return BuildInternal<T>(Plan);
-        }
-
-        /// <summary>
-        /// <![CDATA[ Ceate Producer proxy for specific events sequence.
-        /// Event sequence define by an interface which declare the
-        /// operations which in time will be serialized into event's
-        /// messages.
-        /// This interface can be use as a proxy in the producer side,
-        /// and as adapter on the consumer side.
-        /// All method of the interface should represent one-way communication pattern
-        /// and return Task or ValueTask (not Task<T> or ValueTask<T>).
-        /// Nothing but method allowed on this interface]]>
-        /// </summary>
-        /// <typeparam name="T">The contract of the proxy / adapter</typeparam>
         /// <param name="factory">The factory.</param>
         /// <returns></returns>
         T IProducerSpecializeBuilder.Build<T>(Func<IProducerPlan, T> factory)
@@ -350,24 +331,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build
 
-        #region BuildInternal
-
-        /// <summary>
-        /// Builds .
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="planBuilder">The plan builder.</param>
-        /// <returns></returns>
-        internal static T BuildInternal<T>(ProducerPlan planBuilder)
-        {
-            if (planBuilder.SegmentationStrategies.Count == 0)
-                planBuilder = planBuilder.AddSegmentation(new ProducerDefaultSegmentationStrategy());
-            var plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
-            return new CodeGenerator("DynamicProxies")
-                        .CreateProducerProxy<T, ProducerPipeline>(plan);
-        }
-
-        #endregion // BuildInternal
+        #region Override
 
         /// <summary>
         /// Enable dynamic transformation of the stream id before sending.
@@ -376,6 +340,8 @@ namespace Weknow.EventSource.Backbone
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         IProducerOverrideBuilder<T> IProducerSpecializeBuilder.Override<T>() => new Router<T>(Plan);
+
+        #endregion // Override
 
         #region Router
 
@@ -402,12 +368,6 @@ namespace Weknow.EventSource.Backbone
             #endregion // Ctor
 
             #region Build
-
-            /// <summary>
-            /// Builds the producer.
-            /// </summary>
-            /// <returns></returns>
-            T IProducerOverrideBuildBuilder<T>.Build() => BuildInternal<T>(_plan);
 
             /// <summary>
             /// <![CDATA[ Ceate Producer proxy for specific events sequence.

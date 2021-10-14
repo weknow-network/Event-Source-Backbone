@@ -96,7 +96,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Build<ISequenceOperationsProducer>();
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -242,7 +242,7 @@ namespace Weknow.EventSource.Backbone
                         .AddInterceptor(_rawAsyncInterceptor)
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
-                        .Build<ISequenceOperationsProducer>();
+                        .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

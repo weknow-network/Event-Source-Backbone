@@ -46,12 +46,12 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             services.AddSingleton(ioc =>
             {
                 ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
-                IEventFlow producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
+                IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      .AddS3Strategy()
                                      .Partition("demo")
                                      .Shard("default")
                                      .WithLogger(logger)
-                                     .Build<IEventFlow>();
+                                     .BuildEventFlowProducer();
                 return producer;
             });
             services.AddSingleton(ioc =>

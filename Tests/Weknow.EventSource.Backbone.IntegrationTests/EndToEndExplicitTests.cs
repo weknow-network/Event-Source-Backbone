@@ -89,12 +89,12 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             #region IEventFlow producer = ...
 
-            IEventFlow producer = _producerBuilder
+            IEventFlowProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             //.WithLogger(_fakeLogger)
-                                            .Build<IEventFlow>();
+                                            .BuildEventFlowProducer();
 
             #endregion // IEventFlow producer = ...
 
@@ -139,7 +139,7 @@ namespace Weknow.EventSource.Backbone.Tests
         /// Sends standard test sequence.
         /// </summary>
         /// <param name="producer">The producer.</param>
-        private static async Task SendSequenceAsync(IEventFlow producer)
+        private static async Task SendSequenceAsync(IEventFlowProducer producer)
         {
             await producer.Stage1Async(_person, "STAGE 1");
             await producer.Stage2Async(_personElement, _payloadElement);
