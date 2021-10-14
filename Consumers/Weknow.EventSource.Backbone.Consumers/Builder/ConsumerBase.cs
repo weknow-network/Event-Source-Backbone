@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         public IConsumerLifetime Subscribe()
         {
-            var subscription = new Subscription(_plan, _handler);
+            var subscription = new EventSourceSubscriberBase<T>(_plan, _handler);
             return subscription;
         }
 

@@ -23,51 +23,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription">
-            <summary>
-            Represent single consuming subscription
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.#ctor(Weknow.EventSource.Backbone.IConsumerPlan,`0)">
-            <summary>
-            Initializes a new subscription.
-            </summary>
-            <param name="plan">The plan.</param>
-            <param name="handler">The factory.</param>
-        </member>
-        <member name="P:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.Completion">
-            <summary>
-            Represent the consuming completion..
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.ConsumingAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck)">
-            <summary>
-            Handles consuming of single event.
-            </summary>
-            <param name="arg">The argument.</param>
-            <param name="ack">
-            The acknowledge callback which will prevent message from 
-            being re-fetch from same consumer group.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.UnclassifyAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
-            <summary>
-            Unclassify the announcement.
-            </summary>
-            <typeparam name="TParam"></typeparam>
-            <param name="arg">The argument.</param>
-            <param name="argumentName">Name of the argument.</param>
-            <returns></returns>
-            <exception cref="T:System.NotSupportedException"></exception>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase`1.Subscription.DisposeAsync">
-            <summary>
-            Release consumer.
-            </summary>
-            <returns>
-            A task that represents the asynchronous dispose operation.
-            </returns>
-        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerBuilder">
             <summary>
             Event Source consumer builder.
@@ -491,6 +446,61 @@
             Builds this instance.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1">
+            <summary>
+            Represent single consuming subscription
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.#ctor(Weknow.EventSource.Backbone.IConsumerPlan,`0)">
+            <summary>
+            Initializes a new subscription.
+            </summary>
+            <param name="plan">The plan.</param>
+            <param name="handler">The factory.</param>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.Completion">
+            <summary>
+            Represent the consuming completion..
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.ConsumingAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IAck)">
+            <summary>
+            Handles consuming of single event.
+            </summary>
+            <param name="arg">The argument.</param>
+            <param name="ack">
+            The acknowledge callback which will prevent message from 
+            being re-fetch from same consumer group.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.UnclassifyAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+            <summary>
+            Unclassify the announcement.
+            </summary>
+            <typeparam name="TParam"></typeparam>
+            <param name="arg">The argument.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.GetParameterAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+            <summary>
+            Get parameter value from the announcement.
+            </summary>
+            <typeparam name="TParam"></typeparam>
+            <param name="arg">The argument.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceSubscriberBase`1.DisposeAsync">
+            <summary>
+            Release consumer.
+            </summary>
+            <returns>
+            A task that represents the asynchronous dispose operation.
+            </returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.FilteredStorageStrategy">
             <summary>

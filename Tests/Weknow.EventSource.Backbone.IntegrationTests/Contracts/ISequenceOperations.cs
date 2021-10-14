@@ -19,5 +19,4 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         ValueTask ActivateAsync(int id);
         ValueTask EarseAsync(int id);
     }
-
 }
