@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="channel">The channel.</param>
+        /// <param name="target">The target.</param>
         public SimpleEventSubscriptionBridge(ISimpleEventConsumer target)
         {
             _target = target;

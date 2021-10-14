@@ -36,6 +36,8 @@ namespace Weknow.EventSource.Backbone
         private readonly ISimpleEventConsumer _simpleEventConsumer = A.Fake<ISimpleEventConsumer>();
         private readonly ISubscriptionBridge _simpleInheritSubscription;
         private readonly ISubscriptionBridge _simpleBridgeSubscription;
+        private readonly ISubscriptionBridge _simpleGenSubscription;
+        private readonly ISubscriptionBridge _simpleGenBridgeSubscription;
 
         #region Ctor
 
@@ -48,6 +50,8 @@ namespace Weknow.EventSource.Backbone
             _consumerChannel = _ => new ConsumerTestChannel(ch);
             _simpleInheritSubscription = new SimpleEventSubscription(_simpleEventConsumer);
             _simpleBridgeSubscription = new SimpleEventSubscriptionBridge(_simpleEventConsumer);
+            _simpleGenSubscription = new SimpleEventSubscriptionFromGen(_simpleEventConsumer);
+            _simpleGenBridgeSubscription = new SimpleEventConsumerBridge(_simpleEventConsumer);
         }
 
         #endregion // Ctor
@@ -137,6 +141,92 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // End2End_CustomSubscriptionBridge_Test
+
+        #region End2End_GenBaseSubscription_Test
+
+        [Fact]
+        public async Task End2End_GenBaseSubscription_Test()
+        {
+            //var producerOption = new EventSourceOptions(_serializer);
+
+            ISimpleEventProducer producer =
+                _producerBuilder.UseChannel(_producerChannel)
+                        //.WithOptions(producerOption)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSimpleEventProducer();
+
+            await producer.ExecuteAsync("Id", 1);
+            await producer.RunAsync(1, DateTime.Now);
+            await producer.RunAsync(2, DateTime.Now);
+
+            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
+
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
+                 _consumerBuilder.UseChannel(_consumerChannel)
+                         //.WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
+                         .Partition("Organizations")
+                         .Shard("Org: #RedSocks")
+                         .Subscribe(_simpleGenSubscription);
+
+            ch.Writer.Complete();
+            await subscription.DisposeAsync();
+            await ch.Reader.Completion;
+
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync("Id", 1))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(1, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(2, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        #endregion // End2End_GenBaseSubscription_Test
+
+        #region End2End_GenSubscriptionBridge_Test
+
+        [Fact]
+        public async Task End2End_GenSubscriptionBridge_Test()
+        {
+            //var producerOption = new EventSourceOptions(_serializer);
+
+            ISimpleEventProducer producer =
+                _producerBuilder.UseChannel(_producerChannel)
+                        //.WithOptions(producerOption)
+                        .Partition("Organizations")
+                        .Shard("Org: #RedSocks")
+                        .BuildSimpleEventProducer();
+
+            await producer.ExecuteAsync("Id", 1);
+            await producer.RunAsync(1, DateTime.Now);
+            await producer.RunAsync(2, DateTime.Now);
+
+            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
+
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
+                 _consumerBuilder.UseChannel(_consumerChannel)
+                         //.WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
+                         .Partition("Organizations")
+                         .Shard("Org: #RedSocks")
+                         .Subscribe(_simpleGenBridgeSubscription.BridgeAsync);
+
+            ch.Writer.Complete();
+            await subscription.DisposeAsync();
+            await ch.Reader.Completion;
+
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync("Id", 1))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(1, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(2, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        #endregion // End2End_GenSubscriptionBridge_Test
 
         #region End2End_Test
 
