@@ -67,7 +67,7 @@ namespace Weknow.EventSource.Backbone.Tests
             _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
-                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+                    .ReturnsLazily(() => ValueTask.CompletedTask);
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
             A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
@@ -358,7 +358,7 @@ namespace Weknow.EventSource.Backbone.Tests
                     if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
 
-                    return ValueTaskStatic.CompletedValueTask;
+                    return ValueTask.CompletedTask;
                 });
 
             #endregion // A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
@@ -428,7 +428,7 @@ namespace Weknow.EventSource.Backbone.Tests
                     if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
 
-                    return ValueTaskStatic.CompletedValueTask;
+                    return ValueTask.CompletedTask;
                 });
 
             #endregion // A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
@@ -803,9 +803,9 @@ namespace Weknow.EventSource.Backbone.Tests
                     throw new ApplicationException("test intensional exception");
                 });
             A.CallTo(() => otherSubscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
-                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+                    .ReturnsLazily(() => ValueTask.CompletedTask);
             A.CallTo(() => otherSubscriber.EarseAsync(A<int>.Ignored))
-                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+                    .ReturnsLazily(() => ValueTask.CompletedTask);
 
             #endregion // A.CallTo(...).ReturnsLazily(...)
 

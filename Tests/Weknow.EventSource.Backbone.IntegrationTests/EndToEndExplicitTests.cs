@@ -57,7 +57,7 @@ namespace Weknow.EventSource.Backbone.Tests
             _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
 
             A.CallTo(() => _subscriber.Stage1Async(A<Person>.Ignored, A<string>.Ignored))
-                    .ReturnsLazily(() => ValueTaskStatic.CompletedValueTask);
+                    .ReturnsLazily(() => ValueTask.CompletedTask);
             A.CallTo(() => _subscriber.Stage2Async(A<JsonElement>.Ignored, A<JsonElement>.Ignored))
                     .ReturnsLazily(() => Delay());
 

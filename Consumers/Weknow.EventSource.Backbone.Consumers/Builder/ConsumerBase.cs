@@ -1,8 +1,48 @@
 ﻿
 using System;
+using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+    /// <summary>
+    /// Base class for the consumer's code generator
+    /// </summary>
+    public partial class ConsumerBase
+    {
+        private readonly IConsumerPlan _plan;
+        private readonly Func<Announcement, IConsumerBridge, Task>[] _handlers;
+
+        #region Ctor
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="handlers">Per method handler, handle methods calls.</param>
+        public ConsumerBase(
+            IConsumerPlanBuilder plan,
+            Func<Announcement, IConsumerBridge, Task>[] handlers)
+        {
+            _plan = plan.Build();
+            _handlers = handlers;
+        }
+
+        #endregion // Ctor
+
+        #region Subscribe
+
+        /// <summary>
+        /// Subscribes this instance.
+        /// </summary>
+        /// <returns></returns>
+        public IConsumerLifetime Subscribe()
+        {
+            var subscription = new EventSourceSubscriber(_plan, _handlers);
+            return subscription;
+        }
+
+        #endregion // Subscribe
+    }
     /// <summary>
     /// Base class for the consumer's code generator
     /// </summary>
@@ -37,7 +77,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         public IConsumerLifetime Subscribe()
         {
-            var subscription = new EventSourceSubscriberBase<T>(_plan, _handler);
+            var subscription = new Subscription(_plan, _handler);
             return subscription;
         }
 

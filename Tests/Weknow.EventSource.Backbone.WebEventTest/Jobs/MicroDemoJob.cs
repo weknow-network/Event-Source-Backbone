@@ -104,7 +104,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
                 var meta = ConsumerMetadata.Context;
                 _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
                     meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
-                return ValueTaskStatic.CompletedValueTask;
+                return ValueTask.CompletedTask;
             }
         }
     }

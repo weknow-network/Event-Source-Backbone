@@ -603,7 +603,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 //{ // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
                 //    throw;
                 //}
-                return ValueTaskStatic.CompletedValueTask;
+                return ValueTask.CompletedTask;
 
             }
 

@@ -62,12 +62,12 @@ namespace Weknow.EventSource.Backbone
             /// message from process again by the consumer)
             /// </summary>
             /// <returns></returns>
-            public ValueTask AckAsync() => ValueTaskStatic.CompletedValueTask;
+            public ValueTask AckAsync() => ValueTask.CompletedTask;
 
             /// <summary>
             /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             /// </summary>
-            public ValueTask CancelAsync() => ValueTaskStatic.CompletedValueTask;
+            public ValueTask CancelAsync() => ValueTask.CompletedTask;
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.
@@ -77,7 +77,7 @@ namespace Weknow.EventSource.Backbone
             /// </returns>
             public ValueTask DisposeAsync()
             {
-                return ValueTaskStatic.CompletedValueTask;
+                return ValueTask.CompletedTask;
             }
         }
 
@@ -111,7 +111,7 @@ namespace Weknow.EventSource.Backbone
                 // the Ack.Current won't be available any more after closing this scope
                 // invocation is over and cannot Ack.Current.AckAsync() anymore.
                 _context.Value = NOP.Default;
-                return ValueTaskStatic.CompletedValueTask;
+                return ValueTask.CompletedTask;
             }
         }
 

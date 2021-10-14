@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
     /// <seealso cref="System.IAsyncDisposable" />
     public class AckOnce : IAck
     {
-        private static readonly Func<ValueTask> NON_FN = () => ValueTaskStatic.CompletedValueTask;
+        private static readonly Func<ValueTask> NON_FN = () => ValueTask.CompletedTask;
         private readonly Func<ValueTask> _ackAsync;
         private readonly Func<ValueTask> _cancelAsync;
         private readonly AckBehavior _behavior;
@@ -91,7 +91,7 @@ namespace Weknow.EventSource.Backbone
                 Interlocked.Decrement(ref _ackCount);
                 throw;
             }
-           
+
         }
 
         #endregion // CancelAsync

@@ -676,6 +676,31 @@
             Beyond this period the consumer span will refer the producer as Link (rather than parent).
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.EventSourceConsumer">
+            <summary>
+            Base class for the consumer's code generator
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventSourceConsumer.GetParameterAsync``1(Weknow.EventSource.Backbone.Announcement,System.String,Weknow.EventSource.Backbone.IConsumerPlan)">
+            <summary>
+            Get parameter value from the announcement.
+            </summary>
+            <typeparam name="TParam">The type of the parameter.</typeparam>
+            <param name="arg">The argument.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <param name="plan">The plan.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerBridge.GetParameterAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
+            <summary>
+            Gets the parameter value.
+            </summary>
+            <typeparam name="TParam">The type of the parameter.</typeparam>
+            <param name="arg">The argument.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerAsyncInterceptor">
             <summary>
             Consumer stage of an interception operation provider.
