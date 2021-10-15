@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.WebEventTest
 {
-
+    [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
     public interface IEventFlow
     {
         /// <summary>

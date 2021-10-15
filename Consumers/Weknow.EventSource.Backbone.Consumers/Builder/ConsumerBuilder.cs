@@ -3,8 +3,10 @@
 using Polly;
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -316,7 +318,7 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            ISubscriptionBridge[] handlers,
+            IEnumerable<ISubscriptionBridge> handlers,
             string? consumerGroup,
             string? consumerName)
 
@@ -337,14 +339,52 @@ namespace Weknow.EventSource.Backbone
             var consumer = new ConsumerBase(plan, handlers);
             var subscription = consumer.Subscribe();
             return subscription;
-        }        /// <summary>
-                 /// Subscribe consumer.
-                 /// </summary>
-                 /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-                 /// <returns>
-                 /// The partition subscription (dispose to remove the subscription)
-                 /// </returns>
-                 /// <exception cref="System.ArgumentNullException">_plan</exception>
+        }
+
+        /// <summary>
+        /// Subscribe consumer.
+        /// </summary>
+        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages</param>
+        /// <param name="consumerName">Optional Name of the consumer.
+        /// Can use for observability.</param>
+        /// <returns>
+        /// The partition subscription (dispose to remove the subscription)
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">_plan</exception>
+        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
+            ISubscriptionBridge handlers,
+            string? consumerGroup,
+            string? consumerName)
+
+        {
+            #region Validation
+
+            if (_plan == null)
+                throw new ArgumentNullException(nameof(_plan));
+
+            #endregion // Validation
+
+            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
+
+            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
+            if (plan.SegmentationStrategies.Count == 0)
+                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
+
+            var consumer = new ConsumerBase(plan, handlers.AsYield());
+            var subscription = consumer.Subscribe();
+            return subscription;
+        }
+
+        /// <summary>
+        /// Subscribe consumer.
+        /// </summary>
+        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+        /// <returns>
+        /// The partition subscription (dispose to remove the subscription)
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
             params Func<Announcement, IConsumerBridge, Task>[] handlers)
 
@@ -365,7 +405,7 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            Func<Announcement, IConsumerBridge, Task>[] handlers,
+            IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers,
             string? consumerGroup,
             string? consumerName)
 
@@ -391,22 +431,17 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="eventHandler">Handling interface for the events.</param>
-        /// <param name="consumerGroup">
-        /// Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages
-        /// </param>
-        /// <param name="consumerName">
-        /// Optional Name of the consumer.
-        /// Can use for observability.
-        /// </param>
+        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
+        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+        /// consuming a different portion of the same stream of messages</param>
+        /// <param name="consumerName">Optional Name of the consumer.
+        /// Can use for observability.</param>
         /// <returns>
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
-        [Obsolete("Deprecated", false)]
-        IConsumerLifetime IConsumerSubscribeBuilder.SubscribeDeprecated<T>(
-            T eventHandler,
+        /// <exception cref="System.ArgumentNullException">_plan</exception>
+        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
+            Func<Announcement, IConsumerBridge, Task> handler,
             string? consumerGroup,
             string? consumerName)
 
@@ -424,7 +459,7 @@ namespace Weknow.EventSource.Backbone
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            var consumer = new ConsumerBase<T>(plan, eventHandler);
+            var consumer = new ConsumerBase(plan, handler.AsYield());
             var subscription = consumer.Subscribe();
             return subscription;
         }

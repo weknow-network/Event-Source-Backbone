@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     [GenerateEventSource(EventSourceGenType.Producer)]
+    [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
     public interface IEventFlow
     {
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Weknow.EventSource.Backbone
     public partial class ConsumerBase
     {
         private readonly IConsumerPlan _plan;
-        private readonly Func<Announcement, IConsumerBridge, Task>[] _handlers;
+        private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task>> _handlers;
 
         #region Ctor
 
@@ -22,7 +23,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="handlers">Per method handler, handle methods calls.</param>
         public ConsumerBase(
             IConsumerPlanBuilder plan,
-            Func<Announcement, IConsumerBridge, Task>[] handlers)
+            IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers)
         {
             _plan = plan.Build();
             _handlers = handlers;
@@ -35,10 +36,10 @@ namespace Weknow.EventSource.Backbone
         /// <param name="handlers">Per method handler, handle methods calls.</param>
         public ConsumerBase(
             IConsumerPlanBuilder plan,
-            ISubscriptionBridge[] handlers)
+            IEnumerable<ISubscriptionBridge> handlers)
         {
             _plan = plan.Build();
-            _handlers = handlers.Select<ISubscriptionBridge, Func<Announcement, IConsumerBridge, Task>>(m => m.BridgeAsync).ToArray();
+            _handlers = handlers.Select<ISubscriptionBridge, Func<Announcement, IConsumerBridge, Task>>(m => m.BridgeAsync);
         }
 
         #endregion // Ctor

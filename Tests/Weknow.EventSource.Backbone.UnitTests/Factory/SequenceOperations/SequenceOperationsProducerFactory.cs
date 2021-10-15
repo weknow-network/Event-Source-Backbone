@@ -16,61 +16,61 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         {
         }
 
-        async ValueTask ISequenceOperationsProducer.ActivateAsync(int id)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.ActivateAsync(int id)
         {
             var operation = nameof(ISequenceOperationsProducer.ActivateAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.ApproveAsync(int id)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.ApproveAsync(int id)
         {
             var operation = nameof(ISequenceOperationsProducer.ApproveAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.EarseAsync(int id)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.EarseAsync(int id)
         {
             var operation = nameof(ISequenceOperationsProducer.EarseAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.LoginAsync(string email, string password)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.LoginAsync(string email, string password)
         {
             var operation = nameof(ISequenceOperationsProducer.LoginAsync);
             var classification0 = CreateClassificationAdaptor(operation, nameof(email), email);
             var classification1 = CreateClassificationAdaptor(operation, nameof(password), password);
-            await SendAsync(operation, classification0, classification1);
+            return await SendAsync(operation, classification0, classification1);
         }
 
-        async ValueTask ISequenceOperationsProducer.LogoffAsync(int id)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.LogoffAsync(int id)
         {
             var operation = nameof(ISequenceOperationsProducer.ApproveAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.RegisterAsync(User user)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.RegisterAsync(User user)
         {
             var operation = nameof(ISequenceOperationsProducer.RegisterAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(user), user);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.SuspendAsync(int id)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.SuspendAsync(int id)
         {
             var operation = nameof(ISequenceOperationsProducer.SuspendAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
 
-        async ValueTask ISequenceOperationsProducer.UpdateAsync(User user)
+        async ValueTask<EventKeys> ISequenceOperationsProducer.UpdateAsync(User user)
         {
             var operation = nameof(ISequenceOperationsProducer.UpdateAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(user), user);
-            await SendAsync(operation, classification);
+            return await SendAsync(operation, classification);
         }
     }
 }

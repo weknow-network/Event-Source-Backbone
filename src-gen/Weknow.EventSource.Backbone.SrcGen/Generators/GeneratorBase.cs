@@ -15,6 +15,16 @@ namespace Weknow.EventSource.Backbone
     internal abstract class GeneratorBase : ISourceGenerator
     {
         private readonly string _targetAttribute;
+        private static readonly string[] DEFAULT_USING = new[]{
+                            "System",
+                            "System.Linq",
+                            "System.Collections",
+                            "System.Collections.Generic",
+                            "System.Threading.Tasks",
+                            "System.CodeDom.Compiler",
+                            "Weknow.EventSource.Backbone",
+                            "Weknow.EventSource.Backbone.Building" }.Select(u => $"using {u};").ToArray();
+
 
         public GeneratorBase(string targetAttribute)
         {
@@ -69,10 +79,9 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-            string[] defaultUsing = { "using System.Threading.Tasks;", "using System.CodeDom.Compiler;", "using Weknow.EventSource.Backbone;" };
 
             var builder = new StringBuilder();
-            foreach (var u in defaultUsing)
+            foreach (var u in DEFAULT_USING)
             {
                 builder.AppendLine(u);
             }
@@ -86,7 +95,7 @@ namespace Weknow.EventSource.Backbone
                     if (c is UsingDirectiveSyntax use)
                     {
                         var u = use.ToFullString().Trim();
-                        if (!defaultUsing.Any(m => m == u))
+                        if (!DEFAULT_USING.Any(m => m == u))
                             builder.AppendLine(u);
                     }
                 }
@@ -98,13 +107,13 @@ namespace Weknow.EventSource.Backbone
             //CopyDocumentation(builder, kind, item, "\t");
 
             string generateFrom = item.Identifier.ValueText;
-            string interfaceName = name ?? Convert(generateFrom, kind);
-            if (!string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
-                interfaceName = $"{interfaceName}{suffix}";
+            string interfaceName = GetInterfaceConvention(name, generateFrom, kind, suffix);
             string fileName = OnExecute(builder, context, info, interfaceName, generateFrom);
             builder.AppendLine("}");
 
             context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
         }
+
+        protected virtual string GetInterfaceConvention(string? name, string generateFrom, string kind, string? suffix) => name ?? generateFrom;
     }
 }

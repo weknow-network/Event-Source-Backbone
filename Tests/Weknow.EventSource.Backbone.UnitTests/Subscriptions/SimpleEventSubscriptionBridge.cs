@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
+using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 namespace Weknow.EventSource.Backbone

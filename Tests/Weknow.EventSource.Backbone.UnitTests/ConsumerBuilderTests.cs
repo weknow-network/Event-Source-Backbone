@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone
                          .RegisterSegmentationStrategy(_segmentation)
                          .Partition("ORDERS")
                          // .Shard("ORDER-AHS7821X")
-                         .SubscribeDeprecated(_subscriber);
+                         .SubscribeSequenceOperationsConsumer(_subscriber);
 
         }
 

@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone
         private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly Channel<Announcement> ch;
-        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOfConsumer _subscriber = A.Fake<ISequenceOfConsumer>();
         private readonly IProducerStorageStrategy _producerStorageStrategyA = A.Fake<IProducerStorageStrategy>();
         private readonly IProducerStorageStrategy _producerStorageStrategyB = A.Fake<IProducerStorageStrategy>();
         private readonly IConsumerStorageStrategy _consumerStorageStrategyA = A.Fake<IConsumerStorageStrategy>();
@@ -84,7 +84,7 @@ namespace Weknow.EventSource.Backbone
                          .WithCancellation(cts.Token)
                          .Partition("Organizations")
                          .Shard("Org: #RedSocks")
-                         .SubscribeDeprecated(_subscriber);
+                         .Subscribe(new SequenceOfConsumerBridge(_subscriber));
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31717.71
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31727.386
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone", "Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj", "{52BFDB45-C61C-4FF8-98BA-41407FFC85F5}"
 EndProject
@@ -56,6 +56,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src-gen", "src-gen", "{2AE6684B-47A2-46D3-BE4E-C14B05255BB6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.SrcGen", "src-gen\Weknow.EventSource.Backbone.SrcGen\Weknow.EventSource.Backbone.SrcGen.csproj", "{230DA8DF-00EE-47E2-A7B8-54F05A8966F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weknow.EventSource.Backbone.SrcGen.Playground", "src-gen\Weknow.EventSource.Backbone.SrcGen.Playground\Weknow.EventSource.Backbone.SrcGen.Playground.csproj", "{49A8B718-DAB6-4D04-874C-0B1EA12826EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -160,6 +162,12 @@ Global
 		{230DA8DF-00EE-47E2-A7B8-54F05A8966F6}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
 		{230DA8DF-00EE-47E2-A7B8-54F05A8966F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{230DA8DF-00EE-47E2-A7B8-54F05A8966F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.ProjRef|Any CPU.ActiveCfg = ProjRef|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.ProjRef|Any CPU.Build.0 = ProjRef|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -181,6 +189,7 @@ Global
 		{1B19D36E-8348-4CAE-A2B8-87A81076539A} = {75CE8A6F-D63B-491D-8834-8D3BA2127208}
 		{D648BE46-4208-4DEB-9F2F-0B009B603D0A} = {4DE45B98-D18F-4E1D-9D2F-A4E40C11BC1F}
 		{230DA8DF-00EE-47E2-A7B8-54F05A8966F6} = {2AE6684B-47A2-46D3-BE4E-C14B05255BB6}
+		{49A8B718-DAB6-4D04-874C-0B1EA12826EB} = {2AE6684B-47A2-46D3-BE4E-C14B05255BB6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {103E4CA1-859C-4E6A-9F2D-7FD54A8E687C}

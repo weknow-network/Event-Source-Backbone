@@ -2,7 +2,7 @@
   "profiles": {
     "Weknow.EventSource.Backbone.SrcGen": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\Tests\\Weknow.EventSource.Backbone.IntegrationTests\\Weknow.EventSource.Backbone.IntegrationTests.csproj"
+      "targetProject": "..\\Weknow.EventSource.Backbone.SrcGen.Playground\\Weknow.EventSource.Backbone.SrcGen.Playground.csproj"
     }
   }
 }

@@ -66,7 +66,7 @@ namespace Weknow.EventSource.Backbone
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
                                         .WithLogger(_logger)
-                                        .BuildSequenceOperationsProducer();
+                                        .BuildCustomSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

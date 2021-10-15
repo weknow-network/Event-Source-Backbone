@@ -28,6 +28,7 @@ namespace Weknow.EventSource.Backbone.Tests
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
+        private readonly SequenceOperationsBridge _subscriberBridge;
         private readonly ISequenceOperationsConsumer _autoSubscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly ISequenceOperations _subscriberPrefix = A.Fake<ISequenceOperations>();
         private readonly ISequenceOperations _subscriberPrefix1 = A.Fake<ISequenceOperations>();
@@ -90,6 +91,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             async ValueTask Delay() => await Task.Delay(200);
 
+            _subscriberBridge = new SequenceOperationsBridge(_subscriber);
         }
 
         #endregion // Ctor
@@ -129,7 +131,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -182,7 +184,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -247,7 +249,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_autoSubscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_autoSubscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -312,7 +314,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_autoSubscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_autoSubscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -381,7 +383,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -451,7 +453,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -527,7 +529,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                              .WithLogger(_fakeLogger)
-                             .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -597,7 +599,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
                              .WithLogger(_fakeLogger)
-                             .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -677,7 +679,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -686,7 +688,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"p0.{PARTITION}")
                          .Shard($"p1.{SHARD}")
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriberPrefix, "CONSUMER_GROUP_P1", $"TEST-P1 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsBridge(_subscriberPrefix), "CONSUMER_GROUP_P1", $"TEST-P1 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionPrefix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -694,7 +696,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"p2.{PARTITION}")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriberPrefix1, "CONSUMER_GROUP_P2", $"TEST-P2 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsBridge(_subscriberPrefix1), "CONSUMER_GROUP_P2", $"TEST-P2 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionSuffix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -702,7 +704,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"{PARTITION}.s0")
                          .Shard($"{SHARD}.s1")
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriberSuffix, "CONSUMER_GROUP_S1", $"TEST-S1 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsBridge(_subscriberSuffix), "CONSUMER_GROUP_S1", $"TEST-S1 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionSuffix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -710,7 +712,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"{PARTITION}.s2")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriberSuffix1, "CONSUMER_GROUP_S2", $"TEST-S2 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsBridge(_subscriberSuffix1), "CONSUMER_GROUP_S2", $"TEST-S2 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionDynamic = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -718,7 +720,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"d.{PARTITION}")
                          .Shard($"{SHARD}.d")
                          .WithLogger(_fakeLogger)
-                         .SubscribeDeprecated(_subscriberDynamic, "CONSUMER_GROUP_D", $"TEST-D {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsBridge(_subscriberDynamic), "CONSUMER_GROUP_D", $"TEST-D {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -829,12 +831,12 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithLogger(_fakeLogger);
 
             await using IConsumerLifetime otherSubscription = consumerPipe
-                             .SubscribeDeprecated(otherSubscriber, "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(new SequenceOperationsBridge(otherSubscriber), "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
 
             await otherSubscription.Completion;
 
             await using IConsumerLifetime subscription = consumerPipe
-                             .SubscribeDeprecated(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(new SequenceOperationsBridge(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 

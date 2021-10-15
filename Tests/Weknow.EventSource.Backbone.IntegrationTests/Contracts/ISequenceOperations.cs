@@ -7,7 +7,8 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
     [GenerateEventSourceBridge(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
     [GenerateEventSource(EventSourceGenType.Producer)]
     //[GenerateEventSourceBridge(EventSourceGenType.Producer)]
-    [GenerateEventSource(EventSourceGenType.Consumer, ContractOnly = true)]
+    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
     public interface ISequenceOperations
     {
         ValueTask RegisterAsync(User user);

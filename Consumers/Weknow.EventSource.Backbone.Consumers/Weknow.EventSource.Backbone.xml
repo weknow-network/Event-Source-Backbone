@@ -9,14 +9,14 @@
             Base class for the consumer's code generator
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.#ctor(Weknow.EventSource.Backbone.IConsumerPlanBuilder,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}[])">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.#ctor(Weknow.EventSource.Backbone.IConsumerPlanBuilder,System.Collections.Generic.IEnumerable{System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}})">
             <summary>
             Initializes a new instance.
             </summary>
             <param name="plan">The plan.</param>
             <param name="handlers">Per method handler, handle methods calls.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.#ctor(Weknow.EventSource.Backbone.IConsumerPlanBuilder,Weknow.EventSource.Backbone.ISubscriptionBridge[])">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.#ctor(Weknow.EventSource.Backbone.IConsumerPlanBuilder,System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.ISubscriptionBridge})">
             <summary>
             Initializes a new instance.
             </summary>
@@ -34,7 +34,7 @@
             Represent single consuming subscription
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.EventSourceSubscriber.#ctor(Weknow.EventSource.Backbone.IConsumerPlan,System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}[])">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBase.EventSourceSubscriber.#ctor(Weknow.EventSource.Backbone.IConsumerPlan,System.Collections.Generic.IEnumerable{System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}})">
             <summary>
             Initializes a new subscription.
             </summary>
@@ -292,7 +292,21 @@
             </returns>
             <exception cref="T:System.ArgumentNullException">_plan</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(Weknow.EventSource.Backbone.ISubscriptionBridge[],System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(System.Collections.Generic.IEnumerable{Weknow.EventSource.Backbone.ISubscriptionBridge},System.String,System.String)">
+            <summary>
+            Subscribe consumer.
+            </summary>
+            <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages</param>
+            <param name="consumerName">Optional Name of the consumer.
+            Can use for observability.</param>
+            <returns>
+            The partition subscription (dispose to remove the subscription)
+            </returns>
+            <exception cref="T:System.ArgumentNullException">_plan</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(Weknow.EventSource.Backbone.ISubscriptionBridge,System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
@@ -316,7 +330,7 @@
             </returns>
             <exception cref="T:System.ArgumentNullException">_plan</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}[],System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(System.Collections.Generic.IEnumerable{System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task}},System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
@@ -330,23 +344,19 @@
             </returns>
             <exception cref="T:System.ArgumentNullException">_plan</exception>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#SubscribeDeprecated``1(``0,System.String,System.String)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#Subscribe(System.Func{Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge,System.Threading.Tasks.Task},System.String,System.String)">
             <summary>
             Subscribe consumer.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="eventHandler">Handling interface for the events.</param>
-            <param name="consumerGroup">
-            Consumer Group allow a group of clients to cooperate
-            consuming a different portion of the same stream of messages
-            </param>
-            <param name="consumerName">
-            Optional Name of the consumer.
-            Can use for observability.
-            </param>
+            <param name="handler">Per operation invocation handler, handle methods calls.</param>
+            <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
+            consuming a different portion of the same stream of messages</param>
+            <param name="consumerName">Optional Name of the consumer.
+            Can use for observability.</param>
             <returns>
             The partition subscription (dispose to remove the subscription)
             </returns>
+            <exception cref="T:System.ArgumentNullException">_plan</exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerHooksBuilder#WithCancellation(System.Threading.CancellationToken)">
             <summary>

@@ -30,7 +30,7 @@ namespace Weknow.EventSource.Backbone
 
             // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
             private long _consumeCounter;
-            private readonly Func<Announcement, IConsumerBridge, Task>[] _handlers;
+            private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task>> _handlers;
 
             #region Ctor
 
@@ -42,7 +42,7 @@ namespace Weknow.EventSource.Backbone
 
             public EventSourceSubscriber(
                 IConsumerPlan plan,
-                params Func<Announcement, IConsumerBridge, Task>[] handlers)
+                IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers)
             {
                 var channel = plan.Channel;
                 _plan = plan;

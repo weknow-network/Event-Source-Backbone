@@ -39,9 +39,9 @@ namespace Weknow.EventSource.Backbone
 
             if (info.Kind == "Producer")
             {
-                return OnExecuteProducer(builder, info, interfaceName, generateFrom, overrideInterfaceName);
+                return OnExecuteProducer(builder, info, interfaceName, generateFrom);
             }
-            return OnExecuteConsumers(builder, info, interfaceName, generateFrom, overrideInterfaceName);
+            return OnExecuteConsumers(builder, info, interfaceName, generateFrom);
         }
 
         #endregion // OnExecute
@@ -52,19 +52,89 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
-            string? overrideInterfaceName)
+            string generateFrom)
         {
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
                 Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
 
-            OnExecuteConsumerBase(builder, prefix, info, interfaceName, generateFrom, overrideInterfaceName);
-            OnExecuteConsumerBridge(builder, prefix, info, interfaceName, generateFrom, overrideInterfaceName);
+            OnExecuteConsumerBase(builder, prefix, info, interfaceName, generateFrom);
+            OnExecuteConsumerBridge(builder, prefix, info, interfaceName, generateFrom);
+            OnExecuteConsumerBridgeExtensions(builder, prefix, info, interfaceName, generateFrom);
             return $"{prefix}.Subscription";
         }
 
         #endregion // OnExecuteConsumers
+
+        #region OnExecuteConsumerBridgeExtensions
+
+        protected void OnExecuteConsumerBridgeExtensions(
+            StringBuilder builder,
+            string prefix,
+            SyntaxReceiverResult info,
+            string interfaceName,
+            string generateFrom)
+        {
+            var (item, att, name, kind, suffix, ns, isProducer) = info;
+
+            // CopyDocumentation(builder, kind, item, "\t");
+
+            string bridge = $"{prefix}Bridge";
+            string fileName = $"{bridge}Extensions";
+
+            builder.AppendLine("\t/// <summary>");
+            builder.AppendLine($"\t/// Subscription bridge extensions for { interfaceName}");
+            builder.AppendLine("\t/// </summary>");
+            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
+            builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
+            builder.AppendLine($"\tpublic static class {fileName}");
+            builder.AppendLine("\t{");
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
+            builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
+            builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets,");
+            builder.AppendLine("\t\t\t\tstring? consumerGroup = null,");
+            builder.AppendLine("\t\t\t\tstring? consumerName = null)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge, consumerGroup, consumerName);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"target\">A target handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
+            builder.AppendLine($"\t\t\t\t{interfaceName} target,");
+            builder.AppendLine("\t\t\t\tstring? consumerGroup = null,");
+            builder.AppendLine("\t\t\t\tstring? consumerName = null)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge, consumerGroup, consumerName);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t}");
+        }
+
+        #endregion // OnExecuteConsumerBridgeExtensions
 
         #region OnExecuteConsumerBridge
 
@@ -73,8 +143,7 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
-            string? overrideInterfaceName)
+            string generateFrom)
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
@@ -83,22 +152,43 @@ namespace Weknow.EventSource.Backbone
             string fileName = $"{prefix}Bridge";
 
             builder.AppendLine("\t/// <summary>");
-            builder.AppendLine($"\t/// Subscription bridge for {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine($"\t/// Subscription bridge for { interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
             builder.AppendLine($"\tpublic sealed class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t{");
 
-            builder.AppendLine($"\t\tprivate readonly {interfaceName} _target;");
+            builder.AppendLine($"\t\tprivate readonly IEnumerable<{interfaceName}> _targets;");
+
             builder.AppendLine();
-            builder.AppendLine("\t\t///// <summary>");
-            builder.AppendLine("\t\t///// Initializes a new instance.");
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t///// </summary>");
             builder.AppendLine("\t\t/// <param name=\"target\">The target.</param>");
             builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\t_target = target;");
+            builder.AppendLine("\t\t\t_targets = target.AsYield();");
+            builder.AppendLine("\t\t}");
+
+            builder.AppendLine();
+            builder.AppendLine("\t\t///// <summary>");
+            builder.AppendLine("\t\t///// Initializes a new instance.");
+            builder.AppendLine("\t\t///// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
+            builder.AppendLine($"\t\tpublic {fileName}(IEnumerable<{interfaceName}> targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\t_targets = targets;");
+            builder.AppendLine("\t\t}");
+
+            builder.AppendLine();
+            builder.AppendLine("\t\t///// <summary>");
+            builder.AppendLine("\t\t///// Initializes a new instance.");
+            builder.AppendLine("\t\t///// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
+            builder.AppendLine($"\t\tpublic {fileName}(params {interfaceName}[] targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\t_targets = targets;");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine();
@@ -123,7 +213,9 @@ namespace Weknow.EventSource.Backbone
                     i++;
                 }
                 IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
-                builder.AppendLine($"\t\t\t\t\tawait _target.{mtdName}({string.Join(", ", ps)});");
+
+                builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
+                builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
                 builder.AppendLine("\t\t\t\t\tbreak;");
                 builder.AppendLine("\t\t\t\t}");
             }
@@ -142,8 +234,7 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
-            string? overrideInterfaceName)
+            string generateFrom)
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
@@ -152,9 +243,10 @@ namespace Weknow.EventSource.Backbone
             string fileName = $"{prefix}Base";
 
             builder.AppendLine("\t/// <summary>");
-            builder.AppendLine($"\t/// Base Subscription class of {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine($"\t/// Base Subscription class of {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
+            builder.AppendLine($"\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
             builder.AppendLine($"\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t{");
@@ -210,8 +302,7 @@ namespace Weknow.EventSource.Backbone
             StringBuilder builder,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
-            string? overrideInterfaceName)
+            string generateFrom)
         {
             var (item, att, name, kind, suffix, ns, isProducer) = info;
             builder.AppendLine("\tusing Weknow.EventSource.Backbone.Building;");
@@ -220,14 +311,14 @@ namespace Weknow.EventSource.Backbone
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
                 Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
-            string fileName = $"{prefix}Bridge";
+            string fileName = $"{prefix}BridgePipeline";
 
             builder.AppendLine("\t/// <summary>");
-            builder.AppendLine($"\t/// Bridge {kind} of {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine($"\t/// Bridge {kind} of {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
-            builder.AppendLine($"\tpublic class {fileName}: ProducerPipeline, {overrideInterfaceName ?? interfaceName}");
+            builder.AppendLine($"\tinternal class {fileName}: ProducerPipeline, {interfaceName}");
             builder.AppendLine("\t{");
 
             builder.AppendLine($"\t\tpublic {fileName}(IProducerPlan plan) : base(plan){{}}");
