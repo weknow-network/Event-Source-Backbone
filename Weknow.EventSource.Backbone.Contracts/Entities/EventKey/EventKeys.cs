@@ -56,23 +56,23 @@ namespace Weknow.EventSource.Backbone
             _keys = _keys.AddRange(keys.Select(m => (EventKey)m));
         }
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="keys">The keys.</param>
-        public EventKeys(params JsonElement[] keys)
-        {
-            _keys = _keys.AddRange(keys.Select(m => (EventKey)m));
-        }
+        ///// <summary>
+        ///// Initializes a new instance.
+        ///// </summary>
+        ///// <param name="keys">The keys.</param>
+        //public EventKeys(params JsonElement[] keys)
+        //{
+        //    _keys = _keys.AddRange(keys.Select(m => (EventKey)m));
+        //}
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="keys">The keys.</param>
-        public EventKeys(IEnumerable<JsonElement> keys)
-        {
-            _keys = _keys.AddRange(keys.Select(m => (EventKey)m));
-        }
+        ///// <summary>
+        ///// Initializes a new instance.
+        ///// </summary>
+        ///// <param name="keys">The keys.</param>
+        //public EventKeys(IEnumerable<JsonElement> keys)
+        //{
+        //    _keys = _keys.AddRange(keys.Select(m => (EventKey)m));
+        //}
 
         #endregion // Ctor
 
@@ -162,14 +162,14 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public static implicit operator string(EventKeys ids) => ids.ToString();
 
-        /// <summary>
-        /// Performs an implicit conversion.
-        /// </summary>
-        /// <param name="ids">The identifiers.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
-        public static implicit operator EventKeys(JsonElement[] ids) => new EventKeys(ids);
+        ///// <summary>
+        ///// Performs an implicit conversion.
+        ///// </summary>
+        ///// <param name="ids">The identifiers.</param>
+        ///// <returns>
+        ///// The result of the conversion.
+        ///// </returns>
+        //public static implicit operator EventKeys(JsonElement[] ids) => new EventKeys(ids);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="EventKeys"/> to <see cref="JsonElement"/>.

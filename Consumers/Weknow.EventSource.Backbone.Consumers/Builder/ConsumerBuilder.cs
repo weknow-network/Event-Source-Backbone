@@ -520,7 +520,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="cancellationToken">The cancellation token.</param>
             /// <returns></returns>
             async ValueTask<AnnouncementData> IConsumerReceiver.GetByIdAsync(
-                            string entryId,
+                            EventKey entryId,
                             CancellationToken cancellationToken)
             {
                 AnnouncementData result = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);

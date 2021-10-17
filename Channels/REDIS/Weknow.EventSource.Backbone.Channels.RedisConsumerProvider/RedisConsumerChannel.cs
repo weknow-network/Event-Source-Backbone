@@ -620,7 +620,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
         /// <exception cref="System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
         async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
-            string entryId,
+            EventKey entryId,
             IConsumerPlan plan,
             CancellationToken cancellationToken)
         {
@@ -629,7 +629,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 IDatabaseAsync db = await _dbTask;
                 string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
                 ILogger logger = plan.Logger;
-                StreamEntry[] entries = await db.StreamReadAsync(key, entryId, 1, CommandFlags.DemandMaster);
+                StreamEntry[] entries = await db.StreamReadAsync(key, (string)entryId, 1, CommandFlags.DemandMaster);
                 if (entries.Length != 1)
                 {
                     logger.LogError("IConsumerChannelProvider.GetAsync of [{id}] was expecting single result but got [{count}] results from [{partition}->{shard}]", entryId, entries.Length, plan.Partition, plan.Shard);

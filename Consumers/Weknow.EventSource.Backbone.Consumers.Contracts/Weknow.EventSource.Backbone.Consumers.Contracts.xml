@@ -296,7 +296,7 @@
             Receive data (on demand data query).
             </summary>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerReceiver.GetByIdAsync(System.String,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerReceiver.GetByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
             <summary>
             Gets data by id.
             </summary>

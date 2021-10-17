@@ -29,7 +29,7 @@ namespace Weknow.EventSource.Backbone
                     CancellationToken cancellationToken);
 
         ValueTask<Announcement> GetByIdAsync(
-                    string entryId,
+                    EventKey entryId,
                     IConsumerPlan plan,
                     CancellationToken cancellationToken);
     }

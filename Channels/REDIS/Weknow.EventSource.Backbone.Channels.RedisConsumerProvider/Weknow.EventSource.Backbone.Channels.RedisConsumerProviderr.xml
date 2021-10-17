@@ -65,7 +65,7 @@
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.Weknow#EventSource#Backbone#IConsumerChannelProvider#GetByIdAsync(System.String,Weknow.EventSource.Backbone.IConsumerPlan,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.Weknow#EventSource#Backbone#IConsumerChannelProvider#GetByIdAsync(Weknow.EventSource.Backbone.EventKey,Weknow.EventSource.Backbone.IConsumerPlan,System.Threading.CancellationToken)">
             <summary>
             Gets announcement data by id.
             </summary>

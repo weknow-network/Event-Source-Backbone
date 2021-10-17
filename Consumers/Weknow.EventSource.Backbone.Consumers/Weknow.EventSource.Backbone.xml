@@ -313,7 +313,7 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetByIdAsync(System.String,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
             <summary>
             Gets the asynchronous.
             </summary>

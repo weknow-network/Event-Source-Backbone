@@ -36,14 +36,16 @@ namespace Weknow.EventSource.Backbone
             _strId = id;
         }
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        public EventKey(JsonElement id)
-        {
-            _jsonId = id;
-        }
+        // TODO: [bnaya 2021-10] TBD: with Avi
+
+        ///// <summary>
+        ///// Initializes a new instance.
+        ///// </summary>
+        ///// <param name="id">The identifier.</param>
+        //public EventKey(JsonElement id)
+        //{
+        //    _jsonId = id;
+        //}
 
         #endregion // Ctor
 
@@ -83,14 +85,14 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public static implicit operator string(EventKey id) => id.ToString();
 
-        /// <summary>
-        /// Performs an implicit conversion.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
-        public static implicit operator EventKey(JsonElement id) => new EventKey(id);
+        ///// <summary>
+        ///// Performs an implicit conversion.
+        ///// </summary>
+        ///// <param name="id">The identifier.</param>
+        ///// <returns>
+        ///// The result of the conversion.
+        ///// </returns>
+        //public static implicit operator EventKey(JsonElement id) => new EventKey(id);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="EventKey"/> to <see cref="JsonElement"/>.

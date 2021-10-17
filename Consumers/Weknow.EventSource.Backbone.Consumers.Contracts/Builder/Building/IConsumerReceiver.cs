@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone.Building
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         ValueTask<AnnouncementData> GetByIdAsync(
-                                    string entryId,
+                                    EventKey entryId,
                                     CancellationToken cancellationToken);
     }
 }
