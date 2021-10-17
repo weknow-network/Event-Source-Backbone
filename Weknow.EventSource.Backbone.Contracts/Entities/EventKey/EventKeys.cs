@@ -76,6 +76,17 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
+        #region EventKey this[int i]
+
+        /// <summary>
+        /// Gets the <see cref="EventKey"/> with the specified i.
+        /// </summary>
+        /// <param name="i">The i.</param>
+        /// <returns></returns>
+        public EventKey this[int i] => _keys[i];
+
+        #endregion // EventKey this[int i]
+
         #region IEnumerable<EventKey> members
 
         /// <summary>
@@ -133,6 +144,15 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// The result of the conversion.
         /// </returns>
+        public static implicit operator EventKeys(EventKey[] ids) => new EventKeys(ids);
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="ids">The identifiers.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
         public static implicit operator EventKeys(ImmutableArray<EventKey> ids) => new EventKeys(ids);
 
         /// <summary>
@@ -161,6 +181,18 @@ namespace Weknow.EventSource.Backbone
         /// The result of the conversion.
         /// </returns>
         public static implicit operator string(EventKeys ids) => ids.ToString();
+
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// Expecting single result
+        /// </summary>
+        /// <param name="ids">The identifiers.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public static implicit operator EventKey(EventKeys ids) => ids.Single();
 
         ///// <summary>
         ///// Performs an implicit conversion.

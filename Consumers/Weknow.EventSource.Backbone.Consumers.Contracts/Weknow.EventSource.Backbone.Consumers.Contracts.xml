@@ -849,6 +849,19 @@
             When completed
             </returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.IConsumerChannelProvider.GetByIdAsync(Weknow.EventSource.Backbone.EventKey,Weknow.EventSource.Backbone.IConsumerPlan,System.Threading.CancellationToken)">
+            <summary>
+            Gets the by identifier asynchronous.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="plan">The plan.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <param name="readBufferSize">
+            Size of the read buffer.
+            How many items to read on a single iteration.
+            </param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerStorageStrategy">
             <summary>
             Responsible to load information from storage.

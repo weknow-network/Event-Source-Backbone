@@ -8,6 +8,7 @@ using StackExchange.Redis;
 
 using System;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ using Weknow.EventSource.Backbone.UnitTests.Entities;
 using Xunit;
 using Xunit.Abstractions;
 
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 // TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)
 // TODO: [bnaya 2020-10] check for no pending
@@ -150,6 +152,50 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Environmet_Test
+
+        #region Receiver_Test
+
+        [Fact]
+        public async Task Receiver_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment("Test")
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerReceiver receiver = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment("Test")
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildReceiver();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var res0 = await receiver.GetByIdAsync(keys[0]);
+            var res1 = await receiver.GetByIdAsync(keys[1]);
+            var hasEmail = res1.Data.TryGet("email", out string email);
+            Assert.Equal("admin", email);
+            var res2 = await receiver.GetByIdAsync(keys[2]);
+            var hasId = res2.Data.TryGet("id", out int id);
+            Assert.Equal(4335, id);
+        }
+
+        #endregion // Receiver_Test
 
         #region OnSucceed_ACK_Test
 
@@ -877,22 +923,24 @@ namespace Weknow.EventSource.Backbone.Tests
         /// Sends standard test sequence.
         /// </summary>
         /// <param name="producer">The producer.</param>
-        private static async Task SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
+        private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
         {
-            await producer.RegisterAsync(new User());
-            await producer.LoginAsync("admin", pass);
-            await producer.EarseAsync(4335);
+            EventKey r1 = await producer.RegisterAsync(new User());
+            EventKey r2 = await producer.LoginAsync("admin", pass);
+            EventKey r3 = await producer.EarseAsync(4335);
+            return new[] { r1, r2, r3 };
         }
 
         /// <summary>
         /// Sends standard test sequence.
         /// </summary>
         /// <param name="producer">The producer.</param>
-        private static async Task SendSequenceAsync(IProducerSequenceOperations producer, string pass = "1234")
+        private static async Task<EventKeys> SendSequenceAsync(IProducerSequenceOperations producer, string pass = "1234")
         {
-            await producer.RegisterAsync(new User());
-            await producer.LoginAsync("admin", pass);
-            await producer.EarseAsync(4335);
+            EventKey r1 = await producer.RegisterAsync(new User());
+            EventKey r2 = await producer.LoginAsync("admin", pass);
+            EventKey r3 = await producer.EarseAsync(4335);
+            return new[] { r1, r2, r3 };
         }
 
         #endregion // SendSequenceAsync

@@ -28,6 +28,13 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
         private const int MAX_DELAY = 5000;
+        /// <summary>
+        /// The read by identifier chunk size.
+        /// REDIS don't have option to read direct position (it read from a position, not includes the position itself),
+        /// therefore read should start before the actual position.
+        /// </summary>
+        private const int READ_BY_ID_CHUNK_SIZE = 10;
+        private const int READ_BY_ID_ITERATIONS = 1000 / READ_BY_ID_CHUNK_SIZE;
         private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE);
 
         private readonly ILogger _logger;
@@ -627,18 +634,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             try
             {
                 IDatabaseAsync db = await _dbTask;
-                string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
                 ILogger logger = plan.Logger;
-                StreamEntry[] entries = await db.StreamReadAsync(key, (string)entryId, 1, CommandFlags.DemandMaster);
-                if (entries.Length != 1)
-                {
-                    logger.LogError("IConsumerChannelProvider.GetAsync of [{id}] was expecting single result but got [{count}] results from [{partition}->{shard}]", entryId, entries.Length, plan.Partition, plan.Shard);
-                    if (entries.Length == 0)
-                        throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.");
-                    else
-                        throw new DataMisalignedException($"IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results");
-                }
-                StreamEntry entry = entries[0];
+                StreamEntry entry = await FindAsync(entryId);
 
                 #region var announcement = new Announcement(...)
 
@@ -671,6 +668,46 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 #endregion // var announcement = new Announcement(...)
 
                 return announcement;
+
+                #region FindAsync
+
+                async Task<StreamEntry> FindAsync(EventKey entryId)
+                {
+                    string lookForId = (string)entryId;
+                    string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
+
+                    string originId = lookForId;
+                    int len = originId.IndexOf('-');
+                    string fromPrefix = originId.Substring(0, len);
+                    long start = long.Parse(fromPrefix);
+                    for (int i = 0; i < READ_BY_ID_ITERATIONS; i++) // up to 1000 items
+                    {
+                        StreamEntry[] entries = await db.StreamReadAsync(
+                                                                key,
+                                                                start - 1,
+                                                                READ_BY_ID_CHUNK_SIZE,
+                                                                CommandFlags.DemandMaster);
+                        if (entries.Length == 0)
+                            throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return nothing.");
+                        foreach (var e in entries)
+                        {
+                            string k = e.Id;
+                            string ePrefix = k.Substring(0, len);
+                            long comp = long.Parse(ePrefix);
+                            if (comp < start)
+                                continue;
+                            if (k == lookForId)
+                            {
+                                return e;
+                            }
+                            if (ePrefix != fromPrefix)
+                                throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return not exists.");
+                        }
+                    }
+                    throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return not found.");
+                }
+
+                #endregion // FindAsync
             }
             #region Exception Handling
 

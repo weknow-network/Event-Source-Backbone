@@ -2,11 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
+
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone
 {
-    public class Bucket: IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>>
+    public class Bucket : IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>>
     {
         /// <summary>
         /// Empty
@@ -91,7 +96,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         public Bucket TryAddRange(IEnumerable<(string key, byte[] value)?> pairs)
         {
-            var result = pairs.Aggregate(_data, (acc, pair) => 
+            var result = pairs.Aggregate(_data, (acc, pair) =>
             {
 #pragma warning disable CS8604 // Possible null reference argument.
                 if (!pair.HasValue || pair?.value == null || acc.ContainsKey(pair?.key))
@@ -107,7 +112,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="bucket">The bucket.</param>
         /// <returns></returns>
-        public Bucket TryAddRange(Bucket bucket)  
+        public Bucket TryAddRange(Bucket bucket)
         {
             var result = bucket.Aggregate(_data, (acc, pair) =>
             {
@@ -189,6 +194,28 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // TryGetValue
+
+        #region TryGet
+
+        /// <summary>
+        /// Gets the value associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public bool TryGet<T>(string key, out T? value)
+        {
+            value = default;
+            if (_data.TryGetValue(key, out ReadOnlyMemory<byte> v))
+            {
+                var result = JsonSerializer.Deserialize<T>(v.Span, SerializerOptionsWithIndent);
+                value = result;
+                return value != null;
+            }
+            return false;
+        }
+
+        #endregion // TryGet
 
         #region Keys
 

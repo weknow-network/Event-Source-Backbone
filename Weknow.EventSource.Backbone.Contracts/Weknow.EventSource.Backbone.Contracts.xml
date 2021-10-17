@@ -123,6 +123,14 @@
             <param name="value">The value.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.TryGet``1(System.String,``0@)">
+            <summary>
+            Gets the value associated with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="value">The value.</param>
+            <returns></returns>
+        </member>
         <member name="P:Weknow.EventSource.Backbone.Bucket.Keys">
             <summary>
             Gets the keys.
@@ -138,6 +146,15 @@
             </returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Bucket.op_Implicit(Weknow.EventSource.Backbone.Bucket)~System.Collections.Immutable.ImmutableDictionary{System.String,System.ReadOnlyMemory{System.Byte}}">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="instance">The instance.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Bucket.op_Implicit(Weknow.EventSource.Backbone.Bucket)~System.Text.Json.JsonElement">
             <summary>
             Performs an implicit conversion.
             </summary>
@@ -302,12 +319,6 @@
             </summary>
             <param name="id">The identifier.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.EventKey.#ctor(System.Text.Json.JsonElement)">
-            <summary>
-            Initializes a new instance.
-            </summary>
-            <param name="id">The identifier.</param>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.EventKey.ToString">
             <summary>
             Converts to string.
@@ -326,15 +337,6 @@
             </returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(Weknow.EventSource.Backbone.EventKey)~System.String">
-            <summary>
-            Performs an implicit conversion.
-            </summary>
-            <param name="id">The identifier.</param>
-            <returns>
-            The result of the conversion.
-            </returns>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.EventKey.op_Implicit(System.Text.Json.JsonElement)~Weknow.EventSource.Backbone.EventKey">
             <summary>
             Performs an implicit conversion.
             </summary>
@@ -381,17 +383,12 @@
             </summary>
             <param name="keys">The keys.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Text.Json.JsonElement[])">
+        <member name="P:Weknow.EventSource.Backbone.EventKeys.Item(System.Int32)">
             <summary>
-            Initializes a new instance.
+            Gets the <see cref="T:Weknow.EventSource.Backbone.EventKey"/> with the specified i.
             </summary>
-            <param name="keys">The keys.</param>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.EventKeys.#ctor(System.Collections.Generic.IEnumerable{System.Text.Json.JsonElement})">
-            <summary>
-            Initializes a new instance.
-            </summary>
-            <param name="keys">The keys.</param>
+            <param name="i">The i.</param>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventKeys.System#Collections#IEnumerable#GetEnumerator">
             <summary>
@@ -419,6 +416,15 @@
             </returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(System.String[])~Weknow.EventSource.Backbone.EventKeys">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="ids">The identifiers.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKey[])~Weknow.EventSource.Backbone.EventKeys">
             <summary>
             Performs an implicit conversion.
             </summary>
@@ -463,14 +469,17 @@
             The result of the conversion.
             </returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(System.Text.Json.JsonElement[])~Weknow.EventSource.Backbone.EventKeys">
+        <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~Weknow.EventSource.Backbone.EventKey">
             <summary>
             Performs an implicit conversion.
+            Expecting single result
             </summary>
             <param name="ids">The identifiers.</param>
             <returns>
             The result of the conversion.
             </returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.ArgumentNullException"></exception>
         </member>
         <member name="M:Weknow.EventSource.Backbone.EventKeys.op_Implicit(Weknow.EventSource.Backbone.EventKeys)~System.Text.Json.JsonElement[]">
             <summary>

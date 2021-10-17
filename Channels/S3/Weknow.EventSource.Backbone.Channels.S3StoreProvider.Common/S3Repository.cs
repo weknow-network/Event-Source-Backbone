@@ -16,7 +16,7 @@ using Amazon.S3.Model;
 
 using Microsoft.Extensions.Logging;
 
-using static Weknow.EventSource.Backbone.Channels.Constants;
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone.Channels
 {

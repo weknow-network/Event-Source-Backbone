@@ -26,21 +26,5 @@ namespace Weknow.EventSource.Backbone.Channels
     {
         public const string PROVIDER_ID = "S3_V1";
 
-        public static readonly JsonStringEnumConverter EnumConvertor = new JsonStringEnumConverter(JsonNamingPolicy.CamelCase);
-        public static readonly JsonSerializerOptions SerializerOptionsWithIndent = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            // PropertyNameCaseInsensitive = true,
-            // IgnoreNullValues = true,
-            WriteIndented = true,
-            Converters =
-                        {
-                            EnumConvertor,
-                            JsonDictionaryConverter.Default,
-                            JsonImmutableDictionaryConverter.Default
-                        }
-        };
     }
-
 }

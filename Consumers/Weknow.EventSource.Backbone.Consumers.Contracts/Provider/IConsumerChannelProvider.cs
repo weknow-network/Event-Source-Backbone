@@ -28,6 +28,17 @@ namespace Weknow.EventSource.Backbone
                     ConsumerOptions options,
                     CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Gets the by identifier asynchronous.
+        /// </summary>
+        /// <param name="entryId">The entry identifier.</param>
+        /// <param name="plan">The plan.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="readBufferSize">
+        /// Size of the read buffer.
+        /// How many items to read on a single iteration.
+        /// </param>
+        /// <returns></returns>
         ValueTask<Announcement> GetByIdAsync(
                     EventKey entryId,
                     IConsumerPlan plan,

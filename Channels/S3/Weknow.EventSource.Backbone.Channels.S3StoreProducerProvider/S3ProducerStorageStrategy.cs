@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Channels;
 
-using static Weknow.EventSource.Backbone.Channels.Constants;
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 
 namespace Weknow.EventSource.Backbone
@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    public class S3ProducerStorageStrategy :  IProducerStorageStrategy
+    public class S3ProducerStorageStrategy : IProducerStorageStrategy
     {
         private readonly IS3Repository _repository;
         private int _index = 0;
@@ -52,7 +52,7 @@ namespace Weknow.EventSource.Backbone
         public S3ProducerStorageStrategy(
             ILogger logger,
             string? bucket = null,
-            string? basePath = null, 
+            string? basePath = null,
             IS3RepositoryFactory? factory = null)
         {
             IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
@@ -73,9 +73,9 @@ namespace Weknow.EventSource.Backbone
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         async ValueTask<IImmutableDictionary<string, string>> IProducerStorageStrategy.SaveBucketAsync(
-                                                            string id, 
+                                                            string id,
                                                             Bucket bucket,
-                                                            EventBucketCategories type, 
+                                                            EventBucketCategories type,
                                                             Metadata meta,
                                                             CancellationToken cancellation)
         {
@@ -86,7 +86,7 @@ namespace Weknow.EventSource.Backbone
             var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{type}", json);
             return result;
 
-            async Task<KeyValuePair<string, string >> LocalSaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)
+            async Task<KeyValuePair<string, string>> LocalSaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)
             {
                 var (key, data) = pair;
                 string path = $"{meta.Partition}/{meta.Shard}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{Interlocked.Increment(ref _index)}/{key}/{type}";

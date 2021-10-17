@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Channels;
 
-using static Weknow.EventSource.Backbone.Channels.Constants;
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 
 namespace Weknow.EventSource.Backbone
