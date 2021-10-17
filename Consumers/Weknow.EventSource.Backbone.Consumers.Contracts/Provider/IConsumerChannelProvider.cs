@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,11 @@ namespace Weknow.EventSource.Backbone
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     ConsumerOptions options,
+                    CancellationToken cancellationToken);
+
+        ValueTask<Announcement> GetByIdAsync(
+                    string entryId,
+                    IConsumerPlan plan,
                     CancellationToken cancellationToken);
     }
 }

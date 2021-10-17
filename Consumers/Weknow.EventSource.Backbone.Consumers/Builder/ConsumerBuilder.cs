@@ -481,5 +481,53 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // WithCancellation
+
+        #region BuildReceiver
+
+        /// <summary>
+        /// Build receiver (on demand data query).
+        /// </summary>
+        /// <returns></returns>
+        IConsumerReceiver IConsumerSubscribeBuilder.BuildReceiver() => new Receiver(_plan);
+
+        #endregion // BuildReceiver
+
+        #region private class Receiver
+
+        private class Receiver : IConsumerReceiver
+        {
+            private readonly IConsumerPlan _plan;
+            private readonly IConsumerChannelProvider _channel;
+
+            #region Ctor
+
+            /// <summary>
+            /// Initializes a new instance.
+            /// </summary>
+            /// <param name="plan">The plan.</param>
+            public Receiver(ConsumerPlan plan)
+            {
+                _channel = plan.ChannelFactory(plan.Logger);
+                _plan = plan;
+            }
+
+            #endregion // Ctor
+
+            /// <summary>
+            /// Gets the asynchronous.
+            /// </summary>
+            /// <param name="entryId">The entry identifier.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns></returns>
+            async ValueTask<AnnouncementData> IConsumerReceiver.GetByIdAsync(
+                            string entryId,
+                            CancellationToken cancellationToken)
+            {
+                AnnouncementData result = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                return result;
+            }
+        }
+
+        #endregion // private class Receiver
     }
 }

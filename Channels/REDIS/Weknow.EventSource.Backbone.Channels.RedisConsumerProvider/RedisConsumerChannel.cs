@@ -131,6 +131,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     else
                         await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
                 }
+                #region Exception Handling
+
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Fail to subscribe into the [{partition}->{shard}] event stream",
@@ -138,6 +140,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     throw;
                 }
 
+                #endregion // Exception Handling
             }
         }
 
@@ -273,8 +276,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #region var announcement = new Announcement(...)
 
-                        Dictionary<RedisValue, RedisValue> entries = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                        string channelType = entries[nameof(MetadataExtensions.Empty.ChannelType)];
+                        Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
+                        string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
 
                         if (channelType != CHANNEL_TYPE)
                         {
@@ -284,9 +287,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             continue;
                         }
 
-                        string id = entries[nameof(MetadataExtensions.Empty.MessageId)];
-                        string operation = entries[nameof(MetadataExtensions.Empty.Operation)];
-                        long producedAtUnix = (long)entries[nameof(MetadataExtensions.Empty.ProducedAt)];
+                        string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
+                        string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
+                        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
                         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
                         var meta = new Metadata
                         {
@@ -298,34 +301,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             ProducedAt = producedAt
                         };
 
-                        Bucket segmets = await GetBucketAsync(EventBucketCategories.Segments);
-                        Bucket interceptions = await GetBucketAsync(EventBucketCategories.Interceptions);
-
-                        #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
-
-                        async ValueTask<Bucket> GetBucketAsync(EventBucketCategories storageType)
-                        {
-                            IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
-                            strategies = strategies.Where(m => m.IsOfTargetType(storageType));
-                            Bucket bucket = Bucket.Empty;
-                            if (strategies.Any())
-                            {
-                                foreach (var strategy in strategies)
-                                {
-                                    bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
-                                }
-                            }
-                            else
-                            {
-                                bucket = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
-                            }
-
-                            return bucket;
-
-                            string LocalGetProperty(string k) => (string)entries[k];
-                        }
-
-                        #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
+                        Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+                        Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
 
                         var announcement = new Announcement
                         {
@@ -349,7 +326,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #region Start Telemetry Span
 
-                        ActivityContext parentContext = meta.ExtractSpan(entries, ExtractTraceContext);
+                        ActivityContext parentContext = meta.ExtractSpan(channelMeta, ExtractTraceContext);
                         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
                         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
                         var activityName = $"{meta.Operation} consume";
@@ -514,7 +491,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             if (ids.Length == 0)
                                 continue;
                             plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
-                            // will claim messages ony if older than _setting.ClaimingTrigger.MinIdleTime
+                            // will claim messages only if older than _setting.ClaimingTrigger.MinIdleTime
                             values = await db.StreamClaimAsync(key,
                                                       plan.ConsumerGroup,
                                                       c.Name,
@@ -631,6 +608,122 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         #endregion // SubsribeShardAsync
 
+        #region GetByIdAsync
+
+        /// <summary>
+        /// Gets announcement data by id.
+        /// </summary>
+        /// <param name="entryId">The entry identifier.</param>
+        /// <param name="plan">The plan.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
+        /// <exception cref="System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
+        async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
+            string entryId,
+            IConsumerPlan plan,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                IDatabaseAsync db = await _dbTask;
+                string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
+                ILogger logger = plan.Logger;
+                StreamEntry[] entries = await db.StreamReadAsync(key, entryId, 1, CommandFlags.DemandMaster);
+                if (entries.Length != 1)
+                {
+                    logger.LogError("IConsumerChannelProvider.GetAsync of [{id}] was expecting single result but got [{count}] results from [{partition}->{shard}]", entryId, entries.Length, plan.Partition, plan.Shard);
+                    if (entries.Length == 0)
+                        throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.");
+                    else
+                        throw new DataMisalignedException($"IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results");
+                }
+                StreamEntry entry = entries[0];
+
+                #region var announcement = new Announcement(...)
+
+                Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+                string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
+                string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
+                string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
+                long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+                DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                var meta = new Metadata
+                {
+                    MessageId = id,
+                    Environment = plan.Environment,
+                    Partition = plan.Partition,
+                    Shard = plan.Shard,
+                    Operation = operation,
+                    ProducedAt = producedAt
+                };
+
+                Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+                Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+
+                var announcement = new Announcement
+                {
+                    Metadata = meta,
+                    Segments = segmets,
+                    InterceptorsData = interceptions
+                };
+
+                #endregion // var announcement = new Announcement(...)
+
+                return announcement;
+            }
+            #region Exception Handling
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to get Entry [{id}] from [{partition}->{shard}] event stream",
+                    entryId, plan.Partition, plan.Shard);
+                throw;
+            }
+
+            #endregion // Exception Handling
+        }
+
+        #endregion // GetByIdAsync
+
+        #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
+
+        /// <summary>
+        /// Gets a data bucket.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="channelMeta">The channel meta.</param>
+        /// <param name="meta">The meta.</param>
+        /// <param name="storageType">Type of the storage.</param>
+        /// <returns></returns>
+        private async ValueTask<Bucket> GetBucketAsync(
+                                            IConsumerPlan plan,
+                                            Dictionary<RedisValue, RedisValue> channelMeta,
+                                            Metadata meta,
+                                            EventBucketCategories storageType)
+        {
+            IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
+            strategies = strategies.Where(m => m.IsOfTargetType(storageType));
+            Bucket bucket = Bucket.Empty;
+            if (strategies.Any())
+            {
+                foreach (var strategy in strategies)
+                {
+                    bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
+                }
+            }
+            else
+            {
+                bucket = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
+            }
+
+            return bucket;
+
+            string LocalGetProperty(string k) => (string)channelMeta[k];
+        }
+
+        #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
+
         #region GetKeysUnsafeAsync
 
         /// <summary>
@@ -640,8 +733,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
-                            string pattern,
-                            [EnumeratorCancellation] CancellationToken cancellationToken = default)
+                        string pattern,
+                        [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var multiplexer = await _multiplexerTask;
             var distict = new HashSet<string>();
@@ -663,6 +756,5 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // GetKeysUnsafeAsync
-
     }
 }

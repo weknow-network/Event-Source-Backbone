@@ -194,6 +194,35 @@
             flowing auth context or traces, producing metrics, etc.
             </summary>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.AnnouncementData">
+            <summary>
+            Non-generics form of announcement representation,
+            used to transfer data via channels.
+            </summary>
+        </member>
+        <member name="P:Weknow.EventSource.Backbone.AnnouncementData.Data">
+            <summary>
+            Gets or sets the segments.
+            Segmentation is done at the sending side, 
+            by Segmentation provider which can be register in order
+            to segments different parts of the messages.
+            The motivation of segmentation can come from regulation like
+            GDPR (right to erasure: https://gdpr-info.eu/).
+            </summary>
+            <example>
+            Segmentation provider can split the message 
+            into personal and non-personal segments.
+            </example>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.AnnouncementData.op_Implicit(Weknow.EventSource.Backbone.Announcement)~Weknow.EventSource.Backbone.AnnouncementData">
+            <summary>
+            Performs an implicit conversion.
+            </summary>
+            <param name="announcement">The announcement.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Metadata">
             <summary>
             <![CDATA[Represent metadata of announcement (event).

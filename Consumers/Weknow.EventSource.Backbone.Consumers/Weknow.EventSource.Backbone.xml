@@ -301,6 +301,26 @@
             <param name="cancellation">The cancellation.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Weknow#EventSource#Backbone#Building#IConsumerSubscribeBuilder#BuildReceiver">
+            <summary>
+            Build receiver (on demand data query).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.#ctor(Weknow.EventSource.Backbone.ConsumerPlan)">
+            <summary>
+            Initializes a new instance.
+            </summary>
+            <param name="plan">The plan.</param>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetByIdAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the asynchronous.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerPlan">
             <summary>
             Hold builder definitions.

@@ -62,7 +62,6 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
-
             #region GetParameterAsync
 
             /// <summary>
@@ -159,7 +158,7 @@ namespace Weknow.EventSource.Backbone
 
                 #endregion // _plan.Interceptors.InterceptAsync(...)
 
-                string operation = arg.Metadata.Operation;
+                string operation = meta.Operation;
 
                 try
                 {

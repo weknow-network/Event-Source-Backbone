@@ -58,5 +58,14 @@ namespace Weknow.EventSource.Backbone
 
 
         #endregion // SubsribeAsync
+
+        #region GetByIdAsync
+
+        public ValueTask<Announcement> GetByIdAsync(string entryId, IConsumerPlan plan, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion // GetByIdAsync
     }
 }

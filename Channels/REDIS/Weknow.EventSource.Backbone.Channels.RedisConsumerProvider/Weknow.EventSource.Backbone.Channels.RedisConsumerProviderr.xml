@@ -65,6 +65,27 @@
             <param name="options">The options.</param>
             <param name="cancellationToken">The cancellation token.</param>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.Weknow#EventSource#Backbone#IConsumerChannelProvider#GetByIdAsync(System.String,Weknow.EventSource.Backbone.IConsumerPlan,System.Threading.CancellationToken)">
+            <summary>
+            Gets announcement data by id.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="plan">The plan.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
+            <exception cref="T:System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.GetBucketAsync(Weknow.EventSource.Backbone.IConsumerPlan,System.Collections.Generic.Dictionary{StackExchange.Redis.RedisValue,StackExchange.Redis.RedisValue},Weknow.EventSource.Backbone.Metadata,Weknow.EventSource.Backbone.EventBucketCategories)">
+            <summary>
+            Gets a data bucket.
+            </summary>
+            <param name="plan">The plan.</param>
+            <param name="channelMeta">The channel meta.</param>
+            <param name="meta">The meta.</param>
+            <param name="storageType">Type of the storage.</param>
+            <returns></returns>
+        </member>
         <member name="M:Weknow.EventSource.Backbone.Channels.RedisProvider.RedisConsumerChannel.GetKeysUnsafeAsync(System.String,System.Threading.CancellationToken)">
             <summary>
             Gets the keys unsafe asynchronous.

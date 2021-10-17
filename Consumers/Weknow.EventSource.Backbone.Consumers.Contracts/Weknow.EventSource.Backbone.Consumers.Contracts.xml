@@ -291,6 +291,19 @@
             <param name="partition">The partition key.</param>
             <returns></returns>
         </member>
+        <member name="T:Weknow.EventSource.Backbone.Building.IConsumerReceiver">
+            <summary>
+            Receive data (on demand data query).
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerReceiver.GetByIdAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets data by id.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerShardBuilder">
             <summary>
             Event Source producer builder.
@@ -313,6 +326,12 @@
             <summary>
             Event Source producer builder.
             </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.BuildReceiver">
+            <summary>
+            Build receiver (on demand data query).
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Weknow.EventSource.Backbone.Building.IConsumerSubscribeBuilder.Subscribe(Weknow.EventSource.Backbone.ISubscriptionBridge[])">
             <summary>
@@ -756,19 +775,6 @@
             <returns></returns>
             <exception cref="T:System.NotSupportedException"></exception>
         </member>
-        <member name="T:Weknow.EventSource.Backbone.ISubscriptionBridge">
-            <summary>
-            Subscription Bridge convention
-            </summary>
-        </member>
-        <member name="M:Weknow.EventSource.Backbone.ISubscriptionBridge.BridgeAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge)">
-            <summary>
-            Bridges to the subscriber implementation.
-            </summary>
-            <param name="announcement">The announcement.</param>
-            <param name="consumerBridge">The consumer bridge.</param>
-            <returns></returns>
-        </member>
         <member name="M:Weknow.EventSource.Backbone.IConsumerBridge.GetParameterAsync``1(Weknow.EventSource.Backbone.Announcement,System.String)">
             <summary>
             Gets the parameter value.
@@ -811,6 +817,19 @@
             <param name="interceptorData">
             The interceptor data which sets on the 
             producer stage of the interception.</param>
+        </member>
+        <member name="T:Weknow.EventSource.Backbone.ISubscriptionBridge">
+            <summary>
+            Subscription Bridge convention
+            </summary>
+        </member>
+        <member name="M:Weknow.EventSource.Backbone.ISubscriptionBridge.BridgeAsync(Weknow.EventSource.Backbone.Announcement,Weknow.EventSource.Backbone.IConsumerBridge)">
+            <summary>
+            Bridges to the subscriber implementation.
+            </summary>
+            <param name="announcement">The announcement.</param>
+            <param name="consumerBridge">The consumer bridge.</param>
+            <returns></returns>
         </member>
         <member name="T:Weknow.EventSource.Backbone.IConsumerChannelProvider">
             <summary>

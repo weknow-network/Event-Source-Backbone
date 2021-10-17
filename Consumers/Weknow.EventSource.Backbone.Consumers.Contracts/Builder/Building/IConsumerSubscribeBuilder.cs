@@ -10,6 +10,12 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IConsumerSubscribeBuilder
     {
         /// <summary>
+        /// Build receiver (on demand data query).
+        /// </summary>
+        /// <returns></returns>
+        IConsumerReceiver BuildReceiver();
+
+        /// <summary>
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>

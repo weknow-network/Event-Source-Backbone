@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         #endregion Metadata 
 
         #region Segments
-        
+
         /// <summary>
         /// Gets or sets the segments.
         /// Segmentation is done at the sending side, 
