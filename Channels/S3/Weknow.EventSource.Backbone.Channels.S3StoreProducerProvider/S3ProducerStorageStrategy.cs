@@ -80,16 +80,18 @@ namespace Weknow.EventSource.Backbone
                                                             CancellationToken cancellation)
         {
             var date = DateTime.UtcNow;
-            var tasks = bucket.Select(LocalSaveAsync);
-            var pairs = await Task.WhenAll(tasks);
-            string json = JsonSerializer.Serialize(pairs, SerializerOptionsWithIndent);
+            int index = Interlocked.Increment(ref _index);
+            string basePath = $"{meta.Partition}/{meta.Shard}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{index}/{type}";
+            var tasks = bucket.Select(SaveAsync);
+            var propKeyToS3Key = await Task.WhenAll(tasks);
+            string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);
             var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{type}", json);
             return result;
 
-            async Task<KeyValuePair<string, string>> LocalSaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)
+            async Task<KeyValuePair<string, string>> SaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)
             {
                 var (key, data) = pair;
-                string path = $"{meta.Partition}/{meta.Shard}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{Interlocked.Increment(ref _index)}/{key}/{type}";
+                string path = $"{basePath}/{key}";
                 var response = await _repository.SaveAsync(data, path, cancellation: cancellation);
                 return new KeyValuePair<string, string>(key, path);
             }

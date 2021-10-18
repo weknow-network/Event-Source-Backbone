@@ -321,6 +321,14 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetJsonByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
+            <summary>
+            Gets the asynchronous.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.ConsumerPlan">
             <summary>
             Hold builder definitions.

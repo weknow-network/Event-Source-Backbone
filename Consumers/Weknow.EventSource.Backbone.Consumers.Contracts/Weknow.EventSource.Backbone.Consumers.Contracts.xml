@@ -304,6 +304,14 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns></returns>
         </member>
+        <member name="M:Weknow.EventSource.Backbone.Building.IConsumerReceiver.GetJsonByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
+            <summary>
+            Gets data by id.
+            </summary>
+            <param name="entryId">The entry identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
         <member name="T:Weknow.EventSource.Backbone.Building.IConsumerShardBuilder">
             <summary>
             Event Source producer builder.

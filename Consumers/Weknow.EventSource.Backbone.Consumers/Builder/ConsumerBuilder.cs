@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 using System.Collections;
 
 using Weknow.EventSource.Backbone.Building;
+using System.Text.Json;
+using System.IO;
+
+using static Weknow.EventSource.Backbone.EventSourceConstants;
+using System.Buffers;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -524,6 +529,38 @@ namespace Weknow.EventSource.Backbone
                             CancellationToken cancellationToken)
             {
                 AnnouncementData result = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                return result;
+            }
+
+            /// <summary>
+            /// Gets the asynchronous.
+            /// </summary>
+            /// <param name="entryId">The entry identifier.</param>
+            /// <param name="cancellationToken">The cancellation token.</param>
+            /// <returns></returns>
+            async ValueTask<JsonElement> IConsumerReceiver.GetJsonByIdAsync(
+                            EventKey entryId,
+                            CancellationToken cancellationToken)
+            {
+                AnnouncementData announcement = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);
+
+                var buffer = new ArrayBufferWriter<byte>();
+                var options = new JsonWriterOptions();
+                using (var w = new Utf8JsonWriter(buffer, options))
+                {
+                    w.WriteStartObject();
+                    foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Data)
+                    {
+                        var (key, val) = entry;
+                        JsonElement element = _plan.Options.Serializer.Deserialize<JsonElement>(val);
+                        w.WritePropertyName(key);
+                        element.WriteTo(w);
+                    }
+                    w.WriteEndObject();
+                }
+                var result = JsonSerializer.Deserialize<JsonElement>(
+                                                        buffer.WrittenSpan,
+                                                        SerializerOptionsWithIndent);
                 return result;
             }
         }

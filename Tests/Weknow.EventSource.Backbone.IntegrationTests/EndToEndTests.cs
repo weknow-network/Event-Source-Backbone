@@ -197,6 +197,58 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Receiver_Test
 
+        #region Receiver_Json_Test
+
+        record TestEmailPass(string email, string password);
+
+
+        [Fact]
+        public async Task Receiver_Json_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment("Test")
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerReceiver receiver = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment("Test")
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildReceiver();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var res0 = await receiver.GetJsonByIdAsync(keys[0]);
+            Assert.True(res0.TryGetProperty("user", out JsonElement uj0));
+            var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
+            Assert.Equal("A25", u0.Eracure.GovernmentId);
+            Assert.Equal("mike", u0.Eracure.Name);
+            var res1 = await receiver.GetJsonByIdAsync(keys[1]);
+            var p1 = JsonSerializer.Deserialize<TestEmailPass>(res1.GetRawText(), SerializerOptionsWithIndent);
+            Assert.Equal("admin", p1.email);
+            Assert.Equal("1234", p1.password);
+            var res2 = await receiver.GetJsonByIdAsync(keys[2]);
+            var pj2 = res2.GetProperty("id");
+            Assert.Equal(4335, pj2.GetInt32());
+        }
+
+        #endregion // Receiver_Json_Test
+
         #region OnSucceed_ACK_Test
 
         [Fact]
@@ -925,7 +977,7 @@ namespace Weknow.EventSource.Backbone.Tests
         /// <param name="producer">The producer.</param>
         private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
         {
-            EventKey r1 = await producer.RegisterAsync(new User());
+            EventKey r1 = await producer.RegisterAsync(new User("mike", "A25"));
             EventKey r2 = await producer.LoginAsync("admin", pass);
             EventKey r3 = await producer.EarseAsync(4335);
             return new[] { r1, r2, r3 };

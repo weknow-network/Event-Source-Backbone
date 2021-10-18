@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using static Weknow.Text.Json.Constants;
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -16,14 +17,6 @@ namespace Weknow.EventSource.Backbone
     {
         private readonly string? _strId;
         private readonly JsonElement? _jsonId;
-        private static readonly JsonStringEnumConverter EnumConvertor = new JsonStringEnumConverter(JsonNamingPolicy.CamelCase);
-
-        private static readonly JsonSerializerOptions JSON_OPTIONS = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            Converters = { EnumConvertor, JsonImmutableDictionaryConverter.Default }
-        };
 
         #region Ctor
 
@@ -60,7 +53,7 @@ namespace Weknow.EventSource.Backbone
         public override string ToString()
         {
             if (_strId != null) return _strId;
-            return _jsonId.Serialize(JSON_OPTIONS);
+            return _jsonId.Serialize(SerializerOptionsWithIndent);
         }
 
         #endregion // ToString
@@ -110,7 +103,7 @@ namespace Weknow.EventSource.Backbone
             // TODO: [bnaya 2021] ask Avi
             if (str[0] != '{')
                 str = $"{{\"value\":\"{str}\"}}";
-            var result = JsonSerializer.Deserialize<JsonElement>(str, JSON_OPTIONS);
+            var result = JsonSerializer.Deserialize<JsonElement>(str, SerializerOptionsWithIndent);
             return result;
         }
 
