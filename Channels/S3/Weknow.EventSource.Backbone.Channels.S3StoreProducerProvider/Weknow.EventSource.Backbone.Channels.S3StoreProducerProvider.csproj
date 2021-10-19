@@ -1,8 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider.xml</DocumentationFile>
@@ -15,6 +22,14 @@
     <PackageReference Include="Weknow.EventSource.Backbone.Producers.Contracts" Version="1.1.*" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='ProjRefDev'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Gen'">
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
     <ProjectReference Include="..\..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />
   </ItemGroup>

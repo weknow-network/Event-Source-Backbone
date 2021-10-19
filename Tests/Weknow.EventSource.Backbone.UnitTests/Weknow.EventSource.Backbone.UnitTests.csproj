@@ -4,7 +4,7 @@
 
     <IsPackable>false</IsPackable>
     <Nullable>disable</Nullable>
-    <Configurations>Debug;Release;ProjRef</Configurations>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

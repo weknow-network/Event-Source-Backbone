@@ -3,9 +3,16 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>.\Weknow.EventSource.Backbone.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.xml" />
@@ -14,6 +21,12 @@
     <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.1.*" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='ProjRefDev'">
+    <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Gen'">
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <DocumentationFile>.\Weknow.EventSource.Backbone.Contracts.xml</DocumentationFile>
+    <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
-  <PropertyGroup>
-    <DocumentationFile>.\Weknow.EventSource.Backbone.Contracts.xml</DocumentationFile>
-    <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.Contracts.xml" />

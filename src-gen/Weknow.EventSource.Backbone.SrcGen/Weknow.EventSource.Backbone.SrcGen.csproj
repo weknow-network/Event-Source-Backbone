@@ -7,6 +7,7 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Code generator for Weknow.EventSource.Backbone</Description>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

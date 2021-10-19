@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Configurations>Debug;Release;ProjRef</Configurations>
+    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
     <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
