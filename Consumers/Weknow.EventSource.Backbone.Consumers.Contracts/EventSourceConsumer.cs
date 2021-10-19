@@ -23,7 +23,6 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotSupportedException"></exception>
         public static async ValueTask<TParam> GetParameterAsync<TParam>(Announcement arg, string argumentName, IConsumerPlan plan)
         {
-            Debugger.Break();
             foreach (var strategy in plan.SegmentationStrategies)
             {
                 var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Segments, arg.Metadata.Operation, argumentName, plan.Options);
