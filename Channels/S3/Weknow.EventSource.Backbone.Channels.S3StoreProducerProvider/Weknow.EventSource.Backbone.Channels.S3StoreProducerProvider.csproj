@@ -6,10 +6,10 @@
     <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>Weknow.EventSource.Backbone.Channels.S3StoreProducerProvider.xml</DocumentationFile>
