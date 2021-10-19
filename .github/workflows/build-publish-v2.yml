@@ -1,4 +1,4 @@
-name: Source Generator
+name: Deploy
   
 on:
   push:
