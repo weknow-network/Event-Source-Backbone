@@ -493,7 +493,7 @@ namespace Weknow.EventSource.Backbone
         /// Build receiver (on demand data query).
         /// </summary>
         /// <returns></returns>
-        IConsumerReceiver IConsumerSubscribeBuilder.BuildReceiver() => new Receiver(_plan);
+        IConsumerReceiver IConsumerSubscribeBuilder.BuildReceiver() => new Receiver((_plan as IConsumerPlanBuilder).Build());
 
         #endregion // BuildReceiver
 
@@ -502,7 +502,6 @@ namespace Weknow.EventSource.Backbone
         private class Receiver : IConsumerReceiver
         {
             private readonly IConsumerPlan _plan;
-            private readonly IConsumerChannelProvider _channel;
 
             #region Ctor
 
@@ -510,9 +509,8 @@ namespace Weknow.EventSource.Backbone
             /// Initializes a new instance.
             /// </summary>
             /// <param name="plan">The plan.</param>
-            public Receiver(ConsumerPlan plan)
+            public Receiver(IConsumerPlan plan)
             {
-                _channel = plan.ChannelFactory(plan.Logger);
                 _plan = plan;
             }
 
@@ -528,7 +526,8 @@ namespace Weknow.EventSource.Backbone
                             EventKey entryId,
                             CancellationToken cancellationToken)
             {
-                AnnouncementData result = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                var channel = _plan.Channel;
+                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
                 return result;
             }
 
@@ -542,7 +541,8 @@ namespace Weknow.EventSource.Backbone
                             EventKey entryId,
                             CancellationToken cancellationToken)
             {
-                AnnouncementData announcement = await _channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                var channel = _plan.Channel;
+                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
 
                 var buffer = new ArrayBufferWriter<byte>();
                 var options = new JsonWriterOptions();

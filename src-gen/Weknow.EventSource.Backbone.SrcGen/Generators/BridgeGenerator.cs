@@ -321,7 +321,16 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\tinternal class {fileName}: ProducerPipeline, {interfaceName}");
             builder.AppendLine("\t{");
 
-            builder.AppendLine($"\t\tpublic {fileName}(IProducerPlan plan) : base(plan){{}}");
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Bridge Factory {kind} of {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine($"\t\tpublic static {interfaceName} Create(IProducerPlan plan) => new {fileName}(plan);");
+            builder.AppendLine();
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine("\t\t/// Bridge Constructor");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine($"\t\tprivate {fileName}(IProducerPlan plan) : base(plan){{}}");
             builder.AppendLine();
             foreach (var method in item.Members)
             {
@@ -365,13 +374,13 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t\tpublic static {interfaceName} Build{prefix}(");
             builder.AppendLine("\t\t\tthis IProducerSpecializeBuilder builder)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\treturn builder.Build<{interfaceName}>(plan => new {fileName}(plan));");
+            builder.AppendLine($"\t\t\treturn builder.Build<{interfaceName}>(plan => {fileName}.Create(plan));");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine($"\t\tpublic static {interfaceName} Build{prefix}(");
             builder.AppendLine($"\t\t\tthis IProducerOverrideBuildBuilder<{interfaceName}> builder)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\treturn builder.Build(plan => new {fileName}(plan));");
+            builder.AppendLine($"\t\t\treturn builder.Build(plan => {fileName}.Create(plan));");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine("\t}");

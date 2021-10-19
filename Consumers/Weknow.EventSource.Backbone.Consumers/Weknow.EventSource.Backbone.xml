@@ -307,7 +307,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.#ctor(Weknow.EventSource.Backbone.ConsumerPlan)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.#ctor(Weknow.EventSource.Backbone.IConsumerPlan)">
             <summary>
             Initializes a new instance.
             </summary>

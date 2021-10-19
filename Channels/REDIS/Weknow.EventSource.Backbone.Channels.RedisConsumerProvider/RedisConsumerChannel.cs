@@ -739,6 +739,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             Metadata meta,
                                             EventBucketCategories storageType)
         {
+
             IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
             strategies = strategies.Where(m => m.IsOfTargetType(storageType));
             Bucket bucket = Bucket.Empty;

@@ -325,7 +325,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build(plan => new ProducerSequenceOperationsBridgePipeline(plan));
+                                            .Build(ProducerSequenceOperationsBridgePipeline.Create);
 
             #endregion // ISequenceOperations producer2 = ...
 
@@ -390,7 +390,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Build(plan => new ProducerSequenceOperationsBridgePipeline(plan));
+                                            .Build(ProducerSequenceOperationsBridgePipeline.Create);
 
             #endregion // ISequenceOperations producer2 = ...
 
