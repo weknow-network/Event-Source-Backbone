@@ -44,13 +44,14 @@ namespace Weknow.EventSource.Backbone.Tests
         private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
+        private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
 
         #region Ctor
 
         public EndToEndTests(
             ITestOutputHelper outputHelper,
-            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder> producerChannelBuilder = null,
-             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
+            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
+             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
         {
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
@@ -188,7 +189,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             var res0 = await receiver.GetByIdAsync(keys[0]);
             var res1 = await receiver.GetByIdAsync(keys[1]);
-            var hasEmail = res1.Data.TryGet("email", out string email);
+            var hasEmail = res1.Data.TryGet("email", out string? email);
             Assert.Equal("admin", email);
             var res2 = await receiver.GetByIdAsync(keys[2]);
             var hasId = res2.Data.TryGet("id", out int id);
@@ -236,12 +237,12 @@ namespace Weknow.EventSource.Backbone.Tests
             var res0 = await receiver.GetJsonByIdAsync(keys[0]);
             Assert.True(res0.TryGetProperty("user", out JsonElement uj0));
             var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
-            Assert.Equal("A25", u0.Eracure.GovernmentId);
-            Assert.Equal("mike", u0.Eracure.Name);
+            Assert.Equal("A25", u0?.Eracure?.GovernmentId);
+            Assert.Equal("mike", u0?.Eracure?.Name);
             var res1 = await receiver.GetJsonByIdAsync(keys[1]);
             var p1 = JsonSerializer.Deserialize<TestEmailPass>(res1.GetRawText(), SerializerOptionsWithIndent);
-            Assert.Equal("admin", p1.email);
-            Assert.Equal("1234", p1.password);
+            Assert.Equal("admin", p1?.email);
+            Assert.Equal("1234", p1?.password);
             var res2 = await receiver.GetJsonByIdAsync(keys[2]);
             var pj2 = res2.GetProperty("id");
             Assert.Equal(4335, pj2.GetInt32());
@@ -966,7 +967,7 @@ namespace Weknow.EventSource.Backbone.Tests
         /// <param name="producer">The producer.</param>
         private static async Task SendSequenceAsync(ISequenceOperations producer, string pass = "1234")
         {
-            await producer.RegisterAsync(new User());
+            await producer.RegisterAsync(USER);
             await producer.LoginAsync("admin", pass);
             await producer.EarseAsync(4335);
         }
@@ -977,7 +978,7 @@ namespace Weknow.EventSource.Backbone.Tests
         /// <param name="producer">The producer.</param>
         private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
         {
-            EventKey r1 = await producer.RegisterAsync(new User("mike", "A25"));
+            EventKey r1 = await producer.RegisterAsync(USER with { Comment = null });
             EventKey r2 = await producer.LoginAsync("admin", pass);
             EventKey r3 = await producer.EarseAsync(4335);
             return new[] { r1, r2, r3 };
@@ -989,7 +990,7 @@ namespace Weknow.EventSource.Backbone.Tests
         /// <param name="producer">The producer.</param>
         private static async Task<EventKeys> SendSequenceAsync(IProducerSequenceOperations producer, string pass = "1234")
         {
-            EventKey r1 = await producer.RegisterAsync(new User());
+            EventKey r1 = await producer.RegisterAsync(USER);
             EventKey r2 = await producer.LoginAsync("admin", pass);
             EventKey r3 = await producer.EarseAsync(4335);
             return new[] { r1, r2, r3 };

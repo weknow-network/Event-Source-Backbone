@@ -49,8 +49,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "S3", "S3", "{1B19D36E-8348-4CAE-A2B8-87A81076539A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bundles", "Bundles", "{2D563983-FDB6-4A23-BA1A-FAA4CD75A165}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weknow.EventSource.Backbone.WebEventTest", "Tests\Weknow.EventSource.Backbone.WebEventTest\Weknow.EventSource.Backbone.WebEventTest.csproj", "{D648BE46-4208-4DEB-9F2F-0B009B603D0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src-gen", "src-gen", "{2AE6684B-47A2-46D3-BE4E-C14B05255BB6}"

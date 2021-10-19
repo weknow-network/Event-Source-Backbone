@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
-    <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

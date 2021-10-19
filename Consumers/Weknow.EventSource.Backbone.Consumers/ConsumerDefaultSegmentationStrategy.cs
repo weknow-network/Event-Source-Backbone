@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
@@ -16,8 +17,15 @@ namespace Weknow.EventSource.Backbone
             string key = argumentName;
             if (segments.TryGetValue(key, out ReadOnlyMemory<byte> data))
             {
-                T item = options.Serializer.Deserialize<T>(data);
-                return (true, item).ToValueTask();
+                try
+                {
+                    T item = options.Serializer.Deserialize<T>(data);
+                    return (true, item).ToValueTask();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Fail to serialize operation=[{operation}], argument-name=[{argumentName}]", ex);
+                }
             }
 
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.

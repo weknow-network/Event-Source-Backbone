@@ -46,8 +46,8 @@ namespace Weknow.EventSource.Backbone.Tests
 
         public EndToEndExplicitTests(
             ITestOutputHelper outputHelper,
-            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder> producerChannelBuilder = null,
-             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder> consumerChannelBuilder = null)
+            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
+             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
         {
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel();
