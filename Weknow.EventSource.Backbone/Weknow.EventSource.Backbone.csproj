@@ -8,12 +8,6 @@
   <PropertyGroup>
     <DocumentationFile>.\Weknow.EventSource.Backbone.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.xml" />
   </ItemGroup>
