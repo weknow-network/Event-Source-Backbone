@@ -12,6 +12,12 @@ on:
         required: false
         default: 'warning'
 
+    
+env: # https://docs.github.com/en/actions/learn-github-actions/environment-variables
+  BUILD_CONFIG: ProjRef
+  DOTNET_VER: 6.0.x
+  INCLUDE_PRERELEASE: true
+  
 jobs:
   build:
 
@@ -35,14 +41,15 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
-        include-prerelease: true
+        dotnet-version: ${{ env.DOTNET_VER }}
+        include-prerelease: ${{ env.INCLUDE_PRERELEASE }}
+        
     - name: Restore dependencies
-      run: dotnet restore /property:Configuration=ProjRef
+      run: dotnet restore /property:Configuration=${{ env.BUILD_CONFIG }}
     - name: Build
-      run: dotnet build  --configuration ProjRef --no-restore -o out
+      run: dotnet build  --configuration ${{ env.BUILD_CONFIG }} --no-restore -o out
     - name: Test
-      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ProjRef --no-restore --no-build --verbosity normal -o out
+      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal -o out
 
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./**/out/*.nupkg -k ${{ secrets.NUGET_PUBLISH }} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true
