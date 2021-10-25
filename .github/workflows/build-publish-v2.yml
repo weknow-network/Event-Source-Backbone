@@ -20,6 +20,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Increment Version
+      run: |
+        perl -pi -e 's/([0-9]+)\.([0-9]+)\.([0-9]+)/"$1.$2.${\( $3+1 )}"/eg' Directory.Build.props
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v7
+      with:
+        author_name: CI/CD
+        author_email: bnaya@weknow.network.com
+        message: 'Increment Version'
+        add: 'Directory.Build.props'  
+        
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
