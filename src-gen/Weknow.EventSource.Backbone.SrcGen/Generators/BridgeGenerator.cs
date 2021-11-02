@@ -318,7 +318,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
-            builder.AppendLine($"\tinternal class {fileName}: ProducerPipeline, {interfaceName}");
+            builder.AppendLine($"\tpublic class {fileName}: ProducerPipeline, {interfaceName}");
             builder.AppendLine("\t{");
 
             builder.AppendLine("\t\t/// <summary>");
