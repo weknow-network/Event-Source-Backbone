@@ -10,7 +10,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI" Version="5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.12.1" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
     <PackageReference Include="OpenTelemetry" Version="1.1.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.1.0" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.1.0" />
@@ -18,7 +18,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc7" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc7" />
     <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc7" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.79" />
   </ItemGroup>
 
   <ItemGroup>

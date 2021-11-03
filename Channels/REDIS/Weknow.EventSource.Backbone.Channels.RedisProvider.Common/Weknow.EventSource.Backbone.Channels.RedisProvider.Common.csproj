@@ -31,8 +31,8 @@
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.0.8" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.79" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.0.12" />
   </ItemGroup>
 
 </Project>
