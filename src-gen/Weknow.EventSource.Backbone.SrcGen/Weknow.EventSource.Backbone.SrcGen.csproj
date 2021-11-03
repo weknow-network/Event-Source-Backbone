@@ -7,11 +7,7 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Description>Code generator for Weknow.EventSource.Backbone</Description>
-    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,35 +3,15 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>.\Weknow.EventSource.Backbone.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
   <ItemGroup>
     <None Remove=".\Weknow.EventSource.Backbone.xml" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Consumers.Contracts" Version="1.1.*" />
-    <PackageReference Include="Weknow.EventSource.Backbone" Version="1.1.*" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
-    <ProjectReference Include="..\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
-    <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
-    <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='ProjRefDev'">
-    <ProjectReference Include="..\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
-    <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
-    <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Gen'">
+  <ItemGroup>
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone\Weknow.EventSource.Backbone.csproj" />

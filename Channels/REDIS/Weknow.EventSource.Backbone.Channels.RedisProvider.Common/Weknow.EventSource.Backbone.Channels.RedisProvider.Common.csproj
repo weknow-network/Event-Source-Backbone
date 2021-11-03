@@ -4,30 +4,15 @@
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ProjRef|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>false</Optimize>
-  </PropertyGroup>
   <ItemGroup>
     <None Remove="Weknow.EventSource.Backbone.Channels.RedisProvider.Common.xml" />
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'!='ProjRef'">
-    <PackageReference Include="Weknow.EventSource.Backbone.Contracts" Version="1.1.*" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='ProjRef'">
-    <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='ProjRefDev'">
-    <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)'=='Gen'">
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>

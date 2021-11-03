@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
-    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DocumentationFile>.\Weknow.EventSource.Backbone.Contracts.xml</DocumentationFile>
     <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
-    <Configurations>Debug;Release;ProjRef;Gen;ProjRefDev</Configurations>
+    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
