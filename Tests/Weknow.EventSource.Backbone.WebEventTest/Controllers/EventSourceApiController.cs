@@ -18,12 +18,12 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
     {
         private const string TENANT_KEY = "tenant";
         private readonly ILogger _logger;
-        private readonly IEventFlow _eventFlow;
+        private readonly IEventFlowProducer _eventFlow;
         private readonly IDatabase _db;
 
         public EventSourceApiController(
             ILogger<EventSourceApiController> logger,
-            IEventFlow eventFlow,
+            IEventFlowProducer eventFlow,
             IConnectionMultiplexer redis)
         {
             _logger = logger;

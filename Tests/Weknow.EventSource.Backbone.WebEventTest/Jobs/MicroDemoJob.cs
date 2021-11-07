@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
     public sealed class MicroDemoJob : HostedServiceBase, IDisposable
     {
         private readonly IConsumerSubscribeBuilder _builder;
-        private readonly IEventFlow _producer;
+        private readonly IEventFlowProducer _producer;
 
         #region Ctor
 
@@ -36,7 +36,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         public MicroDemoJob(
             ILogger<MicroDemoJob> logger,
             IConsumerLoggerBuilder consumerBuilder,
-            IEventFlow producer)
+            IEventFlowProducer producer)
             : base(logger)
         {
             _builder = consumerBuilder.WithLogger(logger);
@@ -53,7 +53,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Subscribe(new EventFlowBridge(new Subscriber(_logger, _producer)), "Demo-GROUP");
+            _builder.SubscribeEventFlowConsumer(new Subscriber(_logger, _producer), "Demo-GROUP");
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());
@@ -73,21 +73,21 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 
         #endregion Dispose
 
-        private class Subscriber : IEventFlow
+        private class Subscriber : IEventFlowConsumer
         {
             private readonly ILogger _logger;
-            private readonly IEventFlow _producer;
+            private readonly IEventFlowProducer _producer;
 
             public Subscriber(
                 //ConsumerMetadata metadata,
                 ILogger logger,
-                IEventFlow producer)
+                IEventFlowProducer producer)
             {
                 _logger = logger;
                 _producer = producer;
             }
 
-            async ValueTask IEventFlow.Stage1Async(Person PII, string payload)
+            async ValueTask IEventFlowConsumer.Stage1Async(Person PII, string payload)
             {
                 Metadata? meta = ConsumerMetadata.Context;
 
@@ -99,13 +99,19 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
                     JsonDocument.Parse("{\"data\":10}").RootElement);
             }
 
-            ValueTask IEventFlow.Stage2Async(JsonElement PII, JsonElement data)
+            ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
             {
-                var meta = ConsumerMetadata.Context;
-                _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
-                    meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
-                return ValueTask.CompletedTask;
+                throw new NotImplementedException();
             }
+
+            //ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
+            //{
+            //    var meta = ConsumerMetadata.Context;
+            //    _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
+            //        meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
+            //    return ValueTask.CompletedTask;
+            //}
+
         }
     }
 

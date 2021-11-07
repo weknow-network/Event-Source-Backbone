@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -7,7 +8,12 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.WebEventTest
 {
-    [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
+    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [GenerateEventSource(EventSourceGenType.Producer)]
+    //[GenerateEventSource(EventSourceGenType.Consumer, Namespace = "Weknow.EventSource.Backbone.WebEventTest")]
+    //[GenerateEventSource(EventSourceGenType.Producer, Namespace = "Weknow.EventSource.Backbone.WebEventTest")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Used for code generation, use the producer / consumer version of it", true)]
     public interface IEventFlow
     {
         /// <summary>

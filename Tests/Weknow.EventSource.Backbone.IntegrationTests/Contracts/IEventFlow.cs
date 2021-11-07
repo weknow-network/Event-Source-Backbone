@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
