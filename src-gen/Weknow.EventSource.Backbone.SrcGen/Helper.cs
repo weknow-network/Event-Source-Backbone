@@ -40,8 +40,8 @@ namespace Weknow.EventSource.Backbone
         {
             var trivia = mds.GetLeadingTrivia()
                             .Where(t =>
-                                    t.Kind() == SyntaxKind.MultiLineDocumentationCommentTrivia ||
-                                    t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+                                    t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia) ||
+                                    t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia));
             foreach (var doc in trivia)
             {
                 source.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
