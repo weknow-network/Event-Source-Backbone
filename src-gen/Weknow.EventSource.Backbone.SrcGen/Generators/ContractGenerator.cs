@@ -31,6 +31,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="context">The context.</param>
         /// <param name="info">The information.</param>
         /// <param name="interfaceName">Name of the interface.</param>
+        /// <param name="generateFrom"></param>
         /// <returns>
         /// File name
         /// </returns>
@@ -45,9 +46,6 @@ namespace Weknow.EventSource.Backbone
             var (item, att, name, kind, suffix, ns, isProducer) = info;
 
             CopyDocumentation(builder, kind, item, "\t");
-            /// <summary>
-            /// Subscribe consumer.
-            /// </summary>
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}");
