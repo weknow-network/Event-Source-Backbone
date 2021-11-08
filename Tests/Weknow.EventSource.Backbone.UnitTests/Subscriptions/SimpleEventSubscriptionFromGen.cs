@@ -9,10 +9,6 @@ using Weknow.EventSource.Backbone.UnitTests.Entities;
 namespace Weknow.EventSource.Backbone
 {
 
-    /// <summary>
-    /// In-Memory Channel (excellent for testing)
-    /// </summary>
-    /// <seealso cref="Weknow.EventSource.Backbone.IProducerChannelProvider" />
     public class SimpleEventSubscriptionFromGen : SimpleEventConsumerBase
     {
         private readonly ISimpleEventConsumer _target;
@@ -22,7 +18,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="channel">The channel.</param>
+        /// <param name="target">The channel.</param>
         public SimpleEventSubscriptionFromGen(ISimpleEventConsumer target)
         {
             _target = target;

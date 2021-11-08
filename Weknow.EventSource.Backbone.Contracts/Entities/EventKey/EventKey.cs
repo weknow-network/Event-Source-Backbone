@@ -15,8 +15,8 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class EventKey
     {
-        private readonly string? _strId;
-        private readonly JsonElement? _jsonId;
+        private readonly string _strId;
+        //private readonly JsonElement? _jsonId;
 
         #region Ctor
 
@@ -52,8 +52,9 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public override string ToString()
         {
-            if (_strId != null) return _strId;
-            return _jsonId.Serialize(SerializerOptionsWithIndent);
+            return _strId; ;
+            //if (_strId != null) return _strId;
+            //return _jsonId.Serialize(SerializerOptionsWithIndent);
         }
 
         #endregion // ToString
@@ -87,25 +88,25 @@ namespace Weknow.EventSource.Backbone
         ///// </returns>
         //public static implicit operator EventKey(JsonElement id) => new EventKey(id);
 
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="EventKey"/> to <see cref="JsonElement"/>.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
-        public static implicit operator JsonElement(EventKey id)
-        {
-            var json = id._jsonId;
-            if (json != null) return json ?? default;
+        ///// <summary>
+        ///// Performs an implicit conversion from <see cref="EventKey"/> to <see cref="JsonElement"/>.
+        ///// </summary>
+        ///// <param name="id">The identifier.</param>
+        ///// <returns>
+        ///// The result of the conversion.
+        ///// </returns>
+        //public static implicit operator JsonElement(EventKey id)
+        //{
+        //    var json = id._jsonId;
+        //    if (json != null) return json ?? default;
 
-            string str = id._strId ?? string.Empty;
-            // TODO: [bnaya 2021] ask Avi
-            if (str[0] != '{')
-                str = $"{{\"value\":\"{str}\"}}";
-            var result = JsonSerializer.Deserialize<JsonElement>(str, SerializerOptionsWithIndent);
-            return result;
-        }
+        //    string str = id._strId ?? string.Empty;
+        //    // TODO: [bnaya 2021] ask Avi
+        //    if (str[0] != '{')
+        //        str = $"{{\"value\":\"{str}\"}}";
+        //    var result = JsonSerializer.Deserialize<JsonElement>(str, SerializerOptionsWithIndent);
+        //    return result;
+        //}
 
 
         #endregion // Cast overloads

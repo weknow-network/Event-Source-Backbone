@@ -24,11 +24,6 @@ namespace Microsoft.Extensions.Configuration
 
         #region Ctor
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExcludeSamplerDecorator" /> class.
-        /// </summary>
-        /// <param name="logLevel">The log level.</param>
-        /// <param name="chainedSampler">The chained sampler.</param>
         private TestSampler(LogLevel logLevel = LogLevel.Information, Sampler? chainedSampler = null)
         {
             _logLevel = logLevel;

@@ -31,13 +31,6 @@ namespace Weknow.EventSource.Backbone
 
         #region SendAsync
 
-        /// <summary>
-        /// Sends raw announcement.
-        /// </summary>
-        /// <param name="payload">The raw announcement data.</param>
-        /// <returns>
-        /// The announcement id
-        /// </returns>
         public async ValueTask<string> SendAsync(
             Announcement payload,
             ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)

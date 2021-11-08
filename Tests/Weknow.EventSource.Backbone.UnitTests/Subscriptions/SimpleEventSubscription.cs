@@ -19,10 +19,6 @@ namespace Weknow.EventSource.Backbone
 
         #region Ctor
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="channel">The channel.</param>
         public SimpleEventSubscription(ISimpleEventConsumer target)
         {
             _target = target;

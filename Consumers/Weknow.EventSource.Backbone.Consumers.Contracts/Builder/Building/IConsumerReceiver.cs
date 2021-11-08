@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Weknow.EventSource.Backbone.Building
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Receive data (on demand data query).

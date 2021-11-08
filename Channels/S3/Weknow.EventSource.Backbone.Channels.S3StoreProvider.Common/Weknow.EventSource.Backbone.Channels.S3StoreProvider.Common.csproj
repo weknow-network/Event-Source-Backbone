@@ -1,23 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <Configurations>Debug;Release;Gen</Configurations>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DocumentationFile>Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.xml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.4" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.1" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.4" />
   </ItemGroup>
 
 </Project>

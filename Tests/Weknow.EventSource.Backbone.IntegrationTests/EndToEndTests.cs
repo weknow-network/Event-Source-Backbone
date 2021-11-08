@@ -961,10 +961,6 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region SendSequenceAsync
 
-        /// <summary>
-        /// Sends standard test sequence.
-        /// </summary>
-        /// <param name="producer">The producer.</param>
         private static async Task SendSequenceAsync(ISequenceOperations producer, string pass = "1234")
         {
             await producer.RegisterAsync(USER);
@@ -972,10 +968,6 @@ namespace Weknow.EventSource.Backbone.Tests
             await producer.EarseAsync(4335);
         }
 
-        /// <summary>
-        /// Sends standard test sequence.
-        /// </summary>
-        /// <param name="producer">The producer.</param>
         private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
         {
             EventKey r1 = await producer.RegisterAsync(USER with { Comment = null });
@@ -983,11 +975,6 @@ namespace Weknow.EventSource.Backbone.Tests
             EventKey r3 = await producer.EarseAsync(4335);
             return new[] { r1, r2, r3 };
         }
-
-        /// <summary>
-        /// Sends standard test sequence.
-        /// </summary>
-        /// <param name="producer">The producer.</param>
         private static async Task<EventKeys> SendSequenceAsync(IProducerSequenceOperations producer, string pass = "1234")
         {
             EventKey r1 = await producer.RegisterAsync(USER);

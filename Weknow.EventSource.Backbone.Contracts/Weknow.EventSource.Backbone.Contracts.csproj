@@ -1,27 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DocumentationFile>.\Weknow.EventSource.Backbone.Contracts.xml</DocumentationFile>
     <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
-    <Configurations>Debug;Release;Gen</Configurations>
   </PropertyGroup>
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove=".\Weknow.EventSource.Backbone.Contracts.xml" />
-    <None Include="..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="OpenTelemetry.Api" Version="1.1.0" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="Weknow-BasicExtensions" Version="1.0.18" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.1" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.4" />
   </ItemGroup>
 </Project>

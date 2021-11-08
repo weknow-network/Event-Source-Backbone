@@ -34,10 +34,6 @@ namespace Weknow.EventSource.Backbone
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="plan">The plan.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="readBufferSize">
-        /// Size of the read buffer.
-        /// How many items to read on a single iteration.
-        /// </param>
         /// <returns></returns>
         ValueTask<Announcement> GetByIdAsync(
                     EventKey entryId,

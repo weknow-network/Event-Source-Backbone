@@ -1,17 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <Configurations>Debug;Release;Gen</Configurations>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DocumentationFile>.\Weknow.EventSource.Backbone.Producers.Contracts.xml</DocumentationFile>
-    <RootNamespace>Weknow.EventSource.Backbone</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove=".\Weknow.EventSource.Backbone.Producers.Contracts.xml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>

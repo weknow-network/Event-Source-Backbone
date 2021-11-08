@@ -203,14 +203,14 @@ namespace Weknow.EventSource.Backbone
         ///// </returns>
         //public static implicit operator EventKeys(JsonElement[] ids) => new EventKeys(ids);
 
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="EventKeys"/> to <see cref="JsonElement"/>.
-        /// </summary>
-        /// <param name="ids">The identifiers.</param>
-        /// <returns>
-        /// The result of the conversion.
-        /// </returns>
-        public static implicit operator JsonElement[](EventKeys ids) => ids.Select(m => (JsonElement)m).ToArray();
+        ///// <summary>
+        ///// Performs an implicit conversion from <see cref="EventKeys"/> to <see cref="JsonElement"/>.
+        ///// </summary>
+        ///// <param name="ids">The identifiers.</param>
+        ///// <returns>
+        ///// The result of the conversion.
+        ///// </returns>
+        //public static implicit operator JsonElement[](EventKeys ids) => ids.Select(m => (JsonElement)m).ToArray();
 
 
         #endregion // Cast overloads

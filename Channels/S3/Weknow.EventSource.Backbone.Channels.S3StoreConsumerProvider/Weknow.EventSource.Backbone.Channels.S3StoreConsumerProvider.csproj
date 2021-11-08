@@ -1,17 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <Configurations>Debug;Release;Gen</Configurations>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DocumentationFile>Weknow.EventSource.Backbone.Channels.S3StoreConsumerProviderr.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Weknow.EventSource.Backbone.Channels.S3StoreConsumerProviderr.xml" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
     <ProjectReference Include="..\..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />

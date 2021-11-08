@@ -313,7 +313,7 @@
             </summary>
             <param name="plan">The plan.</param>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#IConsumerReceiver#GetByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
             <summary>
             Gets the asynchronous.
             </summary>
@@ -321,7 +321,7 @@
             <param name="cancellationToken">The cancellation token.</param>
             <returns></returns>
         </member>
-        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#Building#IConsumerReceiver#GetJsonByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
+        <member name="M:Weknow.EventSource.Backbone.ConsumerBuilder.Receiver.Weknow#EventSource#Backbone#IConsumerReceiver#GetJsonByIdAsync(Weknow.EventSource.Backbone.EventKey,System.Threading.CancellationToken)">
             <summary>
             Gets the asynchronous.
             </summary>
