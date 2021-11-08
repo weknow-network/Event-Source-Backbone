@@ -17,7 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.2.79" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.0.14" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.1" />
   </ItemGroup>
 
 </Project>
