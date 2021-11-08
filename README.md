@@ -1,4 +1,4 @@
-# Event-Source-Backbone [![.NET](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/dotnet.yml/badge.svg)](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/dotnet.yml)
+# Event-Source-Backbone [![Deploy](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/build-publish-v2.yml/badge.svg)](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/build-publish-v2.yml) [![Source Generator](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/src-gen.yml/badge.svg)](https://github.com/weknow-network/Event-Source-Backbone/actions/workflows/src-gen.yml) 
 
 Event-Source-Backbone is a framework for working with Event-Source under .NET (5.x).  
 
