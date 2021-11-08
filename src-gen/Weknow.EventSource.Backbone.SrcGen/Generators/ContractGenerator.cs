@@ -27,7 +27,6 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Called when [execute].
         /// </summary>
-        /// <param name="builder">The source builder.</param>
         /// <param name="context">The context.</param>
         /// <param name="info">The information.</param>
         /// <param name="interfaceName">Name of the interface.</param>
@@ -35,8 +34,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// File name
         /// </returns>
-        protected override string OnExecute(
-            StringBuilder builder,
+        protected override GenInstruction[] OnExecute(
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -44,7 +42,7 @@ namespace Weknow.EventSource.Backbone
         {
 
             var (item, att, name, kind, suffix, ns, isProducer) = info;
-
+            var builder = new StringBuilder();
             CopyDocumentation(builder, kind, item, "\t");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"Weknow.EventSource.Backbone\",\"1.0\")]");
@@ -79,7 +77,7 @@ namespace Weknow.EventSource.Backbone
             if (!contractOnly)
                 _bridge.ExecuteSingle(context, info);
 
-            return interfaceName;
+            return new[] { new GenInstruction(interfaceName, builder.ToString())};
         }
 
         protected override string GetInterfaceConvention(string? name, string generateFrom, string kind, string? suffix)

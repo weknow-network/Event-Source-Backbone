@@ -5,6 +5,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.UnitTests.Entities;
+using Weknow.EventSource.Backbone.UnitTests.Entities.Hidden;
 
 namespace Weknow.EventSource.Backbone
 {

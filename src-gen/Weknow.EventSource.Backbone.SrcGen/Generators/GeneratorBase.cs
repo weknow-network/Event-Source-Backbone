@@ -12,6 +12,7 @@ using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
 {
+
     internal abstract class GeneratorBase : ISourceGenerator
     {
         private readonly string _targetAttribute;
@@ -39,7 +40,6 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Called when [execute].
         /// </summary>
-        /// <param name="builder">The source builder.</param>
         /// <param name="context">The context.</param>
         /// <param name="info">The information.</param>
         /// <param name="interfaceName">Name of the interface.</param>
@@ -47,8 +47,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns>
         /// File name
         /// </returns>
-        protected abstract string OnExecute(
-            StringBuilder builder,
+        protected abstract GenInstruction[] OnExecute(
             GeneratorExecutionContext context,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -79,39 +78,51 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-
-            var builder = new StringBuilder();
-            foreach (var u in DEFAULT_USING)
-            {
-                builder.AppendLine(u);
-            }
-            builder.AppendLine();
-
-            var overrideNS = ns;
-            if (overrideNS == null && item.Parent is NamespaceDeclarationSyntax ns_)
-            {
-                foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
-                {
-                    if (c is UsingDirectiveSyntax use)
-                    {
-                        var u = use.ToFullString().Trim();
-                        if (!DEFAULT_USING.Any(m => m == u))
-                            builder.AppendLine(u);
-                    }
-                }
-                builder.AppendLine();
-                overrideNS = ns_?.Name?.ToString();
-            }
-            builder.AppendLine($"namespace {overrideNS ?? "Weknow.EventSource.Backbone"}");
-            builder.AppendLine("{");
-            //CopyDocumentation(builder, kind, item, "\t");
-
             string generateFrom = item.Identifier.ValueText;
             string interfaceName = GetInterfaceConvention(name, generateFrom, kind, suffix);
-            string fileName = OnExecute(builder, context, info, interfaceName, generateFrom);
-            builder.AppendLine("}");
 
-            context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
+            GenInstruction[] codes = OnExecute(context, info, interfaceName, generateFrom);
+
+            foreach (var (fileName, content, dynamicNs, usn) in codes)
+            {
+                var builder = new StringBuilder();
+                var usingSet = new HashSet<string>(DEFAULT_USING);
+
+                builder.AppendLine();
+                builder.AppendLine("#nullable enable");
+
+                foreach (var u in usn)
+                {
+                    if(!usingSet.Contains(u))
+                        usingSet.Add(u);
+                }
+
+                var overrideNS = dynamicNs ?? ns;
+                if (overrideNS == null && item.Parent is NamespaceDeclarationSyntax ns_)
+                {
+                    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
+                    {
+                        if (c is UsingDirectiveSyntax use)
+                        {
+                            var u = use.ToFullString().Trim();
+                            if (!usingSet.Contains(u))
+                                usingSet.Add(u);
+                        }
+                    }
+                    builder.AppendLine();
+                    overrideNS = ns_?.Name?.ToString();
+                }
+                foreach (var u in usingSet.OrderBy(m => m))
+                {
+                    builder.AppendLine(u);
+                }
+                builder.AppendLine($"namespace {overrideNS ?? "Weknow.EventSource.Backbone"}");
+                builder.AppendLine("{");
+                builder.AppendLine(content);
+                builder.AppendLine("}");
+
+                context.AddSource($"{fileName}.{kind}.cs", builder.ToString());
+            }
         }
 
         protected virtual string GetInterfaceConvention(string? name, string generateFrom, string kind, string? suffix) => name ?? generateFrom;
