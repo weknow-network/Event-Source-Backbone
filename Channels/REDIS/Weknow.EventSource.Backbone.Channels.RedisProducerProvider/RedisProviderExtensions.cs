@@ -9,6 +9,7 @@ using Weknow.EventSource.Backbone.Private;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using Microsoft.Extensions.Configuration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -89,7 +90,7 @@ namespace Weknow.EventSource.Backbone
         /// <exception cref="NotImplementedException"></exception>
         public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
-                            Task<IDatabaseAsync> redis,
+                            Task<IConnectionMultiplexer> redis,
                             AsyncPolicy? resiliencePolicy = null)
         {
             var result = builder.UseChannel(LocalCreate);
@@ -121,27 +122,10 @@ namespace Weknow.EventSource.Backbone
 
             return builder.UseRedisChannel(LocalGetDb(), resiliencePolicy);
 
-            async Task<IDatabaseAsync> LocalGetDb()
+            Task<IConnectionMultiplexer> LocalGetDb()
             {
-                try
-                {
-
-                    var multiplexer = serviceProvider.GetService<IConnectionMultiplexer>();
-                    if (multiplexer != null)
-                        return multiplexer.GetDatabase();
-
-                    var multiplexerTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
-                    if (multiplexerTask == null)
-                        throw new ArgumentNullException(nameof(IConnectionMultiplexer));
-                    var instance = await multiplexerTask;
-                    IDatabaseAsync db = instance.GetDatabase();
-                    return db;
-                }
-                catch (Exception ex)
-                {
-                    logger.LogCritical(ex, $"Fail to init REDIS multiplexer");
-                    throw;
-                }
+                var multiplexerTask = serviceProvider.GetService<EventSourceRedisConnection>();
+                return multiplexerTask?.ConnectionTask ?? throw new ArgumentNullException(nameof(EventSourceRedisConnection));
             }
         }
     }

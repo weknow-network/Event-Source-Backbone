@@ -7,6 +7,7 @@ using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Trace;
+using Microsoft.Extensions.Configuration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -138,13 +139,9 @@ namespace Weknow.EventSource.Backbone
                             IServiceProvider serviceProvider,
                             RedisConsumerChannelSetting? setting = null)
         {
-            var redisClient = serviceProvider.GetService<IConnectionMultiplexer>();
-            if (redisClient != null)
-                return builder.UseRedisChannel(redisClient, setting);
-            var redisClientTask = serviceProvider.GetService<Task<IConnectionMultiplexer>>();
-            if (redisClientTask == null)
-                throw new ArgumentNullException(nameof(redisClientTask));
-            return builder.UseRedisChannel(redisClientTask, setting);
+            var conn = serviceProvider.GetService<EventSourceRedisConnection>();
+            var connCheck = conn?.ConnectionTask ?? throw new ArgumentNullException(nameof(EventSourceRedisConnection));
+            return builder.UseRedisChannel(connCheck, setting);
         }
 
     }

@@ -31,7 +31,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageReleaseNotes>[BREAKING CHANGES] Change default environment key for the connection</PackageReleaseNotes>
+    <PackageReleaseNotes>[BREAKING CHANGES] Handling IConnectionMultiplexer changed</PackageReleaseNotes>
   </PropertyGroup>
   
   <PropertyGroup>

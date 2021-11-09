@@ -43,6 +43,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
                     .AddOpenAPIWeknow(VERSION, TITLE, DESC);
 
 
+            services.AddEventSourceRedisConnection();
             services.AddSingleton(ioc =>
             {
                 ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
