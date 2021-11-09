@@ -139,6 +139,7 @@ namespace Weknow.EventSource.Backbone
                 var sb = new StringBuilder();
                 var writer = new StringWriter(sb);
 
+                // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
                 var redisConfiguration = ConfigurationOptions.Parse(endpoint);
                 redisConfiguration.ClientName = string.Format(
                                         CONNECTION_NAME_PATTERN,
@@ -146,6 +147,12 @@ namespace Weknow.EventSource.Backbone
 
                 configuration?.Invoke(redisConfiguration);
                 redisConfiguration.Password = password;
+                redisConfiguration.AbortOnConnectFail = false;
+                redisConfiguration.ConnectTimeout = 15;
+                redisConfiguration.SyncTimeout = 10;
+                redisConfiguration.AsyncTimeout = 10;
+                //redisConfiguration.DefaultDatabase = Debugger.IsAttached ? 1 : null;
+
 
                 IConnectionMultiplexer redis;
                 TimeSpan delay = RETRY_INTERVAL_DELAY;

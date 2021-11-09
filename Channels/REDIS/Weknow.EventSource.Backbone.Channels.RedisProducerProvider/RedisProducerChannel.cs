@@ -172,6 +172,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                    flags: CommandFlags.DemandMaster);
                     return result;
                 }
+                catch (RedisConnectionException ex) 
+                {
+                    _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{partition}->{shard}] stream: {operation}",
+                        meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Fail to push event [{id}] into the [{partition}->{shard}] stream: {operation}",
