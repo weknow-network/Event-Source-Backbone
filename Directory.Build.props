@@ -29,11 +29,16 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
-      
+
+  <PropertyGroup>
+    <PackageReleaseNotes>[BREAKING CHANGES] Change default environment key for the connection</PackageReleaseNotes>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
+  
   <ItemGroup>
     <None Include="icon.png">
       <Pack>True</Pack>

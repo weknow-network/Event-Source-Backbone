@@ -101,16 +101,11 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 
             ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
             {
-                throw new NotImplementedException();
+                var meta = ConsumerMetadata.Context;
+                _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
+                    meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
+                return ValueTask.CompletedTask;
             }
-
-            //ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
-            //{
-            //    var meta = ConsumerMetadata.Context;
-            //    _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
-            //        meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
-            //    return ValueTask.CompletedTask;
-            //}
 
         }
     }

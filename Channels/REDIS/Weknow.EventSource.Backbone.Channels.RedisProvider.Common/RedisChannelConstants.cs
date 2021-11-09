@@ -11,8 +11,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider.Common
         public const string CHANNEL_TYPE = "REDIS Channel V1";
         public const string META_ARRAY_SEPARATOR = "~|~";
 
-        public const string CONSUMER_END_POINT_KEY = "REDIS_EVENT_SOURCE_CONSUMER_ENDPOINT";
-        public const string CONSUMER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_CONSUMER_PASS";
+        public const string END_POINT_KEY = "REDIS_EVENT_STREAM_ENDPOINT";
+        public const string PASSWORD_KEY = "REDIS_EVENT_STREAM_PASS";
 
 
         public static class MetaKeys

@@ -95,8 +95,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         ILogger logger,
                         Action<ConfigurationOptions>? configuration = null,
                         RedisConsumerChannelSetting? setting = null,
-                        string endpointEnvKey = CONSUMER_END_POINT_KEY,
-                        string passwordEnvKey = CONSUMER_PASSWORD_KEY) : this(
+                        string endpointEnvKey = END_POINT_KEY,
+                        string passwordEnvKey = PASSWORD_KEY) : this(
                             RedisClientFactory.CreateProviderAsync(
                                                     logger,
                                                     configuration,

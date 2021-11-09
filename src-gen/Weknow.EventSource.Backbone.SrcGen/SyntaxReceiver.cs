@@ -46,8 +46,6 @@ namespace Weknow.EventSource.Backbone
                        select a;
             foreach (AttributeSyntax att in atts)
             {
-
-                // TODO: [bnaya 2021-10] ask Avi
                 var nameArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "Name");
                 var name = nameArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 

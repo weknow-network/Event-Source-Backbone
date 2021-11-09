@@ -25,8 +25,8 @@ namespace Weknow.EventSource.Backbone
                             this IConsumerBuilder builder,
                             Func<RedisConsumerChannelSetting, RedisConsumerChannelSetting> setting,
                             Action<ConfigurationOptions>? redisConfiguration = null,
-                            string endpointEnvKey = CONSUMER_END_POINT_KEY,
-                            string passwordEnvKey = CONSUMER_PASSWORD_KEY)
+                            string endpointEnvKey = END_POINT_KEY,
+                            string passwordEnvKey = PASSWORD_KEY)
         {
             var stg = setting?.Invoke(RedisConsumerChannelSetting.Default);
             var channelBuilder = builder.UseChannel(LocalCreate);
@@ -55,8 +55,8 @@ namespace Weknow.EventSource.Backbone
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
                             RedisConsumerChannelSetting? setting = null,
-                            string endpointEnvKey = CONSUMER_END_POINT_KEY,
-                            string passwordEnvKey = CONSUMER_PASSWORD_KEY)
+                            string endpointEnvKey = END_POINT_KEY,
+                            string passwordEnvKey = PASSWORD_KEY)
         {
             var cfg = setting ?? RedisConsumerChannelSetting.Default;
             var channelBuilder = builder.UseChannel(LocalCreate);

@@ -20,9 +20,7 @@ using Xunit;
 using Xunit.Abstractions;
 
 using static Weknow.EventSource.Backbone.EventSourceConstants;
-
-// TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)
-// TODO: [bnaya 2020-10] check for no pending
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
@@ -1011,8 +1009,6 @@ namespace Weknow.EventSource.Backbone.Tests
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            string END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
-            string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
             string[] keys =
                 {
                     $"{PARTITION}:{SHARD}",

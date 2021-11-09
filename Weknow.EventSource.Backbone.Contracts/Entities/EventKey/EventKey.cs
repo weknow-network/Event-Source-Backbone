@@ -29,8 +29,6 @@ namespace Weknow.EventSource.Backbone
             _strId = id;
         }
 
-        // TODO: [bnaya 2021-10] TBD: with Avi
-
         ///// <summary>
         ///// Initializes a new instance.
         ///// </summary>

@@ -8,14 +8,12 @@ using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Weknow.EventSource.Backbone
 {
     public static class RedisProviderExtensions
     {
-        private const string PRODUCER_END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
-        private const string PRODUCER_PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
-
         /// <summary>
         /// Adds the event producer telemetry source (will result in tracing the producer).
         /// </summary>
@@ -37,8 +35,8 @@ namespace Weknow.EventSource.Backbone
                             this IProducerBuilder builder,
                             Action<ConfigurationOptions>? configuration = null,
                             AsyncPolicy? resiliencePolicy = null,
-                            string endpointEnvKey = PRODUCER_END_POINT_KEY,
-                            string passwordEnvKey = PRODUCER_PASSWORD_KEY)
+                            string endpointEnvKey = END_POINT_KEY,
+                            string passwordEnvKey = PASSWORD_KEY)
         {
             var result = builder.UseChannel(LocalCreate);
             return result;

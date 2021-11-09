@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -174,8 +175,6 @@ namespace Weknow.EventSource.Backbone.Tests
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            string END_POINT_KEY = "REDIS_EVENT_SOURCE_PRODUCER_ENDPOINT";
-            string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PRODUCER_PASS";
             string key = $"{PARTITION}:{SHARD}";
             IDatabaseAsync db = RedisClientFactory.CreateAsync(
                                                 _fakeLogger,
