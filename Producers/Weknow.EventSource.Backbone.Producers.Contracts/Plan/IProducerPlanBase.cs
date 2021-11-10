@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// common plan properties
     /// </summary>
-    public interface IProducerPlanBase : IProducerPlanRoute
+    public interface IProducerPlanBase : IPlanRoute
     {
         /// <summary>
         /// Producer interceptors (Timing: after serialization).

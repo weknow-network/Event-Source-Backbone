@@ -401,7 +401,7 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="routeStrategy">The routing strategy.</param>
             /// <returns></returns>
-            IProducerOverrideBuildBuilder<T> IProducerOverrideBuilder<T>.Strategy(Func<IProducerPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy)
+            IProducerOverrideBuildBuilder<T> IProducerOverrideBuilder<T>.Strategy(Func<IPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy)
             {
                 var (environment, partition, shard) = routeStrategy(_plan);
                 var plan = _plan.WithEnvironment(environment ?? _plan.Environment, partition, shard);

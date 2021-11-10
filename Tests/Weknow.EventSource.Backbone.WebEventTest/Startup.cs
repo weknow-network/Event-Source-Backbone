@@ -57,7 +57,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             });
             services.AddSingleton(ioc =>
             {
-                IConsumerLoggerBuilder consumer =
+                IConsumerReadyBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      .AddS3Strategy()
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })

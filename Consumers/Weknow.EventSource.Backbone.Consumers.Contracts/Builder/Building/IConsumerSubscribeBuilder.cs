@@ -9,6 +9,12 @@ namespace Weknow.EventSource.Backbone.Building
     /// </summary>
     public interface IConsumerSubscribeBuilder
     {
+
+        /// <summary>
+        /// The routing information attached to this buildr
+        /// </summary>
+        IPlanRoute Route { get; }
+
         /// <summary>
         /// Build receiver (on demand data query).
         /// </summary>

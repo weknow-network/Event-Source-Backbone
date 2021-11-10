@@ -16,6 +16,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="routeStrategy">The routing strategy.</param>
         /// <returns></returns>
-        IProducerOverrideBuildBuilder<T> Strategy(Func<IProducerPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy);
+        IProducerOverrideBuildBuilder<T> Strategy(Func<IPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy);
     }
 }

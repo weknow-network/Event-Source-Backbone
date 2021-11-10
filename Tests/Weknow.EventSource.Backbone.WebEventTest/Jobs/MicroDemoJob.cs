@@ -35,7 +35,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="producer">The producer.</param>
         public MicroDemoJob(
             ILogger<MicroDemoJob> logger,
-            IConsumerLoggerBuilder consumerBuilder,
+            IConsumerReadyBuilder consumerBuilder,
             IEventFlowProducer producer)
             : base(logger)
         {

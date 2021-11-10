@@ -31,7 +31,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageReleaseNotes>[BREAKING CHANGES] Handling IConnectionMultiplexer changed</PackageReleaseNotes>
+    <PackageReleaseNotes>[BREAKING CHANGES] IConsumerLoggerBuilder become IConsumerReadyBuilder</PackageReleaseNotes>
   </PropertyGroup>
   
   <PropertyGroup>

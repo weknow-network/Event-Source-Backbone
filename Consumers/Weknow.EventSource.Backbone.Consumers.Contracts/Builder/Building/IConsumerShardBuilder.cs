@@ -4,7 +4,7 @@
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerShardBuilder:
-        IConsumerLoggerBuilder
+        IConsumerReadyBuilder
     {
 
         /// <summary>
@@ -18,6 +18,6 @@
         /// </summary>
         /// <param name="shardKey">The shard key.</param>
         /// <returns></returns>
-        IConsumerLoggerBuilder Shard(string shardKey);
+        IConsumerReadyBuilder Shard(string shardKey);
     }
 }

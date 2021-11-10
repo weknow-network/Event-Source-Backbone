@@ -53,6 +53,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
+        #region Route
+
+        /// <summary>
+        /// The routing information attached to this buildr
+        /// </summary>
+        IPlanRoute IConsumerSubscribeBuilder.Route =>  _plan;
+
+        #endregion // Route
+
         #region UseChannel
 
         /// <summary>
@@ -175,7 +184,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IConsumerLoggerBuilder Shard(string shard)
+        public IConsumerReadyBuilder Shard(string shard)
         {
             var prms = _plan.WithShard(shard);
             var result = new ConsumerBuilder(prms);
@@ -269,7 +278,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerLoggerBuilder.WithLogger(ILogger logger)
+        IConsumerSubscribeBuilder IConsumerReadyBuilder.WithLogger(ILogger logger)
         {
             var prms = _plan.WithLogger(logger);
             var result = new ConsumerBuilder(prms);
@@ -285,7 +294,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="policy">The policy.</param>
         /// <returns></returns>
-        IConsumerLoggerBuilder IConsumerLoggerBuilder.WithResiliencePolicy(AsyncPolicy policy)
+        IConsumerReadyBuilder IConsumerReadyBuilder.WithResiliencePolicy(AsyncPolicy policy)
         {
             var prms = _plan.WithResiliencePolicy(policy);
             var result = new ConsumerBuilder(prms);

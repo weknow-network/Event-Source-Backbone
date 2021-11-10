@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.Logging;
-
-using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
 {
-
     /// <summary>
-    /// common plan routing properties
+    /// Plan routing identification
     /// </summary>
-    public interface IProducerPlanRoute
+    public interface IPlanRoute
     {
         /// <summary>
-        /// The origin environment of the message
+        /// Environment (part of the stream key).
         /// </summary>
+        /// <value>
+        /// The partition.
+        /// </value>
         string Environment { get; }
         /// <summary>
         /// Partition key represent logical group of 
@@ -31,6 +26,9 @@ namespace Weknow.EventSource.Backbone
         /// central place without affecting sequence of specific order 
         /// flow or limiting the throughput.
         /// </summary>
+        /// <value>
+        /// The partition.
+        /// </value>
         string Partition { get; }
         /// <summary>
         /// Shard key represent physical sequence.
@@ -40,5 +38,6 @@ namespace Weknow.EventSource.Backbone
         /// ORDER into different shard and gain performance bust..
         /// </summary>
         string Shard { get; }
+
     }
 }

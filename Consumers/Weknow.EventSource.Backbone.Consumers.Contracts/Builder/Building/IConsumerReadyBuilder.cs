@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerLoggerBuilder: IConsumerSubscribeBuilder
+    public interface IConsumerReadyBuilder: IConsumerSubscribeBuilder
     {
         /// <summary>
         /// Attach logger.
@@ -23,6 +23,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="policy">The policy.</param>
         /// <returns></returns>
-        IConsumerLoggerBuilder WithResiliencePolicy(AsyncPolicy policy);
+        IConsumerReadyBuilder WithResiliencePolicy(AsyncPolicy policy);
     }
 }
