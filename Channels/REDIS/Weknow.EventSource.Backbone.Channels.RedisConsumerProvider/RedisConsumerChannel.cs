@@ -39,8 +39,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
-        private readonly Task<IDatabaseAsync> _dbTask;
-        private readonly Task<IConnectionMultiplexer> _multiplexerTask;
+        private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
@@ -48,39 +47,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="redis">The redis provider promise.</param>
+        /// <param name="redisConnFactory">The redis provider promise.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="setting">The setting.</param>
         public RedisConsumerChannel(
-                        Task<IConnectionMultiplexer> redis,
+                        IEventSourceRedisConnectionFacroty redisConnFactory,
                         ILogger logger,
                         RedisConsumerChannelSetting? setting = null)
         {
             _logger = logger;
-            _multiplexerTask = redis;
-            _dbTask = GetDb();
-            _defaultStorageStrategy = new RedisHashStorageStrategy(_dbTask);
+            _connFactory = redisConnFactory;
+            _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory);
             _setting = setting ?? RedisConsumerChannelSetting.Default;
-
-            async Task<IDatabaseAsync> GetDb()
-            {
-                var provider = await redis;
-                return provider.GetDatabase();
-            }
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="redis">The redis database.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="setting">The setting.</param>
-        public RedisConsumerChannel(
-                        IConnectionMultiplexer redis,
-                        ILogger logger,
-                        RedisConsumerChannelSetting? setting = null) :
-            this(Task.FromResult(redis), logger, setting)
-        {
         }
 
         /// <summary>
@@ -97,11 +75,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         RedisConsumerChannelSetting? setting = null,
                         string endpointEnvKey = END_POINT_KEY,
                         string passwordEnvKey = PASSWORD_KEY) : this(
-                            RedisClientFactory.CreateProviderAsync(
+                            new EventSourceRedisConnectionFacroty(
                                                     logger,
                                                     configuration,
-                                                    endpointEnvKey,
-                                                    passwordEnvKey),
+                                                    new RedisCredentialsKeys(endpointEnvKey , passwordEnvKey)),
                             logger,
                             setting)
         {
@@ -131,12 +108,10 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 try
                 {
-                    IDatabaseAsync db = await _dbTask;
-
                     if (plan.Shard != string.Empty)
-                        await SubsribeShardAsync(db, plan, func, options, cancellationToken);
+                        await SubsribeShardAsync(plan, func, options, cancellationToken);
                     else
-                        await SubsribePartitionAsync(db, plan, func, options, cancellationToken);
+                        await SubsribePartitionAsync(plan, func, options, cancellationToken);
                 }
                 #region Exception Handling
 
@@ -158,7 +133,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Subscribe to all shards under a partition.
         /// </summary>
-        /// <param name="db">The database.</param>
         /// <param name="plan">The consumer plan.</param>
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
@@ -167,7 +141,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// When completed
         /// </returns>
         private async ValueTask SubsribePartitionAsync(
-                    IDatabaseAsync db,
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     ConsumerOptions options,
@@ -189,7 +162,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     {
                         string shard = key.Substring(partitionSplit);
                         IConsumerPlan p = plan.WithShard(shard);
-                        Task subscription = SubsribeShardAsync(db, plan, func, options, cancellationToken);
+                        Task subscription = SubsribeShardAsync(plan, func, options, cancellationToken);
                         subscriptions.Enqueue(subscription);
                     }
 
@@ -224,13 +197,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Subscribe to specific shard.
         /// </summary>
-        /// <param name="db">The database.</param>
         /// <param name="plan">The consumer plan.</param>
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         private async Task SubsribeShardAsync(
-                    IDatabaseAsync db,
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
                     ConsumerOptions options,
@@ -242,6 +213,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             CommandFlags flags = CommandFlags.None;
 
             ILogger logger = plan.Logger;
+            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+            IDatabaseAsync db = conn.GetDatabase();
+
             #region await db.CreateConsumerGroupIfNotExistsAsync(...)
 
 
@@ -633,7 +607,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         {
             try
             {
-                IDatabaseAsync db = await _dbTask;
+                IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                IDatabaseAsync db = conn.GetDatabase();
                 ILogger logger = plan.Logger;
                 StreamEntry entry = await FindAsync(entryId);
 
@@ -774,7 +749,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string pattern,
                         [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var multiplexer = await _multiplexerTask;
+            IConnectionMultiplexer multiplexer = await _connFactory.CreateAsync();
             var distict = new HashSet<string>();
             while (!cancellationToken.IsCancellationRequested)
             {

@@ -22,15 +22,15 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     {
-        private readonly Task<IDatabaseAsync> _dbTask;
+        private readonly IEventSourceRedisConnectionFacroty _connFactory;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="dbTask">The database task.</param>
-        public RedisHashStorageStrategy(Task<IDatabaseAsync> dbTask)
+        /// <param name="connFactory">The database task.</param>
+        public RedisHashStorageStrategy(IEventSourceRedisConnectionFacroty connFactory)
         {
-            _dbTask = dbTask;
+            _connFactory = connFactory;
         }
 
         /// <summary>
@@ -54,7 +54,8 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             string key = $"{type}~{meta.MessageId}";
 
-            IDatabaseAsync db = await _dbTask;
+            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+            IDatabaseAsync db = conn.GetDatabase();
             var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
             var results = prevBucket.TryAddRange(pairs);

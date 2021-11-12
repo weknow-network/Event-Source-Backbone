@@ -31,13 +31,13 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="redis">The redis database promise.</param>
+        /// <param name="redisFactory">The redis database promise.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="resiliencePolicy">The resilience policy for retry.</param>
         public RedisProducerChannel(
-                        Task<IConnectionMultiplexer> redis,
+                        IEventSourceRedisConnectionFacroty redisFactory,
                         ILogger logger,
-                        AsyncPolicy? resiliencePolicy) : this(GetDB(redis), logger, resiliencePolicy)
+                        AsyncPolicy? resiliencePolicy) : this(GetDB(redisFactory), logger, resiliencePolicy)
         {
         }
 
@@ -105,11 +105,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Gets the database.
         /// </summary>
-        /// <param name="redis">The redis.</param>
+        /// <param name="redisConnFactory">The redis connection factory.</param>
         /// <returns></returns>
-        private static async Task<IDatabaseAsync> GetDB(Task<IConnectionMultiplexer> redis)
+        private static async Task<IDatabaseAsync> GetDB(IEventSourceRedisConnectionFacroty redisConnFactory)
         {
-            var mp = await redis;
+            var mp = await redisConnFactory.CreateAsync();
             return mp.GetDatabase();
         }
 

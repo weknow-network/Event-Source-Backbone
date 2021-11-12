@@ -11,14 +11,9 @@ namespace Microsoft.Extensions.Configuration
     public static class RedisDiExtensions
     {
         public static IServiceCollection AddEventSourceRedisConnection(
-            this IServiceCollection services,
-                    Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
+            this IServiceCollection services)
         {
-            var redis = RedisClientFactory.CreateProviderAsync(configuration, endpointKey, passwordKey);
-            var conn = new EventSourceRedisConnection(redis);
-            services.AddSingleton(conn);
+            services.AddSingleton<IEventSourceRedisConnectionFacroty, EventSourceRedisConnectionFacroty>();
             return services;
         }
 

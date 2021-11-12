@@ -84,13 +84,13 @@ namespace Weknow.EventSource.Backbone
         /// Uses REDIS producer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="redis">The redis database.</param>
+        /// <param name="redisConnectionFactory">The redis database.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
-                            Task<IConnectionMultiplexer> redis,
+                            IEventSourceRedisConnectionFacroty redisConnectionFactory,
                             AsyncPolicy? resiliencePolicy = null)
         {
             var result = builder.UseChannel(LocalCreate);
@@ -99,7 +99,7 @@ namespace Weknow.EventSource.Backbone
             IProducerChannelProvider LocalCreate(ILogger logger)
             {
                 var channel = new RedisProducerChannel(
-                                 redis,
+                                 redisConnectionFactory,
                                  logger ?? EventSourceFallbakLogger.Default,
                                  resiliencePolicy);
                 return channel;
@@ -120,13 +120,10 @@ namespace Weknow.EventSource.Backbone
         {
             ILogger logger = serviceProvider.GetService<ILogger<IProducerBuilder>>() ?? throw new ArgumentNullException();
 
-            return builder.UseRedisChannel(LocalGetDb(), resiliencePolicy);
-
-            Task<IConnectionMultiplexer> LocalGetDb()
-            {
-                var multiplexerTask = serviceProvider.GetService<EventSourceRedisConnection>();
-                return multiplexerTask?.ConnectionTask ?? throw new ArgumentNullException(nameof(EventSourceRedisConnection));
-            }
+            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
+            if (connFactory == null)
+                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+            return builder.UseRedisChannel(connFactory, resiliencePolicy);
         }
     }
 }

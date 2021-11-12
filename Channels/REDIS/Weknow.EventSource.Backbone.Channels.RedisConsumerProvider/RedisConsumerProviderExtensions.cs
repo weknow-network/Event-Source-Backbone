@@ -78,12 +78,12 @@ namespace Weknow.EventSource.Backbone
         /// Uses REDIS consumer channel.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="redisClient">The redis client.</param>
+        /// <param name="redisClientFactory">The redis client factory.</param>
         /// <param name="setting">The setting.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
-                            Task<IConnectionMultiplexer> redisClient,
+                            IEventSourceRedisConnectionFacroty redisClientFactory,
                             RedisConsumerChannelSetting? setting = null)
         {
             var cfg = setting ?? RedisConsumerChannelSetting.Default;
@@ -93,33 +93,7 @@ namespace Weknow.EventSource.Backbone
             IConsumerChannelProvider LocalCreate(ILogger logger)
             {
                 var channel = new RedisConsumerChannel(
-                                        redisClient,
-                                        logger,
-                                        setting);
-                return channel;
-            }
-        }
-
-        /// <summary>
-        /// Uses REDIS consumer channel.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="redisClient">The redis client.</param>
-        /// <param name="setting">The setting.</param>
-        /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder UseRedisChannel(
-                            this IConsumerBuilder builder,
-                            IConnectionMultiplexer redisClient,
-                            RedisConsumerChannelSetting? setting = null)
-        {
-            var cfg = setting ?? RedisConsumerChannelSetting.Default;
-            var channelBuilder = builder.UseChannel(LocalCreate);
-            return channelBuilder;
-
-            IConsumerChannelProvider LocalCreate(ILogger logger)
-            {
-                var channel = new RedisConsumerChannel(
-                                        redisClient,
+                                        redisClientFactory,
                                         logger,
                                         setting);
                 return channel;
@@ -139,9 +113,10 @@ namespace Weknow.EventSource.Backbone
                             IServiceProvider serviceProvider,
                             RedisConsumerChannelSetting? setting = null)
         {
-            var conn = serviceProvider.GetService<EventSourceRedisConnection>();
-            var connCheck = conn?.ConnectionTask ?? throw new ArgumentNullException(nameof(EventSourceRedisConnection));
-            return builder.UseRedisChannel(connCheck, setting);
+            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
+            if (connFactory == null)
+                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+            return builder.UseRedisChannel(connFactory, setting);
         }
 
     }
