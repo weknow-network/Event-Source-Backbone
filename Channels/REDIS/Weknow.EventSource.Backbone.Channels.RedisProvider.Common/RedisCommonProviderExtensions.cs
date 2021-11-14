@@ -16,13 +16,13 @@ namespace Weknow.EventSource.Backbone.Private
         /// <summary>
         /// Creates the consumer group if not exists asynchronous.
         /// </summary>
-        /// <param name="db">The database.</param>
+        /// <param name="connFactory">The connection factory.</param>
         /// <param name="eventSourceKey">The event source key.</param>
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
         public static async Task CreateConsumerGroupIfNotExistsAsync(
-                        this IDatabaseAsync db,
+                        this IEventSourceRedisConnectionFacroty connFactory,
                         string eventSourceKey,
                         string consumerGroup,
                         ILogger logger)
@@ -35,6 +35,9 @@ namespace Weknow.EventSource.Backbone.Private
             while (groupsInfo.Length == 0)
             {
                 tryNumber++;
+
+                IConnectionMultiplexer conn = await connFactory.CreateAsync();
+                IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
                     #region delay on retry
@@ -46,11 +49,10 @@ namespace Weknow.EventSource.Backbone.Private
                         delay = Math.Min(delay * 2, 15_000);
                         await Task.Delay(delay);
                         if (tryNumber % 10 == 0)
-                            logger.LogWarning($"{nameof(CreateConsumerGroupIfNotExistsAsync)} still waiting");
+                            logger.LogWarning($"{nameof(CreateConsumerGroupIfNotExistsAsync)} still waiting {CurrentInfo()}");
                     }
 
                     #endregion // delay on retry
-
                     groupsInfo = await db.StreamGroupInfoAsync(
                                                 eventSourceKey,
                                                 flags: CommandFlags.DemandMaster);
@@ -63,16 +65,20 @@ namespace Weknow.EventSource.Backbone.Private
                     if (!await db.KeyExistsAsync(eventSourceKey,
                                                  flags: CommandFlags.DemandMaster))
                     {
-                        logger.LogDebug(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)} [GroupInfo]: Key not exists");
+                        logger.LogDebug(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: Key not exists");
                     }
                     else
                     {
-                        logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)} [GroupInfo]: failed");
+                        logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: failed");
                     }
+                }
+                catch (RedisConnectionException ex)
+                {
+                    logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync: connection failure {CurrentInfo()}");
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)} [GroupInfo]: unexpected failure");
+                    logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: unexpected failure");
                 }
 
                 #endregion // Exception Handling
@@ -89,15 +95,31 @@ namespace Weknow.EventSource.Backbone.Private
 
                     catch (RedisServerException ex)
                     {
-                        logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}: failed & still waiting");
+                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: failed & still waiting {CurrentInfo()}");
+                    }
+                    catch (RedisConnectionException ex)
+                    {
+                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: connection failure {CurrentInfo()}");
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}: unexpected failure");
+                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: unexpected failure {CurrentInfo()}");
                     }
 
                     #endregion // Exception Handling
                 }
+
+                #region string CurrentInfo()
+
+                string CurrentInfo() => @$"
+Try number:     {tryNumber}
+Stream key:     {eventSourceKey}
+Consumer Group: {consumerGroup}
+Is Connected:   {db.Multiplexer.IsConnected}
+Configuration:  {db.Multiplexer.Configuration}
+";
+
+                #endregion // string CurrentInfo()
             }
         }
 

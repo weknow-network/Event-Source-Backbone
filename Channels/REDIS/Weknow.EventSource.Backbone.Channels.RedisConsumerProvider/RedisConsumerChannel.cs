@@ -213,13 +213,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             CommandFlags flags = CommandFlags.None;
 
             ILogger logger = plan.Logger;
-            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
-            IDatabaseAsync db = conn.GetDatabase();
 
             #region await db.CreateConsumerGroupIfNotExistsAsync(...)
 
 
-            await db.CreateConsumerGroupIfNotExistsAsync(
+            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 plan.ConsumerGroup,
                 logger);
@@ -377,6 +375,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         if (values.Length == 0)
                         {
                             isFirstBatchOrFailure = false;
+
+                            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                            IDatabaseAsync db = conn.GetDatabase();
                             values = await db.StreamReadGroupAsync(
                                                                 key,
                                                                 plan.ConsumerGroup,
@@ -417,6 +418,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 if (!isFirstBatchOrFailure)
                     return values;
 
+
+                IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                IDatabaseAsync db = conn.GetDatabase();
                 var pendMsgInfo = await db.StreamPendingMessagesAsync(
                                             key,
                                             plan.ConsumerGroup,
@@ -452,6 +456,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     return values;
                 try
                 {
+                    IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                    IDatabaseAsync db = conn.GetDatabase();
                     StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
                     foreach (var c in pendingInfo.Consumers)
                     {
@@ -527,6 +533,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 try
                 {
+                    IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                    IDatabaseAsync db = conn.GetDatabase();
                     // release the event (won't handle again in the future)
                     long id = await db.StreamAcknowledgeAsync(key,
                                                     plan.ConsumerGroup,
