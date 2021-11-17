@@ -206,7 +206,7 @@ namespace Weknow.EventSource.Backbone
             catch (Exception ex)
             {
                 if (logger != null)
-                    logger.LogError(ex.FormatLazy());
+                    logger.LogError(ex.FormatLazy(), "REDIS CONNECTION ERROR");
                 else
                     Console.WriteLine($"REDIS CONNECTION ERROR: {ex.FormatLazy()}");
             }

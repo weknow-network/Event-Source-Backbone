@@ -698,6 +698,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 _logger.LogError(ex, "Fail to get Entry [{id}] from [{partition}->{shard}] event stream",
                     entryId, plan.Partition, plan.Shard);
+                await _connFactory.ResetAsync();
                 throw;
             }
 

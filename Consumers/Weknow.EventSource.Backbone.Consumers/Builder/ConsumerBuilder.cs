@@ -386,7 +386,7 @@ namespace Weknow.EventSource.Backbone
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            var consumer = new ConsumerBase(plan, handlers.AsYield());
+            var consumer = new ConsumerBase(plan, handlers.ToYield());
             var subscription = consumer.Subscribe();
             return subscription;
         }
@@ -473,7 +473,7 @@ namespace Weknow.EventSource.Backbone
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
-            var consumer = new ConsumerBase(plan, handler.AsYield());
+            var consumer = new ConsumerBase(plan, handler.ToYield());
             var subscription = consumer.Subscribe();
             return subscription;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 using Microsoft.Extensions.Logging;
 
@@ -20,10 +21,19 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public class EventSourceRedisConnectionFacroty : IEventSourceRedisConnectionFacroty
     {
+        enum ConnectionState
+        {
+            On,
+            Off
+        }
+
+        record ConnSwitch(Task<IConnectionMultiplexer> ConnTask, ConnectionState State);
+
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly Action<ConfigurationOptions>? _configuration;
         private readonly RedisCredentialsKeys? _credentialsKeys;
+        private readonly ActionBlock<ConnSwitch> _connListener;
 
         #region Ctor
 
@@ -39,7 +49,7 @@ namespace Weknow.EventSource.Backbone
             ILogger<EventSourceRedisConnectionFacroty> logger,
             Action<ConfigurationOptions>? configuration = null,
             RedisCredentialsKeys? credentialsKeys = null
-            ): this((ILogger)logger, configuration, credentialsKeys)
+            ) : this((ILogger)logger, configuration, credentialsKeys)
         {
         }
 
@@ -60,93 +70,139 @@ namespace Weknow.EventSource.Backbone
             _logger = logger;
             _configuration = configuration;
             _credentialsKeys = credentialsKeys;
-            _redisTask = RedisClientFactory.CreateProviderAsync(
-                                                _logger,
-                                                _configuration,
-                                                _credentialsKeys?.EndpointKey ?? END_POINT_KEY,
-                                                _credentialsKeys?.PasswordKey ?? PASSWORD_KEY);
-            MonitorHealth();
+            var switcher = ConnectionSwitcherAsync;
+            _connListener = new(switcher);
+            _redisTask = CreateNewAsync();
         }
 
 
         #endregion // Ctor
 
+        #region CreateAsync
+
         /// <summary>
-        /// Async connection
+        /// Get a valid connection 
         /// </summary>
         public async Task<IConnectionMultiplexer> CreateAsync()
         {
             IConnectionMultiplexer redis = await _redisTask;
-            while (!redis.IsConnected)
+            return redis;
+        }
+
+        #endregion // CreateAsync
+
+        #region ResetAsync
+
+        /// <summary>
+        /// Reset
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResetAsync()
+        {
+            var swtc = new ConnSwitch(_redisTask, ConnectionState.Off);
+            _connListener.Post(swtc);
+
+            var connTask = CreateNewAsync();
+            _redisTask = connTask;
+            await connTask;
+        }
+
+        #endregion // ResetAsync
+
+        #region CreateNewAsync
+
+        /// <summary>
+        /// Create connection
+        /// </summary>
+        private async Task<IConnectionMultiplexer> CreateNewAsync()
+        {
+            IConnectionMultiplexer redis;
+            int delay = 10;
+            for (int i = 1; i <= 10; i++)
             {
+                delay *= 2;
                 try
                 {
-                    #region Ping Validation
+                    redis = await RedisClientFactory.CreateProviderAsync(_logger, _configuration);
+                    TimeSpan ping = default;
+                    try
+                    {
+                        ping = await redis.GetDatabase().PingAsync();
+                    }
+                    #region Exception Handling
 
-                    TimeSpan ping = await redis.GetDatabase().PingAsync();
-                    if (redis.IsConnected)
-                        break;
+                    catch 
+                    {
+                        redis.Dispose();
+                        throw;
+                    }
 
-                    #endregion // Ping Validation
+                    #endregion // Exception Handling
+                    _logger.LogInformation("CREATE REDIS Client [{name}], Ping = {ping}", redis.ClientName, ping);
+                    var swtc = new ConnSwitch(Task.FromResult(redis), ConnectionState.On);
+                    _connListener.Post(swtc);
 
-                    _logger.LogWarning("REDIS Client [{name}] is not connected", redis.ClientName);
-                    _redisTask = RedisClientFactory.CreateProviderAsync(_logger, _configuration);
-                    redis = await _redisTask;
-
+                    return redis;
                 }
                 #region Exception Handling
 
                 catch (RedisConnectionException ex)
                 {
-                    _logger.LogWarning(ex, "REDIS: Fault Client [{name}] waiting for connection", redis.ClientName);
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    _logger.LogWarning(ex, "REDIS: Fault Client [try: {try}] waiting for connection", i);
+                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "REDIS: Bad Client [{name}] waiting for connection", redis.ClientName);
+                    _logger.LogWarning(ex, "REDIS: Bad Client [try: {try}]  waiting for connection", i);
+                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
                 }
 
                 #endregion // Exception Handling
             }
-            return redis;
+            throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "All connection attempt failed");
         }
 
-        #region MonitorHealth
+        #endregion // CreateNewAsync
+
+        #region ConnectionSwitcherAsync
 
         /// <summary>
-        /// Monitor Health
+        /// Control connection listening
         /// </summary>
-        private void MonitorHealth()
+        /// <param name="swch"></param>
+        /// <returns></returns>
+        private async Task ConnectionSwitcherAsync(ConnSwitch swch)
         {
-            _redisTask.ContinueWith(t =>
+            IConnectionMultiplexer conn = await swch.ConnTask;
+            switch (swch.State)
             {
-                IConnectionMultiplexer conn = t.Result;
-                conn.ConnectionFailed += OnConnectionFailed;
-                conn.ErrorMessage += OnConnErrorMessage;
-                conn.InternalError += OnInternalConnError;
-            });
+                case ConnectionState.On:
+                    {
+                        conn.ConnectionFailed += OnConnectionFailed;
+                        conn.ErrorMessage += OnConnErrorMessage;
+                        conn.InternalError += OnInternalConnError;
+                    }
+                    break;
+                case ConnectionState.Off:
+                    {
+                        conn.ConnectionFailed -= OnConnectionFailed;
+                        conn.ErrorMessage -= OnConnErrorMessage;
+                        conn.InternalError -= OnInternalConnError;
+                        await Task.Delay(5);
+                        try
+                        {
+                            conn.Dispose();
+                        }
+                        catch (Exception)
+                        {
+                            // ignore
+                        }
+                    }
+                    break;
+            }
         }
 
-        #endregion // MonitorHealth
-
-        #region RemoveConnection
-
-        /// <summary>
-        /// Clean connectin resouces
-        /// </summary>
-        private void RemoveConnection()
-        {
-            _redisTask.ContinueWith(t =>
-            {
-                IConnectionMultiplexer conn = t.Result;
-                conn.ConnectionFailed -= OnConnectionFailed;
-                conn.ErrorMessage -= OnConnErrorMessage;
-                conn.InternalError -= OnInternalConnError;
-            });
-            _redisTask.Dispose();
-        }
-
-        #endregion // RemoveConnection
+        #endregion // ConnectionSwitcherAsync
 
         #region OnInternalConnError
 
@@ -157,17 +213,10 @@ namespace Weknow.EventSource.Backbone
         /// <param name="e"></param>
         private void OnInternalConnError(object? sender, InternalErrorEventArgs e)
         {
-            RemoveConnection();
-            _logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}", 
+            _logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}",
                                          e.ConnectionType, e.Origin);
-            _redisTask = RedisClientFactory.CreateProviderAsync(
-                                                _logger,
-                                                _configuration,
-                                                _credentialsKeys?.EndpointKey ?? END_POINT_KEY,
-                                                _credentialsKeys?.PasswordKey ?? PASSWORD_KEY);
-            MonitorHealth();
+            Task _ = ResetAsync();
         }
-
         #endregion // OnInternalConnError
 
         #region OnConnErrorMessage
@@ -179,15 +228,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="e"></param>
         private void OnConnErrorMessage(object? sender, RedisErrorEventArgs e)
         {
-            //UnonitorHealth();
-            _logger.LogWarning("REDIS Connection error: {message}", 
+            _logger.LogWarning("REDIS Connection error: {message}",
                                 e.Message);
-            //_redisTask = RedisClientFactory.CreateProviderAsync(
-            //                                    _logger,
-            //                                    _configuration,
-            //                                    _credentialsKeys?.EndpointKey ?? END_POINT_KEY,
-            //                                    _credentialsKeys?.PasswordKey ?? PASSWORD_KEY);
-            //MonitorHealth();
+            // Task _ = ResetAsync();
         }
 
         #endregion // OnConnErrorMessage
@@ -201,14 +244,8 @@ namespace Weknow.EventSource.Backbone
         /// <param name="e"></param>
         private void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
         {
-            RemoveConnection();
             _logger.LogError(e.Exception, "REDIS Connection failure: Failure type = {typeOfConnection}, Failure type = {typeOfFailure}", e.ConnectionType, e.FailureType);
-            _redisTask = RedisClientFactory.CreateProviderAsync(
-                                                _logger,
-                                                _configuration,
-                                                _credentialsKeys?.EndpointKey ?? END_POINT_KEY,
-                                                _credentialsKeys?.PasswordKey ?? PASSWORD_KEY);
-            MonitorHealth();
+            Task _ = ResetAsync();
         }
 
         #endregion // OnConnectionFailed
