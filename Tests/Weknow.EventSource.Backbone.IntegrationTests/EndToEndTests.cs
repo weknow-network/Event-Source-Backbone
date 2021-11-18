@@ -248,6 +248,52 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Receiver_Json_Test
 
+        #region Receiver_ChangeEnvironment_Test
+
+        [Fact]
+        public async Task Receiver_ChangeEnvironment_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment("FakeTest")
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .Environment("Test")
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerReceiver receiver = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment("DemoTest")
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Environment("Test")
+                         .BuildReceiver();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var res0 = await receiver.GetByIdAsync(keys[0]);
+            var res1 = await receiver.GetByIdAsync(keys[1]);
+            var hasEmail = res1.Data.TryGet("email", out string? email);
+            Assert.Equal("admin", email);
+            var res2 = await receiver.GetByIdAsync(keys[2]);
+            var hasId = res2.Data.TryGet("id", out int id);
+            Assert.Equal(4335, id);
+        }
+
+        #endregion // Receiver_ChangeEnvironment_Test
+
         #region OnSucceed_ACK_Test
 
         [Fact]
