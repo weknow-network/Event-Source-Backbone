@@ -18,7 +18,6 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
     [ApiController]
     public class EventSourceApiController : ControllerBase
     {
-        private const string TENANT_KEY = "tenant";
         private readonly ILogger _logger;
         private readonly IEventFlowProducer _eventFlowProducer;
         private readonly IConsumerReadyBuilder _consumerBuilder;
@@ -52,8 +51,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<JsonElement> GetAsync(string eventKey, string? env = null)
         {
-            var receiver = _consumerBuilder.BuildReceiver();
-            var json = await receiver.GetJsonByIdAsync(eventKey, overrideEnvironment: env);
+            var receiver = _consumerBuilder.Environment(env).BuildReceiver();
+            var json = await receiver.GetJsonByIdAsync(eventKey);
             return json;
         }
 
@@ -67,8 +66,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<JsonElement> GetMoreAsync(string partition, string shard, string eventKey, string? env = null)
         {
-            var receiver = _baseBuilder.Partition(partition).Shard(shard).BuildReceiver();
-            var json = await receiver.GetJsonByIdAsync(eventKey, overrideEnvironment: env);
+            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env).BuildReceiver();
+            var json = await receiver.GetJsonByIdAsync(eventKey);
             return json;
         }
 

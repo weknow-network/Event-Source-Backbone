@@ -17,12 +17,14 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
     public class TestController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static readonly Task<IDatabaseAsync> _dbTask = RedisClientFactory.CreateAsync();
+        private readonly IEventSourceRedisConnectionFacroty _connFacroty;
 
         public TestController(
-            ILogger<EventSourceApiController> logger)
+            ILogger<EventSourceApiController> logger,
+            IEventSourceRedisConnectionFacroty connFacroty)
         {
             _logger = logger;
+            _connFacroty = connFacroty;
         }
 
         /// <summary>
@@ -55,7 +57,7 @@ status: {status}, ping: {p}";
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<TimeSpan> GetPingAsync()
         {
-            IDatabaseAsync db = await RedisClientFactory.CreateAsync(_logger);
+            IDatabaseAsync db = await _connFacroty.GetDatabaseAsync();
             var p = await db.PingAsync();
             return p;
         }
@@ -70,7 +72,7 @@ status: {status}, ping: {p}";
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<string> GetStaticAsync()
         {
-            var db = await _dbTask;
+            IDatabaseAsync db = await _connFacroty.GetDatabaseAsync();
             var p = await db.PingAsync();
 
             return @$"ping: {p}";

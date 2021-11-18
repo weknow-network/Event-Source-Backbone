@@ -54,7 +54,7 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             string key = $"{type}~{meta.MessageId}";
 
-            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+            IConnectionMultiplexer conn = await _connFactory.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
             var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));

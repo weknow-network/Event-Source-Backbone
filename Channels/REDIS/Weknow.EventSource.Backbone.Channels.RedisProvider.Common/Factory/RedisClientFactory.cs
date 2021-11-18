@@ -25,9 +25,6 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public static class RedisClientFactory
     {
-        private static readonly TimeSpan RETRY_INTERVAL_DELAY = TimeSpan.FromMilliseconds(200);
-        private static readonly TimeSpan MAX_RETRY_INTERVAL_DELAY = TimeSpan.FromMilliseconds(2000);
-        private const int RETRY_COUNT = 50;
         private static int _index = 0;
         private const string CONNECTION_NAME_PATTERN = "Event_Source_{0}";
 
@@ -36,17 +33,15 @@ namespace Weknow.EventSource.Backbone
         /// Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns></returns>
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         public static IConnectionMultiplexer CreateProviderBlocking(
                     Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
+                    RedisCredentialsKeys credential = default)
         {
-            var task = CreateProviderLocalAsync(null, 1, configuration, endpointKey, passwordKey);
+            var task = CreateProviderAsync(null, configuration, credential);
             return task.Result;
         }
 
@@ -56,18 +51,16 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns></returns>
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         public static IConnectionMultiplexer CreateProviderBlocking(
                     ILogger logger,
                     Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
+                    RedisCredentialsKeys credential = default)
         {
-            var task = CreateProviderLocalAsync(logger, 1, configuration, endpointKey, passwordKey);
+            var task = CreateProviderAsync(logger, configuration, credential);
             return task.Result;
         }
 
@@ -75,58 +68,36 @@ namespace Weknow.EventSource.Backbone
         /// Create REDIS client.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns></returns>
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         public static Task<IConnectionMultiplexer> CreateProviderAsync(
                     Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
+                    RedisCredentialsKeys credential = default)
         {
-            return CreateProviderLocalAsync(null, RETRY_COUNT, configuration, endpointKey, passwordKey);
+            return CreateProviderAsync(null, configuration, credential);
         }
+
 
         /// <summary>
         /// Create REDIS client.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
-        /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static Task<IConnectionMultiplexer> CreateProviderAsync(
-                    ILogger logger,
-                    Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
-        {
-            return CreateProviderLocalAsync(logger, RETRY_COUNT, configuration, endpointKey, passwordKey);
-        }
-
-        /// <summary>
-        /// Create REDIS client.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="numberOfRetries">The number of retries.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
+        /// <param name="credential">The credential's environment keys.</param>
         /// <returns></returns>
         /// <exception cref="StringBuilder">
         /// </exception>
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        private static async Task<IConnectionMultiplexer> CreateProviderLocalAsync(
+        public static async Task<IConnectionMultiplexer> CreateProviderAsync(
                     ILogger? logger,
-                    int numberOfRetries,
                     Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
+                    RedisCredentialsKeys credential = default)
         {
+            string endpointKey = credential.EndpointKey ?? END_POINT_KEY;
+            string passwordKey = credential.PasswordKey ?? PASSWORD_KEY;
             string? endpoint = Environment.GetEnvironmentVariable(endpointKey);
 
             try
@@ -154,54 +125,16 @@ namespace Weknow.EventSource.Backbone
                 //redisConfiguration.DefaultDatabase = Debugger.IsAttached ? 1 : null;
 
 
-                IConnectionMultiplexer redis;
-                TimeSpan delay = RETRY_INTERVAL_DELAY;
-                for (int i = 1; i <= numberOfRetries; i++)
-                {
-                    try
-                    {
-                        redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
-                        var db = redis.GetDatabase();
-                        await db.PingAsync();
-                        if (logger != null)
-                            logger.LogInformation(sb.ToString());
-                        else
-                            Console.WriteLine(sb);
-                        return redis;
-                    }
-                    #region Error Handling
+                IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
+                if (logger != null)
+                    logger.LogInformation(sb.ToString());
+                else
+                    Console.WriteLine(sb);
+                redis.ConnectionFailed += OnConnectionFailed;
+                redis.ErrorMessage += OnConnErrorMessage;
+                redis.InternalError += OnInternalConnError;
 
-                    catch (Exception ex)
-                    {
-                        writer.Flush();
-                        if (i >= RETRY_COUNT)
-                        {
-                            string msg = $"Fail to create REDIS client [final retry ({i})]. {Environment.NewLine}{sb}";
-                            if (logger != null)
-                                logger.LogError(ex.FormatLazy(), msg);
-                            else
-                                Console.WriteLine(msg);
-                            throw;
-                        }
-                        if (i % 10 == 0)
-                        {
-                            string msg = $"Fail to create REDIS client [retry = {i}]. {Environment.NewLine}{sb}";
-                            if (logger != null)
-                                logger.LogWarning(ex.FormatLazy(), msg);
-                            else
-                                Console.WriteLine(msg);
-                        }
-                        if (delay < MAX_RETRY_INTERVAL_DELAY)
-                        {
-                            delay = delay.Add(delay);
-                            await Task.Delay(delay);
-                        }
-                        else
-                            await Task.Delay(MAX_RETRY_INTERVAL_DELAY);
-                    }
-
-                    #endregion // Error Handling
-                }
+                return redis;
             }
             catch (Exception ex)
             {
@@ -209,53 +142,46 @@ namespace Weknow.EventSource.Backbone
                     logger.LogError(ex.FormatLazy(), "REDIS CONNECTION ERROR");
                 else
                     Console.WriteLine($"REDIS CONNECTION ERROR: {ex.FormatLazy()}");
+                throw;
             }
 
-            string err = $"Fail to establish REDIS connection [env: {endpointKey}, endpoint:{endpoint}]";
-            if (logger != null)
-                logger.LogError(err);
-            else
-                Console.WriteLine(err);
-            throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, err);
-        }
+            #region Event Handlers
+
+            void OnInternalConnError(object? sender, InternalErrorEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}",
+                                                 e.ConnectionType, e.Origin);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection internal failure: Failure type = {e.ConnectionType}, Origin = {e.Origin}");
+            }
+
+            void OnConnErrorMessage(object? sender, RedisErrorEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogWarning("REDIS Connection error: {message}",
+                                        e.Message);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection error: {e.Message}");
+            }
 
 
-        /// <summary>
-        /// Create REDIS database client.
-        /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
-        /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static async Task<IDatabaseAsync> CreateAsync(
-                    Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
-        {
-            var provider = await CreateProviderLocalAsync(null, RETRY_COUNT, configuration, endpointKey, passwordKey);
-            return provider.GetDatabase();
-        }
+            void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogError(e.Exception, "REDIS Connection failure: Failure type = {typeOfConnection}, Failure type = {typeOfFailure}", e.ConnectionType, e.FailureType);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection failure: Failure type = {e.ConnectionType}, Failure type = {e.FailureType}");
+            }
 
-        /// <summary>
-        /// Create REDIS database client.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="endpointKey">The endpoint key.</param>
-        /// <param name="passwordKey">The password key.</param>
-        /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static async Task<IDatabaseAsync> CreateAsync(
-                    ILogger logger,
-                    Action<ConfigurationOptions>? configuration = null,
-                    string endpointKey = END_POINT_KEY,
-                    string passwordKey = PASSWORD_KEY)
-        {
-            var provider = await CreateProviderLocalAsync(logger, RETRY_COUNT, configuration, endpointKey, passwordKey);
-            return provider.GetDatabase();
+            #endregion // Event Handlers
+
         }
     }
 }

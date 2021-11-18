@@ -23,19 +23,19 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     internal class RedisHashStorageStrategy : IProducerStorageStrategy
     {
-        private readonly Task<IDatabaseAsync> _dbTask;
+        private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="dbTask">The database task.</param>
+        /// <param name="connFactory">The connection factory.</param>
         /// <param name="logger">The logger.</param>
         public RedisHashStorageStrategy(
-                        Task<IDatabaseAsync> dbTask,
+                        IEventSourceRedisConnectionFacroty connFactory,
                         ILogger logger)
         {
-            _dbTask = dbTask;
+            _connFactory = connFactory;
             _logger = logger;
         }
 
@@ -59,7 +59,8 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             try
             {
-                IDatabaseAsync db = await _dbTask;
+                var conn = await _connFactory.GetAsync();
+                IDatabaseAsync db = conn.GetDatabase();
 
                 var segmentsEntities = bucket
                                                 .Select(sgm =>

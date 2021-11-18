@@ -78,7 +78,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             new EventSourceRedisConnectionFacroty(
                                                     logger,
                                                     configuration,
-                                                    new RedisCredentialsKeys(endpointEnvKey , passwordEnvKey)),
+                                                    new RedisCredentialsKeys { EndpointKey = endpointEnvKey, PasswordKey = passwordEnvKey }),
                             logger,
                             setting)
         {
@@ -376,7 +376,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         {
                             isFirstBatchOrFailure = false;
 
-                            IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                            IConnectionMultiplexer conn = await _connFactory.GetAsync();
                             IDatabaseAsync db = conn.GetDatabase();
                             values = await db.StreamReadGroupAsync(
                                                                 key,
@@ -419,7 +419,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     return values;
 
 
-                IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
                 var pendMsgInfo = await db.StreamPendingMessagesAsync(
                                             key,
@@ -456,7 +456,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     return values;
                 try
                 {
-                    IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
                     IDatabaseAsync db = conn.GetDatabase();
                     StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
                     foreach (var c in pendingInfo.Consumers)
@@ -533,7 +533,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 try
                 {
-                    IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
                     IDatabaseAsync db = conn.GetDatabase();
                     // release the event (won't handle again in the future)
                     long id = await db.StreamAcknowledgeAsync(key,
@@ -605,19 +605,17 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="plan">The plan.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="overrideEnvironment">Environment replacement (optional)</param>
         /// <returns></returns>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
         /// <exception cref="System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
         async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
             EventKey entryId,
             IConsumerPlan plan,
-            CancellationToken cancellationToken,
-            string? overrideEnvironment)
+            CancellationToken cancellationToken)
         {
             try
             {
-                IConnectionMultiplexer conn = await _connFactory.CreateAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
                 ILogger logger = plan.Logger;
                 StreamEntry entry = await FindAsync(entryId);
@@ -633,7 +631,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 var meta = new Metadata
                 {
                     MessageId = id,
-                    Environment = overrideEnvironment ?? plan.Environment,
+                    Environment =  plan.Environment,
                     Partition = plan.Partition,
                     Shard = plan.Shard,
                     Operation = operation,
@@ -659,7 +657,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 async Task<StreamEntry> FindAsync(EventKey entryId)
                 {
                     string lookForId = (string)entryId;
-                    string key = plan.Key(overrideEnvironment); //  $"{plan.Partition}:{plan.Shard}";
+                    string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
 
                     string originId = lookForId;
                     int len = originId.IndexOf('-');
@@ -700,7 +698,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 _logger.LogError(ex, "Fail to get Entry [{id}] from [{partition}->{shard}] event stream",
                     entryId, plan.Partition, plan.Shard);
-                await _connFactory.ResetAsync();
                 throw;
             }
 
@@ -760,7 +757,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string pattern,
                         [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            IConnectionMultiplexer multiplexer = await _connFactory.CreateAsync();
+            IConnectionMultiplexer multiplexer = await _connFactory.GetAsync();
             var distict = new HashSet<string>();
             while (!cancellationToken.IsCancellationRequested)
             {

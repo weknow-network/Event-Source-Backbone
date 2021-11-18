@@ -36,7 +36,7 @@ namespace Weknow.EventSource.Backbone.Private
             {
                 tryNumber++;
 
-                IConnectionMultiplexer conn = await connFactory.CreateAsync();
+                IConnectionMultiplexer conn = await connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {

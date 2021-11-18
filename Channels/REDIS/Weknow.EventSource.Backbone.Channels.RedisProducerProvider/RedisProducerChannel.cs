@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
         private readonly ILogger _logger;
         private readonly AsyncPolicy _resiliencePolicy;
-        private readonly Task<IDatabaseAsync> _dbTask;
+        private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
 
         #region Ctor
@@ -37,66 +37,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         public RedisProducerChannel(
                         IEventSourceRedisConnectionFacroty redisFactory,
                         ILogger logger,
-                        AsyncPolicy? resiliencePolicy) : this(GetDB(redisFactory), logger, resiliencePolicy)
+                        AsyncPolicy? resiliencePolicy) 
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="redis">The redis database promise.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
-        public RedisProducerChannel(
-                        Task<IDatabaseAsync> redis,
-                        ILogger logger,
-                        AsyncPolicy? resiliencePolicy)
-        {
+            _connFactory = redisFactory;
             _logger = logger;
             _resiliencePolicy = resiliencePolicy ??
                                 Policy.Handle<Exception>()
                                       .RetryAsync(3);
-            _dbTask = redis;
-            _defaultStorageStrategy = new RedisHashStorageStrategy(redis, logger);
+            _defaultStorageStrategy = new RedisHashStorageStrategy(_connFactory, logger);
         }
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="redis">The redis database.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
-        public RedisProducerChannel(
-                        IDatabaseAsync redis,
-                        ILogger logger,
-                        AsyncPolicy? resiliencePolicy) :
-                this(Task.FromResult(redis), logger, resiliencePolicy)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="resiliencePolicy">The resilience policy for retry.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
-        public RedisProducerChannel(
-                        ILogger logger,
-                        Action<ConfigurationOptions>? configuration,
-                        AsyncPolicy? resiliencePolicy,
-                        string endpointEnvKey,
-                        string passwordEnvKey) :
-                this(RedisClientFactory.CreateAsync(
-                                            logger,
-                                            configuration,
-                                            endpointEnvKey,
-                                            passwordEnvKey),
-                     logger,
-                     resiliencePolicy)
-        {
-        }
 
         #endregion // Ctor
 
@@ -109,7 +59,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <returns></returns>
         private static async Task<IDatabaseAsync> GetDB(IEventSourceRedisConnectionFacroty redisConnFactory)
         {
-            var mp = await redisConnFactory.CreateAsync();
+            var mp = await redisConnFactory.GetAsync();
             return mp.GetDatabase();
         }
 
@@ -165,7 +115,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 try
                 {
-                    IDatabaseAsync db = await _dbTask;
+                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                    IDatabaseAsync db = conn.GetDatabase();
                     using var scope = SuppressInstrumentationScope.Begin();
                     var k = meta.Key();
                     var result = await db.StreamAddAsync(k, entries,

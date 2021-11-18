@@ -133,10 +133,29 @@ namespace Weknow.EventSource.Backbone
         /// Include the environment as prefix of the stream key.
         /// for example: production:partition-name:shard-name
         /// </summary>
-        /// <param name="environment">The environment.</param>
+        /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerPartitionBuilder IConsumerEnvironmentBuilder.Environment(string environment)
+        IConsumerPartitionBuilder IConsumerBuilderEnvironment<IConsumerPartitionBuilder>.Environment(string? environment)
         {
+            if (environment == null)
+                return this;
+
+            var prms = _plan.WithEnvironment(environment);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Include the environment as prefix of the stream key.
+        /// for example: production:partition-name:shard-name
+        /// </summary>
+        /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IConsumerBuilderEnvironment<IConsumerSubscribeBuilder>.Environment(string? environment)
+        {
+            if (environment == null)
+                return this;
+
             var prms = _plan.WithEnvironment(environment);
             var result = new ConsumerBuilder(prms);
             return result;
@@ -530,15 +549,13 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
-            /// <param name="overrideEnvironment">Environment replacement (optional)</param>
             /// <returns></returns>
             async ValueTask<AnnouncementData> IConsumerReceiver.GetByIdAsync(
                             EventKey entryId,
-                            CancellationToken cancellationToken,
-                            string? overrideEnvironment)
+                            CancellationToken cancellationToken)
             {
                 var channel = _plan.Channel;
-                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken, overrideEnvironment);
+                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
                 return result;
             }
 
@@ -547,15 +564,13 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
-            /// <param name="overrideEnvironment">Environment replacement (optional)</param>
             /// <returns></returns>
             async ValueTask<JsonElement> IConsumerReceiver.GetJsonByIdAsync(
                             EventKey entryId,
-                            CancellationToken cancellationToken,
-                            string? overrideEnvironment)
+                            CancellationToken cancellationToken)
             {
                 var channel = _plan.Channel;
-                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken, overrideEnvironment);
+                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
 
                 var buffer = new ArrayBufferWriter<byte>();
                 var options = new JsonWriterOptions();

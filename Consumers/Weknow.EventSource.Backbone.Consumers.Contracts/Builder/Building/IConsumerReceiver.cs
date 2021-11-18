@@ -16,22 +16,18 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="overrideEnvironment">Environment replacement (optional)</param>
         /// <returns></returns>
         ValueTask<AnnouncementData> GetByIdAsync(
                                     EventKey entryId,
-                                    CancellationToken cancellationToken = default,
-                                    string? overrideEnvironment = null);
+                                    CancellationToken cancellationToken = default);
         /// <summary>
         /// Gets data by id.
         /// </summary>
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="overrideEnvironment">Environment replacement (optional)</param>
         /// <returns></returns>
         ValueTask<JsonElement> GetJsonByIdAsync(
                                     EventKey entryId,
-                                    CancellationToken cancellationToken = default,
-                                    string? overrideEnvironment = null);
+                                    CancellationToken cancellationToken = default);
     }
 }

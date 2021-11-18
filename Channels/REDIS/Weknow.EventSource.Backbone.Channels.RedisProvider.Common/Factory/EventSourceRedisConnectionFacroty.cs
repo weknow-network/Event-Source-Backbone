@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
     /// This factory is also responsible of the connection health.
     /// It will return same connection as long as it healthy.
     /// </summary>
-    public class EventSourceRedisConnectionFacroty : IEventSourceRedisConnectionFacroty
+    public sealed class EventSourceRedisConnectionFacroty : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
     {
         enum ConnectionState
         {
@@ -27,13 +27,11 @@ namespace Weknow.EventSource.Backbone
             Off
         }
 
-        record ConnSwitch(Task<IConnectionMultiplexer> ConnTask, ConnectionState State);
 
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly Action<ConfigurationOptions>? _configuration;
         private readonly RedisCredentialsKeys? _credentialsKeys;
-        private readonly ActionBlock<ConnSwitch> _connListener;
 
         #region Ctor
 
@@ -44,11 +42,11 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="configuration"></param>
-        /// <param name="credentialsKeys"></param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public EventSourceRedisConnectionFacroty(
             ILogger<EventSourceRedisConnectionFacroty> logger,
             Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys? credentialsKeys = null
+            RedisCredentialsKeys credentialsKeys = default
             ) : this((ILogger)logger, configuration, credentialsKeys)
         {
         }
@@ -60,194 +58,97 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="configuration"></param>
-        /// <param name="credentialsKeys"></param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
             Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys? credentialsKeys = null
-            )
+            RedisCredentialsKeys credentialsKeys = default)
         {
             _logger = logger;
             _configuration = configuration;
             _credentialsKeys = credentialsKeys;
-            var switcher = ConnectionSwitcherAsync;
-            _connListener = new(switcher);
-            _redisTask = CreateNewAsync();
+            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, credentialsKeys);
         }
 
 
         #endregion // Ctor
 
-        #region CreateAsync
+        #region GetAsync
 
         /// <summary>
         /// Get a valid connection 
         /// </summary>
-        public async Task<IConnectionMultiplexer> CreateAsync()
-        {
-            IConnectionMultiplexer redis = await _redisTask;
-            return redis;
-        }
+        Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync() => _redisTask;
 
-        #endregion // CreateAsync
+        #endregion // GetAsync
 
-        #region ResetAsync
+        #region GetAsync
 
         /// <summary>
-        /// Reset
+        /// Get database 
         /// </summary>
-        /// <returns></returns>
-        public async Task ResetAsync()
+        async Task<IDatabaseAsync> IEventSourceRedisConnectionFacroty.GetDatabaseAsync() 
         {
-            var swtc = new ConnSwitch(_redisTask, ConnectionState.Off);
-            _connListener.Post(swtc);
-
-            var connTask = CreateNewAsync();
-            _redisTask = connTask;
-            await connTask;
+            IEventSourceRedisConnectionFacroty self = this;
+            IConnectionMultiplexer conn = await self.GetAsync();
+            IDatabaseAsync db = conn.GetDatabase();
+            return db;
         }
 
-        #endregion // ResetAsync
+        #endregion // GetAsync
 
-        #region CreateNewAsync
+        #region Dispose (pattern)
 
         /// <summary>
-        /// Create connection
+        /// Disposed indication
         /// </summary>
-        private async Task<IConnectionMultiplexer> CreateNewAsync()
+        public bool Disposed { get; private set; }
+
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        /// <param name="disposing"></param>
+        private void Dispose(bool disposing)
         {
-            IConnectionMultiplexer redis;
-            int delay = 10;
-            for (int i = 1; i <= 10; i++)
+            _logger.LogWarning("REDIS: Disposing connection");
+            if (!Disposed)
             {
-                delay *= 2;
-                try
-                {
-                    redis = await RedisClientFactory.CreateProviderAsync(_logger, _configuration);
-                    TimeSpan ping = default;
-                    try
-                    {
-                        ping = await redis.GetDatabase().PingAsync();
-                    }
-                    #region Exception Handling
-
-                    catch 
-                    {
-                        redis.Dispose();
-                        throw;
-                    }
-
-                    #endregion // Exception Handling
-                    _logger.LogInformation("CREATE REDIS Client [{name}], Ping = {ping}", redis.ClientName, ping);
-                    var swtc = new ConnSwitch(Task.FromResult(redis), ConnectionState.On);
-                    _connListener.Post(swtc);
-
-                    return redis;
-                }
-                #region Exception Handling
-
-                catch (RedisConnectionException ex)
-                {
-                    _logger.LogWarning(ex, "REDIS: Fault Client [try: {try}] waiting for connection", i);
-                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "REDIS: Bad Client [try: {try}]  waiting for connection", i);
-                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
-                }
-
-                #endregion // Exception Handling
-            }
-            throw new RedisConnectionException(ConnectionFailureType.UnableToConnect, "All connection attempt failed");
-        }
-
-        #endregion // CreateNewAsync
-
-        #region ConnectionSwitcherAsync
-
-        /// <summary>
-        /// Control connection listening
-        /// </summary>
-        /// <param name="swch"></param>
-        /// <returns></returns>
-        private async Task ConnectionSwitcherAsync(ConnSwitch swch)
-        {
-            IConnectionMultiplexer conn = await swch.ConnTask;
-            switch (swch.State)
-            {
-                case ConnectionState.On:
-                    {
-                        conn.ConnectionFailed += OnConnectionFailed;
-                        conn.ErrorMessage += OnConnErrorMessage;
-                        conn.InternalError += OnInternalConnError;
-                    }
-                    break;
-                case ConnectionState.Off:
-                    {
-                        conn.ConnectionFailed -= OnConnectionFailed;
-                        conn.ErrorMessage -= OnConnErrorMessage;
-                        conn.InternalError -= OnInternalConnError;
-                        await Task.Delay(5);
-                        try
-                        {
-                            conn.Dispose();
-                        }
-                        catch (Exception)
-                        {
-                            // ignore
-                        }
-                    }
-                    break;
+                var conn = _redisTask.Result;
+                conn.Dispose();
+                Disposed = true;
             }
         }
 
-        #endregion // ConnectionSwitcherAsync
-
-        #region OnInternalConnError
-
         /// <summary>
-        /// When having internal error
+        /// Dispose
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnInternalConnError(object? sender, InternalErrorEventArgs e)
+        public void Dispose()
         {
-            _logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}",
-                                         e.ConnectionType, e.Origin);
-            Task _ = ResetAsync();
-        }
-        #endregion // OnInternalConnError
-
-        #region OnConnErrorMessage
-
-        /// <summary>
-        /// When having error message
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnConnErrorMessage(object? sender, RedisErrorEventArgs e)
-        {
-            _logger.LogWarning("REDIS Connection error: {message}",
-                                e.Message);
-            // Task _ = ResetAsync();
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
-        #endregion // OnConnErrorMessage
-
-        #region OnConnectionFailed
-
         /// <summary>
-        /// When Connection Failed
+        /// Dispose
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+        /// <returns></returns>
+        public async ValueTask DisposeAsync()
         {
-            _logger.LogError(e.Exception, "REDIS Connection failure: Failure type = {typeOfConnection}, Failure type = {typeOfFailure}", e.ConnectionType, e.FailureType);
-            Task _ = ResetAsync();
+            _logger.LogWarning("REDIS: Disposing connection (async)");
+            var redis = await _redisTask;
+            redis.Dispose();
         }
 
-        #endregion // OnConnectionFailed
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~EventSourceRedisConnectionFacroty()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: false);
+        }
+
+        #endregion // Dispose (pattern)
     }
 }

@@ -140,8 +140,25 @@ namespace Weknow.EventSource.Backbone
         /// Origin environment of the message
         /// </summary>
         /// <returns></returns>
-        IProducerPartitionBuilder IProducerEnvironmentBuilder.Environment(string environment)
+        IProducerPartitionBuilder IProducerBuilderEnvironment<IProducerPartitionBuilder>.Environment(string? environment)
         {
+            if (environment == null)
+                return this;
+
+            var prms = Plan.WithEnvironment(environment);
+            return new ProducerBuilder(prms);
+        }
+
+
+        /// <summary>
+        /// Origin environment of the message
+        /// </summary>
+        /// <returns></returns>
+        IProducerSpecializeBuilder IProducerBuilderEnvironment<IProducerSpecializeBuilder>.Environment(string? environment)
+        {
+            if (environment == null)
+                return this;
+
             var prms = Plan.WithEnvironment(environment);
             return new ProducerBuilder(prms);
         }

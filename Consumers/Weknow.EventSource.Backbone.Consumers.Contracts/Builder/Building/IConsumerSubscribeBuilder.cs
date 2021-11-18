@@ -7,7 +7,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerSubscribeBuilder
+    public interface IConsumerSubscribeBuilder: IConsumerBuilderEnvironment<IConsumerSubscribeBuilder>
     {
 
         /// <summary>

@@ -61,8 +61,7 @@ namespace Weknow.EventSource.Backbone
 
         #region GetByIdAsync
 
-        public ValueTask<Announcement> GetByIdAsync(EventKey entryId, IConsumerPlan plan, CancellationToken cancellationToken,
-            string? overrideEnvironment = null)
+        public ValueTask<Announcement> GetByIdAsync(EventKey entryId, IConsumerPlan plan, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

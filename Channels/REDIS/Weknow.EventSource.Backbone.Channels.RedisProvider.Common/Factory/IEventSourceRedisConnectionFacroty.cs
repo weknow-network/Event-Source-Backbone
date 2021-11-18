@@ -10,11 +10,10 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Get a valid connection 
         /// </summary>
-        Task<IConnectionMultiplexer> CreateAsync();
+        Task<IConnectionMultiplexer> GetAsync();
         /// <summary>
-        /// Reset
+        /// Get database 
         /// </summary>
-        /// <returns></returns>
-        Task ResetAsync();
+        Task<IDatabaseAsync> GetDatabaseAsync();
     }
 }

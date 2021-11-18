@@ -3,13 +3,7 @@
     /// <summary>
     /// Origin environment of the message
     /// </summary>
-    public interface IProducerEnvironmentBuilder : IProducerPartitionBuilder
+    public interface IProducerEnvironmentBuilder : IProducerPartitionBuilder, IProducerBuilderEnvironment<IProducerPartitionBuilder>
     {
-        /// <summary>
-        /// Origin environment of the message
-        /// </summary>
-        /// <param name="environment">The environment.</param>
-        /// <returns></returns>
-        IProducerPartitionBuilder Environment(string environment);
     }
 }

@@ -176,11 +176,10 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             GC.SuppressFinalize(this);
             string key = $"{PARTITION}:{SHARD}";
-            IDatabaseAsync db = RedisClientFactory.CreateAsync(
+            IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
                                                 _fakeLogger,
-                                                cfg => cfg.AllowAdmin = true,
-                                                endpointKey: END_POINT_KEY,
-                                                passwordKey: PASSWORD_KEY).Result;
+                                                cfg => cfg.AllowAdmin = true);
+            IDatabaseAsync db = conn.GetDatabase();
 
             db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
         }

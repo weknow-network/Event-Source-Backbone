@@ -12,9 +12,17 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
-    ///Redis keys for it's cedentials
+    /// Environment keys for REDIS's credentials
     /// </summary>
-    public record RedisCredentialsKeys (
-                    string EndpointKey = END_POINT_KEY,
-                    string PasswordKey = PASSWORD_KEY);
+    public record struct RedisCredentialsKeys
+    {
+        /// <summary>
+        /// Endpoint Key
+        /// </summary>
+        public string EndpointKey { get; init; } = END_POINT_KEY;
+        /// <summary>
+        /// Password Key
+        /// </summary>
+        public string PasswordKey { get; init; } = PASSWORD_KEY;
+    }
 }
