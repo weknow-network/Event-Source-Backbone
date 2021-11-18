@@ -20,6 +20,7 @@ using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone.Channels
 {
+
     /// <summary>
     /// Abstract S3 operations
     /// </summary>
@@ -34,6 +35,7 @@ namespace Weknow.EventSource.Backbone.Channels
         private readonly AmazonS3Client _client;
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
+        private readonly S3EnvironmentConvention _environmentConvension;
 
         #region Ctor
 
@@ -42,18 +44,17 @@ namespace Weknow.EventSource.Backbone.Channels
         /// </summary>
         /// <param name="client">S3 client.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="bucket">The s3 bucket.</param>
-        /// <param name="basePath">The base path within the bucket.</param>
+        /// <param name="options">The s3 options.</param>
         public S3Repository(
                     AmazonS3Client client,
                     ILogger logger,
-                    string? bucket = null,
-                    string? basePath = null)
+                    S3Options options = default)
         {
             _client = client;
-            _bucket = bucket ?? BUCKET;
             _logger = logger;
-            _basePath = basePath;
+            _bucket = options.Bucket ?? BUCKET;
+            _basePath = options.BasePath;
+            _environmentConvension = options.EnvironmentConvension;
         }
 
         #endregion // Ctor
@@ -73,15 +74,16 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Get content.
         /// </summary>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier which is the S3 key.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<JsonElement> GetJsonAsync(string id, CancellationToken cancellation = default)
+        public async ValueTask<JsonElement> GetJsonAsync(string env, string id, CancellationToken cancellation = default)
         {
             try
             {
-                Stream srm = await GetStreamAsync(id, cancellation);
+                Stream srm = await GetStreamAsync(env, id, cancellation);
 
                 var response = await JsonDocument.ParseAsync(srm);
                 return response.RootElement;
@@ -105,15 +107,16 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Get content.
         /// </summary>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier which is the S3 key.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<byte[]> GetBytesAsync(string id, CancellationToken cancellation = default)
+        public async ValueTask<byte[]> GetBytesAsync(string env,  string id, CancellationToken cancellation = default)
         {
             try
             {
-                Stream srm = await GetStreamAsync(id, cancellation);
+                Stream srm = await GetStreamAsync(env, id, cancellation);
                 var buffer = new byte[srm.Length];
                 await srm.ReadAsync(buffer, cancellation);
                 return buffer;
@@ -139,16 +142,17 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Get content.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier which is the S3 key.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.NullReferenceException">Failed to deserialize industries</exception>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<T> GetAsync<T>(string id, CancellationToken cancellation = default)
+        public async ValueTask<T> GetAsync<T>(string env, string id, CancellationToken cancellation = default)
         {
             try
             {
-                Stream srm = await GetStreamAsync(id, cancellation);
+                Stream srm = await GetStreamAsync(env, id, cancellation);
 
                 var response = await JsonSerializer.DeserializeAsync<T>(srm, SerializerOptionsWithIndent);
 
@@ -181,17 +185,18 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Get content.
         /// </summary>
+        /// <param name="env">environment</param>
         /// <param name="id">The identifier which is the S3 key.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="GetObjectRequest">
         /// </exception>
         /// <exception cref="System.Exception">Failed to get blob [{res.HttpStatusCode}]</exception>
-        public async ValueTask<Stream> GetStreamAsync(string id, CancellationToken cancellation = default)
+        public async ValueTask<Stream> GetStreamAsync(string env, string id, CancellationToken cancellation = default)
         {
             try
             {
-                string key = GetKey(id);
+                string key = GetKey(env, id);
                 var s3Request = new GetObjectRequest
                 {
                     BucketName = _bucket,
@@ -238,6 +243,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Saves content.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier of the resource.</param>
         /// <param name="metadata">The metadata.</param>
         /// <param name="tags">The tags.</param>
@@ -245,13 +251,14 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <returns></returns>
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
-            JsonElement data,
+            JsonElement data, 
+            string env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
             CancellationToken cancellation = default)
         {
-            var result = await SaveAsync(data.ToStream(), id, metadata, tags, "application/json", cancellation);
+            var result = await SaveAsync(data.ToStream(), env, id, metadata, tags, "application/json", cancellation);
             return result;
         }
 
@@ -259,6 +266,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Saves content.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier of the resource.</param>
         /// <param name="metadata">The metadata.</param>
         /// <param name="tags">The tags.</param>
@@ -268,6 +276,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
             ReadOnlyMemory<byte> data,
+            string env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
@@ -275,7 +284,7 @@ namespace Weknow.EventSource.Backbone.Channels
             CancellationToken cancellation = default)
         {
             using var srm = new MemoryStream(data.ToArray()); // TODO: [bnaya 2021-07] consider AsStream -> https://www.nuget.org/packages/Microsoft.Toolkit.HighPerformance
-            var result = await SaveAsync(srm, id, metadata, tags, mediaType, cancellation);
+            var result = await SaveAsync(srm, env, id, metadata, tags, mediaType, cancellation);
             return result;
         }
 
@@ -283,6 +292,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Saves content.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier of the resource.</param>
         /// <param name="metadata">The metadata.</param>
         /// <param name="tags">The tags.</param>
@@ -293,6 +303,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
             Stream data,
+            string env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
@@ -302,7 +313,7 @@ namespace Weknow.EventSource.Backbone.Channels
             try
             {
                 var date = DateTime.UtcNow;
-                string key = GetKey(id);
+                string key = GetKey(env, id);
                 //tags = tags.Add("month", date.ToString("yyyy-MM"));
 
                 var s3Request = new PutObjectRequest
@@ -369,17 +380,39 @@ namespace Weknow.EventSource.Backbone.Channels
 
         #endregion // SaveAsync
 
+        #region GetBucket
+
+        /// <summary>
+        /// Get the Bucket name
+        /// </summary>
+        /// <param name="env">Environment</param>
+        /// <returns></returns>
+        private string GetBucket(string env)
+        {
+            var bucket = _environmentConvension switch
+            {
+                S3EnvironmentConvention.BucketPrefix => $"{env}.{_bucket}",
+                _ => _bucket
+            };
+            return bucket;
+        }
+
+        #endregion // GetBucket
+
         #region GetKey
 
         /// <summary>
         /// Gets s3 key.
         /// </summary>
+        /// <param name="env">Environment</param>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        private string GetKey(string id)
+        private string GetKey(string env, string id)
         {
             string sep = string.IsNullOrEmpty(_basePath) ? string.Empty : "/";
             string key = $"{_basePath}{sep}{Uri.UnescapeDataString(id)}";
+            if (_environmentConvension == S3EnvironmentConvention.PathPrefix)
+                key = $"{env}/{key}";
             return key;
         }
 

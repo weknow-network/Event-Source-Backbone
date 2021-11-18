@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone.Channels
     {
         private readonly ILogger _logger;
         private readonly AmazonS3Client _client;
-        private readonly ConcurrentDictionary<(string? bucket, string? basePath), S3Repository> _cache = new ConcurrentDictionary<(string? bucket, string? basePath), S3Repository>();
+        private readonly ConcurrentDictionary<S3Options, S3Repository> _cache = new ConcurrentDictionary<S3Options, S3Repository>();
 
         #region Create
 
@@ -75,15 +75,12 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Get repository instance.
         /// </summary>
-        /// <param name="bucket">The bucket.</param>
-        /// <param name="basePath">The base path.</param>
+        /// <param name="options">The options.</param>
         /// <returns></returns>
-        S3Repository IS3RepositoryFactory.Get(
-            string? bucket,
-            string? basePath)
+        S3Repository IS3RepositoryFactory.Get(S3Options options)
         {
 
-            var repo = _cache.GetOrAdd((bucket, basePath), CreateInternal);
+            var repo = _cache.GetOrAdd(options, CreateInternal);
             repo.AddReference();
             return repo;
         }
@@ -95,12 +92,12 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <summary>
         /// Creates repository.
         /// </summary>
-        /// <param name="props">The props.</param>
+        /// <param name="options">The options.</param>
         /// <returns></returns>
         private S3Repository CreateInternal(
-            (string? bucket, string? basePath) props)
+            S3Options options = default)
         {
-            return new S3Repository(_client, _logger, props.bucket, props.basePath);
+            return new S3Repository(_client, _logger, options);
         }
 
         #endregion // CreateInternal

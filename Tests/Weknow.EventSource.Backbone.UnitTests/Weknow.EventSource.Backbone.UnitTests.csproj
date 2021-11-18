@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Channels\S3\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common\Weknow.EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
     <ProjectReference Include="..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
     <ProjectReference Include="..\..\Consumers\Weknow.EventSource.Backbone.Consumers\Weknow.EventSource.Backbone.Consumers.csproj" />
     <ProjectReference Include="..\..\Producers\Weknow.EventSource.Backbone.Producers.Contracts\Weknow.EventSource.Backbone.Producers.Contracts.csproj" />

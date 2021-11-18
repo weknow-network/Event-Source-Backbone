@@ -46,17 +46,15 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="bucket">The bucket.</param>
-        /// <param name="basePath">The base path.</param>
+        /// <param name="options">The options.</param>
         /// <param name="factory">The repository's factory.</param>
         public S3ProducerStorageStrategy(
             ILogger logger,
-            string? bucket = null,
-            string? basePath = null,
+            S3Options options = default,
             IS3RepositoryFactory? factory = null)
         {
             IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
-            _repository = facroey.Get(bucket, basePath);
+            _repository = facroey.Get(options);
         }
 
         #endregion // ctor
@@ -92,7 +90,7 @@ namespace Weknow.EventSource.Backbone
             {
                 var (key, data) = pair;
                 string path = $"{basePath}/{key}";
-                var response = await _repository.SaveAsync(data, path, cancellation: cancellation);
+                var response = await _repository.SaveAsync(data, meta.Environment, path, cancellation: cancellation);
                 return new KeyValuePair<string, string>(key, path);
             }
         }
