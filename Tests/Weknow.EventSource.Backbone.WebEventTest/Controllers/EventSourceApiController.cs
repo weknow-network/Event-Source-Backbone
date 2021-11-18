@@ -9,6 +9,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StackExchange.Redis;
+using System.Text.Json;
+using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
 {
@@ -18,32 +20,61 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
     {
         private const string TENANT_KEY = "tenant";
         private readonly ILogger _logger;
-        private readonly IEventFlowProducer _eventFlow;
+        private readonly IEventFlowProducer _eventFlowProducer;
+        private readonly IConsumerReadyBuilder _consumerBuilder;
+        private readonly IConsumerHooksBuilder _baseBuilder;
         private readonly IDatabase _db;
 
         public EventSourceApiController(
             ILogger<EventSourceApiController> logger,
-            IEventFlowProducer eventFlow,
+            IEventFlowProducer eventFlowProducer,
+            IConsumerReadyBuilder consumerBuilder,
+            Building.IConsumerHooksBuilder baseBuilder,
             IConnectionMultiplexer redis)
         {
             _logger = logger;
-            _eventFlow = eventFlow;
-
+            _eventFlowProducer = eventFlowProducer;
+            _consumerBuilder = consumerBuilder;
+            _baseBuilder = baseBuilder;
             _db = redis.GetDatabase();
         }
 
         [AllowAnonymous]
-        [HttpGet()]
+        #region GetAsync
+
+        /// <summary>
+        /// Post Analysts
+        /// </summary>
+        /// <returns>
+        /// </returns>
+        [HttpGet("basic/{eventKey}/{env?}")]
+        //[AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<string> GetAsync()
+        public async ValueTask<JsonElement> GetAsync(string eventKey, string? env = null)
         {
-            await _eventFlow.Stage1Async(new Person(3, "Hana"), "Stage 1 data");
-            var key = $"Hash:{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-            await _db.HashSetAsync(key, "A", 3);
-            var a = await _db.HashGetAsync(key, "A");
-            return $"Hi {a}";
+            var receiver = _consumerBuilder.BuildReceiver();
+            var json = await receiver.GetJsonByIdAsync(eventKey, overrideEnvironment: env);
+            return json;
         }
+
+        /// <summary>
+        /// Post Analysts
+        /// </summary>
+        /// <returns>
+        /// </returns>
+        [HttpGet("more/{partition}/{shard}/{eventKey}/{env?}")]
+        //[AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async ValueTask<JsonElement> GetMoreAsync(string partition, string shard, string eventKey, string? env = null)
+        {
+            var receiver = _baseBuilder.Partition(partition).Shard(shard).BuildReceiver();
+            var json = await receiver.GetJsonByIdAsync(eventKey, overrideEnvironment: env);
+            return json;
+        }
+
+        #endregion // GetAsync
+
+
 
         [AllowAnonymous]
         [HttpPost()]
@@ -51,7 +82,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         //[ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task PostAsync(Person user)
         {
-            await _eventFlow.Stage1Async(user, "Stage 1 data");
+            await _eventFlowProducer.Stage1Async(user, "Stage 1 data");
         }
     }
 }

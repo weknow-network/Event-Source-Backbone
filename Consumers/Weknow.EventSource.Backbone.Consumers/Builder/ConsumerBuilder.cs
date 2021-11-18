@@ -530,13 +530,15 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
+            /// <param name="overrideEnvironment">Environment replacement (optional)</param>
             /// <returns></returns>
             async ValueTask<AnnouncementData> IConsumerReceiver.GetByIdAsync(
                             EventKey entryId,
-                            CancellationToken cancellationToken)
+                            CancellationToken cancellationToken,
+                            string? overrideEnvironment)
             {
                 var channel = _plan.Channel;
-                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken, overrideEnvironment);
                 return result;
             }
 
@@ -545,13 +547,15 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
+            /// <param name="overrideEnvironment">Environment replacement (optional)</param>
             /// <returns></returns>
             async ValueTask<JsonElement> IConsumerReceiver.GetJsonByIdAsync(
                             EventKey entryId,
-                            CancellationToken cancellationToken)
+                            CancellationToken cancellationToken,
+                            string? overrideEnvironment)
             {
                 var channel = _plan.Channel;
-                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
+                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken, overrideEnvironment);
 
                 var buffer = new ArrayBufferWriter<byte>();
                 var options = new JsonWriterOptions();

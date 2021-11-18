@@ -605,13 +605,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="plan">The plan.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="overrideEnvironment">Environment replacement (optional)</param>
         /// <returns></returns>
         /// <exception cref="System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
         /// <exception cref="System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
         async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
             EventKey entryId,
             IConsumerPlan plan,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            string? overrideEnvironment)
         {
             try
             {
@@ -631,7 +633,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 var meta = new Metadata
                 {
                     MessageId = id,
-                    Environment = plan.Environment,
+                    Environment = overrideEnvironment ?? plan.Environment,
                     Partition = plan.Partition,
                     Shard = plan.Shard,
                     Operation = operation,
@@ -657,7 +659,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 async Task<StreamEntry> FindAsync(EventKey entryId)
                 {
                     string lookForId = (string)entryId;
-                    string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
+                    string key = plan.Key(overrideEnvironment); //  $"{plan.Partition}:{plan.Shard}";
 
                     string originId = lookForId;
                     int len = originId.IndexOf('-');

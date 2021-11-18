@@ -34,10 +34,12 @@ namespace Weknow.EventSource.Backbone
         /// <param name="entryId">The entry identifier.</param>
         /// <param name="plan">The plan.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="overrideEnvironment">Environment replacement (optional)</param>
         /// <returns></returns>
         ValueTask<Announcement> GetByIdAsync(
                     EventKey entryId,
                     IConsumerPlan plan,
-                    CancellationToken cancellationToken);
+                    CancellationToken cancellationToken,
+                    string? overrideEnvironment = null);
     }
 }

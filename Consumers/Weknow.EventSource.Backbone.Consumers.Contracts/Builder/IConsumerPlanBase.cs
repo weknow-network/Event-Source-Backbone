@@ -82,11 +82,11 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the partition:shard as key.
         /// </summary>
-        public static string Key(this IConsumerPlanBase meta)
+        public static string Key(this IConsumerPlanBase meta, string? overrideEnvironment = null)
         {
-            if (string.IsNullOrEmpty(meta.Environment))
+            if (string.IsNullOrEmpty(overrideEnvironment ?? meta.Environment))
                 return $"{meta.Partition}:{meta.Shard}";
-            return $"{meta.Environment}:{meta.Partition}:{meta.Shard}";
+            return $"{overrideEnvironment ?? meta.Environment}:{meta.Partition}:{meta.Shard}";
         }
 
         #endregion // Key

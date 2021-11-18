@@ -65,6 +65,14 @@ namespace Weknow.EventSource.Backbone.WebEventTest
                                      .Shard("default");
                 return consumer;
             });
+            services.AddSingleton(ioc =>
+            {
+                Building.IConsumerHooksBuilder builder =
+                            ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
+                                     .AddS3Strategy()
+                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) });
+                return builder;
+            });
 
             services.AddControllers()
                             .WithStandardWeknow();

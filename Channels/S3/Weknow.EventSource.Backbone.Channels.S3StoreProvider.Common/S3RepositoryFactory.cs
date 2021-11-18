@@ -22,8 +22,6 @@ namespace Weknow.EventSource.Backbone.Channels
     {
         private readonly ILogger _logger;
         private readonly AmazonS3Client _client;
-        private static readonly ImmutableHashSet<string> VALID_HEADERS = ImmutableHashSet<string>.Empty
-                                        .Add("Content-Type");
         private readonly ConcurrentDictionary<(string? bucket, string? basePath), S3Repository> _cache = new ConcurrentDictionary<(string? bucket, string? basePath), S3Repository>();
 
         #region Create

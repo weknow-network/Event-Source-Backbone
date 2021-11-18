@@ -32,8 +32,6 @@ namespace Weknow.EventSource.Backbone.Channels
         private readonly ILogger _logger;
         private readonly string? _basePath;
         private readonly AmazonS3Client _client;
-        private static readonly ImmutableHashSet<string> VALID_HEADERS = ImmutableHashSet<string>.Empty
-                                        .Add("Content-Type");
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
 
