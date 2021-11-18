@@ -3,7 +3,7 @@
     /// <summary>
     /// S3 provider options
     /// </summary>
-    public  record struct S3Options
+    public record struct S3Options
     {
         /// <summary>
         /// The target bucket (see: UseEnvironmentConvension)
@@ -14,7 +14,7 @@
         /// Base path
         /// </summary>
         public string? BasePath { get; init; }
-        
+
         /// <summary>
         /// Environment convention's options
         /// </summary>
