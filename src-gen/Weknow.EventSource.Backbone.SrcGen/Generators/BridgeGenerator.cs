@@ -178,7 +178,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// <param name=\"target\">The target.</param>");
             builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\t_targets = target.AsYield();");
+            builder.AppendLine("\t\t\t_targets = target.ToYield();");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine();
