@@ -45,10 +45,25 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         /// </summary>
         /// <returns>
         /// </returns>
-        [HttpGet("basic/{eventKey}/{env?}")]
+        [HttpGet("{eventKey}")]
         //[AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async ValueTask<JsonElement> GetAsync(string eventKey, string? env = null)
+        public async ValueTask<JsonElement> GetAsync(string eventKey)
+        {
+            var receiver = _consumerBuilder.BuildReceiver();
+            var json = await receiver.GetJsonByIdAsync(eventKey);
+            return json;
+        }
+
+        /// <summary>
+        /// Post Analysts
+        /// </summary>
+        /// <returns>
+        /// </returns>
+        [HttpGet("basic/{eventKey}/{env}")]
+        //[AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async ValueTask<JsonElement> GetAsync(string eventKey, string env)
         {
             var receiver = _consumerBuilder.Environment(env).BuildReceiver();
             var json = await receiver.GetJsonByIdAsync(eventKey);
@@ -78,9 +93,10 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status201Created)]
         //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task PostAsync(Person user)
+        public async Task<string> PostAsync(Person user)
         {
-            await _eventFlowProducer.Stage1Async(user, "Stage 1 data");
+            EventKey id =  await _eventFlowProducer.Stage1Async(user, "Stage 1 data");
+            return id;
         }
     }
 }

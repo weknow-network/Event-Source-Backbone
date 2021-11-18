@@ -48,7 +48,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             {
                 ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
                 IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy()
+                                     .AddS3Strategy(new S3Options { EnvironmentConvension= S3EnvironmentConvention.BucketPrefix})
+                                     .Environment("test")
                                      .Partition("demo")
                                      .Shard("default")
                                      .WithLogger(logger)
@@ -59,8 +60,9 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             {
                 IConsumerReadyBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy()
+                                     .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
+                                     .Environment("test")
                                      .Partition("demo")
                                      .Shard("default");
                 return consumer;
@@ -69,7 +71,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             {
                 Building.IConsumerHooksBuilder builder =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy()
+                                     .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) });
                 return builder;
             });

@@ -199,7 +199,7 @@ namespace Weknow.EventSource.Backbone.Channels
                 string key = GetKey(env, id);
                 var s3Request = new GetObjectRequest
                 {
-                    BucketName = _bucket,
+                    BucketName = GetBucket(env),
                     Key = key
                 };
                 // s3Request.Headers.ExpiresUtc = DateTime.Now.AddHours(2); // cache expiration
@@ -318,7 +318,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
                 var s3Request = new PutObjectRequest
                 {
-                    BucketName = _bucket,
+                    BucketName = GetBucket(env),
                     Key = key,
                     InputStream = data,
                     ContentType = mediaType,

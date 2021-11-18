@@ -1,4 +1,4 @@
-﻿namespace Weknow.EventSource.Backbone.Channels
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// S3 provider options
