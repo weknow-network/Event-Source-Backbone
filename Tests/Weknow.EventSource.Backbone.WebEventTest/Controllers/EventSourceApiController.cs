@@ -38,7 +38,6 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
             _db = redis.GetDatabase();
         }
 
-        [AllowAnonymous]
         #region GetAsync
 
         /// <summary>

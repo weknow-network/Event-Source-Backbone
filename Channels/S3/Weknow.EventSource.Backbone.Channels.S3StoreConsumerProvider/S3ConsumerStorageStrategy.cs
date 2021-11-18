@@ -45,17 +45,15 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="bucket">The bucket.</param>
-        /// <param name="basePath">The base path.</param>
+        /// <param name="options">The options.</param>
         /// <param name="factory">The repository's factory.</param>
         public S3ConsumerStorageStrategy(
             ILogger logger,
-            string? bucket = null,
-            string? basePath = null,
+            S3Options options = default,
             IS3RepositoryFactory? factory = null)
         {
             IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
-            _repository = facroey.Get(bucket, basePath);
+            _repository = facroey.Get(options);
         }
 
         #endregion // ctor
@@ -95,7 +93,7 @@ namespace Weknow.EventSource.Backbone
             async Task<(string key, byte[] value)?> LocalFetchAsync(KeyValuePair<string, string> item)
             {
                 string path = item.Value;
-                var response = await _repository.GetBytesAsync(path, cancellation);
+                var response = await _repository.GetBytesAsync(meta.Environment, path, cancellation);
                 return (item.Key, response);
             }
         }
