@@ -194,14 +194,15 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="System.Exception">Failed to get blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<Stream> GetStreamAsync(string env, string id, CancellationToken cancellation = default)
         {
-            try
-            {
+            string bucketName = GetBucket(env);
                 string key = GetKey(env, id);
                 var s3Request = new GetObjectRequest
                 {
-                    BucketName = GetBucket(env),
+                    BucketName = bucketName,
                     Key = key
                 };
+            try
+            {
                 // s3Request.Headers.ExpiresUtc = DateTime.Now.AddHours(2); // cache expiration
 
                 GetObjectResponse res = await _client.GetObjectAsync(s3Request, cancellation);
@@ -222,13 +223,13 @@ namespace Weknow.EventSource.Backbone.Channels
             catch (AmazonS3Exception e)
             {
                 _logger.LogError(e.FormatLazy(),
-                        "S3 Failed to get:");
+                        "S3 Failed to get [{bucket}: {key}]: {message}", bucketName, key, e.Message);
                 throw;
             }
             catch (Exception e)
             {
                 _logger.LogError(e.FormatLazy(),
-                        "S3 get Failed");
+                        "S3 get Failed: {bucket}: {key}", bucketName, key);
                 throw;
             }
 

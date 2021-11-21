@@ -456,8 +456,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     return values;
                 try
                 {
-                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                    IDatabaseAsync db = conn.GetDatabase();
+                    IDatabaseAsync db = await _connFactory.GetDatabaseAsync();
                     StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
                     foreach (var c in pendingInfo.Consumers)
                     {
