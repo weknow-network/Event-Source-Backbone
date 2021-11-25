@@ -46,7 +46,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
-        private const int TIMEOUT = 1000 * 30;
+        private const int TIMEOUT = 1000 * 20;
 
         #region Ctor
 
@@ -535,6 +535,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
@@ -797,7 +798,7 @@ namespace Weknow.EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = producerBuilder.BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix = producerBuilder
                 .Override<ISequenceOperationsProducer>()
-                .Environment("qa")
+                .Environment("dev")
                 .Partition("p0.")
                 .Shard("p1.")
                 .BuildSequenceOperationsProducer();
@@ -813,9 +814,9 @@ namespace Weknow.EventSource.Backbone.Tests
                 .Override<ISequenceOperationsProducer>()
                 .Partition(".s2", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
-            ISequenceOperationsProducer producerDynamic = producerBuilder
+            ISequenceOperationsProducer producerDynamic = producerBuilder.Environment("Fake Env")
                 .Override<ISequenceOperationsProducer>()
-                .Strategy(m => (m.Environment, $"d.{m.Partition}", $"{m.Shard}.d"))
+                .Strategy(m => (ENV, $"d.{m.Partition}", $"{m.Shard}.d"))
                 .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -848,7 +849,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
-                         .Environment("qa")
+                         .Environment("dev")
                          .Partition($"p0.{PARTITION}")
                          .Shard($"p1.{SHARD}")
                          .WithLogger(_fakeLogger)
@@ -897,7 +898,8 @@ namespace Weknow.EventSource.Backbone.Tests
                 subscriptionPrefix.Completion,
                 subscriptionPrefix1.Completion,
                 subscriptionSuffix.Completion,
-                subscriptionSuffix1.Completion);
+                subscriptionSuffix1.Completion,
+                subscriptionDynamic.Completion);
 
             #region Validation
 

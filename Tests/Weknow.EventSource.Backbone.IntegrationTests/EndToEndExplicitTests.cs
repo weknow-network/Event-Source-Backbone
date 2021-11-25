@@ -43,7 +43,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private static readonly JsonElement _personElement = JsonDocument.Parse(File.ReadAllText("person.json")).RootElement;
         private static readonly JsonElement _payloadElement = JsonDocument.Parse(File.ReadAllText("payload.json")).RootElement;
         private string ENV = $"test";
-        private const int TIMEOUT = 1000 * 30;
+        private const int TIMEOUT = 1000 * 20;
 
         #region Ctor
 
