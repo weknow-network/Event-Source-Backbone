@@ -20,7 +20,7 @@ using Xunit.Abstractions;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
-    public class S3StoreStrategyTests : EndToEndTests
+    public class S3StoreStrategyStressTests : EndToEndStressTests
     {
         private static readonly S3Options OPTIONS = new S3Options
         {
@@ -28,7 +28,7 @@ namespace Weknow.EventSource.Backbone.Tests
             BasePath = "tests"
         };
 
-        public S3StoreStrategyTests(ITestOutputHelper outputHelper) :
+        public S3StoreStrategyStressTests(ITestOutputHelper outputHelper) :
                 base(outputHelper,
                     (b, logger) => b.AddS3Strategy(OPTIONS),
                     (b, logger) => b.AddS3Strategy(OPTIONS))

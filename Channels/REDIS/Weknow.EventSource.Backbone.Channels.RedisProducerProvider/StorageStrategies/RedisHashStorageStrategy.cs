@@ -57,22 +57,24 @@ namespace Weknow.EventSource.Backbone.Channels
                                                                     Metadata meta,
                                                                     CancellationToken cancellation)
         {
+                var conn = await _connFactory.GetAsync();
             try
             {
-                var conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var segmentsEntities = bucket
                                                 .Select(sgm =>
                                                         new HashEntry(sgm.Key, sgm.Value))
                                                 .ToArray();
-                await db.HashSetAsync($"{type}~{id}", segmentsEntities);
-                return ImmutableDictionary<string, string>.Empty;
+                var key = $"{meta.Key()}:{type}:{id}";
+                await db.HashSetAsync(key, segmentsEntities);
+
+                return ImmutableDictionary<string, string>.Empty; // .Add($"redis:{type}:key", key);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{partition}->{shard}] stream: {operation}",
-                    id, type, meta.Partition, meta.Shard, meta.Operation);
+                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{partition}->{shard}] stream: {operation}, IsConnecting: {connecting}",
+                    id, type, meta.Partition, meta.Shard, meta.Operation, conn.IsConnecting);
                 throw;
             }
         }

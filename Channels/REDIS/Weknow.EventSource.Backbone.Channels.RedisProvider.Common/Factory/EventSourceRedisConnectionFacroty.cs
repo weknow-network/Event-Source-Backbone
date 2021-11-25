@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly Action<ConfigurationOptions>? _configuration;
-        private readonly RedisCredentialsKeys? _credentialsKeys;
+        private readonly RedisCredentialsKeys _credentialsKeys;
 
         #region Ctor
 
@@ -80,9 +80,21 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync() => _redisTask;
 
+        /// <summary>
+        /// Get a valid connection 
+        /// </summary>
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.ReportErrorAsync()
+        {
+            var conn = await _redisTask;
+            conn.Dispose();
+            _redisTask = RedisClientFactory.CreateProviderAsync(_logger, _configuration, _credentialsKeys);
+            conn = await _redisTask;
+            return conn;
+        }
+
         #endregion // GetAsync
 
-        #region GetAsync
+        #region GetDatabaseAsync
 
         /// <summary>
         /// Get database 
@@ -95,7 +107,7 @@ namespace Weknow.EventSource.Backbone
             return db;
         }
 
-        #endregion // GetAsync
+        #endregion // GetDatabaseAsync
 
         #region Dispose (pattern)
 

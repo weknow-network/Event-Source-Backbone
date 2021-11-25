@@ -11,6 +11,7 @@ namespace Weknow.EventSource.Backbone
         /// Get a valid connection 
         /// </summary>
         Task<IConnectionMultiplexer> GetAsync();
+        Task<IConnectionMultiplexer> ReportErrorAsync();
         /// <summary>
         /// Get database 
         /// </summary>

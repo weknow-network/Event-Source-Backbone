@@ -34,7 +34,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
-        private string PARTITION = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
+        private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
         private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
@@ -42,6 +42,8 @@ namespace Weknow.EventSource.Backbone.Tests
         private static readonly Person _person = new Person(10, "Tom");
         private static readonly JsonElement _personElement = JsonDocument.Parse(File.ReadAllText("person.json")).RootElement;
         private static readonly JsonElement _payloadElement = JsonDocument.Parse(File.ReadAllText("payload.json")).RootElement;
+        private string ENV = $"test";
+        private const int TIMEOUT = 1000 * 20;
 
         #region Ctor
 
@@ -85,12 +87,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region OnSucceed_ACK_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task OnSucceed_ACK_Test()
         {
             #region IEventFlow producer = ...
 
             IEventFlowProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -113,6 +116,7 @@ namespace Weknow.EventSource.Backbone.Tests
             IConsumerSubscribeBuilder builder = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
+                             .Environment(ENV)
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithLogger(_fakeLogger);
