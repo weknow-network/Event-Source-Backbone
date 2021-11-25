@@ -118,7 +118,8 @@ namespace Weknow.EventSource.Backbone
 
                 configuration?.Invoke(redisConfiguration);
                 redisConfiguration.Password = password;
-                //redisConfiguration.AbortOnConnectFail = false;
+                // keep retry to get connection on failure
+                redisConfiguration.AbortOnConnectFail = false;
                 //redisConfiguration.ConnectTimeout = 15;
                 //redisConfiguration.SyncTimeout = 10;
                 //redisConfiguration.AsyncTimeout = 10;

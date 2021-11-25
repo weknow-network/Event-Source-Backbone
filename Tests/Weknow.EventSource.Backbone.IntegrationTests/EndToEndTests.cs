@@ -21,6 +21,8 @@ using Xunit.Abstractions;
 
 using static Weknow.EventSource.Backbone.EventSourceConstants;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
+using System.Threading.Tasks.Dataflow;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
@@ -38,11 +40,13 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
-        private string PARTITION = $"test-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}-{Guid.NewGuid():N}";
+        private string ENV = $"test";
+        private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
         private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
+        private const int TIMEOUT = 1000 * 30;
 
         #region Ctor
 
@@ -99,14 +103,14 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Environmet_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Environmet_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Environment("Test")
+                                            .Environment(ENV)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -128,7 +132,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
-                         .Environment("Test")
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -154,14 +158,14 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Receiver_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Receiver_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Environment("Test")
+                                            .Environment(ENV)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -177,7 +181,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithCancellation(cancellation)
-                         .Environment("Test")
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -201,14 +205,14 @@ namespace Weknow.EventSource.Backbone.Tests
         record TestEmailPass(string email, string password);
 
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Receiver_Json_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
-                                            .Environment("Test")
+                                            .Environment(ENV)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -224,7 +228,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithCancellation(cancellation)
-                         .Environment("Test")
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -250,7 +254,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Receiver_ChangeEnvironment_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Receiver_ChangeEnvironment_Test()
         {
             #region ISequenceOperations producer = ...
@@ -261,7 +265,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .Environment("Test")
+                                            .Environment(ENV)
                                             .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -278,7 +282,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .Environment("Test")
+                         .Environment(ENV)
                          .BuildReceiver();
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -296,12 +300,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region OnSucceed_ACK_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task OnSucceed_ACK_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -324,6 +329,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -349,12 +355,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region GeneratedContract_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task GeneratedContract_Test()
         {
             #region ISequenceOperations producer1 = ...
 
             ISequenceOperationsProducer producer1 = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -366,6 +373,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region ISequenceOperations producer2 = ...
 
             IProducerSequenceOperations producer2 = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -389,6 +397,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -414,13 +423,14 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region GeneratedContract_Factory_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task GeneratedContract_Factory_Test()
         {
             #region ISequenceOperations producer1 = ...
 
             ISequenceOperationsProducer producer1 = _producerBuilder
                                             //.WithOptions(producerOption)
+                                            .Environment(ENV)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -431,6 +441,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region ISequenceOperations producer2 = ...
 
             IProducerSequenceOperations producer2 = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -454,6 +465,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -479,12 +491,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region OnSucceed_ACK_WithFailure_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task OnSucceed_ACK_WithFailure_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -550,12 +563,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region OnFinaly_ACK_WithFailure_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task OnFinaly_ACK_WithFailure_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
@@ -592,6 +606,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
@@ -620,12 +635,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Manual_ACK_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Manual_ACK_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -668,6 +684,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
+                             .Environment(ENV)
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
@@ -696,12 +713,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Resilience_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Resilience_Test()
         {
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -738,6 +756,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
+                             .Environment(ENV)
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
@@ -764,12 +783,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Override_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Override_Test()
         {
             #region ISequenceOperations producer = ...
 
             var producerBuilder = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -819,6 +839,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscription = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -836,6 +857,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionPrefix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition($"p2.{PARTITION}")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -844,6 +866,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionSuffix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition($"{PARTITION}.s0")
                          .Shard($"{SHARD}.s1")
                          .WithLogger(_fakeLogger)
@@ -852,6 +875,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionSuffix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition($"{PARTITION}.s2")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
@@ -860,6 +884,7 @@ namespace Weknow.EventSource.Backbone.Tests
             await using IConsumerLifetime subscriptionDynamic = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition($"d.{PARTITION}")
                          .Shard($"{SHARD}.d")
                          .WithLogger(_fakeLogger)
@@ -925,7 +950,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Claim_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Claim_Test()
         {
             ISequenceOperations otherSubscriber = A.Fake<ISequenceOperations>();
@@ -933,6 +958,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
                                             //.WithOptions(producerOption)
                                             .Partition(PARTITION)
                                             .Shard(SHARD)
@@ -968,6 +994,7 @@ namespace Weknow.EventSource.Backbone.Tests
             var consumerPipe = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
+                             .Environment(ENV)
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
@@ -1029,6 +1056,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // SendSequenceAsync
 
+        #region SendLongSequenceAsync
+
+        private static async Task<EventKey> SendLongSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
+        {
+            var tasks = Enumerable.Range(1, 1500).Select(async m => await producer.SuspendAsync(m));
+            EventKeys[] ids = await Task.WhenAll(tasks);
+            return ids[ids.Length - 1].First();
+        }
+
+        #endregion // SendLongSequenceAsync
+
         #region GetCancellationToken
 
         /// <summary>
@@ -1055,25 +1093,57 @@ namespace Weknow.EventSource.Backbone.Tests
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            string[] keys =
-                {
-                    $"{PARTITION}:{SHARD}",
-                    $"Test:{PARTITION}:{SHARD}",
-                    $"qa:p0.{PARTITION}:p1.{SHARD}",
-                    $"p2.{PARTITION}:{SHARD}",
-                    $"{PARTITION}.s0:{SHARD}.s1",
-                    $"{PARTITION}.s2:{SHARD}",
-                    $"d.{PARTITION}:{SHARD}.d",
-                };
-            IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
-                                                _fakeLogger,
-                                                cfg => cfg.AllowAdmin = true);
-            IDatabaseAsync db = conn.GetDatabase();
-            foreach (string key in keys)
+            try
             {
-                db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();
+                IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
+                                                    cfg => cfg.AllowAdmin = true);
+                string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
+                var server = conn.GetServer(serverName);
+                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+                IDatabaseAsync db = conn.GetDatabase();
+
+                var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
+                foreach (string key in keys)
+                {
+                    ab.Post(key);
+                }
+
+                ab.Complete();
+                ab.Completion.Wait();
+
+                async Task LocalAsync(string k)
+                {
+                    try
+                    {
+                        await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
+                        _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
+                    }
+                    #region Exception Handling
+
+                    catch (RedisTimeoutException ex)
+                    {
+                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                    }
+
+                    #endregion // Exception Handling
+                }
+            }
+            #region Exception Handling
+
+            catch (RedisTimeoutException ex)
+            {
+                _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+            }
+            catch (Exception ex)
+            {
+                _outputHelper.WriteLine($"Test dispose error (delete keys) {ex.FormatLazy()}");
             }
 
+            #endregion // Exception Handling
         }
 
         #endregion // Dispose pattern

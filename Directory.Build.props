@@ -32,7 +32,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReleaseNotes>[BREAKING CHANGES] IConsumerLoggerBuilder become IConsumerReadyBuilder</PackageReleaseNotes>
+		<PackageReleaseNotes>[BREAKING CHANGES] REDIS segmentation key have different pattern (not compatible with previous pattern)</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<PropertyGroup>

@@ -612,6 +612,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             IConsumerPlan plan,
             CancellationToken cancellationToken)
         {
+            string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetByIdAsync)}";
+
             try
             {
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
@@ -656,37 +658,42 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 async Task<StreamEntry> FindAsync(EventKey entryId)
                 {
                     string lookForId = (string)entryId;
-                    string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
+                    string key = plan.Key(); 
 
                     string originId = lookForId;
                     int len = originId.IndexOf('-');
                     string fromPrefix = originId.Substring(0, len);
                     long start = long.Parse(fromPrefix);
+                    string startPosition = (start - 1).ToString();
+                    int iteration = 0;
                     for (int i = 0; i < READ_BY_ID_ITERATIONS; i++) // up to 1000 items
                     {
+                        iteration++;
                         StreamEntry[] entries = await db.StreamReadAsync(
                                                                 key,
-                                                                start - 1,
+                                                                startPosition,
                                                                 READ_BY_ID_CHUNK_SIZE,
                                                                 CommandFlags.DemandMaster);
                         if (entries.Length == 0)
-                            throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return nothing.");
+                            throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return nothing, start at ({startPosition}, iteration = {iteration}).");
+                        string k = string.Empty;
                         foreach (var e in entries)
                         {
-                            string k = e.Id;
+                            k = e.Id;
                             string ePrefix = k.Substring(0, len);
                             long comp = long.Parse(ePrefix);
                             if (comp < start)
-                                continue;
+                                continue; // not there yet
                             if (k == lookForId)
                             {
                                 return e;
                             }
                             if (ePrefix != fromPrefix)
-                                throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return not exists.");
+                                throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not exists.");
                         }
+                        startPosition = k; // next batch will start from last entry
                     }
-                    throw new KeyNotFoundException($"IConsumerChannelProvider.GetAsync of [{lookForId}] from [{plan.Partition}->{plan.Shard}] return not found.");
+                    throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not found.");
                 }
 
                 #endregion // FindAsync
@@ -695,8 +702,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fail to get Entry [{id}] from [{partition}->{shard}] event stream",
-                    entryId, plan.Partition, plan.Shard);
+                string key = plan.Key();
+                _logger.LogError(ex.FormatLazy(), "{mtd} Failed: Entry [{entryId}] from [{key}] event stream",
+                    mtdName, entryId, key);
                 throw;
             }
 

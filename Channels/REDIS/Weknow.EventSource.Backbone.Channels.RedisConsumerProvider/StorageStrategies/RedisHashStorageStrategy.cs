@@ -52,14 +52,25 @@ namespace Weknow.EventSource.Backbone.Channels
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
-            string key = $"{type}~{meta.MessageId}";
+            string key = $"{meta.Key()}:{type}:{meta.MessageId}";
 
             IConnectionMultiplexer conn = await _connFactory.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
-            var entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
+            HashEntry[] entities;
+            try
+            {
+                entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
+            }
+            catch (Exception)
+            {
+                // backward compatibility
+                key = $"{type}~{meta.MessageId}";
+                entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
+            }
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
             var results = prevBucket.TryAddRange(pairs);
             return results;
+
         }
 
     }

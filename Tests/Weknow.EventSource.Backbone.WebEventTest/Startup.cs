@@ -19,6 +19,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
         const string TITLE = "Event Source";
         const string DESC = "";
         private readonly IHostEnvironment _hostEnv;
+        private string ENV = $"test";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
@@ -42,6 +43,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest
             services.AddStandardWeknow(_hostEnv)
                     .AddOpenAPIWeknow(VERSION, TITLE, DESC);
 
+            string partition = "demo";
 
             services.AddEventSourceRedisConnection();
             services.AddSingleton(ioc =>
@@ -49,8 +51,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest
                 ILogger<Startup> logger = ioc.GetService<ILogger<Startup>>() ?? throw new ArgumentNullException();
                 IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      .AddS3Strategy(new S3Options { EnvironmentConvension= S3EnvironmentConvention.BucketPrefix})
-                                     .Environment("test")
-                                     .Partition("demo")
+                                     .Environment(ENV)
+                                     .Partition(partition)
                                      .Shard("default")
                                      .WithLogger(logger)
                                      .BuildEventFlowProducer();
@@ -62,8 +64,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
-                                     .Environment("test")
-                                     .Partition("demo")
+                                     .Environment(ENV)
+                                     .Partition(partition)
                                      .Shard("default");
                 return consumer;
             });
