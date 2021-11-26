@@ -23,9 +23,13 @@ using static Weknow.EventSource.Backbone.EventSourceConstants;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
 using System.Threading.Tasks.Dataflow;
+#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
 namespace Weknow.EventSource.Backbone.Tests
 {
+    /// <summary>
+    /// The end to end tests.
+    /// </summary>
     public class EndToEndTests : IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
@@ -50,6 +54,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Ctor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndToEndTests"/> class.
+        /// </summary>
+        /// <param name="outputHelper">The output helper.</param>
+        /// <param name="producerChannelBuilder">The producer channel builder.</param>
+        /// <param name="consumerChannelBuilder">The consumer channel builder.</param>
         public EndToEndTests(
             ITestOutputHelper outputHelper,
             Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
@@ -251,6 +261,52 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Receiver_Json_Test
+
+        #region Receiver_ChangeEnvironment_AfterBuild_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Receiver_ChangeEnvironment_AfterBuild()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment("FakeTest")
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .Environment(ENV)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerReceiver receiver = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment("DemoTest")
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildReceiver()
+                         .Environment(ENV);
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var res0 = await receiver.GetByIdAsync(keys[0]);
+            var res1 = await receiver.GetByIdAsync(keys[1]);
+            var hasEmail = res1.Data.TryGet("email", out string? email);
+            Assert.Equal("admin", email);
+            var res2 = await receiver.GetByIdAsync(keys[2]);
+            var hasId = res2.Data.TryGet("id", out int id);
+            Assert.Equal(4335, id);
+        }
+
+        #endregion // Receiver_ChangeEnvironment_AfterBuild
 
         #region Receiver_ChangeEnvironment_Test
 

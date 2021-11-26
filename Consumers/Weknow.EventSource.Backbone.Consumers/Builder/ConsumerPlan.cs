@@ -377,6 +377,22 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // WithEnvironment
 
+        #region WithEnvironment
+
+        /// <summary>
+        /// Attach the environment.
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <returns></returns>
+        IConsumerPlan IConsumerPlan.ChangeEnvironment(string? environment)
+        {
+            if (environment == null) return this;
+
+            return new ConsumerPlan(this, environment: environment);
+        }
+
+        #endregion // WithEnvironment
+
         #region WithPartition
 
         /// <summary>

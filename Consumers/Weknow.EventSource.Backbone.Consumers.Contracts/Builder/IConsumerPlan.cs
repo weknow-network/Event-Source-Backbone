@@ -20,6 +20,13 @@ namespace Weknow.EventSource.Backbone
         IConsumerChannelProvider Channel { get; }
 
         /// <summary>
+        /// change the environment.
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <returns>An IConsumerPlan.</returns>
+        IConsumerPlan ChangeEnvironment(string? environment);
+
+        /// <summary>
         /// Gets the storage strategies.
         /// </summary>
         Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }

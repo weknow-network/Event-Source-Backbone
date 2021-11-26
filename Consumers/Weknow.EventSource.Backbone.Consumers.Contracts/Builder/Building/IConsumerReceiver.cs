@@ -4,12 +4,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Weknow.EventSource.Backbone.Building;
+
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Receive data (on demand data query).
     /// </summary>
-    public interface IConsumerReceiver
+    public interface IConsumerReceiver: IConsumerBuilderEnvironment<IConsumerReceiver>
     {
         /// <summary>
         /// Gets data by id.

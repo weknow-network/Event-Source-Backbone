@@ -20,6 +20,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 
 using Xunit;
 using Xunit.Abstractions;
+#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
 
 // TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)
@@ -27,6 +28,9 @@ using Xunit.Abstractions;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
+    /// <summary>
+    /// The end to end explicit tests.
+    /// </summary>
     public class EndToEndExplicitTests : IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
@@ -47,6 +51,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Ctor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndToEndExplicitTests"/> class.
+        /// </summary>
+        /// <param name="outputHelper">The output helper.</param>
+        /// <param name="producerChannelBuilder">The producer channel builder.</param>
+        /// <param name="consumerChannelBuilder">The consumer channel builder.</param>
         public EndToEndExplicitTests(
             ITestOutputHelper outputHelper,
             Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
@@ -190,10 +200,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Dispose pattern
 
+        /// <summary>
+        /// The subscriber.
+        /// </summary>
         private class Subscriber : IEventFlow
         {
             private readonly IEventFlow _subscriber;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Subscriber"/> class.
+            /// </summary>
+            /// <param name="subscriber">The subscriber.</param>
             public Subscriber(IEventFlow subscriber)
             {
                 _subscriber = subscriber;

@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# MethodDocumentationHeader: The method must have a documentation header.
+dotnet_diagnostic.MethodDocumentationHeader.severity = none

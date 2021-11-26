@@ -58,7 +58,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// The routing information attached to this buildr
         /// </summary>
-        IPlanRoute IConsumerSubscribeBuilder.Route =>  _plan;
+        IPlanRoute IConsumerSubscribeBuilder.Route => _plan;
 
         #endregion // Route
 
@@ -544,6 +544,29 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
+
+            #region Environment
+
+            /// <summary>
+            /// Include the environment as prefix of the stream key.
+            /// for example: production:partition-name:shard-name
+            /// </summary>
+            /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
+            /// <returns></returns>
+            IConsumerReceiver IConsumerBuilderEnvironment<IConsumerReceiver>.Environment(string? environment)
+            {
+                if (environment == null)
+                    return this;
+
+                IConsumerPlan plan = _plan.ChangeEnvironment(environment);
+                var result = new Receiver(plan);
+                return result;
+            }
+
+            #endregion // Environment
+
+            #region GetByIdAsync
+
             /// <summary>
             /// Gets the asynchronous.
             /// </summary>
@@ -558,6 +581,10 @@ namespace Weknow.EventSource.Backbone
                 AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
                 return result;
             }
+
+            #endregion // GetByIdAsync
+
+            #region GetJsonByIdAsync
 
             /// <summary>
             /// Gets the asynchronous.
@@ -591,6 +618,8 @@ namespace Weknow.EventSource.Backbone
                                                         SerializerOptionsWithIndent);
                 return result;
             }
+
+            #endregion // GetJsonByIdAsync
         }
 
         #endregion // private class Receiver
