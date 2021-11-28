@@ -94,6 +94,7 @@ namespace Weknow.EventSource.Backbone
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
+            StorageStrategiesAsync = copyFrom.StorageStrategiesAsync;
         }
 
         #endregion // Ctor
@@ -135,14 +136,14 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // StorageStrategyFactories
 
-        #region StorageStrategies
+        #region StorageStrategiesAsync
 
         /// <summary>
         /// Gets the storage strategies.
         /// </summary>
         public Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; init; } = EMPTY_STORAGE_STRATEGIES;
 
-        #endregion // StorageStrategies
+        #endregion // StorageStrategiesAsync
 
         #region Logger
 

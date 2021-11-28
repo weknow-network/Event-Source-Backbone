@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 namespace Weknow.EventSource.Backbone
 {
 
+    /// <summary>
+    /// The consumer base.
+    /// </summary>
     partial class ConsumerBase
     {
         /// <summary>

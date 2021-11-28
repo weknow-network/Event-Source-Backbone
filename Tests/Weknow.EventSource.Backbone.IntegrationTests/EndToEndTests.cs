@@ -50,7 +50,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
-        private const int TIMEOUT = 1000 * 30;
+        private const int TIMEOUT = 1_000 * 30;
 
         #region Ctor
 
@@ -75,12 +75,12 @@ namespace Weknow.EventSource.Backbone.Tests
             claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
             consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
 
-            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
+            var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
                                             ClaimingTrigger = claimTrigger
                                         });
-            _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
+            _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .ReturnsLazily(() => ValueTask.CompletedTask);

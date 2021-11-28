@@ -4,9 +4,6 @@
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
   </ItemGroup>
 

@@ -25,8 +25,14 @@ using OpenTelemetry;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
+    /// <summary>
+    /// The redis consumer channel.
+    /// </summary>
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
+        /// <summary>
+        /// Max delay
+        /// </summary>
         private const int MAX_DELAY = 5000;
         /// <summary>
         /// The read by identifier chunk size.
@@ -34,6 +40,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// therefore read should start before the actual position.
         /// </summary>
         private const int READ_BY_ID_CHUNK_SIZE = 10;
+        /// <summary>
+        /// Receiver max iterations
+        /// </summary>
         private const int READ_BY_ID_ITERATIONS = 1000 / READ_BY_ID_CHUNK_SIZE;
         private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE);
 
