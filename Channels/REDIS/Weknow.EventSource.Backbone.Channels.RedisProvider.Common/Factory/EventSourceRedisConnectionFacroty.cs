@@ -21,13 +21,6 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public sealed class EventSourceRedisConnectionFacroty : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
     {
-        enum ConnectionState
-        {
-            On,
-            Off
-        }
-
-
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly Action<ConfigurationOptions>? _configuration;

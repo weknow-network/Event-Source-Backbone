@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -25,8 +26,12 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public static class RedisClientFactory
     {
+#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
         private static int _index = 0;
-        private const string CONNECTION_NAME_PATTERN = "Event_Source_{0}";
+        private const string CONNECTION_NAME_PATTERN = "ev-src:{0}:{1}:{2}";
+        private static readonly string? ASSEMBLY_NAME = Assembly.GetEntryAssembly()?.GetName()?.Name?.ToDash();
+        private static readonly Version? ASSEMBLY_VERSION = Assembly.GetEntryAssembly()?.GetName()?.Version;
+#pragma warning restore ConstFieldDocumentationHeader // The field must have a documentation header.
 
         /// <summary>
         /// Blocking Create REDIS client.
@@ -114,6 +119,8 @@ namespace Weknow.EventSource.Backbone
                 var redisConfiguration = ConfigurationOptions.Parse(endpoint);
                 redisConfiguration.ClientName = string.Format(
                                         CONNECTION_NAME_PATTERN,
+                                        ASSEMBLY_NAME,
+                                        ASSEMBLY_VERSION,
                                         Interlocked.Increment(ref _index));
 
                 configuration?.Invoke(redisConfiguration);
