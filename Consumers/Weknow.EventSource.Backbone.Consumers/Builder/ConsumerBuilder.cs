@@ -527,6 +527,9 @@ namespace Weknow.EventSource.Backbone
 
         #region private class Receiver
 
+        /// <summary>
+        /// Receive data (on demand data query).
+        /// </summary>
         private class Receiver : IConsumerReceiver
         {
             private readonly IConsumerPlan _plan;
@@ -573,7 +576,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
             /// <returns></returns>
-            async ValueTask<AnnouncementData> IConsumerReceiver.GetByIdAsync(
+            async ValueTask<AnnouncementData> IConsumerReceiverCommands.GetByIdAsync(
                             EventKey entryId,
                             CancellationToken cancellationToken)
             {
@@ -592,7 +595,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="entryId">The entry identifier.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
             /// <returns></returns>
-            async ValueTask<JsonElement> IConsumerReceiver.GetJsonByIdAsync(
+            async ValueTask<JsonElement> IConsumerReceiverCommands.GetJsonByIdAsync(
                             EventKey entryId,
                             CancellationToken cancellationToken)
             {
