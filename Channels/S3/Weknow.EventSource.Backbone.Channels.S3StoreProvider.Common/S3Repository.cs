@@ -205,9 +205,14 @@ namespace Weknow.EventSource.Backbone.Channels
             {
                 // s3Request.Headers.ExpiresUtc = DateTime.Now.AddHours(2); // cache expiration
 
-                GetObjectResponse res = await _client.GetObjectAsync(s3Request, cancellation);
+                GetObjectResponse? res = await _client.GetObjectAsync(s3Request, cancellation);
 
                 #region Validation
+
+                if (res == null)
+                { 
+                    throw new Exception($"S3 key [{key}] not found. bucket = {bucketName}");
+                }
 
                 if (res.HttpStatusCode >= HttpStatusCode.Ambiguous)
                 {
