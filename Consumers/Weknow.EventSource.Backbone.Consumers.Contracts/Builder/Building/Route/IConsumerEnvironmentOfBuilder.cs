@@ -3,7 +3,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerBuilderEnvironment<T>
+    public interface IConsumerEnvironmentOfBuilder<T>
     {
         /// <summary>
         /// Include the environment as prefix of the stream key.

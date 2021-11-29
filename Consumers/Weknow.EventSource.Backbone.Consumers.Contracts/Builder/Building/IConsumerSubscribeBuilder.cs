@@ -7,11 +7,14 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerSubscribeBuilder: IConsumerBuilderEnvironment<IConsumerSubscribeBuilder>
+    public interface IConsumerSubscribeBuilder: 
+        IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>,
+        IConsumerPartitionBuilder<IConsumerSubscribeBuilder>
+        //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
     {
 
         /// <summary>
-        /// The routing information attached to this buildr
+        /// The routing information attached to this builder
         /// </summary>
         IPlanRoute Route { get; }
 

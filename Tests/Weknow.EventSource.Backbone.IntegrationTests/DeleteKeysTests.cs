@@ -29,7 +29,8 @@ namespace Weknow.EventSource.Backbone.Tests
         #region DELETE_KEYS_TEST
 
 
-        [Fact(Skip = "cleanup")]
+        [Fact]//(Skip = "cleanup")]
+        [Trait("type", "delete-keys")]
         public async Task DELETE_KEYS_TEST()
         {
             IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(

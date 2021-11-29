@@ -3,8 +3,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerShardBuilder:
-        IConsumerReadyBuilder
+    public interface IConsumerShardOfBuilder<T>
     {
 
         /// <summary>
@@ -18,6 +17,6 @@
         /// </summary>
         /// <param name="shardKey">The shard key.</param>
         /// <returns></returns>
-        IConsumerReadyBuilder Shard(string shardKey);
+        T Shard(string shardKey);
     }
 }

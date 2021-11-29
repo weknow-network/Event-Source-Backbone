@@ -27,6 +27,13 @@ namespace Weknow.EventSource.Backbone
         IConsumerPlan ChangeEnvironment(string? environment);
 
         /// <summary>
+        /// change the partition.
+        /// </summary>
+        /// <param name="partition">The partition.</param>
+        /// <returns>An IConsumerPlan.</returns>
+        IConsumerPlan ChangePartition(string? partition);
+
+        /// <summary>
         /// Gets the storage strategies.
         /// </summary>
         Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }

@@ -4,7 +4,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerPartitionBuilder
+    public interface IConsumerPartitionBuilder<T>
     {
         /// <summary>
         /// Partition key represent logical group of 
@@ -20,6 +20,6 @@
         /// </summary>
         /// <param name="partition">The partition key.</param>
         /// <returns></returns>
-        IConsumerShardBuilder Partition(string partition);
+        T Partition(string partition);
     }
 }

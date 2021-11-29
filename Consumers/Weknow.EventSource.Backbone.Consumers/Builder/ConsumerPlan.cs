@@ -378,7 +378,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // WithEnvironment
 
-        #region WithEnvironment
+        #region ChangeEnvironment
 
         /// <summary>
         /// Attach the environment.
@@ -392,7 +392,23 @@ namespace Weknow.EventSource.Backbone
             return new ConsumerPlan(this, environment: environment);
         }
 
-        #endregion // WithEnvironment
+        #endregion // ChangeEnvironment
+
+        #region ChangePartition
+
+        /// <summary>
+        /// Attach the environment.
+        /// </summary>
+        /// <param name="partition">The partition.</param>
+        /// <returns></returns>
+        IConsumerPlan IConsumerPlan.ChangePartition(string? partition)
+        {
+            if (partition == null) return this;
+
+            return new ConsumerPlan(this, partition: partition);
+        }
+
+        #endregion // ChangePartition
 
         #region WithPartition
 

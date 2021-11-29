@@ -135,7 +135,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerPartitionBuilder IConsumerBuilderEnvironment<IConsumerPartitionBuilder>.Environment(string? environment)
+        IConsumerPartitionBuilder<IConsumerShardBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerShardBuilder>>.Environment(string? environment)
         {
             if (environment == null)
                 return this;
@@ -151,7 +151,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerBuilderEnvironment<IConsumerSubscribeBuilder>.Environment(string? environment)
+        IConsumerSubscribeBuilder IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>.Environment(string? environment)
         {
             if (environment == null)
                 return this;
@@ -179,7 +179,29 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="partition">The partition key.</param>
         /// <returns></returns>
-        IConsumerShardBuilder IConsumerPartitionBuilder.Partition(
+        IConsumerShardBuilder IConsumerPartitionBuilder<IConsumerShardBuilder>.Partition(
+                                    string partition)
+        {
+            var prms = _plan.WithPartition(partition);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Partition key represent logical group of
+        /// event source shards.
+        /// For example assuming each ORDERING flow can have its
+        /// own messaging sequence, yet can live concurrency with
+        /// other ORDER's sequences.
+        /// The partition will let consumer the option to be notify and
+        /// consume multiple shards from single consumer.
+        /// This way the consumer can handle all orders in
+        /// central place without affecting sequence of specific order
+        /// flow or limiting the throughput.
+        /// </summary>
+        /// <param name="partition">The partition key.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IConsumerPartitionBuilder<IConsumerSubscribeBuilder>.Partition(
                                     string partition)
         {
             var prms = _plan.WithPartition(partition);
@@ -203,12 +225,31 @@ namespace Weknow.EventSource.Backbone
         /// <param name="shard">The shard key.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IConsumerReadyBuilder Shard(string shard)
+        IConsumerReadyBuilder IConsumerShardOfBuilder<IConsumerReadyBuilder>.Shard(string shard)
         {
             var prms = _plan.WithShard(shard);
             var result = new ConsumerBuilder(prms);
             return result;
         }
+
+        ///// <summary>
+        ///// Shard key represent physical sequence.
+        ///// On the consumer side shard is optional
+        ///// for listening on a physical source rather on the entire partition.
+        ///// Use same shard when order is matter.
+        ///// For example: assuming each ORDERING flow can have its
+        ///// own messaging sequence, in this case you can split each
+        ///// ORDER into different shard and gain performance bust..
+        ///// </summary>
+        ///// <param name="shard">The shard key.</param>
+        ///// <returns></returns>
+        ///// <exception cref="NotImplementedException"></exception>
+        //IConsumerSubscribeBuilder IConsumerShardOfBuilder<IConsumerSubscribeBuilder>.Shard(string shard)
+        //{
+        //    var prms = _plan.WithShard(shard);
+        //    var result = new ConsumerBuilder(prms);
+        //    return result;
+        //}
 
         #endregion // Shard
 
@@ -547,7 +588,6 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
-
             #region Environment
 
             /// <summary>
@@ -556,7 +596,7 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
             /// <returns></returns>
-            IConsumerReceiver IConsumerBuilderEnvironment<IConsumerReceiver>.Environment(string? environment)
+            IConsumerReceiver IConsumerEnvironmentOfBuilder<IConsumerReceiver>.Environment(string? environment)
             {
                 if (environment == null)
                     return this;
@@ -567,6 +607,19 @@ namespace Weknow.EventSource.Backbone
             }
 
             #endregion // Environment
+
+            /// <summary>
+            /// replace the partition of the stream key.
+            /// for example: production:partition-name:shard-name
+            /// </summary>
+            /// <param name="partition">The partition.</param>
+            /// <returns></returns>
+            IConsumerReceiver IConsumerPartitionBuilder<IConsumerReceiver>.Partition(string partition)
+            {
+                IConsumerPlan plan = _plan.ChangePartition(partition);
+                var result = new Receiver(plan);
+                return result;
+            }
 
             #region GetByIdAsync
 
