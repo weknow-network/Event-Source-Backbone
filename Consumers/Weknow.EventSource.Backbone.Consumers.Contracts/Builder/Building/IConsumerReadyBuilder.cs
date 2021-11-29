@@ -2,6 +2,7 @@
 
 using Polly;
 
+using Weknow.EventSource.Backbone;
 using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone

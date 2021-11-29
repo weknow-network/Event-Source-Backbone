@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Weknow.EventSource.Backbone
+namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Enable dynamic transformation of the stream id before sending.

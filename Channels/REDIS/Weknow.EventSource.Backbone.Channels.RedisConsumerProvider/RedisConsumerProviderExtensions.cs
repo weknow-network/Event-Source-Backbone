@@ -8,6 +8,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Trace;
 using Microsoft.Extensions.Configuration;
+using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
 {

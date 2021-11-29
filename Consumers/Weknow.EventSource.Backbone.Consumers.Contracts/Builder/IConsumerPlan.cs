@@ -7,6 +7,8 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Weknow.EventSource.Backbone.Building;
+
 namespace Weknow.EventSource.Backbone
 {
 

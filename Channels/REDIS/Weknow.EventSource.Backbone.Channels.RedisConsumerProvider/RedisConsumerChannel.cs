@@ -20,6 +20,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 using Weknow.Text.Json;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry;
+using Weknow.EventSource.Backbone.Building;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
