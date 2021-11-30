@@ -92,9 +92,9 @@ namespace Weknow.EventSource.Backbone.Channels
 
             catch (Exception e)
             {
-                string msg = "S3 Failed to parse json:";
+                string msg = $"S3 Failed to parse json, env:{env}, id:{id}";
                 _logger.LogError(e.FormatLazy(), msg);
-                throw new InvalidDataException();
+                throw new InvalidDataException(msg);
             }
 
             #endregion // Exception Handling
@@ -125,9 +125,9 @@ namespace Weknow.EventSource.Backbone.Channels
 
             catch (Exception e)
             {
-                string msg = "S3 Failed to parse json:";
+                string msg = $"S3 Failed to parse bytes, env:{env}, id:{id}";
                 _logger.LogError(e.FormatLazy(), msg);
-                throw new InvalidDataException();
+                throw new InvalidDataException(msg);
             }
 
             #endregion // Exception Handling
@@ -170,9 +170,9 @@ namespace Weknow.EventSource.Backbone.Channels
 
             catch (Exception e)
             {
-                string msg = $"S3 Failed to deserialize into [{typeof(T).Name}]:";
+                string msg = $"S3 Failed to deserialize into [{typeof(T).Name}], env:{env}, id:{id}";
                 _logger.LogError(e.FormatLazy(), msg);
-                throw new InvalidDataException();
+                throw new InvalidDataException(msg);
             }
 
             #endregion // Exception Handling
@@ -365,7 +365,7 @@ namespace Weknow.EventSource.Backbone.Channels
                 }
                 catch { }
                 _logger.LogError(e.FormatLazy(),
-                        "AWS-S3 Failed to write: {payload}", json);
+                        "AWS-S3 Failed to write: {payload}, {env}, {id}", json, env, id);
                 throw;
             }
             catch (Exception e)
@@ -377,7 +377,7 @@ namespace Weknow.EventSource.Backbone.Channels
                 }
                 catch { }
                 _logger.LogError(e.FormatLazy(),
-                        "S3 writing Failed: {payload}", json);
+                        "S3 writing Failed: {payload}, {env}, {id}", json, env, id);
                 throw;
             }
 
