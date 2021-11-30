@@ -283,6 +283,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var meta = new Metadata
                         {
                             MessageId = id,
+                            EventKey = result.Id,
                             Environment = plan.Environment,
                             Partition = plan.Partition,
                             Shard = plan.Shard,

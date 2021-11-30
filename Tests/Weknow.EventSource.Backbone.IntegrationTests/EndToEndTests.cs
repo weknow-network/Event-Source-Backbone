@@ -83,7 +83,13 @@ namespace Weknow.EventSource.Backbone.Tests
             _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
-                    .ReturnsLazily(() => ValueTask.CompletedTask);
+                    .ReturnsLazily(() =>
+                    {
+                        Metadata meta = ConsumerMetadata.Context;
+                        if (string.IsNullOrEmpty(meta.EventKey))
+                            return ValueTask.FromException(new Exception("Event Key is missing"));
+                        return ValueTask.CompletedTask;
+                    });
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
             A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
