@@ -36,6 +36,7 @@ namespace Weknow.EventSource.Backbone.Channels
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
         private readonly S3EnvironmentConvention _environmentConvension;
+        private const StringComparison STRING_COMPARISON = StringComparison.OrdinalIgnoreCase;
 
         #region Ctor
 
@@ -112,7 +113,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<byte[]> GetBytesAsync(string env,  string id, CancellationToken cancellation = default)
+        public async ValueTask<byte[]> GetBytesAsync(string env, string id, CancellationToken cancellation = default)
         {
             try
             {
@@ -195,12 +196,12 @@ namespace Weknow.EventSource.Backbone.Channels
         public async ValueTask<Stream> GetStreamAsync(string env, string id, CancellationToken cancellation = default)
         {
             string bucketName = GetBucket(env);
-                string key = GetKey(env, id);
-                var s3Request = new GetObjectRequest
-                {
-                    BucketName = bucketName,
-                    Key = key
-                };
+            string key = GetKey(env, id);
+            var s3Request = new GetObjectRequest
+            {
+                BucketName = bucketName,
+                Key = key
+            };
             try
             {
                 // s3Request.Headers.ExpiresUtc = DateTime.Now.AddHours(2); // cache expiration
@@ -210,7 +211,7 @@ namespace Weknow.EventSource.Backbone.Channels
                 #region Validation
 
                 if (res == null)
-                { 
+                {
                     throw new Exception($"S3 key [{key}] not found. bucket = {bucketName}");
                 }
 
@@ -257,7 +258,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <returns></returns>
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
-            JsonElement data, 
+            JsonElement data,
             string env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
@@ -397,6 +398,14 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             var bucket = _environmentConvension switch
             {
+                S3EnvironmentConvention.BucketPrefix
+                        when string.Compare(env, "production", STRING_COMPARISON) == 0 ||
+                             string.Compare(env, "prod", STRING_COMPARISON) == 0 =>
+                                        $"prod.{_bucket}",
+                S3EnvironmentConvention.BucketPrefix
+                        when string.Compare(env, "development", STRING_COMPARISON) == 0 ||
+                             string.Compare(env, "dev", STRING_COMPARISON) == 0 =>
+                                         $"dev.{_bucket}",
                 S3EnvironmentConvention.BucketPrefix => $"{env}.{_bucket}",
                 _ => _bucket
             };
