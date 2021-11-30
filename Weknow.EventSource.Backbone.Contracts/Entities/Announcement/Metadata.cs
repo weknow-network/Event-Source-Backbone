@@ -25,6 +25,15 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // MessageId
 
+        #region EventKey
+
+        /// <summary>
+        /// The consumer side representation of the event key as represent by a specific channel.
+        /// </summary>
+        public string EventKey { get; init; } = string.Empty;
+
+        #endregion // EventKey
+
         #region ProducedAt
 
         /// <summary>
