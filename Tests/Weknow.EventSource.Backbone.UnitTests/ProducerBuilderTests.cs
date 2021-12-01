@@ -33,6 +33,10 @@ namespace Weknow.EventSource.Backbone
 
         #region Ctor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProducerBuilderTests"/> class.
+        /// </summary>
+        /// <param name="outputHelper">The output helper.</param>
         public ProducerBuilderTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;

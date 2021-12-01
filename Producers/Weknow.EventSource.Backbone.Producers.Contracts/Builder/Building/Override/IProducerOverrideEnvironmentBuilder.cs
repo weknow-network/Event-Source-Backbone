@@ -13,6 +13,6 @@
         /// </summary>
         /// <param name="environment">The environment.</param>
         /// <returns></returns>
-        IProducerOverridePartitionBuilder<T> Environment(string environment);
+        IProducerOverridePartitionBuilder<T> Environment(Env environment);
     }
 }

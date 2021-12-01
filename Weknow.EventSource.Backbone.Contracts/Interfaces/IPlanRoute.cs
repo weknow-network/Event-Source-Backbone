@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
         /// <value>
         /// The partition.
         /// </value>
-        string Environment { get; }
+        Env Environment { get; }
         /// <summary>
         /// Partition key represent logical group of 
         /// event source shards.

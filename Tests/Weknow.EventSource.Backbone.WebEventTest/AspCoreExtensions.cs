@@ -94,12 +94,7 @@ namespace Microsoft.Extensions.Configuration
             string appName = hostEnv.ApplicationName;
             string shortAppName = appName.Replace("Weknow.", string.Empty)
                                          .Replace("Backend.", string.Empty);
-            string shortEnv = env switch
-            {
-                "Production" => "Prod",
-                "Development" => "Dev",
-                _ => env
-            };
+
 
             IConnectionMultiplexer redisConnection = RedisClientFactory.CreateProviderBlocking();
             services.AddSingleton<IConnectionMultiplexer>(redisConnection);

@@ -11,6 +11,6 @@
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        T Environment(string? environment);
+        T Environment(Env? environment);
     }
 }

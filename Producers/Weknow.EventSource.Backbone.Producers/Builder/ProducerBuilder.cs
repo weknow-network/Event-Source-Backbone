@@ -140,7 +140,7 @@ namespace Weknow.EventSource.Backbone
         /// Origin environment of the message
         /// </summary>
         /// <returns></returns>
-        IProducerPartitionBuilder IProducerBuilderEnvironment<IProducerPartitionBuilder>.Environment(string? environment)
+        IProducerPartitionBuilder IProducerBuilderEnvironment<IProducerPartitionBuilder>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -154,7 +154,7 @@ namespace Weknow.EventSource.Backbone
         /// Origin environment of the message
         /// </summary>
         /// <returns></returns>
-        IProducerSpecializeBuilder IProducerBuilderEnvironment<IProducerSpecializeBuilder>.Environment(string? environment)
+        IProducerSpecializeBuilder IProducerBuilderEnvironment<IProducerSpecializeBuilder>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -435,7 +435,7 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="environment">The environment.</param>
             /// <returns></returns>
-            IProducerOverridePartitionBuilder<T> IProducerOverrideEnvironmentBuilder<T>.Environment(string environment)
+            IProducerOverridePartitionBuilder<T> IProducerOverrideEnvironmentBuilder<T>.Environment(Env environment)
             {
                 var plan = _plan.WithEnvironment(environment ?? _plan.Environment);
                 return new Router<T>(plan);

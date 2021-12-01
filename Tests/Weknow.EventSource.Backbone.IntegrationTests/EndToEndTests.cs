@@ -44,7 +44,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
-        private string ENV = $"test";
+        private string ENV = $"Development";
         private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
         private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 

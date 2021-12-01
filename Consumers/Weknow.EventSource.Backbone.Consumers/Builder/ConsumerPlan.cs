@@ -159,7 +159,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Environment (part of the stream key)
         /// </summary>
-        public string Environment { get; } = string.Empty;
+        public Env Environment { get; } = string.Empty;
 
         #endregion // Environment
 
@@ -371,7 +371,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithEnvironment(string environment)
+        internal ConsumerPlan WithEnvironment(Env environment)
         {
             return new ConsumerPlan(this, environment: environment);
         }
@@ -385,7 +385,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment.</param>
         /// <returns></returns>
-        IConsumerPlan IConsumerPlan.ChangeEnvironment(string? environment)
+        IConsumerPlan IConsumerPlan.ChangeEnvironment(Env? environment)
         {
             if (environment == null) return this;
 
@@ -401,7 +401,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        IConsumerPlan IConsumerPlan.ChangePartition(string? partition)
+        IConsumerPlan IConsumerPlan.ChangePartition(Env? partition)
         {
             if (partition == null) return this;
 

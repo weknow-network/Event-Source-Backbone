@@ -145,7 +145,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Origin environment of the message
         /// </summary>
-        public string Environment { get; } = string.Empty;
+        public Env Environment { get; } = string.Empty;
 
         #endregion // Environment
 
@@ -233,7 +233,7 @@ namespace Weknow.EventSource.Backbone
 
         #region ForwardChannels
 
-        IImmutableList<IProducerPlan> _forwardPlans { get; } = ImmutableList<IProducerPlan>.Empty;
+        private readonly IImmutableList<IProducerPlan> _forwardPlans = ImmutableList<IProducerPlan>.Empty;
         /// <summary>
         /// Gets the forwards pipelines.
         /// Result of merging multiple channels.
@@ -322,7 +322,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="type">The type (only for partition and shard).</param>
         /// <returns></returns>
         public ProducerPlan WithEnvironment(
-            string environment,
+            Env environment,
             string? partition = null,
             string? shard = null,
             RouteAssignmentType type = RouteAssignmentType.Replace)
@@ -443,6 +443,10 @@ namespace Weknow.EventSource.Backbone
 
         #region AddForward
 
+        /// <summary>
+        /// Adds forwards pipelines.
+        /// Result of merging multiple channels.
+        /// </summary>
         public ProducerPlan AddForward(IProducerHooksBuilder forward)
         {
             return new ProducerPlan(this, forwards: Forwards.Add(forward));
@@ -459,6 +463,12 @@ namespace Weknow.EventSource.Backbone
         private class NopChannel : IProducerChannelProvider
         {
             public static readonly IProducerChannelProvider Empty = new NopChannel();
+            /// <summary>
+            /// Send.
+            /// </summary>
+            /// <param name="payload">The payload.</param>
+            /// <param name="storageStrategy">The storage strategy.</param>
+            /// <returns>A ValueTask.</returns>
             public ValueTask<string> SendAsync(Announcement payload, ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
             {
                 throw new NotSupportedException("Channel must be assign");

@@ -135,7 +135,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerPartitionBuilder<IConsumerShardBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerShardBuilder>>.Environment(string? environment)
+        IConsumerPartitionBuilder<IConsumerShardBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerShardBuilder>>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -151,7 +151,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>.Environment(string? environment)
+        IConsumerSubscribeBuilder IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -596,7 +596,7 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
             /// <returns></returns>
-            IConsumerReceiver IConsumerEnvironmentOfBuilder<IConsumerReceiver>.Environment(string? environment)
+            IConsumerReceiver IConsumerEnvironmentOfBuilder<IConsumerReceiver>.Environment(Env? environment)
             {
                 if (environment == null)
                     return this;

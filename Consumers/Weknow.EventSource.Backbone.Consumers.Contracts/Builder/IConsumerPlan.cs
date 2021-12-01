@@ -26,14 +26,14 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment.</param>
         /// <returns>An IConsumerPlan.</returns>
-        IConsumerPlan ChangeEnvironment(string? environment);
+        IConsumerPlan ChangeEnvironment(Env? environment);
 
         /// <summary>
         /// change the partition.
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns>An IConsumerPlan.</returns>
-        IConsumerPlan ChangePartition(string? partition);
+        IConsumerPlan ChangePartition(Env? partition);
 
         /// <summary>
         /// Gets the storage strategies.

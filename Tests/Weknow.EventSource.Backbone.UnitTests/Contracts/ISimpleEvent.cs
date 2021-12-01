@@ -20,6 +20,12 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         /// <param name="value">The value.</param>
         /// <returns></returns>
         ValueTask ExecuteAsync(string key, int value);
+        /// <summary>
+        /// Runs the async.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="date">The date.</param>
+        /// <returns>A ValueTask.</returns>
         ValueTask RunAsync(int id, DateTime date);
     }
 }

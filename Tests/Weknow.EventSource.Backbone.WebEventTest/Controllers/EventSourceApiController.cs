@@ -80,7 +80,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<JsonElement> GetMoreAsync(string partition, string shard, string eventKey, string? env = null)
         {
-            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env).BuildReceiver();
+            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env ?? String.Empty).BuildReceiver();
             var json = await receiver.GetJsonByIdAsync(eventKey);
             return json;
         }

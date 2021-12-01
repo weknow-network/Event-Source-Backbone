@@ -1,0 +1,13 @@
+﻿[*.cs]
+
+# ConstFieldDocumentationHeader: The field must have a documentation header.
+dotnet_diagnostic.ConstFieldDocumentationHeader.severity = none
+
+# MethodDocumentationHeader: 
+dotnet_diagnostic.MethodDocumentationHeader.severity = none
+
+# ClassDocumentationHeader: 
+dotnet_diagnostic.ClassDocumentationHeader.severity = none
+
+# ConstructorDocumentationHeader: 
+dotnet_diagnostic.ConstructorDocumentationHeader.severity = none

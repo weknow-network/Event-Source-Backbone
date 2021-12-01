@@ -86,7 +86,9 @@ namespace Weknow.EventSource.Backbone
         {
             if (string.IsNullOrEmpty(meta.Environment))
                 return $"{meta.Partition}{separator}{meta.Shard}";
-            return $"{meta.Environment}{separator}{meta.Partition}{separator}{meta.Shard}";
+            Env env = meta.Environment;
+            string envFormatted = env.Format();
+            return $"{envFormatted}{separator}{meta.Partition}{separator}{meta.Shard}";
         }
 
         #endregion // Key

@@ -80,7 +80,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<JsonElement> GetJsonAsync(string env, string id, CancellationToken cancellation = default)
+        public async ValueTask<JsonElement> GetJsonAsync(Env env, string id, CancellationToken cancellation = default)
         {
             try
             {
@@ -113,7 +113,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<byte[]> GetBytesAsync(string env, string id, CancellationToken cancellation = default)
+        public async ValueTask<byte[]> GetBytesAsync(Env env, string id, CancellationToken cancellation = default)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <returns></returns>
         /// <exception cref="System.NullReferenceException">Failed to deserialize industries</exception>
         /// <exception cref="System.IO.InvalidDataException"></exception>
-        public async ValueTask<T> GetAsync<T>(string env, string id, CancellationToken cancellation = default)
+        public async ValueTask<T> GetAsync<T>(Env env, string id, CancellationToken cancellation = default)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="GetObjectRequest">
         /// </exception>
         /// <exception cref="System.Exception">Failed to get blob [{res.HttpStatusCode}]</exception>
-        public async ValueTask<Stream> GetStreamAsync(string env, string id, CancellationToken cancellation = default)
+        public async ValueTask<Stream> GetStreamAsync(Env env, string id, CancellationToken cancellation = default)
         {
             string bucketName = GetBucket(env);
             string key = GetKey(env, id);
@@ -259,7 +259,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
             JsonElement data,
-            string env,
+            Env env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
@@ -283,7 +283,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
             ReadOnlyMemory<byte> data,
-            string env,
+            Env env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
@@ -310,7 +310,7 @@ namespace Weknow.EventSource.Backbone.Channels
         /// <exception cref="Exception">Failed to save blob [{res.HttpStatusCode}]</exception>
         public async ValueTask<BlobResponse> SaveAsync(
             Stream data,
-            string env,
+            Env env,
             string id,
             IImmutableDictionary<string, string>? metadata = null,
             IImmutableDictionary<string, string>? tags = null,
@@ -394,19 +394,11 @@ namespace Weknow.EventSource.Backbone.Channels
         /// </summary>
         /// <param name="env">Environment</param>
         /// <returns></returns>
-        private string GetBucket(string env)
+        private string GetBucket(Env env)
         {
             var bucket = _environmentConvension switch
             {
-                S3EnvironmentConvention.BucketPrefix
-                        when string.Compare(env, "production", STRING_COMPARISON) == 0 ||
-                             string.Compare(env, "prod", STRING_COMPARISON) == 0 =>
-                                        $"prod.{_bucket}",
-                S3EnvironmentConvention.BucketPrefix
-                        when string.Compare(env, "development", STRING_COMPARISON) == 0 ||
-                             string.Compare(env, "dev", STRING_COMPARISON) == 0 =>
-                                         $"dev.{_bucket}",
-                S3EnvironmentConvention.BucketPrefix => $"{env}.{_bucket}",
+                S3EnvironmentConvention.BucketPrefix => $"{env.Format()}.{_bucket}",
                 _ => _bucket
             };
             return bucket;
