@@ -60,6 +60,7 @@ namespace Weknow.EventSource.Backbone.Private
         /// <param name="exception">The exception related to this entry.</param>
         /// <param name="formatter">Function to create a <see cref="T:System.String" /> message of the <paramref name="state" /> and <paramref name="exception" />.</param>
         /// <exception cref="NotImplementedException"></exception>
+#pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         public void Log<TState>(
             LogLevel logLevel,
             Microsoft.Extensions.Logging.EventId eventId,
@@ -78,6 +79,7 @@ namespace Weknow.EventSource.Backbone.Private
             }
             Trace.WriteLine(message, logLevel.ToString());
         }
+#pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
 
         #region Dispose
 

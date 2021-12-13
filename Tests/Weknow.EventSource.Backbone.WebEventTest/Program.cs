@@ -10,19 +10,96 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.WebEventTest.Jobs;
+using Weknow.EventSource.Backbone;
 
-namespace Weknow.EventSource.Backbone.WebEventTest
-{
-    public static class Program
-    {
-        private static readonly WeknowHosting<Startup> _hosting = new WeknowHosting<Startup>();
+using Weknow.EventSource.Backbone.WebEventTest;
+using StackExchange.Redis;
+using Microsoft.OpenApi.Models;
 
-        public static void Main(string[] args)
+const string ENV = $"test";
+
+var builder = WebApplication.CreateBuilder(args);
+
+IWebHostEnvironment environment = builder.Environment;
+string env = environment.EnvironmentName;
+string appName = environment.ApplicationName;
+string shortAppName = appName.Replace("Weknow.", string.Empty)
+                             .Replace("Backend.", string.Empty);
+
+
+var services = builder.Services;
+// Add services to the container.
+
+services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen(
+    opt => {
+        //opt.UseInlineDefinitionsForEnums();
+        //opt.UseOneOfForPolymorphism();
+        //opt.UseAllOfToExtendReferenceSchemas();
+        //opt.UseAllOfForInheritance();
+        opt.SupportNonNullableReferenceTypes();
+        opt.IgnoreObsoleteProperties();
+        opt.IgnoreObsoleteActions();
+        opt.DescribeAllParametersInCamelCase();
+
+
+        opt.SwaggerDoc("v1", new OpenApiInfo
         {
-            _hosting.HostRest(args, hostBuilder => hostBuilder.ConfigureServices((hostContext, services) =>
-            {
-                services.AddHostedService<MicroDemoJob>();
-            }));
-        }
-    }
+            Version = "v1",
+            Title = "Environment setup",
+            Description = @"<p><b>Use the following docker in order to setup the environment</b></p>
+<p>docker run -p 6379:6379 -it --rm --name redis-Json redislabs/rejson:latest</p>
+<p>docker run --rm -it --name jaeger -p 13133:13133 -p 16686:16686 -p 4317:55680 jaegertracing/opentelemetry-all-in-one</p>
+",
+            
+            //TermsOfService = new Uri("https://example.com/terms"),
+            //Contact = new OpenApiContact
+            //{
+            //    Name = "Example Contact",
+            //    Url = new Uri("https://example.com/contact")
+            //},
+            //License = new OpenApiLicense
+            //{
+            //    Name = "Example License",
+            //    Url = new Uri("https://example.com/license")
+            //}
+        });
+
+        //opt.SwaggerDoc("Event Source", new Microsoft.OpenApi.Models.OpenApiInfo { Description = "Bla" });
+        //opt.SelectSubTypesUsing();
+        //opt.SelectDiscriminatorValueUsing();
+        //opt.SelectDiscriminatorNameUsing();
+    });
+services.AddHostedService<MicroDemoJob>();
+
+IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
+services.AddOpenTelemetryWeknow(environment, shortAppName, redisConnection);
+
+
+services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
+
+services.AddEventSourceRedisConnection();
+
+services.AddEventSource(env);
+
+services.AddControllers()
+                .WithJsonOptions();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+//app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

@@ -20,7 +20,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 
 using Xunit;
 using Xunit.Abstractions;
-#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
+
 
 
 // TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)

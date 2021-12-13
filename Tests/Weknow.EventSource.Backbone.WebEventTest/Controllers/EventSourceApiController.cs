@@ -1,16 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using NSwag;
-using System.Text;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
 using StackExchange.Redis;
 using System.Text.Json;
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.WebEventTest;
 
 namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
 {
@@ -28,7 +21,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
             ILogger<EventSourceApiController> logger,
             IEventFlowProducer eventFlowProducer,
             IConsumerReadyBuilder consumerBuilder,
-            Building.IConsumerHooksBuilder baseBuilder,
+            IConsumerHooksBuilder baseBuilder,
             IConnectionMultiplexer redis)
         {
             _logger = logger;
@@ -41,7 +34,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         #region GetAsync
 
         /// <summary>
-        /// Post Analysts
+        /// Get event by id
         /// </summary>
         /// <returns>
         /// </returns>
@@ -56,7 +49,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         }
 
         /// <summary>
-        /// Post Analysts
+        /// Get event by id
         /// </summary>
         /// <returns>
         /// </returns>
@@ -71,7 +64,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         }
 
         /// <summary>
-        /// Post Analysts
+        /// Get event by id
         /// </summary>
         /// <returns>
         /// </returns>
@@ -89,6 +82,17 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
 
 
 
+        /// <summary>
+        /// Produce event
+        /// 
+        /// Setup environment:
+        ///   docker run -p 6379:6379 -it --rm --name redis-Json redislabs/rejson:latest
+        ///   docker run --rm -it --name jaeger -p 13133:13133 -p 16686:16686 -p 4317:55680 jaegertracing/opentelemetry-all-in-one
+        ///   
+        ///   Check Jaeger on: http://localhost:16686/search
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status201Created)]
