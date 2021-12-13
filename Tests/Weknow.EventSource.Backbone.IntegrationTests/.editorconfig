@@ -20,3 +20,6 @@ dotnet_diagnostic.ConstructorDocumentationHeader.severity = none
 
 # ClassDocumentationHeader: The class must have a documentation header.
 dotnet_diagnostic.ClassDocumentationHeader.severity = none
+
+# InterfaceDocumentationHeader: The interface must have a documentation header.
+dotnet_diagnostic.InterfaceDocumentationHeader.severity = none
