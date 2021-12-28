@@ -8,10 +8,18 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+    /// <summary>
+    /// Mark for code generation
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class GenerateEventSourceBaseAttribute : Attribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenerateEventSourceBaseAttribute"/> class.
+        /// </summary>
+        /// <param name="generateType">Type of the generate.</param>
         public GenerateEventSourceBaseAttribute(EventSourceGenType generateType)
         {
             Type = generateType;

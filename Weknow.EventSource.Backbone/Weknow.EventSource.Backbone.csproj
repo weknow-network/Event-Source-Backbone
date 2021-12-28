@@ -2,6 +2,11 @@
 
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>

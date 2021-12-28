@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.Private
 {
+    /// <summary>
+    /// Redis common provider extensions
+    /// </summary>
     public static class RedisCommonProviderExtensions
     {
         #region CreateConsumerGroupIfNotExistsAsync

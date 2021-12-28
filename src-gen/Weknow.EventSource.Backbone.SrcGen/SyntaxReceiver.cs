@@ -11,14 +11,23 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+    /// <summary>
+    /// Syntax Receiver
+    /// </summary>
+    /// <seealso cref="Microsoft.CodeAnalysis.ISyntaxReceiver" />
     internal class SyntaxReceiver : ISyntaxReceiver
     {
         public ImmutableArray<SyntaxReceiverResult> Contracts =
             ImmutableArray<SyntaxReceiverResult>.Empty;
+
         private const string ATTRIBUTE_SUFFIX = "Attribute";
 
         private readonly ImmutableHashSet<string> _targetAttribute = ImmutableHashSet<string>.Empty;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SyntaxReceiver"/> class.
+        /// </summary>
+        /// <param name="targetAttribute">The target attribute.</param>
         public SyntaxReceiver(string targetAttribute)
         {
             TargetAttribute = targetAttribute;
@@ -29,8 +38,15 @@ namespace Weknow.EventSource.Backbone
                 _targetAttribute = _targetAttribute.Add($"{targetAttribute}{ATTRIBUTE_SUFFIX}");
         }
 
+        /// <summary>
+        /// Gets the target attribute.
+        /// </summary>
         public string TargetAttribute { get; }
 
+        /// <summary>
+        /// Called for each <see cref="T:Microsoft.CodeAnalysis.SyntaxNode" /> in the compilation
+        /// </summary>
+        /// <param name="syntaxNode">The current <see cref="T:Microsoft.CodeAnalysis.SyntaxNode" /> being visited</param>
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
             if (syntaxNode is not TypeDeclarationSyntax tds ||
