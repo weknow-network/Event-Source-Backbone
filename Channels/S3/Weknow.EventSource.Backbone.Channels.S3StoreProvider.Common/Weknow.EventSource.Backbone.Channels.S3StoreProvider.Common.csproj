@@ -5,7 +5,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.7.5" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.14" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.15" />
   </ItemGroup>
 
 </Project>

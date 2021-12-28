@@ -10,6 +10,6 @@
     <PackageReference Include="OpenTelemetry.Api" Version="1.1.0" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="Weknow-BasicExtensions" Version="1.0.27" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.14" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.15" />
   </ItemGroup>
 </Project>
