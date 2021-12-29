@@ -2,6 +2,9 @@
 
 namespace Weknow.EventSource.Backbone
 {
+    /// <summary>
+    /// Responsible of translating announcement's parameter into object
+    /// </summary>
     public interface IConsumerBridge
     {
         /// <summary>

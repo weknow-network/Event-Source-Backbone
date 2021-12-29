@@ -23,11 +23,10 @@ namespace Weknow.EventSource.Backbone
         /// keys represent the different segments
         /// and the value represent serialized form of the segment's data.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="metadata">The metadata.</param>
         /// <param name="segments">The segments which was collect so far.
         /// It start as Empty and flow though all the registered segmentation strategies.</param>
-        /// <param name="operation">The operation's key which represent the method call at the
-        /// producer proxy.
-        /// This way you can segment same type into different slot.</param>
         /// <param name="argumentName">Name of the argument.</param>
         /// <param name="options">The options.</param>
         /// <returns>
@@ -39,8 +38,8 @@ namespace Weknow.EventSource.Backbone
         /// Technical vs Business aspects, etc.
         /// </example>
         ValueTask<(bool, T)> TryUnclassifyAsync<T>(
+                Metadata metadata,
                 Bucket segments,
-                string operation,
                 string argumentName,
                 EventSourceOptions options);
     }

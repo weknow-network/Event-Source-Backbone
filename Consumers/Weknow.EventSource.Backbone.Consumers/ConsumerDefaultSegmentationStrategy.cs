@@ -4,18 +4,32 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
+    /// <summary>
+    /// Responsible of converting raw segment (parameter) into object, i.e. deserialize a segment
+    /// </summary>
+    /// <seealso cref="Weknow.EventSource.Backbone.IConsumerAsyncSegmentationStrategy" />
     public class ConsumerDefaultSegmentationStrategy :
                         IConsumerAsyncSegmentationStrategy
     {
+        /// <summary>
+        /// Tries to unclassify segment (parameter) into object, i.e. deserialize a segment.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="metadata">The metadata.</param>
+        /// <param name="segments">The segments.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">$"Fail to serialize operation=[{operation}], argument-name=[{argumentName}], Target type=[{typeof(T).Name}], Base64 Data=[{Convert.ToBase64String(data.ToArray())}], ex</exception>
         ValueTask<(bool, T)> IConsumerAsyncSegmentationStrategy.
                                 TryUnclassifyAsync<T>(
+                                        Metadata metadata,
                                         Bucket segments,
-                                        string operation,
                                         string argumentName,
                                         EventSourceOptions options)
         {
-            string key = argumentName;
-            if (segments.TryGetValue(key, out ReadOnlyMemory<byte> data))
+            string operation = metadata.Operation;
+            if (segments.TryGetValue(argumentName, out ReadOnlyMemory<byte> data))
             {
                 try
                 {
@@ -24,7 +38,7 @@ namespace Weknow.EventSource.Backbone
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Fail to serialize operation=[{operation}], argument-name=[{argumentName}]", ex);
+                    throw new Exception($"Fail to serialize event [{metadata}]: operation=[{operation}], argument-name=[{argumentName}], Target type=[{typeof(T).Name}], Base64 Data=[{Convert.ToBase64String(data.ToArray())}]", ex);
                 }
             }
 

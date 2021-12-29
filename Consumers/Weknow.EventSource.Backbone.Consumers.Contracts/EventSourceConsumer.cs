@@ -25,7 +25,7 @@ namespace Weknow.EventSource.Backbone
         {
             foreach (var strategy in plan.SegmentationStrategies)
             {
-                var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Segments, arg.Metadata.Operation, argumentName, plan.Options);
+                var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Metadata, arg.Segments, argumentName, plan.Options);
                 if (isValid)
                     return value;
             }

@@ -87,6 +87,18 @@ namespace Weknow.EventSource.Backbone
         public string ChannelType { get; init; } = string.Empty;
 
         #endregion ChannelType 
+
+        #region ToString
+
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString() => $"{EventKey}, {this.Key()}";
+
+        #endregion // ToString
     }
 
     /// <summary>
