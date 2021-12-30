@@ -10,7 +10,7 @@
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.28" />
+    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.49" />
   </ItemGroup>
 
 </Project>

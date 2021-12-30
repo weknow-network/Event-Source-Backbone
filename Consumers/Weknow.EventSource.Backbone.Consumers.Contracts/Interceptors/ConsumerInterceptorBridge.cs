@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using static System.Threading.Tasks.ValueTaskStatic;
-
 
 namespace Weknow.EventSource.Backbone.Building
 {
@@ -40,10 +38,17 @@ namespace Weknow.EventSource.Backbone.Building
 
         #region InterceptAsync
 
+        /// <summary>
+        /// Interception operation.
+        /// </summary>
+        /// <param name="metadata">The metadata.</param>
+        /// <param name="interceptorData">The interceptor data which sets on the
+        /// producer stage of the interception.</param>
+        /// <returns></returns>
         ValueTask IConsumerAsyncInterceptor.InterceptAsync(Metadata metadata, ReadOnlyMemory<byte> interceptorData)
         {
             _sync.Intercept(metadata, interceptorData);
-            return CompletedValueTask;
+            return ValueTask.CompletedTask;
         }
 
         #endregion // InterceptAsync

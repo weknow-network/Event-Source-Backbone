@@ -1,10 +1,11 @@
 name: Deploy
   
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_run:
+    workflows: ["Prepare"]
+    types:
+      - completed
+
   workflow_dispatch:
     inputs:
       logLevel:

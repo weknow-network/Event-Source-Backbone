@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-using static System.Threading.Tasks.ValueTaskStatic;
-
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public class SequenceOperationsConsumer : ISequenceOperationsConsumer
@@ -15,7 +13,7 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
         {
             //var msg = new Ackable<User>(user, ack);
             //_block.Post(msg);
-            return CompletedValueTask;
+            return ValueTask.CompletedTask;
         }
 
         public ValueTask UpdateAsync(User user) => throw new NotImplementedException();

@@ -1,7 +1,10 @@
 <Project>
 	<PropertyGroup>
 		<Version>1.1.124</Version>
+		<PackageReleaseNotes>
+		</PackageReleaseNotes>
 	</PropertyGroup>
+	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<LangVersion>10</LangVersion>
@@ -13,8 +16,6 @@
 
 	<PropertyGroup>
 		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
-		<PackageReleaseNotes>
-		</PackageReleaseNotes>
 		<PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
 		<RepositoryType>GitHub</RepositoryType>
