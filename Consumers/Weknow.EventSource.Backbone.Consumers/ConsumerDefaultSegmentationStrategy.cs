@@ -36,10 +36,14 @@ namespace Weknow.EventSource.Backbone
                     T item = options.Serializer.Deserialize<T>(data);
                     return (true, item).ToValueTask();
                 }
+                #region Exception Handling
+
                 catch (Exception ex)
                 {
                     throw new Exception($"Fail to serialize event [{metadata}]: operation=[{operation}], argument-name=[{argumentName}], Target type=[{typeof(T).Name}], Base64 Data=[{Convert.ToBase64String(data.ToArray())}]", ex);
                 }
+
+                #endregion // Exception Handling
             }
 
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.

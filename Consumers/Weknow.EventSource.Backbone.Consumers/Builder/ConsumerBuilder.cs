@@ -663,7 +663,22 @@ namespace Weknow.EventSource.Backbone
                     foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Data)
                     {
                         var (key, val) = entry;
-                        JsonElement element = _plan.Options.Serializer.Deserialize<JsonElement>(val);
+                        JsonElement element;
+                        try
+                        {
+
+                            element = _plan.Options.Serializer.Deserialize<JsonElement>(val);
+                        }
+                        #region Exception Handling
+
+                        catch (Exception ex)
+                        {
+                            _plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', value (base64)='{value}'", 
+                                entryId, announcement.Key(), key, Convert.ToBase64String(val.ToArray()));
+                            throw;
+                        }
+
+                        #endregion // Exception Handling
                         w.WritePropertyName(key);
                         element.WriteTo(w);
                     }
