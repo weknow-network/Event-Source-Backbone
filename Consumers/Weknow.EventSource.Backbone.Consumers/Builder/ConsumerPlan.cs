@@ -4,6 +4,7 @@ using Polly;
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace Weknow.EventSource.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
+    [DebuggerDisplay("{Environment}:{Partition}:{Shard}")]
     public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();

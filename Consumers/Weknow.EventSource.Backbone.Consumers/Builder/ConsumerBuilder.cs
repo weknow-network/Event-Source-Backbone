@@ -14,12 +14,14 @@ using System.IO;
 
 using static Weknow.EventSource.Backbone.EventSourceConstants;
 using System.Buffers;
+using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Event Source consumer builder.
     /// </summary>
+    [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
     public class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerShardBuilder,
@@ -571,6 +573,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Receive data (on demand data query).
         /// </summary>
+        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
         private class Receiver : IConsumerReceiver
         {
             private readonly IConsumerPlan _plan;
