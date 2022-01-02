@@ -108,7 +108,17 @@ namespace Weknow.EventSource.Backbone
             try
             {
                 if (endpoint == null)
-                    throw new KeyNotFoundException($"REDIS KEY [{endpointKey}] is missing from env variables");
+                {
+                    #region Throw + Log
+
+                    if (logger != null)
+                        logger.LogError("REDIS CONNECTION: ENDPOINT [ENV Var: {endpointKey}] is missing", endpointKey);
+                    else
+                        Console.WriteLine($"REDIS CONNECTION: ENDPOINT [ENV Var: {endpointKey}] is missing");
+                    throw new KeyNotFoundException($"REDIS KEY [ENV Var: {endpointKey}] is missing");
+
+                    #endregion // Throw + Log
+                }
 
                 string? password = Environment.GetEnvironmentVariable(passwordKey);
 
@@ -135,9 +145,9 @@ namespace Weknow.EventSource.Backbone
 
                 IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
                 if (logger != null)
-                    logger.LogInformation(sb.ToString());
+                    logger.LogInformation("REDIS Connection [{envKey}]: {info} succeed", endpointKey, sb);
                 else
-                    Console.WriteLine(sb);
+                    Console.WriteLine($"REDIS Connection [{endpointKey}] succeed: {sb}");
                 redis.ConnectionFailed += OnConnectionFailed;
                 redis.ErrorMessage += OnConnErrorMessage;
                 redis.InternalError += OnInternalConnError;
