@@ -34,7 +34,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="s3Repository">S3 repository.
         /// Use S3Factory in order to create it (will create one if missing).
-        /// S3Factory will read credentials from the following environment variables: "S3_ACCESS_KEY", "S3_SECRET", "S3_REGION".</param>
+        /// S3Factory will read credentials from the following environment variables: "S3_EVENT_SOURCE_ACCESS_KEY", "S3_EVENT_SOURCE_SECRET", "S3_EVENT_SOURCE_REGION".</param>
         public S3ConsumerStorageStrategy(
             IS3Repository s3Repository)
         {

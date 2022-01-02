@@ -26,8 +26,9 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     public sealed class S3Repository : IS3Repository, IDisposable
     {
-        const string BUCKET_KEY = "S3_EVENT_SOURCE_BUCKET";
-        private static readonly string BUCKET = Environment.GetEnvironmentVariable(BUCKET_KEY) ?? string.Empty;
+        private static readonly string BUCKET = 
+            Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_BUCKET") 
+            ?? string.Empty;
 
         private readonly string _bucket;
         private readonly ILogger _logger;

@@ -55,9 +55,12 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             _logger = logger;
 
-            string accessKey = Environment.GetEnvironmentVariable("S3_ACCESS_KEY") ?? "";
-            string secretKey = Environment.GetEnvironmentVariable("S3_SECRET") ?? "";
-            string? regionKey = Environment.GetEnvironmentVariable("S3_REGION");
+            string accessKey =
+                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_ACCESS_KEY") ?? "";
+            string secretKey =
+                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_SECRET") ?? "";
+            string? regionKey =
+                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_REGION");
             RegionEndpoint rgnKey = (!string.IsNullOrEmpty(regionKey))
                                         ? RegionEndpoint.GetBySystemName(regionKey)
                                         : RegionEndpoint.USEast2;
