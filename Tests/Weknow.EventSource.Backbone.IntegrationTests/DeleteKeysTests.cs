@@ -29,15 +29,18 @@ namespace Weknow.EventSource.Backbone.Tests
         #region DELETE_KEYS_TEST
 
 
-        [Fact(Skip = "cleanup")]
+        [Theory(Skip = "cleanup")]
+        [InlineData("*test*")]
+        [InlineData("dev:*")]
         [Trait("type", "delete-keys")]
-        public async Task DELETE_KEYS_TEST()
+        public async Task DELETE_KEYS_TEST(string pattern)
         {
             IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
                                                 cfg => cfg.AllowAdmin = true);
             string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
             var server = conn.GetServer(serverName);
             IEnumerable<RedisKey> keys = server.Keys(pattern: "*test*").ToArray();
+            // IEnumerable<RedisKey> keys = server.Keys(pattern: "dev:*").ToArray();
             IDatabaseAsync db = conn.GetDatabase();
 
             var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions {  MaxDegreeOfParallelism= 30});

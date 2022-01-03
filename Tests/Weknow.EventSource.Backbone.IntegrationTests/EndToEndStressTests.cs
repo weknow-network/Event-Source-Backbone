@@ -122,7 +122,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerReceiver receiver = ...
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithCancellation(cancellation)
@@ -132,7 +132,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerReceiver receiver = ...
 
             var res0 = await receiver.GetByIdAsync(key);
             Assert.True(res0.Data.TryGet("id", out int id));
@@ -140,6 +140,63 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Receiver_Stress_Test
+
+        #region Receiver_Json_Stress_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        [Trait("type", "stress")]
+        public async Task Receiver_Json_Stress_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region IConsumerReceiver receiver - ...
+
+            IConsumerReceiver receiver = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildReceiver();
+
+            #endregion IConsumerReceiver receiver...
+
+            await ValidateLongSequenceAsync(producer, receiver);
+        }
+
+        #endregion // Receiver_Json_Stress_Test
+
+        #region ValidateLongSequenceAsync
+
+        private async Task ValidateLongSequenceAsync(
+            ISequenceOperationsProducer producer, IConsumerReceiver receiver)
+        {
+            var tasks = Enumerable.Range(1, 1500)
+                .Select(async m =>
+                {
+                    EventKey key = await producer.SuspendAsync(m);
+                    _outputHelper.WriteLine($"{m} -->");
+                    var res0 = await receiver.GetJsonByIdAsync(key);
+                    _outputHelper.WriteLine($"--> {m}");
+                    Assert.True(res0.TryGetProperty("id", out var id));
+                    Assert.Equal(m, id.GetInt32());
+                });
+            await Task.WhenAll(tasks);
+        }
+
+        #endregion // ValidateLongSequenceAsync
 
         #region SendSequenceAsync
 

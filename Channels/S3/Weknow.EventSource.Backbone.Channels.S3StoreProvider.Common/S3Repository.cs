@@ -85,7 +85,7 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             try
             {
-                Stream srm = await GetStreamAsync(env, id, cancellation);
+                using Stream srm = await GetStreamAsync(env, id, cancellation);
 
                 var response = await JsonDocument.ParseAsync(srm);
                 return response.RootElement;
@@ -118,7 +118,7 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             try
             {
-                Stream srm = await GetStreamAsync(env, id, cancellation);
+                using Stream srm = await GetStreamAsync(env, id, cancellation);
                 var buffer = new byte[srm.Length];
                 await srm.ReadAsync(buffer, cancellation);
                 return buffer;
@@ -154,7 +154,7 @@ namespace Weknow.EventSource.Backbone.Channels
         {
             try
             {
-                Stream srm = await GetStreamAsync(env, id, cancellation);
+                using Stream srm = await GetStreamAsync(env, id, cancellation);
 
                 var response = await JsonSerializer.DeserializeAsync<T>(srm, SerializerOptionsWithIndent);
 
@@ -291,7 +291,7 @@ namespace Weknow.EventSource.Backbone.Channels
             string? mediaType = null,
             CancellationToken cancellation = default)
         {
-            using var srm = new MemoryStream(data.ToArray()); // TODO: [bnaya 2021-07] consider AsStream -> https://www.nuget.org/packages/Microsoft.Toolkit.HighPerformance
+            using var srm = new MemoryStream(data.ToArray()); 
             var result = await SaveAsync(srm, env, id, metadata, tags, mediaType, cancellation);
             return result;
         }
