@@ -119,9 +119,9 @@ namespace Weknow.EventSource.Backbone.Channels
             try
             {
                 using Stream srm = await GetStreamAsync(env, id, cancellation);
-                var buffer = new byte[srm.Length];
-                await srm.ReadAsync(buffer, cancellation);
-                return buffer;
+                using MemoryStream memStream = new();
+                await srm.CopyToAsync(memStream);
+                return memStream.ToArray();
             }
             #region Exception Handling
 
