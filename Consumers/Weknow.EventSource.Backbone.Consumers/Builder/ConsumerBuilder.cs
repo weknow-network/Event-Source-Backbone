@@ -15,6 +15,7 @@ using System.IO;
 using static Weknow.EventSource.Backbone.EventSourceConstants;
 using System.Buffers;
 using System.Diagnostics;
+using System.Text;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -676,9 +677,19 @@ namespace Weknow.EventSource.Backbone
 
                         catch (Exception ex)
                         {
-                            _plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', value (base64)='{value}'", 
-                                entryId, announcement.Key(), key, Convert.ToBase64String(val.ToArray()));
-                            throw;
+                            string encoded = string.Empty;
+                            try
+                            {
+                                encoded = Encoding.UTF8.GetString(val.Span);
+                            }
+                            catch { }
+
+                            var err = $"GetJsonByIdAsync [{entryId}, { announcement.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                            _plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}", 
+                                entryId, announcement.Key(), key, 
+                                Convert.ToBase64String(val.ToArray()),
+                                encoded);
+                            throw new DataMisalignedException(err, ex);
                         }
 
                         #endregion // Exception Handling
