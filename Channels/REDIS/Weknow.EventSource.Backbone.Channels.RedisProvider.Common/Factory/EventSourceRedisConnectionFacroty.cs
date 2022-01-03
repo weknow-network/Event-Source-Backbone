@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 using Microsoft.Extensions.Logging;
@@ -21,10 +22,14 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public sealed class EventSourceRedisConnectionFacroty : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
     {
+        private const int CLOSE_DELEY_MILLISECONDS = 5000;
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly Action<ConfigurationOptions>? _configuration;
         private readonly RedisCredentialsKeys _credentialsKeys;
+        private readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(CLOSE_DELEY_MILLISECONDS));
+        private DateTime _lastResetConnection = DateTime.Now;
+        private int _reconnectTry = 0;
 
         #region Ctor
 
@@ -71,7 +76,36 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Get a valid connection 
         /// </summary>
-        Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync() => _redisTask;
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync()
+        {
+            var conn = await _redisTask;
+            if(conn.IsConnected)
+                return conn;
+            string status = conn.GetStatus();
+            _logger.LogWarning("REDIS Connection [{ClientName}] status = [{status}]",
+                                conn.ClientName, status);
+            var disp = await _lock.AcquireAsync();
+            using (disp)
+            {
+                conn = await _redisTask;
+                if(conn.IsConnected)
+                    return conn;
+                int tryNumber = Interlocked.Increment(ref _reconnectTry);
+                _logger.LogWarning("Reconnecting to REDIS: try=[{tryNumber}], client name=[{clientName}]",
+                                            tryNumber, conn.ClientName);
+                var duration = DateTime.Now - _lastResetConnection;
+                if ( duration > TimeSpan.FromSeconds(5))
+                {
+                    _lastResetConnection = DateTime.Now;
+                    var cn = conn;
+                    Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
+                    _redisTask = RedisClientFactory.CreateProviderAsync(_logger, _configuration, _credentialsKeys);
+                    var newConn = await _redisTask;
+                    return newConn;
+                }
+                return conn;
+            }
+        } 
 
         /// <summary>
         /// Get a valid connection 
