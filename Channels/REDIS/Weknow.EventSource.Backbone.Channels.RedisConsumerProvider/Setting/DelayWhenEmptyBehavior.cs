@@ -29,12 +29,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <summary>
         /// Gets or sets the maximum delay.
         /// </summary>
-        public TimeSpan MaxDelay { get; set; } = TimeSpan.FromSeconds(5);
+        public TimeSpan MaxDelay { get; init; } = TimeSpan.FromSeconds(5);
 
 
         /// <summary>
         /// Gets or sets the next delay.
         /// </summary>
-        public Func<TimeSpan, TimeSpan> CalcNextDelay { get; set; } = (d) => TimeSpan.FromMilliseconds(Max(d.TotalMilliseconds * 2, 10));
+        public Func<TimeSpan, TimeSpan> CalcNextDelay { get; init; } = DefaultCalcNextDeay;
+
+        private static TimeSpan DefaultCalcNextDeay(TimeSpan previous)
+        {
+            var prevMilli = previous.TotalMilliseconds;
+            var milli = Max(prevMilli * 2, 10);
+            return TimeSpan.FromMilliseconds(milli);
+        }
     }
 }

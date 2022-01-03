@@ -21,6 +21,7 @@ using Weknow.Text.Json;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry;
 using Weknow.EventSource.Backbone.Building;
+using System.Collections.Concurrent;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
@@ -164,14 +165,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {   // loop for error cases
                 try
                 {
-                    // infinite until cancellation
+                    // infinite until cancellation (return unique shareds)
                     var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*")
                                                     .WithCancellation(cancellationToken);
-                    // TODO: [bnaya 2020-10] seem like memory leak, re-subscribe to same shard 
+
                     await foreach (string key in keys)
                     {
                         string shard = key.Substring(partitionSplit);
                         IConsumerPlan p = plan.WithShard(shard);
+                        // infinite task (until cancellation)
                         Task subscription = SubsribeShardAsync(plan, func, options, cancellationToken);
                         subscriptions.Enqueue(subscription);
                     }
@@ -185,6 +187,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 }
             }
 
+            // run until cancellation or error
             await Task.WhenAll(subscriptions);
 
             #region DelayIfRetry
@@ -252,7 +255,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
                 results = await ClaimStaleMessages(emptyBatchCount, results);
 
-                await DelayIfEmpty(results.Length);
+                delay = await DelayIfEmpty(results.Length);
                 if (results.Length == 0)
                     return;
 
@@ -594,8 +597,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 {
                     var cfg = _setting.DelayWhenEmptyBehavior;
                     var newDelay = cfg.CalcNextDelay(delay);
-                    var maxDelayMs = Min(cfg.MaxDelay.TotalMilliseconds, delay.TotalMilliseconds);
-                    newDelay = TimeSpan.FromMilliseconds(maxDelayMs);
+                    var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
+                    newDelay = TimeSpan.FromMilliseconds(limitDelay);
                     await Task.Delay(newDelay, cancellationToken);
                     return newDelay;
                 }
