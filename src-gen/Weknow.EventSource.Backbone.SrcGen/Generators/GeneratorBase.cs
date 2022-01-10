@@ -16,6 +16,7 @@ namespace Weknow.EventSource.Backbone
     internal abstract class GeneratorBase : ISourceGenerator
     {
         private readonly string _targetAttribute;
+        private readonly string _kindFilter;
         private static readonly string[] DEFAULT_USING = new[]{
                             "System",
                             "System.Linq",
@@ -27,9 +28,10 @@ namespace Weknow.EventSource.Backbone
                             "Weknow.EventSource.Backbone.Building" }.Select(u => $"using {u};").ToArray();
 
 
-        public GeneratorBase(string targetAttribute)
+        public GeneratorBase(string targetAttribute, KindFilter kindFilter = KindFilter.Any)
         {
             _targetAttribute = targetAttribute;
+            _kindFilter = kindFilter.ToString();
         }
 
         public void Initialize(GeneratorInitializationContext context)
@@ -60,7 +62,8 @@ namespace Weknow.EventSource.Backbone
 
             foreach (var info in syntax.Contracts)
             {
-                ExecuteSingle(context, info);
+                if(_kindFilter == nameof(KindFilter.Any) || info.Kind == _kindFilter)
+                    ExecuteSingle(context, info);
             }
         }
 

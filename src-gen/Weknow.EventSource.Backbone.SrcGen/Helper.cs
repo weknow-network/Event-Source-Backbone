@@ -28,14 +28,14 @@ namespace Weknow.EventSource.Backbone
             if (kind == "Producer")
             {
                 return txt.Replace("Consumer", "Producer")
-                                             .Replace("Publisher", "Subscriber")
-                                             .Replace("Pub", "Sub").Trim();
+                                             .Replace("Subscriber", "Publisher")
+                                             .Replace("Sub", "Pub").Trim();
             }
             if (kind == "Consumer")
             {
                 return txt.Replace("Producer", "Consumer")
-                                             .Replace("Subscriber", "Publisher")
-                                             .Replace("Sub", "Pub").Trim();
+                                             .Replace("Publisher", "Subscriber")
+                                             .Replace("Pub", "Sub").Trim();
             }
             return "ERROR";
         }
