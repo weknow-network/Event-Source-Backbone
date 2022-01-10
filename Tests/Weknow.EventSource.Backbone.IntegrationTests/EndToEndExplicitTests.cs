@@ -21,6 +21,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 using Xunit;
 using Xunit.Abstractions;
 
+// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
 
 // TODO: [bnaya 2020-10] ensure message order(cancel ack should cancel all following messages)

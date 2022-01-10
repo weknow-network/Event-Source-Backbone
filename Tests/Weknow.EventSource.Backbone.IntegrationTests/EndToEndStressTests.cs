@@ -23,6 +23,8 @@ using static Weknow.EventSource.Backbone.EventSourceConstants;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using System.Threading.Tasks.Dataflow;
 
+// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+
 namespace Weknow.EventSource.Backbone.Tests
 {
     public class EndToEndStressTests : IDisposable

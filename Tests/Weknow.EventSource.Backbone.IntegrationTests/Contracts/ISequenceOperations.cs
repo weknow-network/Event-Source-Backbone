@@ -14,6 +14,11 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
     [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
     public interface ISequenceOperations
     {
+        /// <summary>
+        /// Registers a user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         ValueTask RegisterAsync(User user);
         ValueTask UpdateAsync(User user);
         ValueTask LoginAsync(string email, string password);

@@ -112,10 +112,10 @@ namespace Weknow.EventSource.Backbone
                     #region Throw + Log
 
                     if (logger != null)
-                        logger.LogError("REDIS CONNECTION: ENDPOINT [ENV Var: {endpointKey}] is missing", endpointKey);
+                        logger.LogError("REDIS CONNECTION: ENDPOINT [ENV variable: {endpointKey}] is missing", endpointKey);
                     else
-                        Console.WriteLine($"REDIS CONNECTION: ENDPOINT [ENV Var: {endpointKey}] is missing");
-                    throw new KeyNotFoundException($"REDIS KEY [ENV Var: {endpointKey}] is missing");
+                        Console.WriteLine($"REDIS CONNECTION: ENDPOINT [ENV variable: {endpointKey}] is missing");
+                    throw new KeyNotFoundException($"REDIS KEY [ENV variable: {endpointKey}] is missing");
 
                     #endregion // Throw + Log
                 }

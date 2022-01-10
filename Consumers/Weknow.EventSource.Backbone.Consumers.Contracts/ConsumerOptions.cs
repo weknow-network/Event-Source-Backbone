@@ -34,6 +34,19 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Validation
 
+        #region FetchUntilDateOrEmpty
+
+        /// <summary>
+        /// Stop consuming when the stream is empty or reach a specific date.
+        /// Great for fetching data until now.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [stop when empty]; otherwise, <c>false</c>.
+        /// </value>
+        public DateTimeOffset? FetchUntilDateOrEmpty { get; init; }
+
+        #endregion // FetchUntilDateOrEmpty
+
         #region AckBehavior
 
         /// <summary>

@@ -25,6 +25,8 @@ using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
 using System.Threading.Tasks.Dataflow;
 #pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
+// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+
 namespace Weknow.EventSource.Backbone.Tests
 {
     /// <summary>
@@ -414,6 +416,65 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // OnSucceed_ACK_Test
+
+        #region Until_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Until_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            .Environment(ENV)
+                                            //.WithOptions(producerOption)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            await SendSequenceAsync(producer);
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                FetchUntilDateOrEmpty = DateTimeOffset.UtcNow,
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            await Task.Delay(1500); // DateTime is not so accurate
+            await SendSequenceAsync(producer); // should be ignored
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Subscribe(_subscriberBridge, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.EarseAsync(4335))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // Until_Test
 
         #region GeneratedContract_Test
 

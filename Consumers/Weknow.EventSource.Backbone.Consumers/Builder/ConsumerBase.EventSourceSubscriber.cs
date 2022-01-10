@@ -61,6 +61,8 @@ namespace Weknow.EventSource.Backbone
                                                     ConsumingAsync,
                                                     plan.Options,
                                                     _cancellation.Token);
+
+                _subscriptionLifetime.AsTask().ContinueWith(_ => DisposeAsync());
             }
 
             #endregion // Ctor

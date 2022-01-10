@@ -123,6 +123,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         await SubsribeShardAsync(plan, func, options, cancellationToken);
                     else
                         await SubsribePartitionAsync(plan, func, options, cancellationToken);
+
+                    if (options.FetchUntilDateOrEmpty != null) 
+                        break;
                 }
                 #region Exception Handling
 
@@ -241,15 +244,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                         cancellationToken, plan.Cancellation).Token;
             TimeSpan delay = TimeSpan.Zero;
             int emptyBatchCount = 0;
-            while (!cancellationToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested && await HandleBatchAsync())
             {
-                await HandleBatchAsync();
             }
 
             #region HandleBatchAsync
 
             // Handle single batch
-            async ValueTask HandleBatchAsync()
+            async ValueTask<bool> HandleBatchAsync()
             {
                 StreamEntry[] results = await ReadBatchAsync();
                 emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
@@ -257,7 +259,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 delay = await DelayIfEmpty(results.Length);
                 if (results.Length == 0)
-                    return;
+                    return options.FetchUntilDateOrEmpty == null;
 
                 try
                 {
@@ -283,6 +285,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
                         long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
                         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                        if (options.FetchUntilDateOrEmpty != null && options.FetchUntilDateOrEmpty < producedAt)
+                            return false;
                         var meta = new Metadata
                         {
                             MessageId = id,
@@ -369,6 +373,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 {
                     isFirstBatchOrFailure = true;
                 }
+                return true;
             }
 
             #endregion // HandleBatchAsync
@@ -595,6 +600,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 if (resultsLength == 0)
                 {
+                    if (options.FetchUntilDateOrEmpty != null)
+                        return TimeSpan.Zero;
                     var cfg = _setting.DelayWhenEmptyBehavior;
                     var newDelay = cfg.CalcNextDelay(delay);
                     var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
