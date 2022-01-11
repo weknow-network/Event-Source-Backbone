@@ -32,6 +32,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     /// </summary>
     internal class RedisConsumerChannel : IConsumerChannelProvider
     {
+        private const string BEGIN_OF_STREAM = "0000000000000";
         /// <summary>
         /// Max delay
         /// </summary>
@@ -739,6 +740,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             ILogger logger = plan.Logger;
             await foreach (StreamEntry entry in AsyncLoop().WithCancellation(cancellationToken))
             {
+                if (cancellationToken.IsCancellationRequested) yield break;
 
                 #region var announcement = new Announcement(...)
 
@@ -781,10 +783,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 string key = plan.Key();
 
                 int iteration = 0;
-                string startPosition = options?.From ?? string.Empty;
+                RedisValue startPosition = options?.From ?? BEGIN_OF_STREAM;
                 TimeSpan delay = TimeSpan.Zero;
                 while (true)
                 {
+                    if(cancellationToken.IsCancellationRequested) yield break;  
+
                     iteration++;
                     StreamEntry[] entries = await db.StreamReadAsync(
                                                             key,
@@ -799,6 +803,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     string k = string.Empty;
                     foreach (var e in entries)
                     {
+                        if (cancellationToken.IsCancellationRequested) yield break;
+
                         k = e.Id;
                         if (options?.To != null && string.Compare(options?.To, k) < 0)
                             yield break;

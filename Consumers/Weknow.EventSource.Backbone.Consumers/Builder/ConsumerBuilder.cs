@@ -576,7 +576,17 @@ namespace Weknow.EventSource.Backbone
         /// Build iterator (pull fusion).
         /// </summary>
         /// <returns></returns>
-        IConsumerIterator IConsumerSubscribeBuilder.BuildIterator() => new Iterator((_plan as IConsumerPlanBuilder).Build());
+        IConsumerIterator IConsumerSubscribeBuilder.BuildIterator()
+        {
+            var rawPlan = _plan;
+            if (rawPlan.SegmentationStrategies.Count == 0)
+                rawPlan = rawPlan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
+
+            var plan = (rawPlan as IConsumerPlanBuilder).Build();
+
+            var iterator = new Iterator(plan);
+            return iterator;
+        }
 
         #endregion // BuildIterator
 
@@ -747,11 +757,17 @@ namespace Weknow.EventSource.Backbone
             /// <param name="options">The options.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
             /// <returns></returns>
-            IAsyncEnumerable<Announcement> IConsumerIteratorCommands.GetAsyncEnumerable(
+            async IAsyncEnumerable<AnnouncementData> IConsumerIteratorCommands.GetAsyncEnumerable(
                 ConsumerAsyncEnumerableOptions? options,
-                CancellationToken cancellationToken)
+                [EnumeratorCancellation] CancellationToken cancellationToken)
             { 
-                return _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
+                var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken).WithCancellation(cancellationToken);
+                await foreach (var announcement in loop.WithCancellation(cancellationToken))
+                {
+                    if (cancellationToken.IsCancellationRequested) yield break;
+
+                    yield return announcement;
+                }
             }
 
             #endregion // GetAsyncEnumerable
@@ -832,7 +848,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="options">The options.</param>
             /// <param name="cancellationToken">The cancellation token.</param>
             /// <returns></returns>
-            IAsyncEnumerable<Announcement> IConsumerIteratorCommands.GetAsyncEnumerable(
+            IAsyncEnumerable<AnnouncementData> IConsumerIteratorCommands.GetAsyncEnumerable(
                 ConsumerAsyncEnumerableOptions? options,
                 CancellationToken cancellationToken)
             { 
@@ -871,7 +887,7 @@ namespace Weknow.EventSource.Backbone
                 ConsumerAsyncEnumerableOptions? options,
                 [EnumeratorCancellation]CancellationToken cancellationToken)
             {
-                var loop = _iterator.GetAsyncEnumerable(options, cancellationToken);
+                var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
                 await foreach (var announcement in loop.WithCancellation(cancellationToken))
                 {
                     var (result, succeed) = await _mapper.TryMapAsync<TCast>(announcement, _plan, options?.OperationFilter);

@@ -47,11 +47,11 @@ namespace Weknow.EventSource.Backbone
                     CopyDocumentation(builder, kind, mds, "\t");
 
                     string recordPrefix = friendlyName;
-                    if(recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
+                    if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
                         recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
 
                     string mtdName = mds.Identifier.ValueText;
-                    if(mtdName.EndsWith("Async"))
+                    if (mtdName.EndsWith("Async"))
                         mtdName = mtdName.Substring(0, mtdName.Length - 5);
                     builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
                     builder.Append("\tpublic record");
@@ -94,7 +94,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}_EntityFamily");
-            builder.AppendLine("\t{");            
+            builder.AppendLine("\t{");
             builder.AppendLine("\t}");
 
             return new GenInstruction($"{interfaceName}.FamilyContract", builder.ToString());
@@ -102,7 +102,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // GenerateEntityFamilyContract
 
-        #region GenerateDtoMapper
+        #region GenerateEntityMapper
 
         internal static GenInstruction GenerateEntityMapper(
             string friendlyName,
@@ -116,8 +116,10 @@ namespace Weknow.EventSource.Backbone
 
             // CopyDocumentation(builder, kind, item, "\t");
 
-            builder.AppendLine("\tnamespace Hidden");
-            builder.AppendLine("\t{");
+            //builder.AppendLine("\tnamespace Hidden");
+            //builder.AppendLine("\t{");
+
+
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
             builder.AppendLine("\t\t/// </summary>");
@@ -126,6 +128,16 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic sealed class {friendlyName}EntityMapper: IConsumerEntityMapper<{interfaceName}_EntityFamily>");
             builder.AppendLine("\t\t{");
+
+            builder.AppendLine("\t\t\t/// <summary>");
+            builder.AppendLine($"\t\t\t/// Singleton entity mapper which responsible of mapping announcement to DTO generated from {friendlyName}");
+            builder.AppendLine("\t\t\t/// </summary>");
+            builder.AppendLine($"\t\t\tpublic static readonly IConsumerEntityMapper<{interfaceName}_EntityFamily> Default = new {friendlyName}EntityMapper();");
+
+
+            builder.AppendLine();
+            builder.AppendLine($"\t\t\tprivate {friendlyName}EntityMapper() {{}}");
+            builder.AppendLine();
 
             builder.AppendLine("\t\t\t/// <summary>");
             builder.AppendLine($"\t\t\t/// Map announcement");
@@ -194,6 +206,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tvar operation = announcement.Metadata.Operation;");
 
+            int j = 0;
             foreach (var method in item.Members)
             {
                 if (method is not MethodDeclarationSyntax mds)
@@ -202,31 +215,79 @@ namespace Weknow.EventSource.Backbone
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
                 string fullRecordName = $"{ recordPrefix }_{ recordSuffix}";
 
-                builder.AppendLine($"\t\t\t\tif((operationFilter == null || operationFilter(nameof({info.Name ?? interfaceName}.{mtdName}))) && typeof(TCast) == typeof({fullRecordName}))");
+                string nameOfOperetion = $"{info.Name ?? interfaceName}.{mtdName}";
+                string ifOrElseIf = j++ > 0 ? "else if" : "if";
+                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation == nameof({nameOfOperetion}))");
                 builder.AppendLine("\t\t\t\t{");
+                builder.AppendLine($"\t\t\t\t\tif(operationFilter == null || operationFilter(nameof({nameOfOperetion})))");
+                builder.AppendLine("\t\t\t\t\t{");
+                builder.AppendLine($"\t\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
+                builder.AppendLine("\t\t\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
                 int i = 0;
                 foreach (var p in prms)
                 {
                     var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                    builder.AppendLine($"\t\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                     i++;
                 }
                 IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
-                builder.AppendLine($"\t\t\t\t\treturn ((TCast?)rec, true);");
+                builder.AppendLine($"\t\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
+                builder.AppendLine($"\t\t\t\t\t\t\treturn ((TCast?)rec, true);");
+                builder.AppendLine("\t\t\t\t\t\t}");
+                builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
             }
-            builder.AppendLine($"\t\t\t\treturn (default, false);");
+            builder.AppendLine($"\t\t\t\t\treturn (default, false);");
             builder.AppendLine("\t\t\t}");
-            
+
             builder.AppendLine("\t\t}");
-            builder.AppendLine("\t}");
+            //builder.AppendLine("\t}");
 
             return new GenInstruction($"{friendlyName}.EntityMapper", builder.ToString());
         }
 
-        #endregion // GenerateDtoMapper
+        #endregion // GenerateEntityMapper
+
+        #region GenerateEntityMapperExtensions
+
+        internal static GenInstruction GenerateEntityMapperExtensions(
+            string friendlyName,
+            SyntaxReceiverResult info,
+            string interfaceName,
+            string generateFrom,
+            AssemblyName assemblyName)
+        {
+            var builder = new StringBuilder();
+            var (item, att, name, kind, suffix, ns, isProducer) = info;
+
+            // CopyDocumentation(builder, kind, item, "\t");
+
+            string bridge = $"{friendlyName}EntityMapper";
+            string fileName = $"{bridge}Extensions";
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
+            builder.AppendLine($"\tpublic static class {fileName}");
+            builder.AppendLine("\t{");
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Specialize Enumerator of event produced by {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+
+            builder.AppendLine($"\t\tpublic static IConsumerIterator<{interfaceName}_EntityFamily> Specialize{friendlyName} (this IConsumerIterator iterator)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\treturn iterator.Specialize({bridge}.Default);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t}");
+
+            return new GenInstruction($"{friendlyName}.EntityMapper.Extensions", builder.ToString());
+        }
+
+        #endregion // GenerateEntityMapperExtensions
     }
 }

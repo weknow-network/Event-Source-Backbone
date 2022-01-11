@@ -207,7 +207,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            var res0 = await receiver.GetByIdAsync(keys[0]);
+            AnnouncementData? res0 = await receiver.GetByIdAsync(keys[0]);
             var res1 = await receiver.GetByIdAsync(keys[1]);
             var hasEmail = res1.Data.TryGet("email", out string? email);
             Assert.Equal("admin", email);
@@ -361,6 +361,288 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Receiver_ChangeEnvironment_Test
+
+        #region Iterator_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            await foreach (AnnouncementData announcement in iterator.GetAsyncEnumerable().WithCancellation(cancellation))
+            {
+                if (i == 0)
+                {
+                    Assert.True(announcement.Data.TryGet("user", out User?user));
+                    Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
+
+                }
+                if (i == 1)
+                {
+                    Assert.True(announcement.Data.TryGet("email", out string? email));
+                    Assert.Equal("admin", email);
+                }
+                if (i == 2)
+                {
+                    Assert.True(announcement.Data.TryGet("id", out int id));
+                    Assert.Equal(4335, id);
+                }
+                i++;
+            }
+        }
+
+        #endregion // Iterator_Test
+
+        #region Iterator_Cancellation_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_Cancellation_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            var cts = new CancellationTokenSource();
+            CancellationToken globalCancellation = GetCancellationToken();
+            CancellationTokenSource linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, globalCancellation);
+            CancellationToken cancellation = linkedCancellation.Token;
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            await foreach (AnnouncementData announcement in iterator.GetAsyncEnumerable().WithCancellation(cancellation))
+            {
+                if (i == 0)
+                {
+                    Assert.True(announcement.Data.TryGet("user", out User user));
+                    Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
+                    cts.Cancel();
+                }
+                if (i == 1)
+                {
+                    throw new OperationCanceledException("Should have been canceled");
+                }
+                i++;
+            }
+
+            await foreach (AnnouncementData announcement in iterator.GetAsyncEnumerable(cancellationToken: cancellation))
+            {
+                if (i == 0)
+                {
+                    Assert.True(announcement.Data.TryGet("user", out User user));
+                    Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
+                    cts.Cancel();
+                }
+                if (i == 1)
+                {
+                    throw new OperationCanceledException("Should have been canceled");
+                }
+                i++;
+            }
+        }
+
+        #endregion // Iterator_Cancellation_Test
+
+        #region Iterator_Json_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_Json_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable().WithCancellation(cancellation))
+            {
+                if (i == 0)
+                {
+                    Assert.True(json.TryGetProperty("user", out JsonElement uj0));
+                    var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
+                    Assert.Equal("A25", u0?.Eracure?.GovernmentId);
+                    Assert.Equal("mike", u0?.Eracure?.Name);
+                }
+                if (i == 1)
+                {
+                    var p1 = JsonSerializer.Deserialize<TestEmailPass>(json.GetRawText(), SerializerOptionsWithIndent);
+                    Assert.Equal("admin", p1?.email);
+                    Assert.Equal("1234", p1?.password);
+                }
+                if (i == 2)
+                {
+                    var pj2 = json.GetProperty("id");
+                    Assert.Equal(4335, pj2.GetInt32());
+                }
+                i++;
+            }
+        }
+
+        #endregion // Iterator_Json_Test
+
+        #region Iterator_MapByType_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_MapByType_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator()
+                         .SpecializeSequenceOperationsConsumer();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
+            {
+                Assert.True(i < 1);
+                Assert.Equal("admin", item.email);
+                Assert.Equal("1234", item.password);
+
+                i++;
+            }
+        }
+
+        #endregion // Iterator_MapByType_Test
+
+        #region Iterator_MapByTyIterator_MapByType_WithExtension_Testpe_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_MapByType_WithExtension_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator()
+                         .Specialize(UnitTests.Entities.SequenceOperationsConsumerEntityMapper.Default);
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
+            {
+                Assert.True(i < 1);
+                Assert.Equal("admin", item.email);
+                Assert.Equal("1234", item.password);
+
+                i++;
+            }
+        }
+
+        #endregion // Iterator_MapByType_WithExtension_Test
 
         #region OnSucceed_ACK_Test
 

@@ -34,7 +34,7 @@ namespace Weknow.EventSource.Backbone
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
-
+            
             var verrideInterfaceArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "InterfaceName");
             var overrideInterfaceName = verrideInterfaceArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
@@ -67,6 +67,7 @@ namespace Weknow.EventSource.Backbone
             {
                 EntityGenerator.GenerateEntityFamilyContract(prefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapper(prefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapperExtensions(prefix, info, interfaceName , generateFrom, assemblyName),
                 OnExecuteConsumerBase(prefix, info, interfaceName, generateFrom, assemblyName),
                 OnExecuteConsumerBridge(prefix, info, interfaceName, generateFrom, assemblyName),
                 OnExecuteConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
