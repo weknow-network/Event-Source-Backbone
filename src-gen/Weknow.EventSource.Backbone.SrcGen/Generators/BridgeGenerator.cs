@@ -274,7 +274,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine($"\t\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
-            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
+            builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t\t{");
 
