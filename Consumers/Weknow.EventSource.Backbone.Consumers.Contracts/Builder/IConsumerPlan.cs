@@ -39,5 +39,15 @@ namespace Weknow.EventSource.Backbone
         /// Gets the storage strategies.
         /// </summary>
         Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }
+
+        /// <summary>
+        /// Get parameter value from the announcement.
+        /// </summary>
+        /// <typeparam name="TParam">The type of the parameter.</typeparam>
+        /// <param name="arg">The argument.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        ValueTask<TParam> GetParameterAsync<TParam>(Announcement arg, string argumentName);
     }
 }

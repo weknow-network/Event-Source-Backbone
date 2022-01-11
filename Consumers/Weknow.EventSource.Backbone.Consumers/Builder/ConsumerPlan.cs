@@ -289,6 +289,29 @@ namespace Weknow.EventSource.Backbone
 
         //------------------------------------------
 
+        #region GetParameterAsync
+
+        /// <summary>
+        /// Get parameter value from the announcement.
+        /// </summary>
+        /// <typeparam name="TParam">The type of the parameter.</typeparam>
+        /// <param name="arg">The argument.</param>
+        /// <param name="argumentName">Name of the argument.</param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
+        async ValueTask<TParam> IConsumerPlan.GetParameterAsync<TParam>(Announcement arg, string argumentName)
+        {
+            foreach (var strategy in SegmentationStrategies)
+            {
+                var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Metadata, arg.Segments, argumentName, Options);
+                if (isValid)
+                    return value;
+            }
+            throw new NotSupportedException();
+        }
+
+        #endregion // GetParameterAsync
+
         #region WithChannel
 
         /// <summary>

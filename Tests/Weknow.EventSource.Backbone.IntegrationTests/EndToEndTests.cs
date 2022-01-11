@@ -35,14 +35,14 @@ namespace Weknow.EventSource.Backbone.Tests
     public class EndToEndTests : IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
-        private readonly SequenceOperationsBridge _subscriberBridge;
+        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
+        private readonly SequenceOperationsConsumerBridge _subscriberBridge;
         private readonly ISequenceOperationsConsumer _autoSubscriber = A.Fake<ISequenceOperationsConsumer>();
-        private readonly ISequenceOperations _subscriberPrefix = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberPrefix1 = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberSuffix = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberSuffix1 = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberDynamic = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperationsConsumer _subscriberPrefix = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriberPrefix1 = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriberSuffix = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriberSuffix1 = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriberDynamic = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
@@ -114,7 +114,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             async ValueTask Delay() => await Task.Delay(200);
 
-            _subscriberBridge = new SequenceOperationsBridge(_subscriber);
+            _subscriberBridge = new SequenceOperationsConsumerBridge(_subscriber);
         }
 
         #endregion // Ctor
@@ -976,7 +976,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"p0.{PARTITION}")
                          .Shard($"p1.{SHARD}")
                          .WithLogger(_fakeLogger)
-                         .Subscribe(new SequenceOperationsBridge(_subscriberPrefix), "CONSUMER_GROUP_P1", $"TEST-P1 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_subscriberPrefix), "CONSUMER_GROUP_P1", $"TEST-P1 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionPrefix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -985,7 +985,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"p2.{PARTITION}")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .Subscribe(new SequenceOperationsBridge(_subscriberPrefix1), "CONSUMER_GROUP_P2", $"TEST-P2 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_subscriberPrefix1), "CONSUMER_GROUP_P2", $"TEST-P2 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionSuffix = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -994,7 +994,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"{PARTITION}.s0")
                          .Shard($"{SHARD}.s1")
                          .WithLogger(_fakeLogger)
-                         .Subscribe(new SequenceOperationsBridge(_subscriberSuffix), "CONSUMER_GROUP_S1", $"TEST-S1 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_subscriberSuffix), "CONSUMER_GROUP_S1", $"TEST-S1 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionSuffix1 = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -1003,7 +1003,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"{PARTITION}.s2")
                          .Shard(SHARD)
                          .WithLogger(_fakeLogger)
-                         .Subscribe(new SequenceOperationsBridge(_subscriberSuffix1), "CONSUMER_GROUP_S2", $"TEST-S2 {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_subscriberSuffix1), "CONSUMER_GROUP_S2", $"TEST-S2 {DateTime.UtcNow:HH:mm:ss}");
 
             await using IConsumerLifetime subscriptionDynamic = _consumerBuilder
                          .WithOptions(o => consumerOptions)
@@ -1012,7 +1012,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Partition($"d.{PARTITION}")
                          .Shard($"{SHARD}.d")
                          .WithLogger(_fakeLogger)
-                         .Subscribe(new SequenceOperationsBridge(_subscriberDynamic), "CONSUMER_GROUP_D", $"TEST-D {DateTime.UtcNow:HH:mm:ss}");
+                         .Subscribe(new SequenceOperationsConsumerBridge(_subscriberDynamic), "CONSUMER_GROUP_D", $"TEST-D {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -1078,7 +1078,7 @@ namespace Weknow.EventSource.Backbone.Tests
         [Fact(Timeout = TIMEOUT)]
         public async Task Claim_Test()
         {
-            ISequenceOperations otherSubscriber = A.Fake<ISequenceOperations>();
+            ISequenceOperationsConsumer otherSubscriber = A.Fake<ISequenceOperationsConsumer>();
 
             #region ISequenceOperations producer = ...
 
@@ -1126,12 +1126,12 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithLogger(_fakeLogger);
 
             await using IConsumerLifetime otherSubscription = consumerPipe
-                             .Subscribe(new SequenceOperationsBridge(otherSubscriber), "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(new SequenceOperationsConsumerBridge(otherSubscriber), "CONSUMER_GROUP_1", $"TEST Other {DateTime.UtcNow:HH:mm:ss}");
 
             await otherSubscription.Completion;
 
             await using IConsumerLifetime subscription = consumerPipe
-                             .Subscribe(new SequenceOperationsBridge(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+                             .Subscribe(new SequenceOperationsConsumerBridge(_subscriber), "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 

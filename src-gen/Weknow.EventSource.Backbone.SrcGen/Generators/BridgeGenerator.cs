@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@ namespace Weknow.EventSource.Backbone
             if (info.Kind == "Producer")
             {
                 var file = OnExecuteProducer(builder, info, interfaceName, generateFrom);
-                return new[] { new GenInstruction(file, builder.ToString())};
+                return new[] { new GenInstruction(file, builder.ToString()) };
             }
             return OnExecuteConsumers(info, interfaceName, generateFrom);
 
@@ -55,14 +56,23 @@ namespace Weknow.EventSource.Backbone
             string interfaceName,
             string generateFrom)
         {
-            string prefix = interfaceName.StartsWith("I") &&
+            string prefix = (info.Name ?? interfaceName).StartsWith("I") &&
                 interfaceName.Length > 1 &&
                 Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
 
-            var r1 = OnExecuteConsumerBase(prefix, info, interfaceName, generateFrom);
-            var r2 = OnExecuteConsumerBridge(prefix, info, interfaceName, generateFrom);
-            var r3 = OnExecuteConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom);
-            return new[] { r1, r2, r3};
+            AssemblyName assemblyName = GetType().Assembly.GetName();
+
+            var dtos = EntityGenerator.GenerateEntities(prefix, info, interfaceName, generateFrom, assemblyName);
+            GenInstruction[] gens =
+            {
+                EntityGenerator.GenerateEntityFamilyContract(prefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapper(prefix, info, interfaceName , generateFrom, assemblyName),
+                OnExecuteConsumerBase(prefix, info, interfaceName, generateFrom, assemblyName),
+                OnExecuteConsumerBridge(prefix, info, interfaceName, generateFrom, assemblyName),
+                OnExecuteConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
+            };
+
+            return dtos.Concat(gens).ToArray();
         }
 
         #endregion // OnExecuteConsumers
@@ -73,7 +83,8 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom)
+            string generateFrom,
+            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
@@ -87,8 +98,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t/// Subscription bridge extensions for { interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
-            var asm = GetType().Assembly.GetName();
-            builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic static class {fileName}");
             builder.AppendLine("\t{");
 
@@ -153,7 +163,8 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom)
+            string generateFrom,
+            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
@@ -166,8 +177,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t/// Subscription bridge for { interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
-            var asm = GetType().Assembly.GetName();
-            builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic sealed class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t{");
 
@@ -246,7 +256,8 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom)
+            string generateFrom,
+            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
@@ -262,8 +273,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine($"\t\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
-            var asm = GetType().Assembly.GetName();
-            builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t\t{");
 

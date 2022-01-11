@@ -9,7 +9,7 @@ namespace Weknow.EventSource.Backbone.SrcGen.Playground
     /// <summary>
     /// Some doc
     /// </summary>
-    [GenerateEventSourceBridge(EventSourceGenType.Consumer)]
+    [GenerateEventSource(EventSourceGenType.Consumer)]
     [GenerateEventSource(EventSourceGenType.Producer)]
     public interface ISample
     {

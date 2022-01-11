@@ -77,17 +77,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="argumentName">Name of the argument.</param>
             /// <returns></returns>
             /// <exception cref="NotSupportedException"></exception>
-            async ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName)
-            {
-                var plan = _plan;
-                foreach (var strategy in plan.SegmentationStrategies)
-                {
-                    var (isValid, value) = await strategy.TryUnclassifyAsync<TParam>(arg.Metadata, arg.Segments, argumentName, plan.Options);
-                    if (isValid)
-                        return value;
-                }
-                throw new NotSupportedException();
-            }
+            ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName) => _plan.GetParameterAsync<TParam>(arg, argumentName);
 
             #endregion // GetParameterAsync
 

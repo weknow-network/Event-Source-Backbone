@@ -35,7 +35,7 @@ namespace Weknow.EventSource.Backbone.Tests
     public class EndToEndExplicitTests : IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly IEventFlow _subscriber = A.Fake<IEventFlow>();
+        private readonly IEventFlowConsumer _subscriber = A.Fake<IEventFlowConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
@@ -131,7 +131,7 @@ namespace Weknow.EventSource.Backbone.Tests
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithLogger(_fakeLogger);
-            await using IConsumerLifetime subscription = builder.SubscribeEventFlow(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+            await using IConsumerLifetime subscription = builder.SubscribeEventFlowConsumer(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
             //.SubscribeEventFlow(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)

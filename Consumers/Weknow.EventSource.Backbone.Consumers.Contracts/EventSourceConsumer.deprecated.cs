@@ -8,6 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Base class for the consumer's code generator
     /// </summary>
+    [Obsolete ("Deprecated", true)]
     public static class EventSourceConsumer
     {
         #region GetParameterAsync

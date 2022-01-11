@@ -128,6 +128,12 @@ namespace Weknow.EventSource.Backbone
             }
         }
 
-        protected virtual string GetInterfaceConvention(string? name, string generateFrom, string kind, string? suffix) => name ?? generateFrom;
+        protected virtual string GetInterfaceConvention(string? name, string generateFrom, string kind, string? suffix)
+        {
+            string interfaceName = name ?? Convert(generateFrom, kind);
+            if (name == null && !string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
+                interfaceName = $"{interfaceName}{suffix}";
+            return interfaceName;
+        }
     }
 }

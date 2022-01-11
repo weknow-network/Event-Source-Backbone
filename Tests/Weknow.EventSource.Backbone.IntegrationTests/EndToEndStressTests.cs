@@ -30,14 +30,7 @@ namespace Weknow.EventSource.Backbone.Tests
     public class EndToEndStressTests : IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
-        private readonly ISequenceOperations _subscriber = A.Fake<ISequenceOperations>();
-        private readonly SequenceOperationsBridge _subscriberBridge;
-        private readonly ISequenceOperationsConsumer _autoSubscriber = A.Fake<ISequenceOperationsConsumer>();
-        private readonly ISequenceOperations _subscriberPrefix = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberPrefix1 = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberSuffix = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberSuffix1 = A.Fake<ISequenceOperations>();
-        private readonly ISequenceOperations _subscriberDynamic = A.Fake<ISequenceOperations>();
+        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
@@ -96,8 +89,6 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion //  A.CallTo(() => _fakeLogger...)
 
             async ValueTask Delay() => await Task.Delay(200);
-
-            _subscriberBridge = new SequenceOperationsBridge(_subscriber);
         }
 
         #endregion // Ctor
