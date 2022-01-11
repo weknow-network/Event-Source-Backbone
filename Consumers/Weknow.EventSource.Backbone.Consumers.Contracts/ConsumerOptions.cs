@@ -43,7 +43,32 @@ namespace Weknow.EventSource.Backbone
         /// <value>
         ///   <c>true</c> if [stop when empty]; otherwise, <c>false</c>.
         /// </value>
-        public DateTimeOffset? FetchUntilDateOrEmpty { get; init; }
+        public DateTimeOffset? FetchUntilDateOrEmpty 
+        {
+            get
+            {
+                var value = FetchUntilUnixDateOrEmpty;
+                return  (value == null) 
+                            ? null
+                            : DateTimeOffset.FromUnixTimeMilliseconds(value.Value);
+            }
+            init
+            {
+                if (value == null)
+                    FetchUntilUnixDateOrEmpty = null;
+                else
+                    FetchUntilUnixDateOrEmpty = value.Value.ToUnixTimeMilliseconds();
+            }
+        }
+
+        /// <summary>
+        /// Stop consuming when the stream is empty or reach a specific date.
+        /// Great for fetching data until now.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [stop when empty]; otherwise, <c>false</c>.
+        /// </value>
+        public long? FetchUntilUnixDateOrEmpty { get; init; }
 
         #endregion // FetchUntilDateOrEmpty
 

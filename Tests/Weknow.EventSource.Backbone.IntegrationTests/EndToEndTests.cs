@@ -443,7 +443,7 @@ namespace Weknow.EventSource.Backbone.Tests
             };
             CancellationToken cancellation = GetCancellationToken();
 
-            await Task.Delay(1500); // DateTime is not so accurate
+            await Task.Delay(100); // DateTime is not so accurate
             await SendSequenceAsync(producer); // should be ignored
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)

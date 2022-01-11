@@ -39,5 +39,13 @@ namespace Weknow.EventSource.Backbone
                     EventKey entryId,
                     IConsumerPlan plan,
                     CancellationToken cancellationToken);
+
+
+        //IAsyncEnumerable<Announcement> GetAsyncEnumerable(
+        //            IConsumerPlan plan,
+        //            string from,
+        //            string to,
+        //            string? operationFilter, // TODO: predicate
+        //            CancellationToken cancellationToken);
     }
 }

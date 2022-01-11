@@ -124,7 +124,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     else
                         await SubsribePartitionAsync(plan, func, options, cancellationToken);
 
-                    if (options.FetchUntilDateOrEmpty != null) 
+                    if (options.FetchUntilUnixDateOrEmpty != null) 
                         break;
                 }
                 #region Exception Handling
@@ -227,6 +227,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
+            string? fetchUntil = options.FetchUntilUnixDateOrEmpty?.ToString();
 
             ILogger logger = plan.Logger;
 
@@ -259,7 +260,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 delay = await DelayIfEmpty(results.Length);
                 if (results.Length == 0)
-                    return options.FetchUntilDateOrEmpty == null;
+                    return fetchUntil == null;
 
                 try
                 {
@@ -285,7 +286,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
                         long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
                         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                        if (options.FetchUntilDateOrEmpty != null && options.FetchUntilDateOrEmpty < producedAt)
+                        if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
                             return false;
                         var meta = new Metadata
                         {
@@ -600,7 +601,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             {
                 if (resultsLength == 0)
                 {
-                    if (options.FetchUntilDateOrEmpty != null)
+                    if (fetchUntil != null)
                         return TimeSpan.Zero;
                     var cfg = _setting.DelayWhenEmptyBehavior;
                     var newDelay = cfg.CalcNextDelay(delay);
