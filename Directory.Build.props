@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.1.143</Version>
+		<Version>1.1.144</Version>
 		<PackageReleaseNotes>
 			BREAKING CHANGES: rename of expected environment variables:
 			REDIS_EVENT_STREAM_ENDPOINT => REDIS_EVENT_SOURCE_ENDPOINT
