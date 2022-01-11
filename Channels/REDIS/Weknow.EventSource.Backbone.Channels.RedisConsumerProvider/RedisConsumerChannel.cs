@@ -124,7 +124,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     else
                         await SubsribePartitionAsync(plan, func, options, cancellationToken);
 
-                    if (options.FetchUntilUnixDateOrEmpty != null) 
+                    if (options.FetchUntilUnixDateOrEmpty != null)
                         break;
                 }
                 #region Exception Handling
@@ -258,9 +258,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
                 results = await ClaimStaleMessages(emptyBatchCount, results);
 
-                delay = await DelayIfEmpty(results.Length);
                 if (results.Length == 0)
+                {
+                    if (fetchUntil == null)
+                        delay = await DelayIfEmpty(delay, cancellationToken);
                     return fetchUntil == null;
+                }
 
                 try
                 {
@@ -593,27 +596,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             }
 
             #endregion // CancelAsync
-
-            #region DelayIfEmpty
-
-            // avoiding system hit when empty (mitigation of self DDoS)
-            async Task<TimeSpan> DelayIfEmpty(int resultsLength)
-            {
-                if (resultsLength == 0)
-                {
-                    if (fetchUntil != null)
-                        return TimeSpan.Zero;
-                    var cfg = _setting.DelayWhenEmptyBehavior;
-                    var newDelay = cfg.CalcNextDelay(delay);
-                    var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
-                    newDelay = TimeSpan.FromMilliseconds(limitDelay);
-                    await Task.Delay(newDelay, cancellationToken);
-                    return newDelay;
-                }
-                return TimeSpan.Zero;
-            }
-
-            #endregion // DelayIfEmpty
         }
 
         #endregion // SubsribeShardAsync
@@ -655,7 +637,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 {
                     MessageId = id,
                     EventKey = entryId,
-                    Environment =  plan.Environment,
+                    Environment = plan.Environment,
                     Partition = plan.Partition,
                     Shard = plan.Shard,
                     Operation = operation,
@@ -681,7 +663,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 async Task<StreamEntry> FindAsync(EventKey entryId)
                 {
                     string lookForId = (string)entryId;
-                    string key = plan.Key(); 
+                    string key = plan.Key();
 
                     string originId = lookForId;
                     int len = originId.IndexOf('-');
@@ -736,6 +718,101 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
         #endregion // GetByIdAsync
 
+        #region GetAsyncEnumerable
+
+        /// <summary>
+        /// Gets asynchronous enumerable of announcements.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        async IAsyncEnumerable<Announcement> IConsumerChannelProvider.GetAsyncEnumerable(
+                    IConsumerPlan plan,
+                    ConsumerAsyncEnumerableOptions? options,
+                    [EnumeratorCancellation]CancellationToken cancellationToken)
+        {
+            string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetAsyncEnumerable)}";
+
+            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+            IDatabaseAsync db = conn.GetDatabase();
+            ILogger logger = plan.Logger;
+            await foreach (StreamEntry entry in AsyncLoop().WithCancellation(cancellationToken))
+            {
+
+                #region var announcement = new Announcement(...)
+
+                Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+                string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
+                string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
+                string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
+                long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+                DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                var meta = new Metadata
+                {
+                    MessageId = id,
+                    EventKey = entry.Id,
+                    Environment = plan.Environment,
+                    Partition = plan.Partition,
+                    Shard = plan.Shard,
+                    Operation = operation,
+                    ProducedAt = producedAt
+                };
+
+                Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+                Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+
+                var announcement = new Announcement
+                {
+                    Metadata = meta,
+                    Segments = segmets,
+                    InterceptorsData = interceptions
+                };
+
+                #endregion // var announcement = new Announcement(...)
+
+                yield return announcement;
+            };
+
+            #region AsyncLoop
+
+            async IAsyncEnumerable<StreamEntry> AsyncLoop()
+            {
+                string key = plan.Key();
+
+                int iteration = 0;
+                string startPosition = options?.From ?? string.Empty;
+                TimeSpan delay = TimeSpan.Zero;
+                while (true)
+                {
+                    iteration++;
+                    StreamEntry[] entries = await db.StreamReadAsync(
+                                                            key,
+                                                            startPosition,
+                                                            READ_BY_ID_CHUNK_SIZE,
+                                                            CommandFlags.DemandMaster);
+                    if (entries.Length == 0)
+                    {
+                        if (options?.ExitWhenEmpty ?? true) yield break;
+                        delay = await DelayIfEmpty(delay, cancellationToken);
+                    }
+                    string k = string.Empty;
+                    foreach (var e in entries)
+                    {
+                        k = e.Id;
+                        if (options?.To != null && string.Compare(options?.To, k) < 0)
+                            yield break;
+                        yield return e;
+                    }
+                    startPosition = k; // next batch will start from last entry
+                }
+            }
+
+            #endregion // AsyncLoop
+        }
+
+        #endregion // GetAsyncEnumerable
+
         #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
 
         /// <summary>
@@ -774,6 +851,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         }
 
         #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
+
+        #region DelayIfEmpty
+
+        // avoiding system hit when empty (mitigation of self DDoS)
+        private async Task<TimeSpan> DelayIfEmpty(TimeSpan previousDelay, CancellationToken cancellationToken)
+        {
+            var cfg = _setting.DelayWhenEmptyBehavior;
+            var newDelay = cfg.CalcNextDelay(previousDelay);
+            var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
+            newDelay = TimeSpan.FromMilliseconds(limitDelay);
+            await Task.Delay(newDelay, cancellationToken);
+            return newDelay;
+        }
+
+        #endregion // DelayIfEmpty
 
         #region GetKeysUnsafeAsync
 

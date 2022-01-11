@@ -189,7 +189,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t\t\t public async Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
             builder.AppendLine($"\t\t\t\t\tAnnouncement announcement, ");
             builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan,");
-            builder.AppendLine($"\t\t\t\t\tstring? operationFilter = null)");
+            builder.AppendLine($"\t\t\t\t\tPredicate<string>? operationFilter = null)");
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {interfaceName}_EntityFamily");
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tvar operation = announcement.Metadata.Operation;");
@@ -202,7 +202,7 @@ namespace Weknow.EventSource.Backbone
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
                 string fullRecordName = $"{ recordPrefix }_{ recordSuffix}";
 
-                builder.AppendLine($"\t\t\t\tif((operationFilter == null || operationFilter ==  nameof({info.Name ?? interfaceName}.{mtdName})) && typeof(TCast) == typeof({fullRecordName}))");
+                builder.AppendLine($"\t\t\t\tif((operationFilter == null || operationFilter(nameof({info.Name ?? interfaceName}.{mtdName}))) && typeof(TCast) == typeof({fullRecordName}))");
                 builder.AppendLine("\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
                 int i = 0;

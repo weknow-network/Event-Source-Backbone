@@ -920,25 +920,25 @@ namespace Weknow.EventSource.Backbone.Tests
                                             .WithLogger(_fakeLogger);
             ISequenceOperationsProducer producer = producerBuilder.BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix = producerBuilder
-                .Override<ISequenceOperationsProducer>()
+                .Specialize<ISequenceOperationsProducer>()
                 .Environment("dev")
                 .Partition("p0.")
                 .Shard("p1.")
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix1 = producerBuilder
-                .Override<ISequenceOperationsProducer>()
+                .Specialize<ISequenceOperationsProducer>()
                 .Partition("p2.").BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerSuffix = producerBuilder
-                .Override<ISequenceOperationsProducer>()
+                .Specialize<ISequenceOperationsProducer>()
                 .Partition(".s0", RouteAssignmentType.Suffix)
                 .Shard(".s1", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerSuffix1 = producerBuilder
-                .Override<ISequenceOperationsProducer>()
+                .Specialize<ISequenceOperationsProducer>()
                 .Partition(".s2", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerDynamic = producerBuilder.Environment("Fake Env")
-                .Override<ISequenceOperationsProducer>()
+                .Specialize<ISequenceOperationsProducer>()
                 .Strategy(m => (ENV, $"d.{m.Partition}", $"{m.Shard}.d"))
                 .BuildSequenceOperationsProducer();
 

@@ -25,6 +25,13 @@ namespace Weknow.EventSource.Backbone.Building
         IConsumerReceiver BuildReceiver();
 
         /// <summary>
+        /// Build iterator (pull fusion).
+        /// </summary>
+        /// <returns></returns>
+        IConsumerIterator BuildIterator();
+
+
+        /// <summary>
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>

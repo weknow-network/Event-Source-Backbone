@@ -41,11 +41,16 @@ namespace Weknow.EventSource.Backbone
                     CancellationToken cancellationToken);
 
 
-        //IAsyncEnumerable<Announcement> GetAsyncEnumerable(
-        //            IConsumerPlan plan,
-        //            string from,
-        //            string to,
-        //            string? operationFilter, // TODO: predicate
-        //            CancellationToken cancellationToken);
+        /// <summary>
+        /// Gets asynchronous enumerable of announcements.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        IAsyncEnumerable<Announcement> GetAsyncEnumerable(
+                    IConsumerPlan plan,
+                    ConsumerAsyncEnumerableOptions? options = null,
+                    CancellationToken cancellationToken = default);
     }
 }

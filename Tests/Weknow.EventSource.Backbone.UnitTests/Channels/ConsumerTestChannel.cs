@@ -67,5 +67,10 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // GetByIdAsync
+
+        IAsyncEnumerable<Announcement> IConsumerChannelProvider.GetAsyncEnumerable(IConsumerPlan plan, ConsumerAsyncEnumerableOptions options, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

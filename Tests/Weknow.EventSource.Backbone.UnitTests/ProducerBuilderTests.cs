@@ -137,7 +137,7 @@ namespace Weknow.EventSource.Backbone
         #region Build_GeneratedFactory_Override_Producer_Test
 
         [Fact]
-        public async Task Build_GeneratedFactory_Override_Producer_Test()
+        public async Task Build_GeneratedFactory_Specialize_Producer_Test()
         {
             //var option = new EventSourceOptions(_serializer);
 
@@ -146,7 +146,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Override<ISequenceOfProducer>()
+                        .Specialize<ISequenceOfProducer>()
                         .Environment("QA")
                         .BuildSequenceOfProducer();
 
@@ -157,7 +157,7 @@ namespace Weknow.EventSource.Backbone
             var message = await ch.Reader.ReadAsync();
         }
 
-        #endregion // Build_GeneratedFactory_Override_Producer_Test
+        #endregion // Build_GeneratedFactory_Specialize_Producer_Test
 
         #region Build_Factory_Producer_Test
 
@@ -211,7 +211,7 @@ namespace Weknow.EventSource.Backbone
         #region Build_Factory_Override_Producer_Test
 
         [Fact]
-        public async Task Build_Factory_Override_Producer_Test()
+        public async Task Build_Factory_Specialize_Producer_Test()
         {
             //var option = new EventSourceOptions(_serializer);
 
@@ -220,7 +220,7 @@ namespace Weknow.EventSource.Backbone
                         //.WithOptions(option)
                         .Partition("Organizations")
                         .Shard("Org: #RedSocks")
-                        .Override<ISequenceOperationsProducer>()
+                        .Specialize<ISequenceOperationsProducer>()
                         .Environment("QA")
                         .BuildSequenceOperationsProducer();
 
@@ -231,7 +231,7 @@ namespace Weknow.EventSource.Backbone
             var message = await ch.Reader.ReadAsync();
         }
 
-        #endregion // Build_Factory_Override_Producer_Test
+        #endregion // Build_Factory_Specialize_Producer_Test
 
         #region Build_Interceptor_Producer_Test
 

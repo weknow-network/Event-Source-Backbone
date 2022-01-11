@@ -360,6 +360,18 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Override
 
+        #region Specialize
+
+        /// <summary>
+        /// Enable dynamic transformation of the stream id before sending.
+        /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        IProducerOverrideBuilder<T> IProducerSpecializeBuilder.Specialize<T>() => new Router<T>(Plan);
+
+        #endregion // Specialize
+
         #region Router
 
         /// <summary>

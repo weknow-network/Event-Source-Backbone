@@ -33,6 +33,7 @@ namespace Weknow.EventSource.Backbone.Tests
         [InlineData("*test*")]
         [InlineData("dev:*")]
         [Trait("type", "delete-keys")]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public async Task DELETE_KEYS_TEST(string pattern)
         {
             IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
@@ -73,6 +74,7 @@ namespace Weknow.EventSource.Backbone.Tests
                 #endregion // Exception Handling
             }
         }
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         #endregion // DELETE_KEYS_TEST
     }
