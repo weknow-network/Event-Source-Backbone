@@ -255,15 +255,20 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
             var res0 = await receiver.GetJsonByIdAsync(keys[0]);
+            _outputHelper.WriteLine(res0.AsIndentString());
             Assert.True(res0.TryGetProperty("user", out JsonElement uj0));
             var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
             Assert.Equal("A25", u0?.Eracure?.GovernmentId);
             Assert.Equal("mike", u0?.Eracure?.Name);
+           
             var res1 = await receiver.GetJsonByIdAsync(keys[1]);
+            _outputHelper.WriteLine(res1.AsIndentString());
             var p1 = JsonSerializer.Deserialize<TestEmailPass>(res1.GetRawText(), SerializerOptionsWithIndent);
             Assert.Equal("admin", p1?.email);
             Assert.Equal("1234", p1?.password);
+            
             var res2 = await receiver.GetJsonByIdAsync(keys[2]);
+            _outputHelper.WriteLine(res2.AsIndentString());
             var pj2 = res2.GetProperty("id");
             Assert.Equal(4335, pj2.GetInt32());
         }
@@ -526,6 +531,7 @@ namespace Weknow.EventSource.Backbone.Tests
             int i = 0;
             await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable().WithCancellation(cancellation))
             {
+                _outputHelper.WriteLine(json.AsIndentString());
                 if (i == 0)
                 {
                     Assert.True(json.TryGetProperty("user", out JsonElement uj0));
@@ -725,7 +731,7 @@ namespace Weknow.EventSource.Backbone.Tests
             };
             CancellationToken cancellation = GetCancellationToken();
 
-            await Task.Delay(100); // DateTime is not so accurate
+            await Task.Delay(500); // DateTime is not so accurate
             await SendSequenceAsync(producer); // should be ignored
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)

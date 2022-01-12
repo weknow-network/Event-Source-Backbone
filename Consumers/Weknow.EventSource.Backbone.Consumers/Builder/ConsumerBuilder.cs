@@ -24,7 +24,7 @@ namespace Weknow.EventSource.Backbone
     /// Event Source consumer builder.
     /// </summary>
     [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-    public class ConsumerBuilder :
+    public partial class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerShardBuilder,
         IConsumerStoreStrategyBuilder
@@ -590,318 +590,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // BuildIterator
 
-        #region private class Receiver
-
-        /// <summary>
-        /// Receive data (on demand data query).
-        /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Receiver : IConsumerReceiver
-        {
-            private readonly IConsumerPlan _plan;
-
-            #region Ctor
-
-            /// <summary>
-            /// Initializes a new instance.
-            /// </summary>
-            /// <param name="plan">The plan.</param>
-            public Receiver(IConsumerPlan plan)
-            {
-                _plan = plan;
-            }
-
-            #endregion // Ctor
-
-            #region Environment
-
-            /// <summary>
-            /// Include the environment as prefix of the stream key.
-            /// for example: production:partition-name:shard-name
-            /// </summary>
-            /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
-            /// <returns></returns>
-            IConsumerReceiver IConsumerEnvironmentOfBuilder<IConsumerReceiver>.Environment(Env? environment)
-            {
-                if (environment == null)
-                    return this;
-
-                IConsumerPlan plan = _plan.ChangeEnvironment(environment);
-                var result = new Receiver(plan);
-                return result;
-            }
-
-            #endregion // Environment
-
-            /// <summary>
-            /// replace the partition of the stream key.
-            /// for example: production:partition-name:shard-name
-            /// </summary>
-            /// <param name="partition">The partition.</param>
-            /// <returns></returns>
-            IConsumerReceiver IConsumerPartitionBuilder<IConsumerReceiver>.Partition(string partition)
-            {
-                IConsumerPlan plan = _plan.ChangePartition(partition);
-                var result = new Receiver(plan);
-                return result;
-            }
-
-            #region GetByIdAsync
-
-            /// <summary>
-            /// Gets the asynchronous.
-            /// </summary>
-            /// <param name="entryId">The entry identifier.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            async ValueTask<AnnouncementData> IConsumerReceiverCommands.GetByIdAsync(
-                            EventKey entryId,
-                            CancellationToken cancellationToken)
-            {
-                var channel = _plan.Channel;
-                AnnouncementData result = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
-                return result;
-            }
-
-            #endregion // GetByIdAsync
-
-            #region GetJsonByIdAsync
-
-            /// <summary>
-            /// Gets the asynchronous.
-            /// </summary>
-            /// <param name="entryId">The entry identifier.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            async ValueTask<JsonElement> IConsumerReceiverCommands.GetJsonByIdAsync(
-                            EventKey entryId,
-                            CancellationToken cancellationToken)
-            {
-                var channel = _plan.Channel;
-                AnnouncementData announcement = await channel.GetByIdAsync(entryId, _plan, cancellationToken);
-
-                JsonElement result = ToJson(_plan, announcement);
-                return result;
-            }
-
-            #endregion // GetJsonByIdAsync
-        }
-
-        #endregion // private class Receiver
-
-        #region private class Iterator
-
-        /// <summary>
-        /// Receive data (on demand data query).
-        /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Iterator : IConsumerIterator
-        {
-            private readonly IConsumerPlan _plan;
-
-            #region Ctor
-
-            /// <summary>
-            /// Initializes a new instance.
-            /// </summary>
-            /// <param name="plan">The plan.</param>
-            public Iterator(IConsumerPlan plan)
-            {
-                _plan = plan;
-            }
-
-            #endregion // Ctor
-
-            #region Environment
-
-            /// <summary>
-            /// Include the environment as prefix of the stream key.
-            /// for example: production:partition-name:shard-name
-            /// </summary>
-            /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
-            /// <returns></returns>
-            IConsumerIterator IConsumerEnvironmentOfBuilder<IConsumerIterator>.Environment(Env? environment)
-            {
-                if (environment == null)
-                    return this;
-
-                IConsumerPlan plan = _plan.ChangeEnvironment(environment);
-                var result = new Iterator(plan);
-                return result;
-            }
-
-            #endregion // Environment
-
-            #region Partition
-
-            /// <summary>
-            /// replace the partition of the stream key.
-            /// for example: production:partition-name:shard-name
-            /// </summary>
-            /// <param name="partition">The partition.</param>
-            /// <returns></returns>
-            IConsumerIterator IConsumerPartitionBuilder<IConsumerIterator>.Partition(string partition)
-            {
-                IConsumerPlan plan = _plan.ChangePartition(partition);
-                var result = new Iterator(plan);
-                return result;
-            }
-
-            #endregion // Partition
-
-            #region GetAsyncEnumerable
-
-            /// <summary>
-            /// Gets asynchronous enumerable of announcements.
-            /// </summary>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            async IAsyncEnumerable<AnnouncementData> IConsumerIteratorCommands.GetAsyncEnumerable(
-                ConsumerAsyncEnumerableOptions? options,
-                [EnumeratorCancellation] CancellationToken cancellationToken)
-            { 
-                var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken).WithCancellation(cancellationToken);
-                await foreach (var announcement in loop.WithCancellation(cancellationToken))
-                {
-                    if (cancellationToken.IsCancellationRequested) yield break;
-
-                    yield return announcement;
-                }
-            }
-
-            #endregion // GetAsyncEnumerable
-
-            #region GetJsonAsyncEnumerable
-
-            /// <summary>
-            /// Gets asynchronous enumerable of announcements.
-            /// </summary>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            async IAsyncEnumerable<JsonElement> IConsumerIteratorCommands.GetJsonAsyncEnumerable(
-                ConsumerAsyncEnumerableOptions? options,
-                [EnumeratorCancellation]CancellationToken cancellationToken)
-            {
-                var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
-                await foreach (var announcement in loop.WithCancellation(cancellationToken))
-                {
-                    JsonElement result = ToJson(_plan, announcement);
-                    yield return result;
-                }
-            }
-
-            #endregion // GetJsonAsyncEnumerable
-
-            #region Specialize
-
-            /// <summary>
-            /// Get specialized iterator.
-            /// </summary>
-            /// <typeparam name="TEntityFamily">This type is used for filtering the result, only result of this type will yield.</typeparam>
-            /// <param name="mapper">The mapper.</param>
-            /// <returns></returns>
-            IConsumerIterator<TEntityFamily> IConsumerIterator.Specialize<TEntityFamily>(IConsumerEntityMapper<TEntityFamily> mapper)
-            {
-                return new Iterator<TEntityFamily>(_plan, this, mapper);
-            }
-
-            #endregion // Specialize
-        }
-
-        /// <summary>
-        /// Receive data (on demand data query).
-        /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Iterator<TEntityFamily> : IConsumerIterator<TEntityFamily>
-        {
-            private readonly IConsumerPlan _plan;
-            private readonly IConsumerIterator _iterator;
-            private readonly IConsumerEntityMapper<TEntityFamily> _mapper;
-
-            #region Ctor
-
-            /// <summary>
-            /// Initializes a new instance.
-            /// </summary>
-            /// <param name="plan">The plan.</param>
-            /// <param name="iterator">The iterator.</param>
-            /// <param name="mapper">The mapper.</param>
-            public Iterator(
-                IConsumerPlan plan,
-                IConsumerIterator iterator,
-                IConsumerEntityMapper<TEntityFamily> mapper)
-            {
-                _plan = plan;
-                _iterator = iterator;
-                _mapper = mapper;
-            }
-
-            #endregion // Ctor
-
-            #region GetAsyncEnumerable
-
-            /// <summary>
-            /// Gets asynchronous enumerable of announcements.
-            /// </summary>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            IAsyncEnumerable<AnnouncementData> IConsumerIteratorCommands.GetAsyncEnumerable(
-                ConsumerAsyncEnumerableOptions? options,
-                CancellationToken cancellationToken)
-            { 
-                return _iterator.GetAsyncEnumerable(options, cancellationToken);
-            }
-
-            #endregion // GetAsyncEnumerable
-
-            #region GetJsonAsyncEnumerable
-
-            /// <summary>
-            /// Gets asynchronous enumerable of announcements.
-            /// </summary>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            IAsyncEnumerable<JsonElement> IConsumerIteratorCommands.GetJsonAsyncEnumerable(
-                ConsumerAsyncEnumerableOptions? options,
-                CancellationToken cancellationToken)
-            {
-                return _iterator.GetJsonAsyncEnumerable(options, cancellationToken);
-            }
-
-            #endregion // GetJsonAsyncEnumerable
-
-            #region GetAsyncEnumerable<TCast>
-
-            /// <summary>
-            /// Gets asynchronous enumerable of announcements.
-            /// </summary>
-            /// <typeparam name="TCast">This type is used for filtering the result, only result of this type will yield.</typeparam>
-            /// <param name="options">The options.</param>
-            /// <param name="cancellationToken">The cancellation token.</param>
-            /// <returns></returns>
-            async IAsyncEnumerable<TCast> IConsumerIteratorCommands<TEntityFamily>.GetAsyncEnumerable<TCast>(
-                ConsumerAsyncEnumerableOptions? options,
-                [EnumeratorCancellation]CancellationToken cancellationToken)
-            {
-                var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
-                await foreach (var announcement in loop.WithCancellation(cancellationToken))
-                {
-                    var (result, succeed) = await _mapper.TryMapAsync<TCast>(announcement, _plan, options?.OperationFilter);
-
-                    if(succeed && result != null)
-                        yield return result;
-                }
-            }
-
-            #endregion // GetAsyncEnumerable<TCast>
-        }
-
-        #endregion // private class Iterator
-
         #region ToJson
 
         /// <summary>
@@ -909,9 +597,13 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="plan">The plan.</param>
         /// <param name="announcement">The announcement.</param>
+        /// <param name="ignoreMetadata">if set to <c>true</c> [ignore metadata].</param>
         /// <returns></returns>
         /// <exception cref="System.DataMisalignedException"></exception>
-        private static JsonElement ToJson(IConsumerPlan plan, AnnouncementData announcement)
+        private static JsonElement ToJson(
+                                   IConsumerPlan plan,
+                                   AnnouncementData announcement,
+                                   bool ignoreMetadata = false)
         {
             EventKey entryId = announcement.EventKey;
             var buffer = new ArrayBufferWriter<byte>();
@@ -919,6 +611,28 @@ namespace Weknow.EventSource.Backbone
             using (var w = new Utf8JsonWriter(buffer, options))
             {
                 w.WriteStartObject();
+
+                w.WritePropertyName("__event-key__");
+                w.WriteStringValue(entryId);
+
+                if (!ignoreMetadata)
+                {
+                    w.WritePropertyName("__message-id__");
+                    w.WriteStringValue(announcement.MessageId);
+
+                    w.WritePropertyName("__env__");
+                    w.WriteStringValue(announcement.Environment);
+
+                    w.WritePropertyName("__partition__");
+                    w.WriteStringValue(announcement.Partition);
+
+                    w.WritePropertyName("__shard__");
+                    w.WriteStringValue(announcement.Shard);
+
+                    w.WritePropertyName("__operation__");
+                    w.WriteStringValue(announcement.Operation);
+                }
+
                 foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Data)
                 {
                     var (key, val) = entry;
@@ -951,6 +665,74 @@ namespace Weknow.EventSource.Backbone
                     w.WritePropertyName(key);
                     element.WriteTo(w);
                 }
+
+                w.WriteEndObject();
+            }
+            var result = JsonSerializer.Deserialize<JsonElement>(
+                                                    buffer.WrittenSpan,
+                                                    SerializerOptionsWithIndent);
+            return result;
+        }
+
+        /// <summary>
+        /// Converts to json.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="announcement">The announcement.</param>
+        /// <param name="ignoreMetadata">if set to <c>true</c> [ignore metadata].</param>
+        /// <returns></returns>
+        /// <exception cref="System.DataMisalignedException"></exception>
+        private static JsonElement ToJson(
+                                    IConsumerPlan plan, 
+                                    Announcement announcement,
+                                   bool ignoreMetadata = false)
+        {
+            EventKey entryId = announcement.Metadata.EventKey;
+            var buffer = new ArrayBufferWriter<byte>();
+            var options = new JsonWriterOptions();
+            using (var w = new Utf8JsonWriter(buffer, options))
+            {
+                w.WriteStartObject();
+
+                if (!ignoreMetadata)
+                {
+                    w.WritePropertyName("__meta__");
+                    announcement.Metadata.ToJson().WriteTo(w);
+                }
+
+                foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Segments)
+                {
+                    var (key, val) = entry;
+                    JsonElement element;
+                    try
+                    {
+
+                        element = plan.Options.Serializer.Deserialize<JsonElement>(val);
+                    }
+                    #region Exception Handling
+
+                    catch (Exception ex)
+                    {
+                        string encoded = string.Empty;
+                        try
+                        {
+                            encoded = Encoding.UTF8.GetString(val.Span);
+                        }
+                        catch { }
+
+                        var err = $"GetJsonByIdAsync [{entryId}, { announcement.Metadata.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                        plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
+                            entryId, announcement.Metadata.Key(), key,
+                            Convert.ToBase64String(val.ToArray()),
+                            encoded);
+                        throw new DataMisalignedException(err, ex);
+                    }
+
+                    #endregion // Exception Handling
+                    w.WritePropertyName(key);
+                    element.WriteTo(w);
+                }
+
                 w.WriteEndObject();
             }
             var result = JsonSerializer.Deserialize<JsonElement>(

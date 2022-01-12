@@ -46,6 +46,7 @@ namespace Weknow.EventSource.Backbone
                 Data = announcement.Segments,
                 ChannelType = meta.ChannelType,
                 Environment = meta.Environment,
+                EventKey = meta.EventKey,
                 MessageId = meta.MessageId,
                 ProducedAt = meta.ProducedAt,
                 Operation = meta.Operation,

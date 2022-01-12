@@ -30,7 +30,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         IAsyncEnumerable<JsonElement> GetJsonAsyncEnumerable(
-            ConsumerAsyncEnumerableOptions? options = null,
+            ConsumerAsyncEnumerableJsonOptions? options = null,
             CancellationToken cancellationToken = default);
     }
 
