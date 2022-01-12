@@ -197,7 +197,6 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t/// <typeparam name=\"TCast\">Cast target</typeparam>");
             builder.AppendLine("\t\t\t/// <param name=\"announcement\">The announcement.</param>");
             builder.AppendLine("\t\t\t/// <param name=\"consumerPlan\">The consumer plan.</param>");
-            builder.AppendLine("\t\t\t/// <param name=\"operationFilter\">Optional operation filter (useful when method have same type of parameters).</param>");
             builder.AppendLine($"\t\t\t public async Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
             builder.AppendLine($"\t\t\t\t\tAnnouncement announcement, ");
             builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
@@ -218,24 +217,21 @@ namespace Weknow.EventSource.Backbone
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";
                 builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation == nameof({nameOfOperetion}))");
                 builder.AppendLine("\t\t\t\t{");
-                // builder.AppendLine($"\t\t\t\t\tif(operationFilter == null || operationFilter(nameof({nameOfOperetion})))");
-                // builder.AppendLine("\t\t\t\t\t{");
-                builder.AppendLine($"\t\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
-                builder.AppendLine("\t\t\t\t\t\t{");
+                builder.AppendLine($"\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
+                builder.AppendLine("\t\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
                 int i = 0;
                 foreach (var p in prms)
                 {
                     var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                    builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                     i++;
                 }
                 IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
-                builder.AppendLine($"\t\t\t\t\t\t\treturn ((TCast?)rec, true);");
-                builder.AppendLine("\t\t\t\t\t\t}");
-                // builder.AppendLine("\t\t\t\t\t}");
+                builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
+                builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
+                builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
             }
             builder.AppendLine($"\t\t\t\treturn (default, false);");
