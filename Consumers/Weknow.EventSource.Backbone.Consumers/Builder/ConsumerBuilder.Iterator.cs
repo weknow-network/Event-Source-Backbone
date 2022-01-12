@@ -221,9 +221,13 @@ namespace Weknow.EventSource.Backbone
                 [EnumeratorCancellation]CancellationToken cancellationToken)
             {
                 var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
-                await foreach (var announcement in loop.WithCancellation(cancellationToken))
+                await foreach (Announcement announcement in loop.WithCancellation(cancellationToken))
                 {
-                    var (result, succeed) = await _mapper.TryMapAsync<TCast>(announcement, _plan, options?.OperationFilter);
+                    Predicate<Metadata>? filter = options?.OperationFilter;
+                    if (filter != null && !filter(announcement.Metadata))
+                        continue;
+
+                    var (result, succeed) = await _mapper.TryMapAsync<TCast>(announcement, _plan);
 
                     if(succeed && result != null)
                         yield return result;

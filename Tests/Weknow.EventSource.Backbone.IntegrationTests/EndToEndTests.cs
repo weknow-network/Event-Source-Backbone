@@ -470,10 +470,12 @@ namespace Weknow.EventSource.Backbone.Tests
                     Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
                     cts.Cancel();
                 }
-                if (i == 1)
+                else if (i == 1)
                 {
                     throw new OperationCanceledException("Should have been canceled");
                 }
+                else throw new Exception("Should have been canceled");
+
                 i++;
             }
 
@@ -494,6 +496,71 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Iterator_Cancellation_Test
+
+        #region Iterator_Json_NoMeta_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_Json_NoMeta_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            var options = new ConsumerAsyncEnumerableJsonOptions { IgnoreMetadata = true };
+            await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable(options).WithCancellation(cancellation))
+            {
+                _outputHelper.WriteLine(json.AsIndentString());
+                if (i == 0)
+                {
+                    Assert.False(json.TryGetProperty("__meta__", out _));
+                    Assert.True(json.TryGetProperty("user", out JsonElement uj0));
+                    var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
+                    Assert.Equal("A25", u0?.Eracure?.GovernmentId);
+                    Assert.Equal("mike", u0?.Eracure?.Name);
+                }
+                if (i == 1)
+                {
+                    Assert.False(json.TryGetProperty("__meta__", out _));
+                    var p1 = JsonSerializer.Deserialize<TestEmailPass>(json.GetRawText(), SerializerOptionsWithIndent);
+                    Assert.Equal("admin", p1?.email);
+                    Assert.Equal("1234", p1?.password);
+                }
+                if (i == 2)
+                {
+                    Assert.False(json.TryGetProperty("__meta__", out _));
+                    var pj2 = json.GetProperty("id");
+                    Assert.Equal(4335, pj2.GetInt32());
+                }
+                i++;
+            }
+        }
+
+        #endregion // Iterator_Json_NoMeta_Test
 
         #region Iterator_Json_Test
 
@@ -534,6 +601,7 @@ namespace Weknow.EventSource.Backbone.Tests
                 _outputHelper.WriteLine(json.AsIndentString());
                 if (i == 0)
                 {
+                    Assert.True(json.TryGetProperty("__meta__", out _));
                     Assert.True(json.TryGetProperty("user", out JsonElement uj0));
                     var u0 = JsonSerializer.Deserialize<User>(uj0.GetRawText(), SerializerOptionsWithIndent);
                     Assert.Equal("A25", u0?.Eracure?.GovernmentId);
@@ -541,12 +609,14 @@ namespace Weknow.EventSource.Backbone.Tests
                 }
                 if (i == 1)
                 {
+                    Assert.True(json.TryGetProperty("__meta__", out _));
                     var p1 = JsonSerializer.Deserialize<TestEmailPass>(json.GetRawText(), SerializerOptionsWithIndent);
                     Assert.Equal("admin", p1?.email);
                     Assert.Equal("1234", p1?.password);
                 }
                 if (i == 2)
                 {
+                    Assert.True(json.TryGetProperty("__meta__", out _));
                     var pj2 = json.GetProperty("id");
                     Assert.Equal(4335, pj2.GetInt32());
                 }
@@ -555,6 +625,66 @@ namespace Weknow.EventSource.Backbone.Tests
         }
 
         #endregion // Iterator_Json_Test
+
+        #region Iterator_WithFilter_Json_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Iterator_WithFilter_Json_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            EventKeys keys = await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerIterator iterator = _consumerBuilder
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .BuildIterator();
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            int i = 0;
+            var options = new ConsumerAsyncEnumerableJsonOptions 
+            {
+                OperationFilter = meta => meta.Operation == nameof(ISequenceOperationsConsumer.LoginAsync) ||
+                                          meta.Operation == nameof(ISequenceOperationsConsumer.EarseAsync)
+            };
+            await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable(options).WithCancellation(cancellation))
+            {
+                _outputHelper.WriteLine(json.AsIndentString());
+                if (i == 0)
+                {
+                    var p1 = JsonSerializer.Deserialize<TestEmailPass>(json.GetRawText(), SerializerOptionsWithIndent);
+                    Assert.Equal("admin", p1?.email);
+                    Assert.Equal("1234", p1?.password);
+                }
+                else if (i == 1)
+                {
+                    var pj2 = json.GetProperty("id");
+                    Assert.Equal(4335, pj2.GetInt32());
+                }
+                else throw new Exception("Should have been filtered");
+                i++;
+            }
+        }
+
+        #endregion // Iterator_WithFilter_Json_Test
 
         #region Iterator_MapByType_Test
 
@@ -724,6 +854,8 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
+            await Task.Delay(100); // DateTime is not so accurate
+
             var consumerOptions = new ConsumerOptions
             {
                 AckBehavior = AckBehavior.OnSucceed,
@@ -731,7 +863,7 @@ namespace Weknow.EventSource.Backbone.Tests
             };
             CancellationToken cancellation = GetCancellationToken();
 
-            await Task.Delay(500); // DateTime is not so accurate
+            await Task.Delay(100); // DateTime is not so accurate
             await SendSequenceAsync(producer); // should be ignored
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)

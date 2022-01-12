@@ -22,8 +22,7 @@ namespace Weknow.EventSource.Backbone
         /// <typeparam name="TCast">Cast target</typeparam>
         /// <param name="announcement">The announcement.</param>
         /// <param name="consumerPlan">The consumer plan.</param>
-        /// <param name="operation">Optional operation filter (useful when method have same type of parameters).</param>
         /// <returns></returns>
-        Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(Announcement announcement, IConsumerPlan consumerPlan, Predicate<string>? operation = null) where TCast: T;
+        Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(Announcement announcement, IConsumerPlan consumerPlan) where TCast: T;
     }
 }

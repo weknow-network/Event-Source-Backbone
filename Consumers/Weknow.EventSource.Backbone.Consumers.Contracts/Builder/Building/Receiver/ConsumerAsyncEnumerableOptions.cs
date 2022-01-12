@@ -25,8 +25,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Operation filter for reduce the results.
         /// </summary>
-        public Predicate<string>? OperationFilter { get; init; }
-
+        public Predicate<Metadata>? OperationFilter { get; init; }
         /// <summary>
         /// Indicating whether to keep looking for future events when the stream is empty (default = true).
         /// </summary>

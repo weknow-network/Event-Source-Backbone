@@ -760,6 +760,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     Operation = operation,
                     ProducedAt = producedAt
                 };
+                var filter = options?.OperationFilter;
+                if (filter != null && !filter(meta))
+                    continue;
 
                 Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
                 Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
@@ -801,7 +804,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         delay = await DelayIfEmpty(delay, cancellationToken);
                     }
                     string k = string.Empty;
-                    foreach (var e in entries)
+                    foreach (StreamEntry e in entries)
                     {
                         if (cancellationToken.IsCancellationRequested) yield break;
 

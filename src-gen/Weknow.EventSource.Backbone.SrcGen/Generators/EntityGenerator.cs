@@ -200,8 +200,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t/// <param name=\"operationFilter\">Optional operation filter (useful when method have same type of parameters).</param>");
             builder.AppendLine($"\t\t\t public async Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
             builder.AppendLine($"\t\t\t\t\tAnnouncement announcement, ");
-            builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan,");
-            builder.AppendLine($"\t\t\t\t\tPredicate<string>? operationFilter = null)");
+            builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {interfaceName}_EntityFamily");
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tvar operation = announcement.Metadata.Operation;");
@@ -219,8 +218,8 @@ namespace Weknow.EventSource.Backbone
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";
                 builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation == nameof({nameOfOperetion}))");
                 builder.AppendLine("\t\t\t\t{");
-                builder.AppendLine($"\t\t\t\t\tif(operationFilter == null || operationFilter(nameof({nameOfOperetion})))");
-                builder.AppendLine("\t\t\t\t\t{");
+                // builder.AppendLine($"\t\t\t\t\tif(operationFilter == null || operationFilter(nameof({nameOfOperetion})))");
+                // builder.AppendLine("\t\t\t\t\t{");
                 builder.AppendLine($"\t\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
                 builder.AppendLine("\t\t\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
@@ -236,10 +235,10 @@ namespace Weknow.EventSource.Backbone
                 builder.AppendLine($"\t\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\t\t\treturn ((TCast?)rec, true);");
                 builder.AppendLine("\t\t\t\t\t\t}");
-                builder.AppendLine("\t\t\t\t\t}");
+                // builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
             }
-            builder.AppendLine($"\t\t\t\t\treturn (default, false);");
+            builder.AppendLine($"\t\t\t\treturn (default, false);");
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine("\t\t}");
