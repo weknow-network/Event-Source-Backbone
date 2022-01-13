@@ -18,7 +18,6 @@
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc7" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc7" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc7" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc7" />
 		<PackageReference Include="StackExchange.Redis" Version="2.2.88" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
 	</ItemGroup>

@@ -82,11 +82,11 @@ namespace Microsoft.Extensions.Configuration
                         // m.Enrich
                         m.RecordException = true;
                     })
-                    .AddRedisInstrumentation(redisConnection
-                            //, m => { 
-                            //    m.FlushInterval
-                            //}
-                            )
+                    //.AddRedisInstrumentation(redisConnection
+                    //        //, m => { 
+                    //        //    m.FlushInterval
+                    //        //}
+                    //        )
                     .AddOtlpExporter()
                     .SetSampler(TestSampler.Create(LogLevel.Information));
                 ;
