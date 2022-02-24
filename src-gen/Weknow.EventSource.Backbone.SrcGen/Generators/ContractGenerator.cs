@@ -50,23 +50,31 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\tpublic interface {interfaceName}");
             builder.AppendLine("\t{");
 
-            foreach (var method in item.Members)
+            var tree = item.SyntaxTree;
+            var root = tree.GetRoot();
+            var sModel = context.Compilation.GetSemanticModel(tree);
+            var classSymbol = sModel.GetDeclaredSymbol(root.DescendantNodes().OfType<InterfaceDeclarationSyntax>().First());
+            var implementedInterfaces = classSymbol.AllInterfaces;
+            foreach (var tp in implementedInterfaces)
             {
-                if (method is MethodDeclarationSyntax mds)
+                foreach (var method in tp.GetMembers())
                 {
-                    CopyDocumentation(builder, kind, mds);
+                    if (method is IMethodSymbol mds)
+                    {
+                        //CopyDocumentation(builder, kind, mds);
 
 
-                    builder.Append("\t\tpublic ValueTask");
-                    if (isProducer)
-                        builder.Append("<EventKeys>");
-                    builder.Append($" {mds.Identifier.ValueText}(");
+                        builder.Append("\t\tpublic ValueTask");
+                        if (isProducer)
+                            builder.Append("<EventKeys>");
+                        builder.Append($" {mds.Name}(");
 
-                    var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
-                    builder.Append("\t\t\t");
-                    builder.Append(string.Join(", ", ps));
-                    builder.AppendLine(");");
-                    builder.AppendLine();
+                        var ps = mds.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Name}");
+                        builder.Append("\t\t\t");
+                        builder.Append(string.Join(", ", ps));
+                        builder.AppendLine(");");
+                        builder.AppendLine();
+                    }
                 }
             }
             builder.AppendLine("\t}");
