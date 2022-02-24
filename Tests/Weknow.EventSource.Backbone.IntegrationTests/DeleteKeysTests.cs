@@ -40,7 +40,7 @@ namespace Weknow.EventSource.Backbone.Tests
                                                 cfg => cfg.AllowAdmin = true);
             string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
             var server = conn.GetServer(serverName);
-            IEnumerable<RedisKey> keys = server.Keys(pattern: "*test*").ToArray();
+            IEnumerable<RedisKey> keys = server.Keys(pattern: pattern).ToArray();
             // IEnumerable<RedisKey> keys = server.Keys(pattern: "dev:*").ToArray();
             IDatabaseAsync db = conn.GetDatabase();
 
