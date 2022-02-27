@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone.Building
 {
+
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
@@ -46,35 +47,12 @@ namespace Weknow.EventSource.Backbone.Building
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
         /// <returns>
         /// Remove subscription.
         /// keeping the disposable will prevent the consumer to be collected
         /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
         /// </returns>
-        IConsumerLifetime Subscribe(IEnumerable<ISubscriptionBridge> handlers,
-            string? consumerGroup = null,
-            string? consumerName = null);
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
-        /// <returns>
-        /// Remove subscription.
-        /// keeping the disposable will prevent the consumer to be collected
-        /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
-        /// </returns>
-        IConsumerLifetime Subscribe(ISubscriptionBridge handler,
-            string? consumerGroup = null,
-            string? consumerName = null);
+        IConsumerLifetime Subscribe(IEnumerable<ISubscriptionBridge> handlers);
 
         /// <summary>
         /// Subscribe consumer.
@@ -86,42 +64,19 @@ namespace Weknow.EventSource.Backbone.Building
         /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
         /// </returns>
         IConsumerLifetime Subscribe(
-            params Func<Announcement, IConsumerBridge, Task>[] handlers);
+            params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers);
 
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
         /// <returns>
         /// Remove subscription.
         /// keeping the disposable will prevent the consumer to be collected
         /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
         /// </returns>
         IConsumerLifetime Subscribe(
-            IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers,
-            string? consumerGroup = null,
-            string? consumerName = null);
+            IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers);
 
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
-        /// <returns>
-        /// Remove subscription.
-        /// keeping the disposable will prevent the consumer to be collected
-        /// by th GC (when the behavior don't indicate to hook it until cancellation or dispose).
-        /// </returns>
-        IConsumerLifetime Subscribe(
-            Func<Announcement, IConsumerBridge, Task> handler,
-            string? consumerGroup = null,
-            string? consumerName = null);
     }
 }

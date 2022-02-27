@@ -553,6 +553,19 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // ConsumerGroup
 
+        #region WithConsumerName
+
+        /// <summary>
+        /// Withes the name of the consumer.
+        /// </summary>
+        /// <param name="consumerName">Name of the consumer.</param>
+        /// <returns></returns>
+        internal ConsumerPlan WithConsumerName(
+            string? consumerName = null) => new ConsumerPlan(this,
+                                                consumerName: consumerName);
+
+        #endregion // WithConsumerName
+
         // --------------------------------------------------------
 
         #region Build

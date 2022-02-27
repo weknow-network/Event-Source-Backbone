@@ -124,14 +124,17 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            IConsumerSubscribeBuilder builder = _consumerBuilder
+            IConsumerSubscribeGroupBuilder builder = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Environment(ENV)
                              .Partition(PARTITION)
                              .Shard(SHARD)
                              .WithLogger(_fakeLogger);
-            await using IConsumerLifetime subscription = builder.SubscribeEventFlowConsumer(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
+            await using IConsumerLifetime subscription = builder
+                                        .Group("CONSUMER_GROUP_1")
+                                        .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                                        .SubscribeEventFlowConsumer(_subscriber);
             //.SubscribeEventFlow(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)

@@ -342,7 +342,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerReadyBuilder.WithLogger(ILogger logger)
+        IConsumerSubscribeGroupBuilder IConsumerReadyBuilder.WithLogger(ILogger logger)
         {
             var prms = _plan.WithLogger(logger);
             var result = new ConsumerBuilder(prms);
@@ -369,6 +369,18 @@ namespace Weknow.EventSource.Backbone
 
         #region Subscribe
 
+        IConsumerSubscribeNameBuilder IConsumerSubscribeGroupBuilder.Group(string consumerGroup)
+        { 
+            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup);
+            return new ConsumerBuilder(plan);
+        }
+
+        IConsumerSubscribeBuilder IConsumerSubscribeNameBuilder.Name(string consumerName)
+        { 
+            ConsumerPlan plan = _plan.WithConsumerName(consumerName);
+            return new ConsumerBuilder(plan);
+        }
+
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
@@ -380,25 +392,19 @@ namespace Weknow.EventSource.Backbone
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(ISubscriptionBridge[] handlers)
 
         {
-            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers, null, null);
+            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
         }
 
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
         /// <returns>
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            IEnumerable<ISubscriptionBridge> handlers,
-            string? consumerGroup,
-            string? consumerName)
+            IEnumerable<ISubscriptionBridge> handlers)
 
         {
             #region Validation
@@ -408,9 +414,8 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
 
-            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
+            ConsumerPlan plan = WithGroupIfEmpty(_plan);   
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
@@ -423,36 +428,15 @@ namespace Weknow.EventSource.Backbone
         /// Subscribe consumer.
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
         /// <returns>
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            ISubscriptionBridge handlers,
-            string? consumerGroup,
-            string? consumerName)
+            params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
 
         {
-            #region Validation
-
-            if (_plan == null)
-                throw new ArgumentNullException(nameof(_plan));
-
-            #endregion // Validation
-
-            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
-
-            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
-            if (plan.SegmentationStrategies.Count == 0)
-                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handlers.ToYield());
-            var subscription = consumer.Subscribe();
-            return subscription;
+            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
         }
 
         /// <summary>
@@ -464,28 +448,7 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            params Func<Announcement, IConsumerBridge, Task>[] handlers)
-
-        {
-            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers, null, null);
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
-        /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers,
-            string? consumerGroup,
-            string? consumerName)
+            IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
 
         {
             #region Validation
@@ -495,54 +458,32 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
-
-            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
+            ConsumerPlan plan = WithGroupIfEmpty(_plan);
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
             var consumer = new ConsumerBase(plan, handlers);
-            var subscription = consumer.Subscribe();
-            return subscription;
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
-        /// <param name="consumerGroup">Consumer Group allow a group of clients to cooperate
-        /// consuming a different portion of the same stream of messages</param>
-        /// <param name="consumerName">Optional Name of the consumer.
-        /// Can use for observability.</param>
-        /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
-            Func<Announcement, IConsumerBridge, Task> handler,
-            string? consumerGroup,
-            string? consumerName)
-
-        {
-            #region Validation
-
-            if (_plan == null)
-                throw new ArgumentNullException(nameof(_plan));
-
-            #endregion // Validation
-
-            consumerGroup = consumerGroup ?? $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
-
-            ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup, consumerName);
-            if (plan.SegmentationStrategies.Count == 0)
-                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handler.ToYield());
             var subscription = consumer.Subscribe();
             return subscription;
         }
 
         #endregion // Subscribe
+
+        #region WithGroupIfEmpty
+
+        /// <summary>
+        /// Add consumer group if empty.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <returns></returns>
+        private ConsumerPlan WithGroupIfEmpty(ConsumerPlan plan)
+        {
+            if(plan.ConsumerGroup != null) return plan;
+            var consumerGroup = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
+            return plan.WithConsumerGroup(consumerGroup);
+        }
+
+        #endregion // WithGroupIfEmpty
 
         #region WithCancellation
 

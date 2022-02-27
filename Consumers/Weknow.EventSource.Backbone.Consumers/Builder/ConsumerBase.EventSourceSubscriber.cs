@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
 
             // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
             private long _consumeCounter;
-            private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task>> _handlers;
+            private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> _handlers;
 
             #region Ctor
 
@@ -45,7 +45,7 @@ namespace Weknow.EventSource.Backbone
 
             public EventSourceSubscriber(
                 IConsumerPlan plan,
-                IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers)
+                IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
             {
                 var channel = plan.Channel;
                 _plan = plan;
@@ -157,20 +157,29 @@ namespace Weknow.EventSource.Backbone
 
                 try
                 {
+
                     await using (Ack.Set(ack))
                     {
-                        await _plan.ResiliencePolicy.ExecuteAsync(async () =>
+                        var hasProcessedArray = await _plan.ResiliencePolicy.ExecuteAsync(async () =>
                         {
                             ConsumerMetadata._metaContext.Value = consumerMeta;
                             var tasks = _handlers.Select(h => h.Invoke(arg, this));
-                            await Task.WhenAll(tasks);
+                            return await Task.WhenAll(tasks);
                         });
-                    }
-                    logger.LogDebug("Consumed event: {0}", meta.Key());
+                        logger.LogDebug("Consumed event: {0}", meta.Key());
 
-                    var behavior = _plan.Options.AckBehavior;
-                    if (behavior == AckBehavior.OnSucceed)
-                        await ack.AckAsync();
+                        var options = _plan.Options;
+                        var behavior = options.AckBehavior;
+                        bool hasProcessed = hasProcessedArray.All(m => m);
+                        if (options.PartialBehavior == PartialConsumerBehavior.Strict && !hasProcessed)
+                        {
+                            _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
+                            throw new OperationCanceledException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
+                        }
+                        if (behavior == AckBehavior.OnSucceed || !hasProcessed)
+                            await ack.AckAsync();
+                    }
+
                 }
                 #region Exception Handling
 

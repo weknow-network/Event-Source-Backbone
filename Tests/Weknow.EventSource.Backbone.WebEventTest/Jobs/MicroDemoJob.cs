@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
     /// <seealso cref="System.IDisposable" />
     public sealed class MicroDemoJob : HostedServiceBase, IDisposable
     {
-        private readonly IConsumerSubscribeBuilder _builder;
+        private readonly IConsumerSubscribeGroupBuilder _builder;
         private readonly IEventFlowProducer _producer;
 
         #region Ctor
@@ -53,7 +53,8 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.SubscribeEventFlowConsumer(new Subscriber(_logger, _producer), "Demo-GROUP");
+            _builder.Group("Demo-GROUP")
+                    .SubscribeEventFlowConsumer(new Subscriber(_logger, _producer));
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());

@@ -122,16 +122,12 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
-            builder.AppendLine("\t\t/// <param name=\"consumerGroup\">Consumer group (multi worker balance on an event stream).</param>");
-            builder.AppendLine("\t\t/// <param name=\"consumerName\">.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
             builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
-            builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets,");
-            builder.AppendLine("\t\t\t\tstring? consumerGroup = null,");
-            builder.AppendLine("\t\t\t\tstring? consumerName = null)");
+            builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
-            builder.AppendLine("\t\t\treturn source.Subscribe(bridge, consumerGroup, consumerName);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
             builder.AppendLine("\t\t}");
             builder.AppendLine();
 
@@ -140,16 +136,12 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
-            builder.AppendLine("\t\t/// <param name=\"consumerGroup\">Consumer group (multi worker balance on an event stream).</param>");
-            builder.AppendLine("\t\t/// <param name=\"consumerName\">.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
             builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
-            builder.AppendLine($"\t\t\t\t{interfaceName} target,");
-            builder.AppendLine("\t\t\t\tstring? consumerGroup = null,");
-            builder.AppendLine("\t\t\t\tstring? consumerName = null)");
+            builder.AppendLine($"\t\t\t\t{interfaceName} target)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
-            builder.AppendLine("\t\t\treturn source.Subscribe(bridge, consumerGroup, consumerName);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
             builder.AppendLine("\t\t}");
             builder.AppendLine("\t}");
 
@@ -216,7 +208,7 @@ namespace Weknow.EventSource.Backbone
 
             builder.AppendLine();
 
-            builder.AppendLine("\t\tasync Task ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.AppendLine("\t\tasync Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t{");
             builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
             builder.AppendLine("\t\t\t{");
@@ -239,10 +231,11 @@ namespace Weknow.EventSource.Backbone
 
                 builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
                 builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
-                builder.AppendLine("\t\t\t\t\tbreak;");
+                builder.AppendLine("\t\t\t\t\treturn true;");
                 builder.AppendLine("\t\t\t\t}");
             }
             builder.AppendLine("\t\t\t}");
+            builder.AppendLine("\t\t\treturn false;");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine("\t}");
@@ -278,7 +271,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t\t{");
 
-            builder.AppendLine("\t\t\t async Task ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.AppendLine("\t\t\t async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
             builder.AppendLine("\t\t\t\t{");
@@ -299,10 +292,11 @@ namespace Weknow.EventSource.Backbone
                 }
                 IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
                 builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({string.Join(", ", ps)});");
-                builder.AppendLine("\t\t\t\t\t\tbreak;");
+                builder.AppendLine("\t\t\t\t\t\treturn true;");
                 builder.AppendLine("\t\t\t\t\t}");
             }
             builder.AppendLine("\t\t\t\t}");
+            builder.AppendLine("\t\t\t\treturn false;");
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine();

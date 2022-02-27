@@ -81,6 +81,11 @@ namespace Weknow.EventSource.Backbone
 
         #endregion AckBehavior 
 
+        /// <summary>
+        /// Gets or sets the partial behavior (does consumer had to handle all events?).
+        /// </summary>
+        public PartialConsumerBehavior PartialBehavior { get; init; } = PartialConsumerBehavior.Strict;
+
         #region MaxMessages
 
         /// <summary>

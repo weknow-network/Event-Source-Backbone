@@ -13,7 +13,7 @@ namespace Weknow.EventSource.Backbone
     public partial class ConsumerBase
     {
         private readonly IConsumerPlan _plan;
-        private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task>> _handlers;
+        private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> _handlers;
 
         #region Ctor
 
@@ -24,7 +24,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="handlers">Per method handler, handle methods calls.</param>
         public ConsumerBase(
             IConsumerPlanBuilder plan,
-            IEnumerable<Func<Announcement, IConsumerBridge, Task>> handlers)
+            IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
         {
             _plan = plan.Build();
             _handlers = handlers;
@@ -40,7 +40,7 @@ namespace Weknow.EventSource.Backbone
             IEnumerable<ISubscriptionBridge> handlers)
         {
             _plan = plan.Build();
-            _handlers = handlers.Select<ISubscriptionBridge, Func<Announcement, IConsumerBridge, Task>>(m => m.BridgeAsync);
+            _handlers = handlers.Select<ISubscriptionBridge, Func<Announcement, IConsumerBridge, Task<bool>>>(m => m.BridgeAsync);
         }
 
         #endregion // Ctor
