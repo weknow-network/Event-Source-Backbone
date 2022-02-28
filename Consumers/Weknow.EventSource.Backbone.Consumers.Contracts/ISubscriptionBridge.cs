@@ -14,7 +14,9 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="announcement">The announcement.</param>
         /// <param name="consumerBridge">The consumer bridge.</param>
-        /// <returns></returns>
-        Task BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge);
+        /// <returns>
+        /// Indication whether the event had been processed or avoided.
+        /// </returns>
+        Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge);
     }
 }

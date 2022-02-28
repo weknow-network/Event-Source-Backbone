@@ -25,7 +25,7 @@ namespace Weknow.EventSource.Backbone
         }
 
 
-        [Fact]
+        [Fact(Skip = "not implemented")]
         public void Inherit_ShouldMatch_Test()
         {
             var origin = typeof(ISimpleEventConsumer).GetMethods().Select(m => m.Name).ToArray();

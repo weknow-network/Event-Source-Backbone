@@ -31,7 +31,7 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Ctor
 
-        async Task ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+        async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
             switch (announcement.Metadata.Operation)
             {
@@ -40,18 +40,20 @@ namespace Weknow.EventSource.Backbone
                         var p0 = await consumerBridge.GetParameterAsync<string>(announcement, "key");
                         var p1 = await consumerBridge.GetParameterAsync<int>(announcement, "value");
                         await _target.ExecuteAsync(p0, p1);
-                        break;
+                        return true;
                     }
                 case nameof(ISimpleEventConsumer.RunAsync):
                     {
                         var p0 = await consumerBridge.GetParameterAsync<int>(announcement, "id");
                         var p1 = await consumerBridge.GetParameterAsync<DateTime>(announcement, "date");
                         await _target.RunAsync(p0, p1);
-                        break;
+                        return true;
                     }
                 default:
                     break;
+
             }
+            return false;
         }
     }
 }

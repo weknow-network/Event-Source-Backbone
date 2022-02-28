@@ -132,64 +132,16 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t/// <summary>");
             builder.AppendLine($"\t\t\t/// Singleton entity mapper which responsible of mapping announcement to DTO generated from {friendlyName}");
             builder.AppendLine("\t\t\t/// </summary>");
-            builder.AppendLine($"\t\t\tpublic static readonly IConsumerEntityMapper<{interfaceName}_EntityFamily> Default = new {friendlyName}EntityMapper();");
+            builder.AppendLine($"\t\t\tinternal static readonly IConsumerEntityMapper<{interfaceName}_EntityFamily> Default = new {friendlyName}EntityMapper();");
 
 
             builder.AppendLine();
             builder.AppendLine($"\t\t\tprivate {friendlyName}EntityMapper() {{}}");
             builder.AppendLine();
 
-            builder.AppendLine("\t\t\t/// <summary>");
-            builder.AppendLine($"\t\t\t/// Map announcement");
-            builder.AppendLine("\t\t\t/// </summary>");
-            builder.AppendLine("\t\t\t/// <param name=\"announcement\">The announcement.</param>");
-            builder.AppendLine("\t\t\t/// <param name=\"consumerPlan\">The consumer plan.</param>");
-            builder.AppendLine($"\t\t\tpublic async Task<{interfaceName}_EntityFamily> MapAsync(");
-            builder.AppendLine($"\t\t\t\t\tAnnouncement announcement,");
-            builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
-            builder.AppendLine("\t\t\t{");
-            builder.AppendLine("\t\t\t\tvar operation = announcement.Metadata.Operation;");
-            builder.AppendLine("\t\t\t\tswitch (operation)");
-            builder.AppendLine("\t\t\t\t{");
-
             string recordPrefix = friendlyName;
             if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
                 recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
-            foreach (var method in item.Members)
-            {
-                if (method is not MethodDeclarationSyntax mds)
-                    continue;
-                string mtdName = mds.Identifier.ValueText;
-
-                builder.AppendLine($"\t\t\t\t\tcase nameof({info.Name ?? interfaceName}.{mtdName}):");
-                builder.AppendLine("\t\t\t\t\t{");
-                var prms = mds.ParameterList.Parameters;
-                int i = 0;
-                foreach (var p in prms)
-                {
-                    var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
-                    i++;
-                }
-                IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
-                string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
-                builder.AppendLine($"\t\t\t\t\t\treturn new {recordPrefix}_{recordSuffix}({string.Join(", ", ps)});");
-                builder.AppendLine("\t\t\t\t\t}");
-            }
-            builder.AppendLine("\t\t\t\t}");
-            builder.AppendLine($"\t\t\t\tthrow new KeyNotFoundException(operation);");
-            builder.AppendLine("\t\t\t}");
-
-
-            ///// <summary>
-            ///// Try to map announcement.
-            ///// </summary>
-            ///// <typeparam name="TCast">Cast target</typeparam>
-            ///// <param name="announcement">The announcement.</param>
-            ///// <param name="consumerPlan">The consumer plan.</param>
-            ///// <param name="operation">Optional operation filter (useful when method have same type of parameters).</param>
-            ///// <returns></returns>
-            //Task<(TCast value, bool succeed)> TryMapAsync<TCast>(Announcement announcement, IConsumerPlan consumerPlan, string? operation = null) where TCast : T;
 
             builder.AppendLine("\t\t\t/// <summary>");
             builder.AppendLine($"\t\t\t///  Try to map announcement");

@@ -9,14 +9,6 @@ namespace Weknow.EventSource.Backbone
     public interface IConsumerEntityMapper<T>
     {
         /// <summary>
-        /// Maps the asynchronous.
-        /// </summary>
-        /// <param name="announcement">The announcement.</param>
-        /// <param name="consumerPlan">The consumer plan.</param>
-        /// <returns></returns>
-        Task<T> MapAsync(Announcement announcement, IConsumerPlan consumerPlan);
-
-        /// <summary>
         /// Try to map announcement.
         /// </summary>
         /// <typeparam name="TCast">Cast target</typeparam>

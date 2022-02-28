@@ -16,13 +16,19 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public record struct RedisCredentialsKeys
     {
+        public RedisCredentialsKeys()
+        {
+            EndpointKey = END_POINT_KEY;
+            PasswordKey = PASSWORD_KEY;
+        }
+
         /// <summary>
         /// Endpoint Key
         /// </summary>
-        public string EndpointKey { get; init; } = END_POINT_KEY;
+        public string EndpointKey { get; init; }
         /// <summary>
         /// Password Key
         /// </summary>
-        public string PasswordKey { get; init; } = PASSWORD_KEY;
+        public string PasswordKey { get; init; }
     }
 }
