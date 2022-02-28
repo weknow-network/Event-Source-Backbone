@@ -22,6 +22,7 @@ using OpenTelemetry.Context.Propagation;
 using OpenTelemetry;
 using Weknow.EventSource.Backbone.Building;
 using System.Collections.Concurrent;
+using Polly;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
@@ -254,6 +255,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             // Handle single batch
             async ValueTask<bool> HandleBatchAsync()
+            {
+                var policy = _setting.Policy.Policy;
+                return await policy.ExecuteAsync(HandleBatchBreakerAsync);
+            }
+
+            async Task<bool> HandleBatchBreakerAsync()
             {
                 StreamEntry[] results = await ReadBatchAsync();
                 emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;

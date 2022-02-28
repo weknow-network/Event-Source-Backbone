@@ -174,7 +174,7 @@ namespace Weknow.EventSource.Backbone
                         if (options.PartialBehavior == PartialConsumerBehavior.Strict && !hasProcessed)
                         {
                             _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
-                            throw new OperationCanceledException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
+                            throw new InvalidOperationException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
                         }
                         if (behavior == AckBehavior.OnSucceed || !hasProcessed)
                             await ack.AckAsync();

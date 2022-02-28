@@ -54,11 +54,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             AsyncPolicy retryReading = Polly.Policy.Handle<Exception>()
                   .RetryForeverAsync((ex, i, c) => onRetry_(ex, TimeSpan.Zero, i, c));
 
-            
+
             AsyncPolicy breaker = Polly.Policy.Handle<Exception>()
                             //.CircuitBreakerAsync(
                             //                10,
-                                //                TimeSpan.FromSeconds(20),
+                            //                TimeSpan.FromSeconds(20),
                             //                onBreak_,
                             //                onReset_,
                             //                onHalfOpen_);
@@ -71,7 +71,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 onReset_,
                                 onHalfOpen_);
 
-            Policy = retryReading.WrapAsync(breaker);
+            AsyncPolicy criticBreaker = Polly.Policy.Handle<InvalidOperationException>()
+                                        .AdvancedCircuitBreakerAsync(
+                                            failureThreshold: 0.9, // Break on >=n% actions result in handled exceptions...
+                                            samplingDuration: TimeSpan.FromSeconds(4), // ... over any n second period
+                                            minimumThroughput: 3, // ... provided at least n actions in the n second period.
+                                            durationOfBreak: TimeSpan.FromMinutes(10));
+
+            Policy = criticBreaker.WrapAsync(retryReading).WrapAsync(breaker);
         }
 
         #endregion // Ctor
@@ -80,6 +87,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// Gets or sets the batch reading policy.
         /// </summary>
         public AsyncPolicy Policy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the batch reading policy.
+        /// </summary>
+        public AsyncPolicy CriticalPolicy { get; set; }
 
         #region Cast overloads
 
