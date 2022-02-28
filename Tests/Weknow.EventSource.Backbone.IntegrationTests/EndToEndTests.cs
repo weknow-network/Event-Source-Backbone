@@ -584,7 +584,7 @@ namespace Weknow.EventSource.Backbone.Tests
             {
                 if (i == 0)
                 {
-                    Assert.True(announcement.Data.TryGet("user", out User user));
+                    Assert.True(announcement.Data.TryGet("user", out User? user));
                     Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
                     cts.Cancel();
                 }
@@ -601,7 +601,7 @@ namespace Weknow.EventSource.Backbone.Tests
             {
                 if (i == 0)
                 {
-                    Assert.True(announcement.Data.TryGet("user", out User user));
+                    Assert.True(announcement.Data.TryGet("user", out User? user));
                     Assert.Equal(USER.Eracure?.Name, user?.Eracure?.Name);
                     cts.Cancel();
                 }

@@ -5,6 +5,13 @@
     /// </summary>
     public record struct S3Options
     {
+        public S3Options()
+        {
+            Bucket = null;
+            BasePath = null;
+            EnvironmentConvension = S3EnvironmentConvention.None;
+        }
+
         /// <summary>
         /// The target bucket (see: UseEnvironmentConvension)
         /// </summary>
@@ -18,6 +25,6 @@
         /// <summary>
         /// Environment convention's options
         /// </summary>
-        public S3EnvironmentConvention EnvironmentConvension { get; init; } = S3EnvironmentConvention.None;
+        public S3EnvironmentConvention EnvironmentConvension { get; init; }
     }
 }
