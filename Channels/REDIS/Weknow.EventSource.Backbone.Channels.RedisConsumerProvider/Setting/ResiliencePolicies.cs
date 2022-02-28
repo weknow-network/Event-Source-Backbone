@@ -56,12 +56,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
 
             AsyncPolicy breaker = Polly.Policy.Handle<Exception>()
-                            //.CircuitBreakerAsync(
-                            //                10,
-                            //                TimeSpan.FromSeconds(20),
-                            //                onBreak_,
-                            //                onReset_,
-                            //                onHalfOpen_);
+                            //.CircuitBreakerAsync(10, TimeSpan.FromSeconds(20), onBreak_, onReset_, onHalfOpen_);
                             .AdvancedCircuitBreakerAsync(
                                 failureThreshold: 0.5, // Break on >=50% actions result in handled exceptions...
                                 samplingDuration: TimeSpan.FromSeconds(20), // ... over any 10 second period
@@ -74,7 +69,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             AsyncPolicy criticBreaker = Polly.Policy.Handle<InvalidOperationException>()
                                         .AdvancedCircuitBreakerAsync(
                                             failureThreshold: 0.9, // Break on >=n% actions result in handled exceptions...
-                                            samplingDuration: TimeSpan.FromSeconds(4), // ... over any n second period
+                                            samplingDuration: TimeSpan.FromSeconds(10), // ... over any n second period
                                             minimumThroughput: 3, // ... provided at least n actions in the n second period.
                                             durationOfBreak: TimeSpan.FromMinutes(10));
 
