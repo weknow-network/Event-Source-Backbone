@@ -342,7 +342,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IConsumerSubscribeGroupBuilder IConsumerReadyBuilder.WithLogger(ILogger logger)
+        IConsumerSubscribeBuilder IConsumerReadyBuilder.WithLogger(ILogger logger)
         {
             var prms = _plan.WithLogger(logger);
             var result = new ConsumerBuilder(prms);
@@ -369,13 +369,13 @@ namespace Weknow.EventSource.Backbone
 
         #region Subscribe
 
-        IConsumerSubscribeNameBuilder IConsumerSubscribeGroupBuilder.Group(string consumerGroup)
+        IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Group(string consumerGroup)
         { 
             ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup);
             return new ConsumerBuilder(plan);
         }
 
-        IConsumerSubscribeBuilder IConsumerSubscribeNameBuilder.Name(string consumerName)
+        IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Name(string consumerName)
         { 
             ConsumerPlan plan = _plan.WithConsumerName(consumerName);
             return new ConsumerBuilder(plan);

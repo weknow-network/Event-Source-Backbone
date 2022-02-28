@@ -22,7 +22,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
     /// <seealso cref="System.IDisposable" />
     public sealed class MicroDemoJob : HostedServiceBase, IDisposable
     {
-        private readonly IConsumerSubscribeGroupBuilder _builder;
+        private readonly IConsumerSubscribeBuilder _builder;
         private readonly IEventFlowProducer _producer;
 
         #region Ctor

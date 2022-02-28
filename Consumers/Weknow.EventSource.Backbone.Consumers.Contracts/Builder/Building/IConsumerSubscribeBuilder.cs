@@ -13,6 +13,17 @@ namespace Weknow.EventSource.Backbone.Building
         IConsumerPartitionBuilder<IConsumerSubscribeBuilder>
         //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
     {
+        /// <summary>
+        /// Consumer's group name.
+        /// </summary>
+        /// <param name="consumerGroup">Name of the group.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder Group(string consumerGroup);
+
+        /// <summary>
+        /// Set the consumer's name
+        /// </summary>
+        IConsumerSubscribeBuilder Name(string consumerName);
 
         /// <summary>
         /// The routing information attached to this builder

@@ -124,7 +124,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            IConsumerSubscribeGroupBuilder builder = _consumerBuilder
+            IConsumerSubscribeBuilder builder = _consumerBuilder
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Environment(ENV)
