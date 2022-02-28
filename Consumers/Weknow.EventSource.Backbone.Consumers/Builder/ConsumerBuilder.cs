@@ -129,6 +129,19 @@ namespace Weknow.EventSource.Backbone
             return result;
         }
 
+        /// <summary>
+        /// Attach configuration.
+        /// </summary>
+        /// <param name="optionsStrategy"></param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IConsumerSubscribeBuilder.WithOptions(Func<ConsumerOptions, ConsumerOptions> optionsStrategy)
+        {
+            var options = optionsStrategy(_plan.Options);
+            var prms = _plan.WithOptions(options);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
         #endregion // WithOptions
 
         #region Environment

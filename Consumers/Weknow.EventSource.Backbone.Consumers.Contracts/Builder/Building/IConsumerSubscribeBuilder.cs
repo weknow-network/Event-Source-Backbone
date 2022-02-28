@@ -14,6 +14,13 @@ namespace Weknow.EventSource.Backbone.Building
         //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
     {
         /// <summary>
+        /// Tune configuration.
+        /// </summary>
+        /// <param name="optionsStrategy">The options strategy.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder WithOptions(Func<ConsumerOptions, ConsumerOptions> optionsStrategy);
+
+        /// <summary>
         /// Consumer's group name.
         /// </summary>
         /// <param name="consumerGroup">Name of the group.</param>
