@@ -9,6 +9,10 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Weknow.EventSource.Backbone.Building;
+
+using Handler = System.Func<Weknow.EventSource.Backbone.Announcement, Weknow.EventSource.Backbone.IConsumerBridge, System.Threading.Tasks.Task<bool>>;
+
 namespace Weknow.EventSource.Backbone
 {
 
@@ -33,7 +37,7 @@ namespace Weknow.EventSource.Backbone
 
             // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
             private long _consumeCounter;
-            private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> _handlers;
+            private readonly ConcurrentQueue<Handler> _handlers;
 
             #region Ctor
 
@@ -45,7 +49,7 @@ namespace Weknow.EventSource.Backbone
 
             public EventSourceSubscriber(
                 IConsumerPlan plan,
-                IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
+                IEnumerable<Handler> handlers)
             {
                 var channel = plan.Channel;
                 _plan = plan;
@@ -54,7 +58,7 @@ namespace Weknow.EventSource.Backbone
 
                 _options = _plan.Options;
                 _maxMessages = _options.MaxMessages;
-                _handlers = handlers;
+                _handlers = new ConcurrentQueue<Handler>(handlers);
 
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
@@ -163,14 +167,14 @@ namespace Weknow.EventSource.Backbone
                         var hasProcessedArray = await _plan.ResiliencePolicy.ExecuteAsync(async () =>
                         {
                             ConsumerMetadata._metaContext.Value = consumerMeta;
-                            var tasks = _handlers.Select(h => h.Invoke(arg, this));
+                            var tasks = _handlers.AsParallel().Select(h => h.Invoke(arg, this));
                             return await Task.WhenAll(tasks);
                         });
                         logger.LogDebug("Consumed event: {0}", meta.Key());
 
                         var options = _plan.Options;
                         var behavior = options.AckBehavior;
-                        bool hasProcessed = hasProcessedArray.All(m => m);
+                        bool hasProcessed = hasProcessedArray.Any(m => m);
                         if (options.PartialBehavior == PartialConsumerBehavior.Strict && !hasProcessed)
                         {
                             _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
@@ -179,7 +183,6 @@ namespace Weknow.EventSource.Backbone
                         if (behavior == AckBehavior.OnSucceed || !hasProcessed)
                             await ack.AckAsync();
                     }
-
                 }
                 #region Exception Handling
 
@@ -220,6 +223,76 @@ namespace Weknow.EventSource.Backbone
             }
 
             #endregion // ConsumingAsync
+
+
+            #region Subscribe
+
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            /// <returns>
+            /// The partition subscription (dispose to remove the subscription)
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException">_plan</exception>
+            IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
+
+            {
+                return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
+            }
+
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            /// <returns>
+            /// The partition subscription (dispose to remove the subscription)
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException">_plan</exception>
+            IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+                IEnumerable<ISubscriptionBridge> handlers)
+
+            {
+                IEnumerable<Handler> dels = handlers.Select<ISubscriptionBridge, Handler>(m => m.BridgeAsync);
+                return ((IConsumerSubscribtionHubBuilder)this).Subscribe(dels);
+            }
+
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            /// <returns>
+            /// The partition subscription (dispose to remove the subscription)
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException">_plan</exception>
+            IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+                params Handler[] handlers)
+
+            {
+                return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<Handler>);
+            }
+
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
+            /// <returns>
+            /// The partition subscription (dispose to remove the subscription)
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException">_plan</exception>
+            IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+                IEnumerable<Handler> handlers)
+
+            {
+                foreach (Handler handler in handlers)
+                {
+                    _handlers.Enqueue(handler);
+                }
+                return this;
+            }
+
+            #endregion // Subscribe
+
 
             #region DisposeAsync
 

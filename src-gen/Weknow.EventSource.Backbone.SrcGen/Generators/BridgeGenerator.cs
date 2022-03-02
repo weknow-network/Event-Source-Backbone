@@ -109,7 +109,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
             builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
@@ -123,7 +123,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscribeBuilder source,");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
             builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");

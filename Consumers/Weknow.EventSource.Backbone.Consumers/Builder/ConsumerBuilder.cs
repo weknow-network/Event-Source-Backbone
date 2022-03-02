@@ -380,20 +380,38 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // WithResiliencePolicy
 
-        #region Subscribe
+        #region Group
 
+        /// <summary>
+        /// Groups the specified consumer group.
+        /// </summary>
+        /// <param name="consumerGroup">The consumer group.</param>
+        /// <returns></returns>
         IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Group(string consumerGroup)
         { 
             ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup);
             return new ConsumerBuilder(plan);
         }
 
+        #endregion // Group
+
+        #region Name
+
+        /// <summary>
+        /// Names the specified consumer name.
+        /// </summary>
+        /// <param name="consumerName">Name of the consumer.</param>
+        /// <returns></returns>
         IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Name(string consumerName)
         { 
             ConsumerPlan plan = _plan.WithConsumerName(consumerName);
             return new ConsumerBuilder(plan);
         }
 
+        #endregion // Name
+
+        #region Subscribe
+
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
@@ -402,10 +420,10 @@ namespace Weknow.EventSource.Backbone
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(ISubscriptionBridge[] handlers)
+        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
 
         {
-            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
+            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
         }
 
         /// <summary>
@@ -416,7 +434,7 @@ namespace Weknow.EventSource.Backbone
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             IEnumerable<ISubscriptionBridge> handlers)
 
         {
@@ -445,11 +463,11 @@ namespace Weknow.EventSource.Backbone
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
 
         {
-            return ((IConsumerSubscribeBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
+            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
         }
 
         /// <summary>
@@ -460,7 +478,7 @@ namespace Weknow.EventSource.Backbone
         /// The partition subscription (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
-        IConsumerLifetime IConsumerSubscribeBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
 
         {

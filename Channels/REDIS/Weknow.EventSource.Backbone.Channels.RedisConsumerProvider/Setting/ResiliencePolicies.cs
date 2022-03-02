@@ -83,11 +83,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </summary>
         public AsyncPolicy Policy { get; set; }
 
-        /// <summary>
-        /// Gets or sets the batch reading policy.
-        /// </summary>
-        public AsyncPolicy CriticalPolicy { get; set; }
-
         #region Cast overloads
 
         /// <summary>

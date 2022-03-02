@@ -46,6 +46,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly ISequenceOperationsConsumer _subscriberDynamic = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
+        private readonly IEventFlowStage1Consumer _stage1Consumer = A.Fake<IEventFlowStage1Consumer>();
         private readonly IEventFlowStage2Consumer _stage2Consumer = A.Fake<IEventFlowStage2Consumer>();
 
         private string ENV = $"Development";
@@ -178,10 +179,71 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Environmet_Test
 
-        #region PartialConsumer_Strict_Test
+        #region PartialConsumer_Strict_Succeed_Test
 
         [Fact(Timeout = TIMEOUT)]
-        public async Task PartialConsumer_Strict_Test()
+        public async Task PartialConsumer_Strict_Succeed_Test()
+        {      
+            #region ISequenceOperations producer = ...
+
+            IEventFlowProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Partition(PARTITION)
+                                            .Shard(SHARD)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildEventFlowProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            var p = new Person(100, "bnaya");
+            await producer.Stage1Async(p, "ABC");
+            await producer.Stage2Async(p.ToJson(), "ABC".ToJson());
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 2 /* detach consumer after 2 messages*/
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => consumerOptions)
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
+                         .Group("CONSUMER_GROUP_X_1")
+                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                         .SubscribeEventFlowStage1Consumer(_stage1Consumer)
+                         .SubscribeEventFlowStage2Consumer(_stage2Consumer);
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(_fakeLogger).Where(call => call.Method.Name == "Log" && call.GetArgument<LogLevel>(0) == LogLevel.Critical).MustNotHaveHappened();
+
+            A.CallTo(() => _stage1Consumer.Stage1Async(A<Person>.Ignored, A<string>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stage2Consumer.Stage2Async(A<Person>.Ignored, A<JsonElement>.Ignored))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+
+        }
+
+        #endregion // PartialConsumer_Strict_Succeed_Test
+
+        #region PartialConsumer_Strict_Fail_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task PartialConsumer_Strict_Fail_Test()
         {      
             #region ISequenceOperations producer = ...
 
@@ -226,7 +288,7 @@ namespace Weknow.EventSource.Backbone.Tests
             A.CallTo(_fakeLogger).Where(call => call.Method.Name == "Log" && call.GetArgument<LogLevel>(0) == LogLevel.Critical).MustHaveHappened();
         }
 
-        #endregion // PartialConsumer_Strict_Test
+        #endregion // PartialConsumer_Strict_Fail_Test
 
         #region PartialConsumer_Allow_Test
 

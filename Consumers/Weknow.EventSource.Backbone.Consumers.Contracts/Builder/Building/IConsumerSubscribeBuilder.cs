@@ -8,10 +8,11 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerSubscribeBuilder: 
+    public interface IConsumerSubscribeBuilder :
+        IConsumerSubscribtionHubBuilder,
         IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>,
         IConsumerPartitionBuilder<IConsumerSubscribeBuilder>
-        //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
+    //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
     {
         /// <summary>
         /// Tune configuration.
@@ -48,8 +49,10 @@ namespace Weknow.EventSource.Backbone.Building
         /// </summary>
         /// <returns></returns>
         IConsumerIterator BuildIterator();
+    }
 
-
+    public interface IConsumerSubscribtionHubBuilder
+    { 
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
