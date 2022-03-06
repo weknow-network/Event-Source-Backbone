@@ -26,22 +26,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     {
         public static readonly RedisConsumerChannelSetting Default = new RedisConsumerChannelSetting();
 
-        /// <summary>
-        /// Define when to claim stale (long waiting) messages from other consumers
-        /// </summary>
-        public StaleMessagesClaimingTrigger ClaimingTrigger { get; set; } = StaleMessagesClaimingTrigger.Default;
-
 
         /// <summary>
         /// Gets or sets the resilience policy.
         /// </summary>
-        public ResiliencePolicies Policy { get; set; } = new ResiliencePolicies();
-
+        public ResiliencePolicies Policy { get; init; } = new ResiliencePolicies();
 
         /// <summary>
         /// Behavior of delay when empty
         /// </summary>
-        public DelayWhenEmptyBehavior DelayWhenEmptyBehavior { get; set; } = DelayWhenEmptyBehavior.Default;
+        public DelayWhenEmptyBehavior DelayWhenEmptyBehavior { get; init; } = DelayWhenEmptyBehavior.Default;
 
         #region Cast overloads
 

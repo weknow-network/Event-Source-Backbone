@@ -17,7 +17,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="plan">The consumer plan.</param>
         /// <param name="func">The function.</param>
-        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// When completed
@@ -25,7 +24,6 @@ namespace Weknow.EventSource.Backbone
         ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    ConsumerOptions options,
                     CancellationToken cancellationToken);
 
         /// <summary>

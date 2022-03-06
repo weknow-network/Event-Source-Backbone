@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
-    [DebuggerDisplay("{Environment}:{Partition}:{Shard}")]
+    [DebuggerDisplay("{Environment}:{Partition}:{Shard}, Consumer: [{ConsumerGroup}, {ConsumerName}]")]
     public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
@@ -364,13 +364,7 @@ namespace Weknow.EventSource.Backbone
         internal ConsumerPlan WithCancellation(
                                         CancellationToken cancellation)
         {
-
-            if (Cancellation == default)
-                return new ConsumerPlan(this, cancellation: cancellation);
-
-            var cts = CancellationTokenSource.CreateLinkedTokenSource(Cancellation, cancellation);
-            return new ConsumerPlan(this, cancellation: cts.Token);
-
+            return new ConsumerPlan(this, cancellation: cancellation);
         }
 
         #endregion // WithCancellation

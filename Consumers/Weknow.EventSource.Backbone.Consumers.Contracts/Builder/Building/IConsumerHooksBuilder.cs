@@ -8,15 +8,9 @@ namespace Weknow.EventSource.Backbone
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerHooksBuilder
-        : IConsumerEnvironmentBuilder
+        : IConsumerEnvironmentBuilder,
+        IWithCancellation<IConsumerHooksBuilder>
     {
-        /// <summary>
-        /// Withes the cancellation token.
-        /// </summary>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns></returns>
-        IConsumerHooksBuilder WithCancellation(CancellationToken cancellation);
-
         /// <summary>
         /// Register raw interceptor.
         /// Intercept the consumer side execution before de-serialization.

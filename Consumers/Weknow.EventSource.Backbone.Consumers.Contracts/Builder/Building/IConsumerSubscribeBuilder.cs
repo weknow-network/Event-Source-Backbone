@@ -11,7 +11,8 @@ namespace Weknow.EventSource.Backbone.Building
     public interface IConsumerSubscribeBuilder :
         IConsumerSubscribtionHubBuilder,
         IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>,
-        IConsumerPartitionBuilder<IConsumerSubscribeBuilder>
+        IConsumerPartitionBuilder<IConsumerSubscribeBuilder>,
+        IWithCancellation<IConsumerSubscribeBuilder>
     //IConsumerShardOfBuilder<IConsumerSubscribeBuilder>
     {
         /// <summary>

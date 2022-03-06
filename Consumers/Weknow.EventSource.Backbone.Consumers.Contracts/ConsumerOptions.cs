@@ -81,10 +81,14 @@ namespace Weknow.EventSource.Backbone
 
         #endregion AckBehavior 
 
+        #region PartialBehavior
+
         /// <summary>
         /// Gets or sets the partial behavior (does consumer had to handle all events?).
         /// </summary>
         public PartialConsumerBehavior PartialBehavior { get; init; } = PartialConsumerBehavior.Strict;
+
+        #endregion // PartialBehavior
 
         #region MaxMessages
 
@@ -105,5 +109,11 @@ namespace Weknow.EventSource.Backbone
         public TimeSpan TraceAsParent { get; init; }
 
         #endregion // TraceAsParent
+
+        /// <summary>
+        /// Define when to claim stale (long waiting) messages from other consumers
+        /// </summary>
+        public ClaimingTrigger ClaimingTrigger { get; init; } = ClaimingTrigger.Default;
+
     }
 }

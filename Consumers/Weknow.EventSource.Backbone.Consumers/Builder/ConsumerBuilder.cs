@@ -523,7 +523,19 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        IConsumerHooksBuilder IConsumerHooksBuilder.WithCancellation(CancellationToken cancellation)
+        IConsumerHooksBuilder IWithCancellation<IConsumerHooksBuilder>.WithCancellation(CancellationToken cancellation)
+        {
+            var prms = _plan.WithCancellation(cancellation);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Withes the cancellation token.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        IConsumerSubscribeBuilder IWithCancellation<IConsumerSubscribeBuilder>.WithCancellation(CancellationToken cancellation)
         {
             var prms = _plan.WithCancellation(cancellation);
             var result = new ConsumerBuilder(prms);
