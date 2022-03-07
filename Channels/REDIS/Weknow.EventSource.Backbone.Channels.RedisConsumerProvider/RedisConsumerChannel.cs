@@ -106,7 +106,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </summary>
         /// <param name="plan">The consumer plan.</param>
         /// <param name="func">The function.</param>
-        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// When completed
@@ -114,17 +113,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            var joinCancellation = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken).Token;
+            ConsumerOptions options = plan.Options;
+
+            while (!joinCancellation.IsCancellationRequested)
             {
                 try
                 {
                     if (plan.Shard != string.Empty)
-                        await SubsribeShardAsync(plan, func, options, cancellationToken);
+                        await SubsribeShardAsync(plan, func, options, joinCancellation);
                     else
-                        await SubsribePartitionAsync(plan, func, options, cancellationToken);
+                        await SubsribePartitionAsync(plan, func, options, joinCancellation);
 
                     if (options.FetchUntilUnixDateOrEmpty != null)
                         break;
@@ -225,6 +226,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
+            var claimingTrigger = options.ClaimingTrigger;
+            var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
+
             string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
             bool isFirstBatchOrFailure = true;
 
@@ -243,8 +247,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
 
-            cancellationToken = CancellationTokenSource.CreateLinkedTokenSource(
-                                        cancellationToken, plan.Cancellation).Token;
             TimeSpan delay = TimeSpan.Zero;
             int emptyBatchCount = 0;
             while (!cancellationToken.IsCancellationRequested && await HandleBatchAsync())
@@ -257,14 +259,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             async ValueTask<bool> HandleBatchAsync()
             {
                 var policy = _setting.Policy.Policy;
-                return await policy.ExecuteAsync(HandleBatchBreakerAsync);
+                return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
             }
 
-            async Task<bool> HandleBatchBreakerAsync()
+            async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
             {
+                ct.ThrowIfCancellationRequested();
+
                 StreamEntry[] results = await ReadBatchAsync();
                 emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
-                results = await ClaimStaleMessages(emptyBatchCount, results);
+                results = await ClaimStaleMessages(emptyBatchCount, results, ct);
 
                 if (results.Length == 0)
                 {
@@ -272,6 +276,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         delay = await DelayIfEmpty(delay, cancellationToken);
                     return fetchUntil == null;
                 }
+
+                ct.ThrowIfCancellationRequested();                
 
                 try
                 {
@@ -398,8 +404,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 // TBD: circuit-breaker
                 try
                 {
-                    var r = await _setting.Policy.Policy.ExecuteAsync(async () =>
+                    var r = await _setting.Policy.Policy.ExecuteAsync(async (ct) =>
                     {
+                        ct.ThrowIfCancellationRequested();
                         StreamEntry[] values = Array.Empty<StreamEntry>();
                         values = await ReadSelfPending();
 
@@ -419,7 +426,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         }
                         StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
                         return results;
-                    });
+                    }, cancellationToken);
                     return r;
                 }
                 #region Exception Handling
@@ -452,7 +459,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
-                var pendMsgInfo = await db.StreamPendingMessagesAsync(
+                StreamPendingMessageInfo[] pendMsgInfo = await db.StreamPendingMessagesAsync(
                                             key,
                                             plan.ConsumerGroup,
                                             options.BatchSize,
@@ -460,14 +467,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                             flags: CommandFlags.DemandMaster);
                 if (pendMsgInfo != null && pendMsgInfo.Length != 0)
                 {
-                    var ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
-                    values = await db.StreamClaimAsync(key,
-                                              plan.ConsumerGroup,
-                                              plan.ConsumerName,
-                                              0,
-                                              ids,
-                                              flags: CommandFlags.DemandMaster);
-                    values = values ?? Array.Empty<StreamEntry>();
+                    var ids = pendMsgInfo
+                        .Select(m => m.MessageId).ToArray();
+                    if (ids.Length != 0)
+                    {
+                        values = await db.StreamClaimAsync(key,
+                                                  plan.ConsumerGroup,
+                                                  plan.ConsumerName,
+                                                  0,
+                                                  ids,
+                                                  flags: CommandFlags.DemandMaster);
+                        values = values ?? Array.Empty<StreamEntry>();
+                        _logger.LogInformation("Claimed messages: {ids}", ids);
+                    }
                 }
 
                 return values;
@@ -480,10 +492,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             // Taking work from other consumers which have log-time's pending messages
             async Task<StreamEntry[]> ClaimStaleMessages(
                 int emptyBatchCount,
-                StreamEntry[] values)
+                StreamEntry[] values,
+                CancellationToken ct)
             {
+                ct.ThrowIfCancellationRequested();
                 if (values.Length != 0) return values;
-                if (emptyBatchCount < _setting.ClaimingTrigger.EmptyBatchCount)
+                if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
                     return values;
                 try
                 {
@@ -504,15 +518,20 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 pendingInfo.HighestPendingMessageId,
                                 flags: CommandFlags.DemandMaster);
 
-                            RedisValue[] ids = pendMsgInfo.Select(m => m.MessageId).ToArray();
+
+
+                            RedisValue[] ids = pendMsgInfo
+                                        .Where(x => x.IdleTimeInMilliseconds > minIdleTime)
+                                        .Select(m => m.MessageId).ToArray();
                             if (ids.Length == 0)
                                 continue;
+                            
                             plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
                             // will claim messages only if older than _setting.ClaimingTrigger.MinIdleTime
                             values = await db.StreamClaimAsync(key,
                                                       plan.ConsumerGroup,
                                                       c.Name,
-                                                      (int)_setting.ClaimingTrigger.MinIdleTime.TotalMilliseconds,
+                                                      minIdleTime,
                                                       ids,
                                                       flags: CommandFlags.DemandMaster);
                             if (values.Length != 0)

@@ -32,7 +32,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
-        private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
+        private readonly IConsumerHooksBuilder _consumerBuilder;
 
         private string ENV = $"test";
         private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
@@ -53,18 +53,19 @@ namespace Weknow.EventSource.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
-            var consumerSetting = RedisConsumerChannelSetting.Default;
-            var claimTrigger = consumerSetting.ClaimingTrigger;
-            claimTrigger.EmptyBatchCount = 5;
-            claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
-            consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
 
-            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
+            var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
-                                            ClaimingTrigger = claimTrigger
+                                            DelayWhenEmptyBehavior = 
+                                                stg.DelayWhenEmptyBehavior with 
+                                                {
+                                                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2)) 
+                                                }
                                         });
-            _consumerBuilder = consumerChannelBuilder?.Invoke(_consumerBuilder, _fakeLogger) ?? _consumerBuilder;
+            consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
+            var claimTrigger = new ClaimingTrigger { EmptyBatchCount = 5, MinIdleTime = TimeSpan.FromSeconds(3) };
+            _consumerBuilder = consumerBuilder.WithOptions(o => o with { ClaimingTrigger = claimTrigger });
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .ReturnsLazily(() => ValueTask.CompletedTask);

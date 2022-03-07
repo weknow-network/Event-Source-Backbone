@@ -74,16 +74,14 @@ namespace Weknow.EventSource.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
-            var consumerSetting = RedisConsumerChannelSetting.Default;
-            var claimTrigger = consumerSetting.ClaimingTrigger;
-            claimTrigger.EmptyBatchCount = 5;
-            claimTrigger.MinIdleTime = TimeSpan.FromSeconds(3);
-            consumerSetting.DelayWhenEmptyBehavior.CalcNextDelay = d => TimeSpan.FromMilliseconds(2);
-
             var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
-                                            ClaimingTrigger = claimTrigger
+                                            DelayWhenEmptyBehavior =
+                                                stg.DelayWhenEmptyBehavior with
+                                                {
+                                                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
+                                                }
                                         });
             _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
@@ -122,6 +120,23 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Ctor
 
+
+        private ConsumerOptions DefaultOptions(
+                    ConsumerOptions options,
+                    uint? maxMessages = null,
+                    AckBehavior? ackBehavior = null,
+                    PartialConsumerBehavior? behavior = null)
+        {
+            var claimTrigger = new ClaimingTrigger { EmptyBatchCount = 5, MinIdleTime = TimeSpan.FromSeconds(3) };
+            return options with
+            {
+                ClaimingTrigger = claimTrigger,
+                MaxMessages = maxMessages ?? options.MaxMessages,
+                AckBehavior = ackBehavior ?? options.AckBehavior,
+                PartialBehavior = behavior ?? options.PartialBehavior
+            };
+        }
+
         #region Environmet_Test
 
         [Fact(Timeout = TIMEOUT)]
@@ -141,17 +156,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 3 /* detach consumer after 3 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -183,7 +193,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         [Fact(Timeout = TIMEOUT)]
         public async Task PartialConsumer_Strict_Succeed_Test()
-        {      
+        {
             #region ISequenceOperations producer = ...
 
             IEventFlowProducer producer = _producerBuilder
@@ -200,17 +210,12 @@ namespace Weknow.EventSource.Backbone.Tests
             await producer.Stage1Async(p, "ABC");
             await producer.Stage2Async(p.ToJson(), "ABC".ToJson());
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 2 /* detach consumer after 2 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -244,7 +249,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         [Fact(Timeout = TIMEOUT)]
         public async Task PartialConsumer_Strict_Fail_Test()
-        {      
+        {
             #region ISequenceOperations producer = ...
 
             IEventFlowProducer producer = _producerBuilder
@@ -261,17 +266,12 @@ namespace Weknow.EventSource.Backbone.Tests
             await producer.Stage1Async(p, "ABC");
             await producer.Stage2Async(p.ToJson(), "ABC".ToJson());
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 2 /* detach consumer after 2 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -316,21 +316,15 @@ namespace Weknow.EventSource.Backbone.Tests
 
                 await producer.Stage1Async(p, "ABC");
                 await producer.Stage2Async(p.ToJson(), "ABC".ToJson());
-                
+
             }
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = times * 2 /* detach consumer after 2 messages*/,
-                PartialBehavior = PartialConsumerBehavior.allow                
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, times * 2, AckBehavior.OnSucceed, PartialConsumerBehavior.allow))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -378,6 +372,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerReceiver receiver = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -425,6 +420,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerReceiver receiver = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -480,6 +476,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerReceiver receiver = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment("DemoTest")
                          .Partition(PARTITION)
@@ -526,6 +523,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerReceiver receiver = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment("DemoTest")
                          .Partition(PARTITION)
@@ -571,6 +569,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -632,6 +631,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -701,6 +701,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -766,6 +767,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -830,6 +832,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -890,6 +893,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -937,6 +941,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -979,17 +984,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 3 /* detach consumer after 3 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1038,11 +1038,6 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await Task.Delay(100); // DateTime is not so accurate
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                FetchUntilDateOrEmpty = DateTimeOffset.UtcNow,
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             await Task.Delay(100); // DateTime is not so accurate
@@ -1051,7 +1046,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed)  with { FetchUntilDateOrEmpty = DateTimeOffset.UtcNow })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1112,17 +1107,12 @@ namespace Weknow.EventSource.Backbone.Tests
             await SendSequenceAsync(producer1);
             await SendSequenceAsync(producer2);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 6 /* detach consumer after 6 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 6, AckBehavior.OnSucceed)) /* detach consumer after 6 messages*/
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1183,17 +1173,12 @@ namespace Weknow.EventSource.Backbone.Tests
             await SendSequenceAsync(producer1);
             await SendSequenceAsync(producer2);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 6 /* detach consumer after 6 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 6, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1255,17 +1240,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 4 /* detach consumer after 4 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 4, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1329,17 +1309,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnFinally,
-                MaxMessages = 3 /* detach consumer after 4 messages*/
-            };
+
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnFinally))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1409,26 +1385,21 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.Manual,
-                MaxMessages = 4 /* detach consumer after 4 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
-                             .WithCancellation(cancellation)
-                             .Environment(ENV)
-                             .Partition(PARTITION)
-                             .Shard(SHARD)
-                             .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
-                             .WithLogger(_fakeLogger)
-                         .Group("CONSUMER_GROUP_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                             .Subscribe(_subscriberBridge);
+                                .WithOptions(o => DefaultOptions(o, 4, AckBehavior.Manual))
+                                .WithCancellation(cancellation)
+                                .Environment(ENV)
+                                .Partition(PARTITION)
+                                .Shard(SHARD)
+                                .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
+                                .WithLogger(_fakeLogger)
+                                .Group("CONSUMER_GROUP_1")
+                                .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                                .Subscribe(_subscriberBridge);
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -1483,17 +1454,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.Manual,
-                MaxMessages = 3 /* detach consumer after 3 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.Manual))
                              .WithCancellation(cancellation)
                              .Environment(ENV)
                              .Partition(PARTITION)
@@ -1568,17 +1534,12 @@ namespace Weknow.EventSource.Backbone.Tests
             await SendSequenceAsync(producerSuffix1, "s1");
             await SendSequenceAsync(producerDynamic, "d");
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 3 /* detach consumer after 3 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1589,7 +1550,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Subscribe(_subscriberBridge);
 
             await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment("dev")
                          .Partition($"p0.{PARTITION}")
@@ -1600,7 +1561,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Subscribe(new SequenceOperationsConsumerBridge(_subscriberPrefix));
 
             await using IConsumerLifetime subscriptionPrefix1 = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition($"p2.{PARTITION}")
@@ -1611,7 +1572,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Subscribe(new SequenceOperationsConsumerBridge(_subscriberPrefix1));
 
             await using IConsumerLifetime subscriptionSuffix = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition($"{PARTITION}.s0")
@@ -1622,7 +1583,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Subscribe(new SequenceOperationsConsumerBridge(_subscriberSuffix));
 
             await using IConsumerLifetime subscriptionSuffix1 = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition($"{PARTITION}.s2")
@@ -1633,7 +1594,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Subscribe(new SequenceOperationsConsumerBridge(_subscriberSuffix1));
 
             await using IConsumerLifetime subscriptionDynamic = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition($"d.{PARTITION}")
@@ -1704,9 +1665,10 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Claim_Test
 
-        [Fact(Timeout = TIMEOUT)]
+        [Fact] // (Timeout = TIMEOUT)]
         public async Task Claim_Test()
         {
+            var CONSUMER_GROUP = "CONSUMER_GROUP_1";
             ISequenceOperationsConsumer otherSubscriber = A.Fake<ISequenceOperationsConsumer>();
 
             #region ISequenceOperations producer = ...
@@ -1736,17 +1698,13 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
-            var consumerOptions = new ConsumerOptions
-            {
-                AckBehavior = AckBehavior.OnSucceed,
-                MaxMessages = 3 /* detach consumer after 3 messages*/
-            };
             CancellationToken cancellation = GetCancellationToken();
+            using var firstAttemptCancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             var consumerPipe = _consumerBuilder
-                         .WithOptions(o => consumerOptions)
+                             .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                              .WithCancellation(cancellation)
                              .Environment(ENV)
                              .Partition(PARTITION)
@@ -1755,15 +1713,23 @@ namespace Weknow.EventSource.Backbone.Tests
                              .WithLogger(_fakeLogger);
 
             await using IConsumerLifetime otherSubscription = consumerPipe
-                             .Group("CONSUMER_GROUP_1")
-                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                             .WithCancellation(firstAttemptCancellation.Token)
+                             .Group(CONSUMER_GROUP)
+                             .Name($"TEST FAULTED {DateTime.UtcNow:HH:mm:ss}")
                              .Subscribe(new SequenceOperationsConsumerBridge(otherSubscriber));
 
             await otherSubscription.Completion;
 
             await using IConsumerLifetime subscription = consumerPipe
-                             .Group("CONSUMER_GROUP_1")
-                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                            .WithOptions(o => o with
+                                        { 
+                                            ClaimingTrigger = o.ClaimingTrigger with 
+                                                    { 
+                                                        MinIdleTime = TimeSpan.FromMilliseconds(50) 
+                                                    } 
+                                        })
+                             .Group(CONSUMER_GROUP)
+                             .Name($"TEST OK {DateTime.UtcNow:HH:mm:ss}")
                              .Subscribe(new SequenceOperationsConsumerBridge(_subscriber));
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
@@ -1774,8 +1740,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
             A.CallTo(() => otherSubscriber.RegisterAsync(A<User>.Ignored))
                         .MustHaveHappened(
-                                    (3 /* Polly retry */ + 1 /* throw */ ) * 3 /* disconnect after 3 messaged */ ,
-                                    Times.Exactly);
+                                    (3 /* Polly retry */),
+                                    Times.OrMore);
+            //.MustHaveHappened(
+            //            (3 /* Polly retry */ + 1 /* throw */ ) * 3 /* disconnect after 3 messaged */ ,
+            //            Times.Exactly);
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))

@@ -27,7 +27,7 @@ namespace Weknow.EventSource.Backbone
         private class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
         {
             private readonly IConsumerPlan _plan;
-            private readonly CancellationTokenSource _cancellation = new CancellationTokenSource();
+            private readonly CancellationTokenSource _disposeCancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
             private readonly ConsumerOptions _options;
             private readonly uint _maxMessages;
@@ -63,8 +63,7 @@ namespace Weknow.EventSource.Backbone
                 _subscriptionLifetime = channel.SubsribeAsync(
                                                     plan,
                                                     ConsumingAsync,
-                                                    plan.Options,
-                                                    _cancellation.Token);
+                                                    _disposeCancellation.Token);
 
                 _subscriptionLifetime.AsTask().ContinueWith(_ => DisposeAsync());
             }
@@ -164,17 +163,19 @@ namespace Weknow.EventSource.Backbone
 
                     await using (Ack.Set(ack))
                     {
-                        var hasProcessedArray = await _plan.ResiliencePolicy.ExecuteAsync(async () =>
+                        var hasProcessed = await _plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
                         {
+                            if(ct.IsCancellationRequested) return false;
+
                             ConsumerMetadata._metaContext.Value = consumerMeta;
                             var tasks = _handlers.AsParallel().Select(h => h.Invoke(arg, this));
-                            return await Task.WhenAll(tasks);
-                        });
+                            var results = await Task.WhenAll(tasks);
+                            return results?.Any(m => m) ?? false;
+                        }, cancellation);
                         logger.LogDebug("Consumed event: {0}", meta.Key());
 
                         var options = _plan.Options;
                         var behavior = options.AckBehavior;
-                        bool hasProcessed = hasProcessedArray.Any(m => m);
                         if (options.PartialBehavior == PartialConsumerBehavior.Strict && !hasProcessed)
                         {
                             _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
@@ -306,12 +307,12 @@ namespace Weknow.EventSource.Backbone
             {
                 #region Validation
 
-                if (_cancellation.IsCancellationRequested)
+                if (_disposeCancellation.IsCancellationRequested)
                     return ValueTask.CompletedTask;
 
                 #endregion // Validation
 
-                _cancellation.CancelSafe();
+                _disposeCancellation.CancelSafe();
                 _keepAlive.TryRemove(this, out _);
                 _completion.SetResult(null);
                 return _subscriptionLifetime;

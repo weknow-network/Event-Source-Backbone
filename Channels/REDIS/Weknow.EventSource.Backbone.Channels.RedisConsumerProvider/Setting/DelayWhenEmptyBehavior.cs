@@ -22,20 +22,20 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
     /// <summary>
     /// Behavior of delay when empty
     /// </summary>
-    public class DelayWhenEmptyBehavior
+    public record DelayWhenEmptyBehavior
     {
         public static readonly DelayWhenEmptyBehavior Default = new DelayWhenEmptyBehavior();
 
         /// <summary>
         /// Gets or sets the maximum delay.
         /// </summary>
-        public TimeSpan MaxDelay { get; set; } = TimeSpan.FromSeconds(5);
+        public TimeSpan MaxDelay { get; init; } = TimeSpan.FromSeconds(5);
 
 
         /// <summary>
         /// Gets or sets the next delay.
         /// </summary>
-        public Func<TimeSpan, TimeSpan> CalcNextDelay { get; set; } = DefaultCalcNextDelay;
+        public Func<TimeSpan, TimeSpan> CalcNextDelay { get; init; } = DefaultCalcNextDelay;
 
         /// <summary>
         /// Default calculation of next delay.

@@ -38,7 +38,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReleaseNotes>[BREAKING CHANGES] REDIS segmentation key have different pattern (not compatible with previous pattern)</PackageReleaseNotes>
+		<PackageReleaseNotes>[BREAKING CHANGES] Consumer options / consumer channel setting had changed</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<PropertyGroup>

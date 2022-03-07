@@ -30,15 +30,16 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="plan">The metadata.</param>
         /// <param name="func">The function.</param>
-        /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>When completed</returns>
+        /// <returns>
+        /// When completed
+        /// </returns>
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask> func,
-                    ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
+            ConsumerOptions options = plan.Options;
             while (!_channel.Reader.Completion.IsCompleted &&
                    !cancellationToken.IsCancellationRequested)
             {
