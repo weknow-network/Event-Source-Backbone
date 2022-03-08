@@ -369,7 +369,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerReceiver receiver = ...
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -380,7 +380,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerReceiver receiver = ...
 
             AnnouncementData? res0 = await receiver.GetByIdAsync(keys[0]);
             var res1 = await receiver.GetByIdAsync(keys[1]);
@@ -417,7 +417,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerReceiver receiver = ...
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -428,7 +428,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerReceiver receiver = ...
 
             var res0 = await receiver.GetJsonByIdAsync(keys[0]);
             _outputHelper.WriteLine(res0.AsIndentString());
@@ -473,7 +473,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerReceiver receiver = ...
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -485,7 +485,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .BuildReceiver()
                          .Environment(ENV);
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerReceiver receiver = ...
 
             var res0 = await receiver.GetByIdAsync(keys[0]);
             var res1 = await receiver.GetByIdAsync(keys[1]);
@@ -520,7 +520,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerReceiver receiver = ...
 
             IConsumerReceiver receiver = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -532,7 +532,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .Environment(ENV)
                          .BuildReceiver();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerReceiver receiver = ...
 
             var res0 = await receiver.GetByIdAsync(keys[0]);
             var res1 = await receiver.GetByIdAsync(keys[1]);
@@ -566,7 +566,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator iterator = ...
 
             IConsumerIterator iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -577,7 +577,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator iterator = ...
 
             int i = 0;
             await foreach (AnnouncementData announcement in iterator.GetAsyncEnumerable().WithCancellation(cancellation))
@@ -628,7 +628,7 @@ namespace Weknow.EventSource.Backbone.Tests
             CancellationTokenSource linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, globalCancellation);
             CancellationToken cancellation = linkedCancellation.Token;
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator iterator = ...
 
             IConsumerIterator iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -639,7 +639,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator iterator = ...
 
             int i = 0;
             await foreach (AnnouncementData announcement in iterator.GetAsyncEnumerable().WithCancellation(cancellation))
@@ -698,7 +698,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator iterator = ...
 
             IConsumerIterator iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -709,7 +709,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator iterator = ...
 
             int i = 0;
             var options = new ConsumerAsyncEnumerableJsonOptions { IgnoreMetadata = true };
@@ -764,7 +764,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator iterator = ...
 
             IConsumerIterator iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -775,7 +775,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator iterator = ...
 
             int i = 0;
             await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable().WithCancellation(cancellation))
@@ -829,7 +829,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator iterator = ...
 
             IConsumerIterator iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -840,7 +840,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator iterator = ...
 
             int i = 0;
             var options = new ConsumerAsyncEnumerableJsonOptions
@@ -890,7 +890,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
             IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -902,7 +902,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .BuildIterator()
                          .SpecializeSequenceOperationsConsumer();
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
             int i = 0;
             await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
@@ -938,7 +938,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
             CancellationToken cancellation = GetCancellationToken();
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+            #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
             IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
@@ -950,7 +950,7 @@ namespace Weknow.EventSource.Backbone.Tests
                          .BuildIterator()
                          .Specialize(UnitTests.Entities.SequenceOperationsConsumerEntityMapper.Default);
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+            #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
             int i = 0;
             await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
