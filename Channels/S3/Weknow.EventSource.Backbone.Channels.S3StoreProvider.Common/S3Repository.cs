@@ -26,8 +26,8 @@ namespace Weknow.EventSource.Backbone.Channels
     /// </summary>
     public sealed class S3Repository : IS3Repository, IDisposable
     {
-        private static readonly string BUCKET = 
-            Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_BUCKET") 
+        private static readonly string BUCKET =
+            Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_BUCKET")
             ?? string.Empty;
 
         private readonly string _bucket;
@@ -291,7 +291,7 @@ namespace Weknow.EventSource.Backbone.Channels
             string? mediaType = null,
             CancellationToken cancellation = default)
         {
-            using var srm = new MemoryStream(data.ToArray()); 
+            using var srm = new MemoryStream(data.ToArray());
             var result = await SaveAsync(srm, env, id, metadata, tags, mediaType, cancellation);
             return result;
         }
@@ -318,15 +318,16 @@ namespace Weknow.EventSource.Backbone.Channels
             string? mediaType = null,
             CancellationToken cancellation = default)
         {
+            var bucket = GetBucket(env);
+            string key = GetKey(env, id);
             try
             {
                 var date = DateTime.UtcNow;
-                string key = GetKey(env, id);
                 //tags = tags.Add("month", date.ToString("yyyy-MM"));
 
                 var s3Request = new PutObjectRequest
                 {
-                    BucketName = GetBucket(env),
+                    BucketName = bucket,
                     Key = key,
                     InputStream = data,
                     ContentType = mediaType,
@@ -367,8 +368,9 @@ namespace Weknow.EventSource.Backbone.Channels
                 }
                 catch { }
                 _logger.LogError(e.FormatLazy(),
-                        "AWS-S3 Failed to write: {payload}, {env}, {id}", json, env, id);
-                throw;
+                        "AWS-S3 Failed to write: {payload}, {env}, {id}, {bucket}, {key}", json, env, id, bucket, key);
+                string msg = $"AWS-S3 Failed to write: {env}, {id}, {bucket}, {key}";
+                throw new ApplicationException(msg, e);
             }
             catch (Exception e)
             {
@@ -379,8 +381,9 @@ namespace Weknow.EventSource.Backbone.Channels
                 }
                 catch { }
                 _logger.LogError(e.FormatLazy(),
-                        "S3 writing Failed: {payload}, {env}, {id}", json, env, id);
-                throw;
+                        "S3 writing Failed: {payload}, {env}, {id}, {bucket}, {key}", json, env, id, bucket, key);
+                string msg = $"S3 writing Failed: {env}, {id}, {bucket}, {key}";
+                throw new ApplicationException(msg, e);
             }
 
             #endregion // Exception Handling
