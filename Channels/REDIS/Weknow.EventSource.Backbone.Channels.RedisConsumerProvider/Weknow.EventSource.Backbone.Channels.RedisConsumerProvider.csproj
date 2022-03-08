@@ -1,5 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <None Remove="Weknow.EventSource.Backbone.Channels.RedisConsumerProviderr.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Weknow.EventSource.Backbone.Channels.RedisProvider.Common\Weknow.EventSource.Backbone.Channels.RedisProvider.Common.csproj" />
     <ProjectReference Include="..\..\..\Consumers\Weknow.EventSource.Backbone.Consumers.Contracts\Weknow.EventSource.Backbone.Consumers.Contracts.csproj" />
   </ItemGroup>

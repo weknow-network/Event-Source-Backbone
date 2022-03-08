@@ -28,6 +28,26 @@ namespace Weknow.EventSource.Backbone
 
         #endregion Data 
 
+        #region ExtractMeta
+
+        /// <summary>
+        /// Extracts the meta.
+        /// </summary>
+        /// <returns></returns>
+        public Metadata ExtractMeta() => new Metadata
+        {
+            ChannelType = this.ChannelType,
+            Environment = this.Environment,
+            EventKey = this.EventKey,
+            MessageId = this.MessageId,
+            Operation = this.Operation,
+            Partition = this.Partition,
+            ProducedAt = this.ProducedAt,
+            Shard = this.Shard,
+        };
+
+        #endregion // ExtractMeta
+
         #region Cast overloads
 
         /// <summary>

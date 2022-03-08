@@ -764,7 +764,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             IConnectionMultiplexer conn = await _connFactory.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
             ILogger logger = plan.Logger;
-            await foreach (StreamEntry entry in AsyncLoop().WithCancellation(cancellationToken))
+            var loop = AsyncLoop().WithCancellation(cancellationToken);
+            await foreach (StreamEntry entry in loop)
             {
                 if (cancellationToken.IsCancellationRequested) yield break;
 
