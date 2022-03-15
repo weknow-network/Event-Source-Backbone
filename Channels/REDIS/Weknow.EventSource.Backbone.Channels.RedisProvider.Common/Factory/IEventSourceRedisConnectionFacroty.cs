@@ -5,16 +5,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Connection factory
     /// </summary>
-    public interface IEventSourceRedisConnectionFacroty
+    public interface IEventSourceRedisConnectionFacroty: IRedisConnectionFacrotyBase
     {
-        /// <summary>
-        /// Get a valid connection 
-        /// </summary>
-        Task<IConnectionMultiplexer> GetAsync();
-        Task<IConnectionMultiplexer> ReportErrorAsync();
-        /// <summary>
-        /// Get database 
-        /// </summary>
-        Task<IDatabaseAsync> GetDatabaseAsync();
     }
 }
