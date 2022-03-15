@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
     /// This factory is also responsible of the connection health.
     /// It will return same connection as long as it healthy.
     /// </summary>
-    public sealed class EventSourceRedisConnectionFacroty : RedisConnectionFacrotyBase, IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
+    public sealed class EventSourceRedisConnectionFacroty : RedisConnectionFacrotyBase, IEventSourceRedisConnectionFacroty
     {
         #region Ctor
 
@@ -51,8 +51,9 @@ namespace Weknow.EventSource.Backbone
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
             Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default): base(logger, configuration, credentialsKeys)
+            RedisCredentialsKeys credentialsKeys = default): base(logger, configuration )
         {
+            CredentialsKeys = credentialsKeys;
         }
 
 
@@ -66,5 +67,14 @@ namespace Weknow.EventSource.Backbone
         protected override string Kind => "Event-Sourcing";
 
         #endregion // Kind
+
+        #region CredentialsKeys
+
+        /// <summary>
+        /// Gets the credentials keys.
+        /// </summary>
+        protected override RedisCredentialsKeys CredentialsKeys { get; }
+
+        #endregion // CredentialsKeys
     }
 }

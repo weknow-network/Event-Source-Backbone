@@ -38,14 +38,12 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="configuration"></param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
         public RedisConnectionFacrotyBase(
             ILogger<EventSourceRedisConnectionFacroty> logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default
-            ) : this((ILogger)logger, configuration, credentialsKeys)
+            Action<ConfigurationOptions>? configuration = null
+            ) : this((ILogger)logger, configuration)
         {
         }
 
@@ -59,19 +57,34 @@ namespace Weknow.EventSource.Backbone
         /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public RedisConnectionFacrotyBase(
             ILogger logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default)
+            Action<ConfigurationOptions>? configuration = null)
         {
             _logger = logger;
             _configuration = configuration;
-            _credentialsKeys = credentialsKeys;
-            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, credentialsKeys);
+            _credentialsKeys = CredentialsKeys;
+            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, CredentialsKeys);
         }
 
 
         #endregion // Ctor
 
+        #region CredentialsKeys
+
+        /// <summary>
+        /// Gets the credentials keys.
+        /// </summary>
+        protected abstract RedisCredentialsKeys CredentialsKeys { get; }
+
+        #endregion // CredentialsKeys
+
+        #region Kind
+
+        /// <summary>
+        /// Gets the kind.
+        /// </summary>
         protected abstract string Kind { get; }
+
+        #endregion // Kind
 
         #region GetAsync
 
