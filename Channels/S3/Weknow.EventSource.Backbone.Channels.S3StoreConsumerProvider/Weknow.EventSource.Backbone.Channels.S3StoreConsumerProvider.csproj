@@ -7,5 +7,8 @@
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.5.43" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
 
 </Project>

@@ -21,5 +21,9 @@
     <ProjectReference Include="..\Weknow.EventSource.Backbone.SrcGen\Weknow.EventSource.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
 
 </Project>

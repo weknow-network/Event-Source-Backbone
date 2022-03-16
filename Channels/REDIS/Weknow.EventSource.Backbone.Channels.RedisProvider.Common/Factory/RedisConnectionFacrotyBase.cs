@@ -54,7 +54,6 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="configuration"></param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public RedisConnectionFacrotyBase(
             ILogger logger,
             Action<ConfigurationOptions>? configuration = null)
