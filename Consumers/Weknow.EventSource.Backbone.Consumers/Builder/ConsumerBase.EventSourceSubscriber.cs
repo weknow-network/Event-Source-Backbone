@@ -58,6 +58,7 @@ namespace Weknow.EventSource.Backbone
 
                 _options = _plan.Options;
                 _maxMessages = _options.MaxMessages;
+                plan.Logger.LogInformation("SUBSCRIBE TO: [{key}]", plan.Key());
                 _handlers = new ConcurrentQueue<Handler>(handlers);
 
                 _subscriptionLifetime = channel.SubsribeAsync(
