@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 
+using static System.String;
+
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>
@@ -348,6 +350,22 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Build
 
+        #region BuildRaw
+
+        /// <summary>
+        /// <![CDATA[ Ceate Producer proxy for raw events sequence.
+        /// Useful for data migration at the raw data level.]]>
+        /// </summary>
+        /// <returns></returns>
+        IRawProducer IProducerRawBuilder.BuildRaw()
+        { 
+            var planBuilder = Plan;
+            IProducerPlan plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
+            return new RawProducer(plan);
+        }
+
+        #endregion // BuildRaw
+
         #region Override
 
         /// <summary>
@@ -491,5 +509,53 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // Router
+
+        #region RawProducer
+
+        /// <summary>
+        /// Raw producer (useful for cluster migration)
+        /// </summary>
+        /// <seealso cref="Weknow.EventSource.Backbone.IRawProducer" />
+        private class RawProducer : IRawProducer
+        {
+            private readonly IProducerPlan _plan;
+
+            #region Ctor
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="RawProducer"/> class.
+            /// </summary>
+            /// <param name="plan">The plan.</param>
+            public RawProducer(IProducerPlan plan)
+            {
+                _plan = plan;
+            }
+
+            #endregion // Ctor
+
+            /// <summary>
+            /// <![CDATA[Producer proxy for raw events sequence.
+            /// Useful for data migration at the raw data level.]]>
+            /// </summary>
+            /// <param name="data"></param>
+            /// <returns></returns>
+            public async ValueTask Produce(Announcement data)
+            {
+                var strategies = await _plan.StorageStrategiesAsync;
+                Metadata metadata = data.Metadata;
+                var meta = metadata with 
+                {                 
+                    Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
+                    Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Environment,
+                    Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Environment,
+                    Origin = MessageOrigin.Copy,
+                    Linked = metadata,
+                };
+                data = data with {  Metadata = meta };
+                await _plan.Channel.SendAsync(data, strategies);
+            }
+        }
+
+        #endregion // RawProducer
     }
 }

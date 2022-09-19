@@ -6,7 +6,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Enable configuration.
     /// </summary>
-    public interface IProducerShardBuilder
+    public interface IProducerShardBuilder: IProducerRawBuilder
     {
         /// <summary>
         /// Shard key represent physical sequence.

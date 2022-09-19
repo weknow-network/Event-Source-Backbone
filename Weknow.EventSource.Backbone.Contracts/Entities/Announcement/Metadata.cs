@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
 
+
+
 namespace Weknow.EventSource.Backbone
-{
-    /// <summary>
-    /// <![CDATA[Represent metadata of announcement (event).
-    /// This information is available via Metadata.Current 
-    /// as long as the async-context exists.
-    /// Recommended to materialize it before sending to queue and
-    /// use Metadata.SetContext(metadata)
-    /// </summary>
-    /// <remarks>
-    /// Unlike the segments, this part can be flow with
-    /// message & will be set as async-context.]]> 
-    /// </summary>
+{    /// <summary>
+     /// <![CDATA[Represent metadata of announcement (event).
+     /// This information is available via Metadata.Current 
+     /// as long as the async-context exists.
+     /// Recommended to materialize it before sending to queue and
+     /// use Metadata.SetContext(metadata)
+     /// </summary>
+     /// <remarks>
+     /// Unlike the segments, this part can be flow with
+     /// message & will be set as async-context.]]> 
+     /// </summary>
     public record Metadata
     {
         #region MessageId
@@ -69,6 +70,24 @@ namespace Weknow.EventSource.Backbone
         public string Partition { get; init; } = string.Empty;
 
         #endregion Partition 
+
+        #region Origin
+
+        /// <summary>
+        /// The message origin
+        /// </summary>
+        public MessageOrigin Origin { get; init; } = MessageOrigin.Original;
+
+        #endregion Origin 
+
+        #region Linked
+
+        /// <summary>
+        /// Gets a linked metadata (usually in case of Origin = Copy).
+        /// </summary>
+        public Metadata? Linked { get; init; }
+
+        #endregion // Linked
 
         #region Shard
 

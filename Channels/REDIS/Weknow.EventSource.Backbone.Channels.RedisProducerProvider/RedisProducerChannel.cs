@@ -97,7 +97,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             RedisValue messageId = await _resiliencePolicy.ExecuteAsync(LocalStreamAddAsync);
 
-            return messageId;
+            return (string?)messageId ?? "0000000000000-0";
 
             #region LocalStreamAddAsync
 
