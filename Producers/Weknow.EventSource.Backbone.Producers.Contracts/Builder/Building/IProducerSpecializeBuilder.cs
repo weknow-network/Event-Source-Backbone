@@ -5,8 +5,9 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IProducerSpecializeBuilder: IProducerBuilderEnvironment<IProducerSpecializeBuilder>
+    public interface IProducerSpecializeBuilder: IProducerBuilderEnvironment<IProducerSpecializeBuilder>, IProducerRawBuilder
     {
+
         /// <summary>
         /// <![CDATA[ Ceate Producer proxy for specific events sequence.
         /// Event sequence define by an interface which declare the

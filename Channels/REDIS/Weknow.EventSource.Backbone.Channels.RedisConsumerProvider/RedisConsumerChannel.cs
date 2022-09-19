@@ -668,7 +668,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     Partition = plan.Partition,
                     Shard = plan.Shard,
                     Operation = operation,
-                    ProducedAt = producedAt
+                    ProducedAt = producedAt,
+                    ChannelType= channelType
                 };
 
                 Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);

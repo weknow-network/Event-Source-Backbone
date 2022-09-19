@@ -4,7 +4,7 @@
     /// <summary>
     /// Partition key represent logical group
     /// </summary>
-    public interface IProducerPartitionBuilder
+    public interface IProducerPartitionBuilder: IProducerRawBuilder
     {
         /// <summary>
         /// Partition key represent logical group of 
