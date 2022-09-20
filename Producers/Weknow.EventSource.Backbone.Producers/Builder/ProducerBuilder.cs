@@ -546,8 +546,8 @@ namespace Weknow.EventSource.Backbone
                 var meta = metadata with 
                 {                 
                     Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
-                    Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Environment,
-                    Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Environment,
+                    Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Partition,
+                    Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Shard,
                     Origin = MessageOrigin.Copy,
                     Linked = metadata,
                 };
