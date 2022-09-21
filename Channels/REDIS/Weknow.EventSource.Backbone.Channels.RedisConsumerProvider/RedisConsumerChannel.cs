@@ -23,6 +23,7 @@ using OpenTelemetry;
 using Weknow.EventSource.Backbone.Building;
 using System.Collections.Concurrent;
 using Polly;
+using System.Text;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
@@ -54,6 +55,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private readonly RedisConsumerChannelSetting _setting;
         private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
+        private const string META_SLOT = "__<META>__";
 
         #region Ctor
 
@@ -277,7 +279,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     return fetchUntil == null;
                 }
 
-                ct.ThrowIfCancellationRequested();                
+                ct.ThrowIfCancellationRequested();
 
                 try
                 {
@@ -286,35 +288,64 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     {
                         StreamEntry result = results[i];
 
-                        #region var announcement = new Announcement(...)
+                        #region Metadata meta = ...
 
                         Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                        string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
+                        Metadata meta;
+                        string? meta64 = channelMeta[META_SLOT];
+                        string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
+                        if (string.IsNullOrEmpty(meta64))
+                        { // backward comparability
 
-                        if (channelType != CHANNEL_TYPE)
+                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.ChannelType));
+
+                            if (channelType != CHANNEL_TYPE)
+                            {
+                                // TODO: [bnaya 2021-07] send metrics
+                                logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
+                                await AckAsync(result.Id);
+                                continue;
+                            }
+
+                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.MessageId));
+                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.Operation));
+                            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+                            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                            if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
+                                return false;
+                            meta = new Metadata
+                            {
+                                MessageId = id,
+                                EventKey = eventKey,
+                                Environment = plan.Environment,
+                                Partition = plan.Partition,
+                                Shard = plan.Shard,
+                                Operation = operation,
+                                ProducedAt = producedAt
+                            };
+
+                        }
+                        else
                         {
-                            // TODO: [bnaya 2021-07] send metrics
-                            logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
-                            await AckAsync(result.Id);
+                            byte[] metabytes = Convert.FromBase64String(meta64);
+                            string metaJson = Encoding.UTF8.GetString(metabytes);
+                            meta = JsonSerializer.Deserialize<Metadata>(metaJson) ?? throw new ArgumentNullException(nameof(Metadata)); //, EventSourceJsonContext..Metadata);
+                            meta = meta with { EventKey = eventKey };
+
+                        }
+
+                        #endregion // Metadata meta = ...
+
+                        #region OriginFilter
+
+                        if (plan.OriginFilter != MessageOrigin.Unknown && (plan.OriginFilter & meta.Origin) == MessageOrigin.Unknown)
+                        {
                             continue;
                         }
 
-                        string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
-                        string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
-                        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-                        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                        if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
-                            return false;
-                        var meta = new Metadata
-                        {
-                            MessageId = id,
-                            EventKey = result.Id,
-                            Environment = plan.Environment,
-                            Partition = plan.Partition,
-                            Shard = plan.Shard,
-                            Operation = operation,
-                            ProducedAt = producedAt
-                        };
+                        #endregion // OriginFilter
+
+                        #region var announcement = new Announcement(...)
 
                         Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
                         Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
@@ -525,7 +556,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                         .Select(m => m.MessageId).ToArray();
                             if (ids.Length == 0)
                                 continue;
-                            
+
                             plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
                             // will claim messages only if older than _setting.ClaimingTrigger.MinIdleTime
                             values = await db.StreamClaimAsync(key,
@@ -669,7 +700,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     Shard = plan.Shard,
                     Operation = operation,
                     ProducedAt = producedAt,
-                    ChannelType= channelType
+                    ChannelType = channelType
                 };
 
                 Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
@@ -758,7 +789,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         async IAsyncEnumerable<Announcement> IConsumerChannelProvider.GetAsyncEnumerable(
                     IConsumerPlan plan,
                     ConsumerAsyncEnumerableOptions? options,
-                    [EnumeratorCancellation]CancellationToken cancellationToken)
+                    [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetAsyncEnumerable)}";
 
@@ -818,7 +849,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 TimeSpan delay = TimeSpan.Zero;
                 while (true)
                 {
-                    if(cancellationToken.IsCancellationRequested) yield break;  
+                    if (cancellationToken.IsCancellationRequested) yield break;
 
                     iteration++;
                     StreamEntry[] entries = await db.StreamReadAsync(

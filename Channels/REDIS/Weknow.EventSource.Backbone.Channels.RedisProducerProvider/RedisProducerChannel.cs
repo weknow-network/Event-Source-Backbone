@@ -15,6 +15,7 @@ using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChan
 using OpenTelemetry;
 using System.Diagnostics;
 using OpenTelemetry.Context.Propagation;
+using System.Text;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
@@ -25,6 +26,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private readonly AsyncPolicy _resiliencePolicy;
         private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IProducerStorageStrategy _defaultStorageStrategy;
+        private const string META_SLOT = "__<META>__";
 
         #region Ctor
 
@@ -84,13 +86,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region var entries = new NameValueEntry[]{...}
 
+            string metaJson = JsonSerializer.Serialize(meta);
+            byte[] metabytes = Encoding.UTF8.GetBytes(metaJson);
+            string meta64 = Convert.ToBase64String(metabytes);
+
             // local method 
             NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
             ImmutableArray<NameValueEntry> commonEntries = ImmutableArray.Create(
                 KV(nameof(meta.MessageId), id),
                 KV(nameof(meta.Operation), meta.Operation),
                 KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds()),
-                KV(nameof(meta.ChannelType), CHANNEL_TYPE)
+                KV(nameof(meta.ChannelType), CHANNEL_TYPE),
+                KV(nameof(meta.Origin), meta.Origin.ToString()),
+                KV(META_SLOT, meta64)
             );
 
             #endregion // var entries = new NameValueEntry[]{...}

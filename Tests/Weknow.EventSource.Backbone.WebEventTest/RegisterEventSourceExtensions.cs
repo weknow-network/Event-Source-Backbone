@@ -29,8 +29,16 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
+                IRawProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
+                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     .BuildRaw();
+                return producer;
+            });
+            services.AddSingleton(ioc =>
+            {
+                ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
                 IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .Environment(env)
                                      .Partition(PARTITION)
                                      .Shard("default")
@@ -42,8 +50,9 @@ namespace Microsoft.Extensions.Configuration
             {
                 IConsumerReadyBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
+                                     .OriginFilter(MessageOrigin.Original)
                                      .Environment(env)
                                      .Partition(PARTITION)
                                      .Shard("default");
@@ -51,11 +60,12 @@ namespace Microsoft.Extensions.Configuration
             });
             services.AddSingleton(ioc =>
             {
-                IConsumerHooksBuilder builder =
+                IConsumerHooksBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
-                                     .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
-                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) });
-                return builder;
+                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
+                                     .OriginFilter(MessageOrigin.Original);
+                return consumer;
             });
 
             return services;

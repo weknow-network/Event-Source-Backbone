@@ -70,6 +70,11 @@ namespace Weknow.EventSource.Backbone
         /// Gets or sets the invocation resilience policy.
         /// </summary>
         AsyncPolicy ResiliencePolicy { get; }
+
+        /// <summary>
+        /// Filter listening by origin.
+        /// </summary>
+        MessageOrigin OriginFilter { get; }
     }
 
     /// <summary>

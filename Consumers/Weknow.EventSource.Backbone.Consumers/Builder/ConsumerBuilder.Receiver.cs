@@ -65,7 +65,8 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Environment
 
-            /// <summary>
+
+           /// <summary>
             /// replace the partition of the stream key.
             /// for example: production:partition-name:shard-name
             /// </summary>

@@ -6,7 +6,8 @@ namespace Weknow.EventSource.Backbone.Building
     /// Enable configuration.
     /// </summary>
     public interface IConsumerOptionsBuilder
-        : IConsumerHooksBuilder
+        : IConsumerHooksBuilder,
+         IConsumerOriginFilterBuilder<IConsumerOptionsBuilder>
     {
         /// <summary>
         /// Tune configuration.

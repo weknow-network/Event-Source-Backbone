@@ -545,6 +545,7 @@ namespace Weknow.EventSource.Backbone
                 Metadata metadata = data.Metadata;
                 var meta = metadata with 
                 {                 
+                    MessageId = Guid.NewGuid().ToString("N"),
                     Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
                     Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Partition,
                     Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Shard,

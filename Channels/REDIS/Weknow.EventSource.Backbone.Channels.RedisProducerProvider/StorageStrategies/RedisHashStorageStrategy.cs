@@ -26,6 +26,8 @@ namespace Weknow.EventSource.Backbone.Channels
         private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly ILogger _logger;
 
+        #region Ctor
+
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
@@ -38,6 +40,8 @@ namespace Weknow.EventSource.Backbone.Channels
             _connFactory = connFactory;
             _logger = logger;
         }
+
+        #endregion // Ctor
 
         /// <summary>
         /// Saves the bucket information.

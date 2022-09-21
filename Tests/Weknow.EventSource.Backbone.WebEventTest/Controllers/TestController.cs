@@ -1,12 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+
 using StackExchange.Redis;
 
 namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
@@ -58,6 +51,7 @@ status: {status}, ping: {p}";
         {
             IDatabaseAsync db = await _connFacroty.GetDatabaseAsync();
             var p = await db.PingAsync();
+            _logger.LogInformation("Schema: {schema}", Request.Scheme);
             return p;
         }
 
