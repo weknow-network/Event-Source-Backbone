@@ -164,6 +164,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region  await using IConsumerLifetime subscriptionMigration = ...Subscribe(...)
 
             await using IConsumerLifetime subscriptionMigration = consumerBuilder
+                         .WithOptions(o => o with { OriginFilter = MessageOrigin.Copy })
                          .Environment("Migrated")
                          .Group("CONSUMER_GROUP_2")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")

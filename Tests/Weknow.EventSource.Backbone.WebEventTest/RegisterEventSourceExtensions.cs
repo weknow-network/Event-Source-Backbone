@@ -51,8 +51,11 @@ namespace Microsoft.Extensions.Configuration
                 IConsumerReadyBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
-                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
-                                     .OriginFilter(MessageOrigin.Original)
+                                     .WithOptions(o => o with
+                                     {
+                                         TraceAsParent = TimeSpan.FromMinutes(10),
+                                         OriginFilter = MessageOrigin.Original
+                                     })
                                      .Environment(env)
                                      .Partition(PARTITION)
                                      .Shard("default");
@@ -63,8 +66,11 @@ namespace Microsoft.Extensions.Configuration
                 IConsumerHooksBuilder consumer =
                             ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
-                                     .WithOptions(o => o with { TraceAsParent = TimeSpan.FromMinutes(10) })
-                                     .OriginFilter(MessageOrigin.Original);
+                                     .WithOptions(o => o with
+                                     {
+                                         TraceAsParent = TimeSpan.FromMinutes(10),
+                                         OriginFilter = MessageOrigin.Original
+                                     });
                 return consumer;
             });
 
