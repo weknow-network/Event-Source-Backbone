@@ -9,8 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public interface IConsumerHooksBuilder
         : IConsumerEnvironmentBuilder,
-        IWithCancellation<IConsumerHooksBuilder>,
-        IConsumerOriginFilterBuilder<IConsumerHooksBuilder>
+        IWithCancellation<IConsumerHooksBuilder>
     {
         /// <summary>
         /// Register raw interceptor.

@@ -338,7 +338,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #region OriginFilter
 
-                        if (plan.OriginFilter != MessageOrigin.Unknown && (plan.OriginFilter & meta.Origin) == MessageOrigin.Unknown)
+                        if (plan.Options.OriginFilter != MessageOrigin.None && (plan.Options.OriginFilter & meta.Origin) == MessageOrigin.None)
                         {
                             continue;
                         }

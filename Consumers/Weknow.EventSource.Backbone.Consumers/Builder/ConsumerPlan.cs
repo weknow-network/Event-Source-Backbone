@@ -77,8 +77,7 @@ namespace Weknow.EventSource.Backbone
             string? consumerGroup = null,
             string? consumerName = null,
             AsyncPolicy? resiliencePolicy = null,
-            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null,
-            MessageOrigin? originFilter = null)
+            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -93,7 +92,6 @@ namespace Weknow.EventSource.Backbone
             Cancellation = cancellation ?? copyFrom.Cancellation;
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
-            OriginFilter = originFilter ?? copyFrom.OriginFilter;
             ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
@@ -288,15 +286,6 @@ namespace Weknow.EventSource.Backbone
         public AsyncPolicy ResiliencePolicy { get; }
 
         #endregion // ResiliencePolicy
-
-        #region OriginFilter
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        public MessageOrigin OriginFilter { get; }
-
-        #endregion // OriginFilter
 
         //------------------------------------------
 
@@ -570,18 +559,6 @@ namespace Weknow.EventSource.Backbone
                                                 consumerName: consumerName);
 
         #endregion // WithConsumerName
-
-        #region WithOriginFilter
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        /// <param name="originFilter">The origin filter.</param>
-        /// <returns></returns>
-        internal ConsumerPlan WithOriginFilter(MessageOrigin originFilter = MessageOrigin.Original) => new ConsumerPlan(this,
-                                                originFilter: originFilter);
-
-        #endregion // WithOriginFilter
 
         // --------------------------------------------------------
 

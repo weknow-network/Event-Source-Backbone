@@ -110,10 +110,23 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // TraceAsParent
 
+        #region OriginFilter
+
+        /// <summary>
+        /// Gets the maximum messages to consume before detaching the subscription.
+        /// any number > 0 will activate this mechanism.
+        /// </summary>
+        public MessageOrigin OriginFilter { get; init; } = MessageOrigin.Original;
+
+        #endregion OriginFilter 
+
+        #region ClaimingTrigger
+
         /// <summary>
         /// Define when to claim stale (long waiting) messages from other consumers
         /// </summary>
         public ClaimingTrigger ClaimingTrigger { get; init; } = ClaimingTrigger.Default;
 
+        #endregion // ClaimingTrigger
     }
 }

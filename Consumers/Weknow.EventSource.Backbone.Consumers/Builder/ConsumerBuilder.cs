@@ -180,52 +180,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Environment
 
-        #region OriginFilter
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        /// <param name="originFilter">The origin filter.</param>
-        /// <returns></returns>
-        private ConsumerBuilder OriginFilter(MessageOrigin originFilter)
-        {
-            var prms = _plan.WithOriginFilter(originFilter);
-            var result = new ConsumerBuilder(prms);
-            return result;
-        }
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        /// <param name="originFilter">The origin filter.</param>
-        /// <returns></returns>
-        IConsumerHooksBuilder IConsumerOriginFilterBuilder<IConsumerHooksBuilder>.OriginFilter(MessageOrigin originFilter)
-        {
-           return OriginFilter(originFilter);
-        }
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        /// <param name="originFilter">The origin filter.</param>
-        /// <returns></returns>
-        IConsumerOptionsBuilder IConsumerOriginFilterBuilder<IConsumerOptionsBuilder>.OriginFilter(MessageOrigin originFilter)
-        {
-           return OriginFilter(originFilter);
-        }
-
-        /// <summary>
-        /// Filter listening by origin.
-        /// </summary>
-        /// <param name="originFilter">The origin filter.</param>
-        /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerOriginFilterBuilder<IConsumerSubscribeBuilder>.OriginFilter(MessageOrigin originFilter)
-        {
-            return OriginFilter(originFilter);
-        }
-
-        #endregion // OriginFilter
-
         #region Partition
 
         /// <summary>

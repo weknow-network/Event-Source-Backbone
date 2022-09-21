@@ -94,7 +94,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
             public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
             {
                 Metadata meta = announcement.Metadata;
-                if ((meta.Origin & MessageOrigin.Original) == MessageOrigin.Unknown)
+                if ((meta.Origin & MessageOrigin.Original) == MessageOrigin.None)
                     return false; // avoid infinite loop
                 await _fw.ForwardEventAsync(announcement);
                 return true;

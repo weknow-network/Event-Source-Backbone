@@ -6,7 +6,7 @@
     [Flags]
     public enum MessageOrigin
     {
-        Unknown = 0,
+        None = 0,
         /// <summary>
         /// Original message (not forwarded from other source)
         /// </summary>
