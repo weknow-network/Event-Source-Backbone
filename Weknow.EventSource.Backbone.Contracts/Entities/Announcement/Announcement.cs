@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -7,7 +6,7 @@ namespace Weknow.EventSource.Backbone
     /// Non-generics form of announcement representation,
     /// used to transfer data via channels.
     /// </summary>
-    [DebuggerDisplay("Announcement [{Metadata.MessageId}]: [{Metadata.Partition} > {Metadata.Shard} > {Metadata.Operation}]")]
+    [DebuggerDisplay("{Metadata}")]
     public record Announcement
     {
         #region Metadata

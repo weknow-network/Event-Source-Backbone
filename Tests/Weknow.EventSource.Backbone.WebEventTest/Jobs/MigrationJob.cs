@@ -13,6 +13,8 @@ using Weknow.EventSource.Backbone.Building;
 
 // TODO: Register the service at the Program.cs file services.AddHostedService<...>
 
+
+
 namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 {
     /// <summary>
@@ -20,10 +22,11 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.Hosting.HostedServiceBase" />
     /// <seealso cref="System.IDisposable" />
-    public sealed class MicroDemoJob : HostedServiceBase, IDisposable
+    public sealed class MigrationJob : HostedServiceBase, IDisposable
     {
         private readonly IConsumerSubscribeBuilder _builder;
-        private readonly IEventFlowProducer _producer;
+        private readonly IEventsMigration _forwarder;
+        private readonly HttpClient _client;
 
         #region Ctor
 
@@ -32,15 +35,17 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="consumerBuilder">The builder.</param>
-        /// <param name="producer">The producer.</param>
-        public MicroDemoJob(
-            ILogger<MicroDemoJob> logger,
+        /// <param name="forwarder">The forwarder.</param>
+        public MigrationJob(
+            ILogger<MigrationJob> logger,
             IConsumerReadyBuilder consumerBuilder,
-            IEventFlowProducer producer)
+            IEventsMigration forwarder,
+            IHttpClientFactory clientFactory)
             : base(logger)
         {
             _builder = consumerBuilder.WithLogger(logger);
-            _producer = producer;
+            _forwarder = forwarder;
+            _client = clientFactory.CreateClient("migration");
         }
 
         #endregion Ctor
@@ -53,8 +58,9 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Group("Demo-GROUP")                
-                    .SubscribeEventFlowConsumer(new Subscriber(_logger, _producer));
+            SubscriptionBridge subscription = new(_forwarder, _client);
+            _builder.Group("Demo-Migration-GROUP")
+                    .Subscribe(subscription);
 
             var tcs = new TaskCompletionSource();
             cancellationToken.Register(() => tcs.TrySetResult());
@@ -74,41 +80,26 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
 
         #endregion Dispose
 
-        private class Subscriber : IEventFlowConsumer
+        private class SubscriptionBridge : ISubscriptionBridge
         {
-            private readonly ILogger _logger;
-            private readonly IEventFlowProducer _producer;
+            private readonly IEventsMigration _fw;
+            private readonly HttpClient _client;
 
-            public Subscriber(
-                //ConsumerMetadata metadata,
-                ILogger logger,
-                IEventFlowProducer producer)
+            public SubscriptionBridge(IEventsMigration fw, HttpClient client)
             {
-                _logger = logger;
-                _producer = producer;
+                _fw = fw;
+                _client = client;
             }
 
-            async ValueTask IEventFlowConsumer.Stage1Async(Person PII, string payload)
+            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
             {
-                Metadata? meta = ConsumerMetadata.Context;
+                Metadata meta = announcement.Metadata;
+                if ((meta.Origin & MessageOrigin.Original) == MessageOrigin.Unknown)
+                    return false; // avoid infinite loop
+                await _fw.ForwardEventAsync(announcement);
+                return true;
 
-                _logger.LogInformation("Consume First Stage {partition} {shard} {PII} {data}",
-                    meta?.Partition, meta?.Shard, PII, payload);
-
-                await _producer.Stage2Async(
-                    JsonDocument.Parse("{\"name\":\"john\"}").RootElement,
-                    JsonDocument.Parse("{\"data\":10}").RootElement);
             }
-
-            ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
-            {
-                var meta = ConsumerMetadata.Context;
-                _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
-                    meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
-                return ValueTask.CompletedTask;
-            }
-
         }
     }
-
 }

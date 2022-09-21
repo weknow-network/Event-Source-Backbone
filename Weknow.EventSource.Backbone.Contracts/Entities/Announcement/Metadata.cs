@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-
-
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace Weknow.EventSource.Backbone
 {    /// <summary>
@@ -15,13 +13,17 @@ namespace Weknow.EventSource.Backbone
      /// Unlike the segments, this part can be flow with
      /// message & will be set as async-context.]]> 
      /// </summary>
+     [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, {Environment}->{Partition}->{Shard}, EventKey:{EventKey}")]
     public record Metadata
     {
         #region MessageId
 
         /// <summary>
-        /// The message identifier.
+        /// The message identifier (channel provider agnostic).
         /// </summary>
+        /// <remarks>
+        /// New Id will be created on copy scenario (see: Linked)
+        /// </remarks>
         public string MessageId { get; init; } = Guid.NewGuid().ToString("N");
 
         #endregion // MessageId
@@ -29,7 +31,7 @@ namespace Weknow.EventSource.Backbone
         #region EventKey
 
         /// <summary>
-        /// The consumer side representation of the event key as represent by a specific channel.
+        /// The consumer side representation of the event key as represent by a specific channel provider.
         /// </summary>
         public string EventKey { get; init; } = string.Empty;
 
@@ -85,7 +87,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets a linked metadata (usually in case of Origin = Copy).
         /// </summary>
-        public Metadata? Linked { get; init; }
+        public Metadata? Linked { get; init; } 
 
         #endregion // Linked
 

@@ -15,6 +15,9 @@ using Weknow.EventSource.Backbone;
 using Weknow.EventSource.Backbone.WebEventTest;
 using StackExchange.Redis;
 using Microsoft.OpenApi.Models;
+using Refit;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 const string ENV = $"test";
 
@@ -34,7 +37,8 @@ services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(
-    opt => {
+    opt =>
+    {
         //opt.UseInlineDefinitionsForEnums();
         //opt.UseOneOfForPolymorphism();
         //opt.UseAllOfToExtendReferenceSchemas();
@@ -53,7 +57,7 @@ services.AddSwaggerGen(
 <p>docker run -p 6379:6379 -it --rm --name redis-Json redislabs/rejson:latest</p>
 <p>docker run --rm -it --name jaeger -p 13133:13133 -p 16686:16686 -p 4317:55680 jaegertracing/opentelemetry-all-in-one</p>
 ",
-            
+
             //TermsOfService = new Uri("https://example.com/terms"),
             //Contact = new OpenApiContact
             //{
@@ -73,6 +77,26 @@ services.AddSwaggerGen(
         //opt.SelectDiscriminatorNameUsing();
     });
 services.AddHostedService<MicroDemoJob>();
+services.AddHostedService<MigrationJob>();
+string fwPort = Environment.GetEnvironmentVariable("FW") ?? "MISSING-PORT";
+
+var jsonOptions = new JsonSerializerOptions().WithDefault();
+
+var refitSetting = new RefitSettings
+{
+    ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions)
+};
+services.AddRefitClient<IEventsMigration>(refitSetting) // https://github.com/reactiveui/refit
+        .ConfigureHttpClient(c =>
+        {
+            c.BaseAddress = new Uri($"http://localhost:{fwPort}/api/Migration");
+            c.DefaultRequestHeaders.Add("wk-pattern", "migration");
+        });
+services.AddHttpClient("migration", c =>
+ {
+     c.BaseAddress = new Uri($"http://localhost:{fwPort}/api/Migration");
+     c.DefaultRequestHeaders.Add("wk-pattern", "migration");
+ });
 
 IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
 services.AddOpenTelemetryWeknow(environment, shortAppName, redisConnection);
@@ -117,7 +141,7 @@ app.Run();
 /// Redis reconnect retry policy
 /// </summary>
 /// <seealso cref="StackExchange.Redis.IReconnectRetryPolicy" />
-public class RedisReconnectRetryPolicy: IReconnectRetryPolicy
+public class RedisReconnectRetryPolicy : IReconnectRetryPolicy
 {
     /// <summary>
     /// Shoulds the retry.

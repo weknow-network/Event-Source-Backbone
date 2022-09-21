@@ -9,6 +9,7 @@ using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
 
 using Weknow.EventSource.Backbone.WebEventTest;
+using Newtonsoft.Json;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 
@@ -138,17 +139,27 @@ namespace Microsoft.Extensions.Configuration
             {
                 // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to
                 JsonSerializerOptions setting = options.JsonSerializerOptions;
-                setting.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                setting.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                // setting.PropertyNameCaseInsensitive = true;
-                // setting.IgnoreNullValues = true;
-                setting.WriteIndented = true;
-                setting.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-                setting.Converters.Add(JsonImmutableDictionaryConverter.Default);
+                setting.WithDefault();
+
             });
+            //JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
         }
 
         #endregion // WithJsonOptions
+
+        public static JsonSerializerOptions WithDefault(this JsonSerializerOptions options)
+        {
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            // setting.PropertyNameCaseInsensitive = true;
+            // setting.IgnoreNullValues = true;
+            options.WriteIndented = true;
+            options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            options.Converters.Add(JsonImmutableDictionaryConverter.Default);
+            options.Converters.Add(BucketJsonConverter.Instance);
+            //setting.AddContext<EventSOurceJsonContext>();
+            return options;
+        }
 
         #region UseRestDefaultsWeknow
 
@@ -160,8 +171,8 @@ namespace Microsoft.Extensions.Configuration
         /// <param name="args">The process arguments.</param>
         /// <returns></returns>
         public static IHostBuilder UseRestDefaults<TStartup>(
-            this IHostBuilder builder,
-            params string[] args) where TStartup : class
+        this IHostBuilder builder,
+        params string[] args) where TStartup : class
         {
             builder.ConfigureHostConfiguration(cfg =>
                 {
