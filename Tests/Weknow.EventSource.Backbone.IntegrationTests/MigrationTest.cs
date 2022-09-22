@@ -41,20 +41,15 @@ namespace Weknow.EventSource.Backbone.Tests
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MigrationTest"/> class.
+        /// Initializes a new instance of the <see cref="MigrationTest" /> class.
         /// </summary>
         /// <param name="outputHelper">The output helper.</param>
-        /// <param name="producerChannelBuilder">The producer channel builder.</param>
-        /// <param name="consumerChannelBuilder">The consumer channel builder.</param>
         public MigrationTest(
-            ITestOutputHelper outputHelper,
-            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
-             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
+            ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
-            _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
             var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
@@ -64,7 +59,6 @@ namespace Weknow.EventSource.Backbone.Tests
                                                     CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
                                                 }
                                         });
-            _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                     .ReturnsLazily(() =>
@@ -296,6 +290,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Dispose pattern
 
+        #region SubscriptionBridge
 
         private class SubscriptionBridge : ISubscriptionBridge
         {
@@ -314,5 +309,6 @@ namespace Weknow.EventSource.Backbone.Tests
             }
         }
 
+        #endregion // SubscriptionBridge
     }
 }
