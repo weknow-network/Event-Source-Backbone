@@ -82,18 +82,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="setting">The setting.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public RedisConsumerChannel(
                         ILogger logger,
                         Action<ConfigurationOptions>? configuration = null,
                         RedisConsumerChannelSetting? setting = null,
-                        string endpointEnvKey = END_POINT_KEY,
-                        string passwordEnvKey = PASSWORD_KEY) : this(
+                        RedisCredentialsKeys credentialsKeys = default) : this(
                             new EventSourceRedisConnectionFacroty(
                                                     logger,
                                                     configuration,
-                                                    new RedisCredentialsKeys { EndpointKey = endpointEnvKey, PasswordKey = passwordEnvKey }),
+                                                    credentialsKeys),
                             logger,
                             setting)
         {

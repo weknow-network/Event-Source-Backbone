@@ -20,15 +20,13 @@ namespace Weknow.EventSource.Backbone
         /// <param name="builder">The builder.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="redisConfiguration">The redis configuration.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
                             Func<RedisConsumerChannelSetting, RedisConsumerChannelSetting> setting,
                             Action<ConfigurationOptions>? redisConfiguration = null,
-                            string endpointEnvKey = END_POINT_KEY,
-                            string passwordEnvKey = PASSWORD_KEY)
+                            RedisCredentialsKeys credentialsKeys = default)
         {
             var stg = setting?.Invoke(RedisConsumerChannelSetting.Default);
             var channelBuilder = builder.UseChannel(LocalCreate);
@@ -40,8 +38,7 @@ namespace Weknow.EventSource.Backbone
                                         logger,
                                         redisConfiguration,
                                         stg,
-                                        endpointEnvKey,
-                                        passwordEnvKey);
+                                        credentialsKeys);
                 return channel;
             }
         }
@@ -51,14 +48,12 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="setting">The setting.</param>
-        /// <param name="endpointEnvKey">The endpoint env key.</param>
-        /// <param name="passwordEnvKey">The password env key.</param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
                             RedisConsumerChannelSetting? setting = null,
-                            string endpointEnvKey = END_POINT_KEY,
-                            string passwordEnvKey = PASSWORD_KEY)
+                        RedisCredentialsKeys credentialsKeys = default)
         {
             var cfg = setting ?? RedisConsumerChannelSetting.Default;
             var channelBuilder = builder.UseChannel(LocalCreate);
@@ -69,8 +64,7 @@ namespace Weknow.EventSource.Backbone
                 var channel = new RedisConsumerChannel(
                                         logger,
                                         setting: cfg,
-                                        endpointEnvKey: endpointEnvKey,
-                                        passwordEnvKey: passwordEnvKey);
+                                        credentialsKeys: credentialsKeys);
                 return channel;
             }
         }

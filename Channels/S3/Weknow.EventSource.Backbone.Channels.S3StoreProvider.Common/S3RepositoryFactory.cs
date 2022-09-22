@@ -30,8 +30,14 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Creates the specified logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
+        /// <param name="envAccessKey">The environment variable of access key.</param>
+        /// <param name="envSecretKey">The environment variable of secret key.</param>
+        /// <param name="envRegion">The environment variable of region.</param>
         /// <returns></returns>
-        public static IS3RepositoryFactory Create(ILogger logger) => new S3RepositoryFactory(logger);
+        public static IS3RepositoryFactory Create(ILogger logger,
+            string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
+            string envSecretKey = "S3_EVENT_SOURCE_SECRET",
+            string envRegion = "S3_EVENT_SOURCE_REGION") => new S3RepositoryFactory(logger, envAccessKey, envSecretKey, envRegion);
 
         #endregion // Create
 
@@ -50,17 +56,23 @@ namespace Weknow.EventSource.Backbone.Channels
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
+        /// <param name="envAccessKey">The environment variable of access key.</param>
+        /// <param name="envSecretKey">The environment variable of secret key.</param>
+        /// <param name="envRegion">The environment variable of region.</param>
         public S3RepositoryFactory(
-            ILogger logger)
+            ILogger logger,
+            string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
+            string envSecretKey = "S3_EVENT_SOURCE_SECRET",
+            string envRegion = "S3_EVENT_SOURCE_REGION")
         {
             _logger = logger;
 
             string accessKey =
-                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_ACCESS_KEY") ?? "";
+                Environment.GetEnvironmentVariable(envAccessKey) ?? "";
             string secretKey =
-                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_SECRET") ?? "";
+                Environment.GetEnvironmentVariable(envSecretKey) ?? "";
             string? regionKey =
-                Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_REGION");
+                Environment.GetEnvironmentVariable(envRegion);
             RegionEndpoint rgnKey = (!string.IsNullOrEmpty(regionKey))
                                         ? RegionEndpoint.GetBySystemName(regionKey)
                                         : RegionEndpoint.USEast2;
