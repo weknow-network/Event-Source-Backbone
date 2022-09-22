@@ -50,7 +50,7 @@ namespace Weknow.EventSource.Backbone.Tests
             _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
-            var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
+            _consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
                                             DelayWhenEmptyBehavior =
