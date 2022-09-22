@@ -19,7 +19,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        IAsyncEnumerable<AnnouncementData> GetAsyncEnumerable(
+        IAsyncEnumerable<Announcement> GetAsyncEnumerable(
             ConsumerAsyncEnumerableOptions? options = null,
             CancellationToken cancellationToken = default);
 
