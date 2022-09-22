@@ -583,7 +583,7 @@ namespace Weknow.EventSource.Backbone
                 var strategies = await _plan.StorageStrategiesAsync;
                 Metadata metadata = data.Metadata;
                 Metadata meta = metadata;
-                if ((_options?.KeepOriginalMeta ?? true) != false)
+                if ((_options?.KeepOriginalMeta ?? false) == false)
                 {
                     meta = meta with
                     {
