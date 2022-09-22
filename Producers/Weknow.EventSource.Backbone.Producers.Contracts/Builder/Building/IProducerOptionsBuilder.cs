@@ -4,7 +4,7 @@
     /// Enable configuration.
     /// </summary>
     public interface IProducerOptionsBuilder
-        : IProducerEnvironmentBuilder
+        : IProducerEnvironmentBuilder, IProducerLoggerBuilder<IProducerOptionsBuilder>
     {
         /// <summary>
         /// Apply configuration.

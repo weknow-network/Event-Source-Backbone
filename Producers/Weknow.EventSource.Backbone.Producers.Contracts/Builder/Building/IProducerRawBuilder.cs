@@ -1,5 +1,6 @@
 ﻿namespace Weknow.EventSource.Backbone.Building
 {
+
     /// <summary>
     /// Event Source raw producer builder.
     /// </summary>
@@ -10,6 +11,6 @@
         /// Useful for data migration at the raw data level.]]>
         /// </summary>
         /// <returns></returns>
-        IRawProducer BuildRaw();
+        IRawProducer BuildRaw(RawProducerOptions? options = null);
     }
 }

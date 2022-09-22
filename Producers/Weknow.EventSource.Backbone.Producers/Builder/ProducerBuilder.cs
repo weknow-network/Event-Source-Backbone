@@ -310,16 +310,52 @@ namespace Weknow.EventSource.Backbone
 
         #region WithLogger
 
-        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IProducerSpecializeBuilder IProducerLoggerBuilder.WithLogger(ILogger logger)
+        ProducerBuilder WithLogger(ILogger logger)
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);
         }
+
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IProducerShardBuilder IProducerLoggerBuilder<IProducerShardBuilder>.WithLogger(ILogger logger)
+        {
+            return WithLogger(logger);
+        }
+
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IProducerOptionsBuilder IProducerLoggerBuilder<IProducerOptionsBuilder>.WithLogger(ILogger logger)
+        {
+            return WithLogger(logger);
+        }
+
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IProducerSpecializeBuilder IProducerLoggerBuilder<IProducerSpecializeBuilder>.WithLogger(ILogger logger)
+        {
+            return WithLogger(logger);
+        }
+
+        /// Attach logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        IProducerPartitionBuilder IProducerLoggerBuilder<IProducerPartitionBuilder>.WithLogger(ILogger logger)
+        {
+            return WithLogger(logger);
+        }
+
 
         #endregion // WithLogger
 
@@ -356,12 +392,13 @@ namespace Weknow.EventSource.Backbone
         /// <![CDATA[ Ceate Producer proxy for raw events sequence.
         /// Useful for data migration at the raw data level.]]>
         /// </summary>
+        /// <param name="options"></param>
         /// <returns></returns>
-        IRawProducer IProducerRawBuilder.BuildRaw()
+        IRawProducer IProducerRawBuilder.BuildRaw(RawProducerOptions? options)
         { 
             var planBuilder = Plan;
             IProducerPlan plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
-            return new RawProducer(plan);
+            return new RawProducer(plan, options);
         }
 
         #endregion // BuildRaw
@@ -519,6 +556,7 @@ namespace Weknow.EventSource.Backbone
         private class RawProducer : IRawProducer
         {
             private readonly IProducerPlan _plan;
+            private readonly RawProducerOptions? _options;
 
             #region Ctor
 
@@ -526,9 +564,10 @@ namespace Weknow.EventSource.Backbone
             /// Initializes a new instance of the <see cref="RawProducer"/> class.
             /// </summary>
             /// <param name="plan">The plan.</param>
-            public RawProducer(IProducerPlan plan)
+            public RawProducer(IProducerPlan plan, RawProducerOptions? options)
             {
                 _plan = plan;
+                _options = options;
             }
 
             #endregion // Ctor
@@ -543,15 +582,19 @@ namespace Weknow.EventSource.Backbone
             {
                 var strategies = await _plan.StorageStrategiesAsync;
                 Metadata metadata = data.Metadata;
-                var meta = metadata with 
-                {                 
-                    MessageId = Guid.NewGuid().ToString("N"),
-                    Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
-                    Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Partition,
-                    Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Shard,
-                    Origin = MessageOrigin.Copy,
-                    Linked = metadata,
-                };
+                Metadata meta = metadata;
+                if ((_options?.KeepOriginalMeta ?? true) != false)
+                {
+                    meta = meta with
+                    {
+                        MessageId = Guid.NewGuid().ToString("N"),
+                        Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
+                        Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Partition,
+                        Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Shard,
+                        Origin = MessageOrigin.Copy,
+                        Linked = metadata,
+                    };
+                }
                 data = data with {  Metadata = meta };
                 await _plan.Channel.SendAsync(data, strategies);
             }

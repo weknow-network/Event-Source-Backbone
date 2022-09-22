@@ -5,13 +5,20 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IProducerLoggerBuilder: IProducerSpecializeBuilder
+    public interface IProducerLoggerBuilder<T>
     {
         /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IProducerSpecializeBuilder WithLogger(ILogger logger);
+        T WithLogger(ILogger logger);
+    }
+
+    /// <summary>
+    /// Event Source producer builder.
+    /// </summary>
+    public interface IProducerLoggerBuilder: IProducerSpecializeBuilder, IProducerLoggerBuilder<IProducerSpecializeBuilder>
+    {
     }
 }
