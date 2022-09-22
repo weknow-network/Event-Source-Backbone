@@ -23,7 +23,7 @@ namespace Weknow.EventSource.Backbone.Tests
     /// <summary>
     /// The end to end tests.
     /// </summary>
-    public class MigrationReceiverTest : IDisposable
+    public class MigrationReceiverTest // : IDisposable
     {
         private const string TARGET_KEY = "REDIS_ANALYSTS_ENDPOINT";
         private const string SOURCE_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
@@ -33,10 +33,11 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly SequenceOperationsConsumerBridge _subscriberBridge;
         private readonly IProducerStoreStrategyBuilder _targetProducerBuilder;
         private readonly IConsumerStoreStrategyBuilder _sourceConsumerBuilder;
-        private readonly string ENV = "Production";
-        //private readonly string ENV = "Development";
-        private readonly string PARTITION = "analysts";
-        //private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        //private readonly string ENV = "Production";
+        private readonly string ENV = "Development";
+        //private readonly string PARTITION = "analysts";
+        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        private readonly string SHARD = "default";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private const int TIMEOUT = 1_000 * 30;
@@ -54,10 +55,10 @@ namespace Weknow.EventSource.Backbone.Tests
             _outputHelper = outputHelper;
             _targetProducerBuilder = ProducerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys { EndpointKey = TARGET_KEY })
                 .AddVoidStrategy();
-                //.AddS3Strategy();
+            //.AddS3Strategy();
 
-            var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys {  EndpointKey = SOURCE_KEY })
-                                        .AddS3Strategy();
+            _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys { EndpointKey = SOURCE_KEY })
+                                        .AddS3Strategy(new S3Options { Bucket = "event-source-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
         }
 
         #endregion // Ctor
@@ -73,8 +74,9 @@ namespace Weknow.EventSource.Backbone.Tests
             IRawProducer rawProducer = _targetProducerBuilder
                                             .Environment(ENV)
                                             .Partition(PARTITION)
+                                            .Shard(SHARD)
                                             .WithLogger(_fakeLogger)
-                                            .BuildRaw(new RawProducerOptions { KeepOriginalMeta = true});
+                                            .BuildRaw(new RawProducerOptions { KeepOriginalMeta = true });
 
             #endregion // IRawProducer rawProducer = ...
 
@@ -83,16 +85,19 @@ namespace Weknow.EventSource.Backbone.Tests
 
             IAsyncEnumerable<Announcement> announcements = _sourceConsumerBuilder
                          .WithCancellation(cancellation)
+                         .Environment(ENV)
                          .Partition(PARTITION)
+                         .Shard(SHARD)
+                         .WithLogger(_fakeLogger)
                          .BuildIterator()
-                         .GetAsyncEnumerable( new ConsumerAsyncEnumerableOptions {  ExitWhenEmpty = true});
+                         .GetAsyncEnumerable(new ConsumerAsyncEnumerableOptions { ExitWhenEmpty = true });
             await foreach (var announcement in announcements.WithCancellation(cancellation))
             {
                 _fakeLogger.LogInformation(announcement.ToString());
                 await rawProducer.Produce(announcement);
             }
 
-  
+
         }
 
         #endregion // Migration_By_Receiver_Test
@@ -113,69 +118,69 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // GetCancellationToken
 
-        #region Dispose pattern
+        #region // Dispose pattern
 
 
-        ~MigrationReceiverTest()
-        {
-            Dispose();
-        }
+        //~MigrationReceiverTest()
+        //{
+        //    Dispose();
+        //}
 
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            try
-            {
-                IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
-                                                    cfg => cfg.AllowAdmin = true);
-                string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
-                var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
-                IDatabaseAsync db = conn.GetDatabase();
+        //public void Dispose()
+        //{
+        //    GC.SuppressFinalize(this);
+        //    try
+        //    {
+        //        IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
+        //                                            cfg => cfg.AllowAdmin = true);
+        //        string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
+        //        var server = conn.GetServer(serverName);
+        //        IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+        //        IDatabaseAsync db = conn.GetDatabase();
 
-                var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
-                foreach (string key in keys)
-                {
-                    ab.Post(key);
-                }
+        //        var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
+        //        foreach (string key in keys)
+        //        {
+        //            ab.Post(key);
+        //        }
 
-                ab.Complete();
-                ab.Completion.Wait();
+        //        ab.Complete();
+        //        ab.Completion.Wait();
 
-                async Task LocalAsync(string k)
-                {
-                    try
-                    {
-                        await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
-                        _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
-                    }
-                    #region Exception Handling
+        //        async Task LocalAsync(string k)
+        //        {
+        //            try
+        //            {
+        //                await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
+        //                _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
+        //            }
+        //            #region Exception Handling
 
-                    catch (RedisTimeoutException ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
+        //            catch (RedisTimeoutException ex)
+        //            {
+        //                _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+        //            }
 
-                    #endregion // Exception Handling
-                }
-            }
-            #region Exception Handling
+        //            #endregion // Exception Handling
+        //        }
+        //    }
+        //    #region Exception Handling
 
-            catch (RedisTimeoutException ex)
-            {
-                _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-            }
-            catch (Exception ex)
-            {
-                _outputHelper.WriteLine($"Test dispose error (delete keys) {ex.FormatLazy()}");
-            }
+        //    catch (RedisTimeoutException ex)
+        //    {
+        //        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _outputHelper.WriteLine($"Test dispose error (delete keys) {ex.FormatLazy()}");
+        //    }
 
-            #endregion // Exception Handling
-        }
+        //    #endregion // Exception Handling
+        //}
 
         #endregion // Dispose pattern
 
