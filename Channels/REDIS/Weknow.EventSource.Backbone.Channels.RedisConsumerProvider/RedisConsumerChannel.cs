@@ -262,6 +262,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
             }
 
+            /// <summary>
+            /// Handles the batch breaker asynchronous.
+            /// </summary>
+            /// <param name="ct">The ct.</param>
+            /// <returns></returns>
+            /// <exception cref="System.ArgumentException">EventKey</exception>
+            /// <exception cref="System.ArgumentNullException">
+            /// ChannelType
+            /// or
+            /// MessageId
+            /// or
+            /// Operation
+            /// or
+            /// Metadata
+            /// </exception>
             async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
             {
                 ct.ThrowIfCancellationRequested();
@@ -290,9 +305,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
                         Metadata meta;
-                        string? meta64 = channelMeta[META_SLOT];
+                        string? metaJson = channelMeta[META_SLOT];
                         string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
-                        if (string.IsNullOrEmpty(meta64))
+                        if (string.IsNullOrEmpty(metaJson))
                         { // backward comparability
 
                             string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.ChannelType));
@@ -325,8 +340,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         }
                         else
                         {
-                            byte[] metabytes = Convert.FromBase64String(meta64);
-                            string metaJson = Encoding.UTF8.GetString(metabytes);
+                            //byte[] metabytes = Convert.FromBase64String(meta64);
+                            //string metaJson = Encoding.UTF8.GetString(metabytes);
                             meta = JsonSerializer.Deserialize<Metadata>(metaJson) ?? throw new ArgumentNullException(nameof(Metadata)); //, EventSourceJsonContext..Metadata);
                             meta = meta with { EventKey = eventKey };
 
