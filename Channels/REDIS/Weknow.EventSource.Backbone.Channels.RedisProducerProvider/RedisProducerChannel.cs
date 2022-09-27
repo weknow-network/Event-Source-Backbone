@@ -87,8 +87,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             #region var entries = new NameValueEntry[]{...}
 
             string metaJson = JsonSerializer.Serialize(meta);
-            byte[] metabytes = Encoding.UTF8.GetBytes(metaJson);
-            string meta64 = Convert.ToBase64String(metabytes);
+            //byte[] metabytes = Encoding.UTF8.GetBytes(metaJson);
+            //string meta64 = Convert.ToBase64String(metabytes);
 
             // local method 
             NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
@@ -98,7 +98,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds()),
                 KV(nameof(meta.ChannelType), CHANNEL_TYPE),
                 KV(nameof(meta.Origin), meta.Origin.ToString()),
-                KV(META_SLOT, meta64)
+                KV(META_SLOT, metaJson)
             );
 
             #endregion // var entries = new NameValueEntry[]{...}
