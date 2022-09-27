@@ -253,6 +253,26 @@ namespace Weknow.EventSource.Backbone
             return instance._data;
         }
 
+        /// <summary>
+        /// Performs an implicit conversion.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns>
+        /// The result of the conversion.
+        /// </returns>
+        public static implicit operator ImmutableDictionary<string, string>(Bucket instance)
+        {
+            var result = instance.Aggregate(ImmutableDictionary<string, string>.Empty , 
+                (acc,m) =>
+            {
+                byte[] bytes = m.Value.ToArray();
+                var json = Encoding.UTF8.GetString(bytes);
+                return acc.Add(m.Key, json);
+
+            });
+            return result;
+        }
+
         #endregion // Cast overloads
 
         #region IEnumerable

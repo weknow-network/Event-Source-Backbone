@@ -33,10 +33,10 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly SequenceOperationsConsumerBridge _subscriberBridge;
         private readonly IProducerStoreStrategyBuilder _targetProducerBuilder;
         private readonly IConsumerStoreStrategyBuilder _sourceConsumerBuilder;
-        //private readonly string ENV = "Production";
-        private readonly string ENV = "Development";
-        //private readonly string PARTITION = "analysts";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        private readonly string ENV = "Production";
+        //private readonly string ENV = "Development";
+        private readonly string PARTITION = "analysts";
+        //private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
         private readonly string SHARD = "default";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
@@ -55,7 +55,7 @@ namespace Weknow.EventSource.Backbone.Tests
             _outputHelper = outputHelper;
             _targetProducerBuilder = ProducerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys { EndpointKey = TARGET_KEY })
                 .AddVoidStrategy();
-            //.AddS3Strategy();
+            //.AddS3Strategy(new S3Options { Bucket="temp"});
 
             _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys { EndpointKey = SOURCE_KEY })
                                         .AddS3Strategy(new S3Options { Bucket = "event-source-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
@@ -66,7 +66,8 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Migration_By_Receiver_Test
 
-        [Fact(Timeout = TIMEOUT, Skip = "Use to migrate data between 2 different souces")]
+        //[Fact(Timeout = TIMEOUT, Skip = "Use to migrate data between 2 different souces")]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Migration_By_Receiver_Test()
         {
             #region IRawProducer rawProducer = ...

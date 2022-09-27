@@ -6,6 +6,10 @@ using OpenTelemetry.Context.Propagation;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
+
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -14,22 +18,21 @@ namespace Weknow.EventSource.Backbone
         #region AddVoidStrategy
 
         /// <summary>
-        /// Adds the void storage strategy i.e. the storage data ignored.
+        /// Adds the void strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
+        /// <param name="providerPrefix">The provider prefix.</param>
         /// <returns></returns>
-        /// <remarks>
-        /// It can be useful when migrating a stream which should reuse the same storage as the source stream.
-        /// In this case it's important to maintain the original metadata & message's id.
-        /// </remarks>
         public static IProducerStoreStrategyBuilder AddVoidStrategy(
-            this IProducerStoreStrategyBuilder builder)
+            this IProducerStoreStrategyBuilder builder,
+            string providerPrefix = "S3_V1")
         {
             var result = builder.AddStorageStrategy(Local);
 
             ValueTask<IProducerStorageStrategy> Local(ILogger logger)
             {
-                return NoneStorageStrategy.Instance.ToValueTask();
+                IProducerStorageStrategy result = new VoidStorageStrategy(providerPrefix);
+                return result.ToValueTask();
             }            
 
             return result;
@@ -41,9 +44,22 @@ namespace Weknow.EventSource.Backbone
         /// Non strategy implementation
         /// </summary>
         /// <seealso cref="Weknow.EventSource.Backbone.IProducerStorageStrategy" />
-        private class NoneStorageStrategy : IProducerStorageStrategy
-        { 
-            public static IProducerStorageStrategy Instance = new NoneStorageStrategy();
+        private class VoidStorageStrategy : IProducerStorageStrategy
+        {
+            private string _providerPrefix;
+
+            #region Ctor
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="VoidStorageStrategy"/> class.
+            /// </summary>
+            /// <param name="providerPrefix">The provider prefix.</param>
+            public VoidStorageStrategy(string providerPrefix)
+            {
+                _providerPrefix = providerPrefix;
+            }
+
+            #endregion // Ctor
 
             /// <summary>
             /// Saves the bucket information.
@@ -63,7 +79,11 @@ namespace Weknow.EventSource.Backbone
                 Metadata meta,
                 CancellationToken cancellation)
             {
-                return ImmutableDictionary<string, string>.Empty.ToValueTask<IImmutableDictionary<string, string>>();
+                string json = JsonSerializer.Serialize(bucket, SerializerOptionsWithIndent);
+                var result = ImmutableDictionary<string, string>.Empty.Add($"{_providerPrefix}~{type}", json);
+                return result.ToValueTask<IImmutableDictionary<string, string>>();
+                //ImmutableDictionary<string, string> result = bucket;
+                //return result.ToValueTask<IImmutableDictionary<string, string>>();
             }
         }
 

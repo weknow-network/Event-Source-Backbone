@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         //                    JsonDictionaryConverter.Default,
         //                    JsonImmutableDictionaryConverter.Default
         //    }
-        private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+        internal static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
@@ -32,11 +32,28 @@ namespace Weknow.EventSource.Backbone
                             EnumConvertor,
                             JsonDictionaryConverter.Default,
                             JsonImmutableDictionaryConverter.Default,
-                            BucketJsonConverter.Instance
+                            JsonMemoryBytesConverterFactory.Default
                         }
         };
 
-        private static readonly IDataSerializer DEFAULT_SERIALIZER = new JsonDataSerializer(SerializerOptions);
+        public static readonly JsonSerializerOptions FullSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            // PropertyNameCaseInsensitive = true,
+            // IgnoreNullValues = true,
+            //WriteIndented = true,
+            Converters =
+                        {
+                            EnumConvertor,
+                            JsonDictionaryConverter.Default,
+                            JsonImmutableDictionaryConverter.Default,
+                            JsonMemoryBytesConverterFactory.Default,
+                            JsonBucketConverter.Default
+                        }
+        };
+
+        private static readonly IDataSerializer DEFAULT_SERIALIZER = new JsonDataSerializer(FullSerializerOptions);
 
         //public static readonly EventSourceOptions Empty = new EventSourceOptions();
 
