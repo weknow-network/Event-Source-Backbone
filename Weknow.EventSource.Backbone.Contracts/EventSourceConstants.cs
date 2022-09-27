@@ -36,7 +36,8 @@ namespace Weknow.EventSource.Backbone
                         {
                             EnumConvertor,
                             JsonDictionaryConverter.Default,
-                            JsonImmutableDictionaryConverter.Default
+                            JsonImmutableDictionaryConverter.Default,
+                            JsonMemoryBytesConverterFactory.Default
                         }
         };
     }

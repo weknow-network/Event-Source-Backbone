@@ -156,7 +156,7 @@ namespace Microsoft.Extensions.Configuration
             options.WriteIndented = true;
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(JsonImmutableDictionaryConverter.Default);
-            options.Converters.Add(BucketJsonConverter.Instance);
+            options.Converters.Add(JsonMemoryBytesConverterFactory.Default);
             //setting.AddContext<EventSOurceJsonContext>();
             return options;
         }

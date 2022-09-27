@@ -51,9 +51,9 @@ namespace Weknow.EventSource.Backbone
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
             Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default): base(logger, configuration )
+            RedisCredentialsKeys credentialsKeys = default): base(logger, configuration, credentialsKeys)
         {
-            CredentialsKeys = credentialsKeys;
+            //CredentialsKeys = credentialsKeys;
         }
 
 
@@ -68,13 +68,13 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Kind
 
-        #region CredentialsKeys
+        //#region CredentialsKeys
 
-        /// <summary>
-        /// Gets the credentials keys.
-        /// </summary>
-        protected override RedisCredentialsKeys CredentialsKeys { get; }
+        ///// <summary>
+        ///// Gets the credentials keys.
+        ///// </summary>
+        //protected override RedisCredentialsKeys CredentialsKeys { get; }
 
-        #endregion // CredentialsKeys
+        //#endregion // CredentialsKeys
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace Weknow.EventSource.Backbone.Building
+﻿
+namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Raw producer options

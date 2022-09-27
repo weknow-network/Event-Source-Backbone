@@ -95,6 +95,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Ctor
 
+        #region ConsumerOptions DefaultOptions
 
         private ConsumerOptions DefaultOptions(
                     ConsumerOptions options,
@@ -111,6 +112,8 @@ namespace Weknow.EventSource.Backbone.Tests
                 PartialBehavior = behavior ?? options.PartialBehavior
             };
         }
+
+        #endregion // ConsumerOptions DefaultOptions
 
         #region Migration_Test
 
@@ -130,7 +133,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // ISequenceOperations producer = ...
 
             IRawProducer rawProducer = _producerBuilder
-                                            .Environment("Migrated")                                            
+                                            .Environment("Migrated") 
                                             .BuildRaw();
 
             await SendSequenceAsync(producer);

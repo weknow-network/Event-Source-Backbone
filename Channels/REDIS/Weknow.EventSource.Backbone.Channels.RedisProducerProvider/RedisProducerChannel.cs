@@ -39,7 +39,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         public RedisProducerChannel(
                         IEventSourceRedisConnectionFacroty redisFactory,
                         ILogger logger,
-                        AsyncPolicy? resiliencePolicy) 
+                        AsyncPolicy? resiliencePolicy)
         {
             _connFactory = redisFactory;
             _logger = logger;
@@ -131,7 +131,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                    flags: CommandFlags.DemandMaster);
                     return result;
                 }
-                catch (RedisConnectionException ex) 
+                catch (RedisConnectionException ex)
                 {
                     _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{partition}->{shard}] stream: {operation}",
                         meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
@@ -154,21 +154,26 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     {
                         foreach (var strategy in strategies)
                         {
-                            var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
-                            foreach (var item in metaItems)
-                            {
-                                commonEntries = commonEntries.Add(KV(item.Key, item.Value));
-                            }
+                            await SaveBucketAsync(strategy);
                         }
                     }
                     else
                     {
-                        await _defaultStorageStrategy.SaveBucketAsync(id, bucket, storageType, meta);
+                       await SaveBucketAsync(_defaultStorageStrategy);
+                    }
+
+                    async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
+                    {
+                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
+                        foreach (var item in metaItems)
+                        {
+                            commonEntries = commonEntries.Add(KV(item.Key, item.Value));
+                        }
+
                     }
                 }
 
                 #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
-
                 #region LocalInjectTelemetry
 
                 void LocalInjectTelemetry(

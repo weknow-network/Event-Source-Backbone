@@ -40,10 +40,12 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="credentialsKeys">The credentials keys.</param>
         public RedisConnectionFacrotyBase(
             ILogger<EventSourceRedisConnectionFacroty> logger,
-            Action<ConfigurationOptions>? configuration = null
-            ) : this((ILogger)logger, configuration)
+            Action<ConfigurationOptions>? configuration = null,
+            RedisCredentialsKeys credentialsKeys = default
+            ) : this((ILogger)logger, configuration, credentialsKeys)
         {
         }
 
@@ -52,29 +54,31 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="configuration"></param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="credentialsKeys">The credentials keys.</param>
         public RedisConnectionFacrotyBase(
             ILogger logger,
-            Action<ConfigurationOptions>? configuration = null)
+            Action<ConfigurationOptions>? configuration = null,
+            RedisCredentialsKeys credentialsKeys = default)
         {
             _logger = logger;
             _configuration = configuration;
-            _credentialsKeys = CredentialsKeys;
-            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, CredentialsKeys);
+            _credentialsKeys = credentialsKeys;
+            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, credentialsKeys);
         }
 
 
         #endregion // Ctor
 
-        #region CredentialsKeys
+        //#region CredentialsKeys
 
-        /// <summary>
-        /// Gets the credentials keys.
-        /// </summary>
-        protected abstract RedisCredentialsKeys CredentialsKeys { get; }
+        ///// <summary>
+        ///// Gets the credentials keys.
+        ///// </summary>
+        //protected abstract RedisCredentialsKeys CredentialsKeys { get; }
 
-        #endregion // CredentialsKeys
+        //#endregion // CredentialsKeys
 
         #region Kind
 
