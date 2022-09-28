@@ -86,7 +86,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region var entries = new NameValueEntry[]{...}
 
-            string metaJson = JsonSerializer.Serialize(meta);
+            string metaJson = JsonSerializer.Serialize(meta, EventSourceOptions.FullSerializerOptions);
             //byte[] metabytes = Encoding.UTF8.GetBytes(metaJson);
             //string meta64 = Convert.ToBase64String(metabytes);
 

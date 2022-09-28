@@ -1830,10 +1830,14 @@ namespace Weknow.EventSource.Backbone.Tests
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8604 // Possible null reference argument.
                 foreach (string key in keys)
                 {
                     ab.Post(key);
                 }
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
                 ab.Complete();
                 ab.Completion.Wait();
