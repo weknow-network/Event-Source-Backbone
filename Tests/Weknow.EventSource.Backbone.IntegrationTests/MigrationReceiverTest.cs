@@ -1,19 +1,14 @@
 using System.Diagnostics;
-using System.Threading.Tasks.Dataflow;
 
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
-
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 #pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
@@ -29,8 +24,6 @@ namespace Weknow.EventSource.Backbone.Tests
         private const string SOURCE_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
 
         private readonly ITestOutputHelper _outputHelper;
-        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
-        private readonly SequenceOperationsConsumerBridge _subscriberBridge;
         private readonly IProducerStoreStrategyBuilder _targetProducerBuilder;
         private readonly IConsumerStoreStrategyBuilder _sourceConsumerBuilder;
         private readonly string ENV = "Production";
@@ -45,11 +38,9 @@ namespace Weknow.EventSource.Backbone.Tests
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MigrationReceiverTest"/> class.
+        /// Initializes a new instance of the <see cref="MigrationReceiverTest" /> class.
         /// </summary>
         /// <param name="outputHelper">The output helper.</param>
-        /// <param name="producerChannelBuilder">The producer channel builder.</param>
-        /// <param name="consumerChannelBuilder">The consumer channel builder.</param>
         public MigrationReceiverTest(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;

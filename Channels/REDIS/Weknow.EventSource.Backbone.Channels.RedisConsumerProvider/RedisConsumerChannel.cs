@@ -262,21 +262,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
             }
 
-            /// <summary>
-            /// Handles the batch breaker asynchronous.
-            /// </summary>
-            /// <param name="ct">The ct.</param>
-            /// <returns></returns>
-            /// <exception cref="System.ArgumentException">EventKey</exception>
-            /// <exception cref="System.ArgumentNullException">
-            /// ChannelType
-            /// or
-            /// MessageId
-            /// or
-            /// Operation
-            /// or
-            /// Metadata
-            /// </exception>
+
             async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
             {
                 ct.ThrowIfCancellationRequested();
@@ -342,7 +328,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         {
                             //byte[] metabytes = Convert.FromBase64String(meta64);
                             //string metaJson = Encoding.UTF8.GetString(metabytes);
-                            meta = JsonSerializer.Deserialize<Metadata>(metaJson) ?? throw new ArgumentNullException(nameof(Metadata)); //, EventSourceJsonContext..Metadata);
+                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new ArgumentNullException(nameof(Metadata)); //, EventSourceJsonContext..Metadata);
                             meta = meta with { EventKey = eventKey };
 
                         }
@@ -699,11 +685,20 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 #region var announcement = new Announcement(...)
 
                 Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
-                string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
-                string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
-                string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
+                string channelType = GetMeta(nameof(MetadataExtensions.Empty.ChannelType));
+                string id = GetMeta(nameof(MetadataExtensions.Empty.MessageId));
+                string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
                 long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+
+                string GetMeta(string propKey)
+                {
+                    string? result = channelMeta[propKey];
+                    if (result == null)  throw new ArgumentNullException(propKey);
+                    return result;
+                }
+
                 DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+#pragma warning disable CS8601 // Possible null reference assignment.
                 var meta = new Metadata
                 {
                     MessageId = id,
@@ -715,6 +710,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     ProducedAt = producedAt,
                     ChannelType = channelType
                 };
+#pragma warning restore CS8601 // Possible null reference assignment.
 
                 Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
                 Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
@@ -754,10 +750,14 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         if (entries.Length == 0)
                             throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return nothing, start at ({startPosition}, iteration = {iteration}).");
                         string k = string.Empty;
-                        foreach (var e in entries)
+                        foreach (StreamEntry e in entries)
                         {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                             k = e.Id;
                             string ePrefix = k.Substring(0, len);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                             long comp = long.Parse(ePrefix);
                             if (comp < start)
                                 continue; // not there yet
@@ -817,6 +817,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 #region var announcement = new Announcement(...)
 
                 Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8601 // Possible null reference assignment.
                 string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
                 string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
                 string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
@@ -832,6 +834,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     Operation = operation,
                     ProducedAt = producedAt
                 };
+#pragma warning restore CS8601 // Possible null reference assignment.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 var filter = options?.OperationFilter;
                 if (filter != null && !filter(meta))
                     continue;
@@ -880,7 +884,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     {
                         if (cancellationToken.IsCancellationRequested) yield break;
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                         k = e.Id;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                         if (options?.To != null && string.Compare(options?.To, k) < 0)
                             yield break;
                         yield return e;
@@ -928,7 +934,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             return bucket;
 
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8603 // Possible null reference return.
             string LocalGetProperty(string k) => (string)channelMeta[k];
+#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
 
         #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
@@ -968,6 +978,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 {
                     IServer server = multiplexer.GetServer(endpoint);
                     // TODO: [bnaya 2020_09] check the pagination behavior
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8604 // Possible null reference argument.
                     await foreach (string key in server.KeysAsync(pattern: pattern))
                     {
                         if (distict.Contains(key))
@@ -975,6 +987,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         distict.Add(key);
                         yield return key;
                     }
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
             }
         }
