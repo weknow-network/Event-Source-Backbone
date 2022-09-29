@@ -1,29 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
-
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Text.Json;
 
+using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
+
+using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Private;
 
 using static System.Math;
-
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using Weknow.Text.Json;
-using OpenTelemetry.Context.Propagation;
-using OpenTelemetry;
-using Weknow.EventSource.Backbone.Building;
-using System.Collections.Concurrent;
-using Polly;
-using System.Text;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
@@ -695,7 +683,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 string GetMeta(string propKey)
                 {
                     string? result = channelMeta[propKey];
-                    if (result == null)  throw new ArgumentNullException(propKey);
+                    if (result == null) throw new ArgumentNullException(propKey);
                     return result;
                 }
 
