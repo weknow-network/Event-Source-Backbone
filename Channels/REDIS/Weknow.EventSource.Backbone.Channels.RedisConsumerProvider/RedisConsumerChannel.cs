@@ -690,12 +690,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
                 long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
 
+                #region string GetMeta(string propKey)
+
                 string GetMeta(string propKey)
                 {
                     string? result = channelMeta[propKey];
                     if (result == null)  throw new ArgumentNullException(propKey);
                     return result;
                 }
+
+                #endregion // string GetMeta(string propKey)
 
                 DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
 #pragma warning disable CS8601 // Possible null reference assignment.

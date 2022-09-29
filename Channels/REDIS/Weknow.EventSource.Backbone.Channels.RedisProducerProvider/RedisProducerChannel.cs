@@ -87,8 +87,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             #region var entries = new NameValueEntry[]{...}
 
             string metaJson = JsonSerializer.Serialize(meta, EventSourceOptions.FullSerializerOptions);
-            //byte[] metabytes = Encoding.UTF8.GetBytes(metaJson);
-            //string meta64 = Convert.ToBase64String(metabytes);
 
             // local method 
             NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
@@ -131,6 +129,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                    flags: CommandFlags.DemandMaster);
                     return result;
                 }
+                #region Exception Handling
+
                 catch (RedisConnectionException ex)
                 {
                     _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{partition}->{shard}] stream: {operation}",
@@ -143,6 +143,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
                     throw;
                 }
+
+                #endregion // Exception Handling
 
                 #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 
@@ -164,7 +166,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                     async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                     {
-                        var metaItems = await strategy.SaveBucketAsync(id, bucket, storageType, meta);
+                        IImmutableDictionary<string, string> metaItems = 
+                            await strategy.SaveBucketAsync(id, bucket, storageType, meta);
                         foreach (var item in metaItems)
                         {
                             commonEntries = commonEntries.Add(KV(item.Key, item.Value));

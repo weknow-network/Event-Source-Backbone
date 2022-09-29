@@ -26,5 +26,13 @@
         /// Environment convention's options
         /// </summary>
         public S3EnvironmentConvention EnvironmentConvension { get; init; }
+
+        /// <summary>
+        /// Indicating whether to avoid actual writing (dry run).
+        /// </summary>
+        /// <remarks>
+        /// Useful for migration of stream while keeping same storage.
+        /// </remarks>
+        public bool DryRun { get; init; } = false;
     }
 }
