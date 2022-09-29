@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
             {
                 IProducerStorageStrategy result = new VoidStorageStrategy(providerPrefix);
                 return result.ToValueTask();
-            }            
+            }
 
             return result;
         }
@@ -79,7 +79,13 @@ namespace Weknow.EventSource.Backbone
                 Metadata meta,
                 CancellationToken cancellation)
             {
-                string json = JsonSerializer.Serialize(bucket, SerializerOptionsWithIndent);
+                KeyValuePair<string, string>[] pairs = bucket
+                    .Select(pair =>
+                    {
+                        string value = Encoding.UTF8.GetString(pair.Value.ToArray());
+                        return KeyValuePair.Create(pair.Key, value);
+                    }).ToArray();
+                string json = JsonSerializer.Serialize(pairs, SerializerOptionsWithIndent);
                 var result = ImmutableDictionary<string, string>.Empty.Add($"{_providerPrefix}~{type}", json);
                 return result.ToValueTask<IImmutableDictionary<string, string>>();
                 //ImmutableDictionary<string, string> result = bucket;

@@ -38,6 +38,7 @@ namespace Weknow.EventSource.Backbone.Channels
         private int _disposeCount = 0;
         private readonly S3EnvironmentConvention _environmentConvension;
         private const StringComparison STRING_COMPARISON = StringComparison.OrdinalIgnoreCase;
+        private readonly bool _dryRun;
 
         #region Ctor
 
@@ -57,6 +58,7 @@ namespace Weknow.EventSource.Backbone.Channels
             _bucket = options.Bucket ?? BUCKET;
             _basePath = options.BasePath;
             _environmentConvension = options.EnvironmentConvension;
+            _dryRun = options.DryRun;
         }
 
         #endregion // Ctor
@@ -104,7 +106,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
         #endregion // GetJsonAsync
 
-        #region GetJsonAsync
+        #region GetBytesAsync
 
         /// <summary>
         /// Get content.
@@ -135,10 +137,9 @@ namespace Weknow.EventSource.Backbone.Channels
             #endregion // Exception Handling
         }
 
-        #endregion // GetJsonAsync
+        #endregion // GetBytesAsync
 
         #region GetAsync
-
 
         /// <summary>
         /// Get content.
@@ -343,6 +344,15 @@ namespace Weknow.EventSource.Backbone.Channels
                     }
                 }
 
+                #region if (_dryRun) return ...
+
+                if (_dryRun)
+                {
+                    return new BlobResponse(key, _bucket, string.Empty, string.Empty);
+                }
+
+                #endregion // if (_dryRun) return ...
+
                 PutObjectResponse res = await _client.PutObjectAsync(s3Request, cancellation);
 
                 #region Validation
@@ -354,7 +364,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
                 #endregion // Validation
 
-                var response = new BlobResponse(key, _bucket, res.ETag, res.VersionId);
+                BlobResponse response = new BlobResponse(key, _bucket, res.ETag, res.VersionId);
                 return response;
             }
             #region Exception Handling
