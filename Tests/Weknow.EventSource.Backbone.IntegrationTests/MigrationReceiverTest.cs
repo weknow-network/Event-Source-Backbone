@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone.Tests
     /// </summary>
     public class MigrationReceiverTest // : IDisposable
     {
-        private const string TARGET_KEY = "REDIS_ANALYSTS_ENDPOINT";
+        private const string TARGET_KEY = "REDIS_MIGRATION_TARGET_ENDPOINT";
         private const string SOURCE_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
 
         private readonly ITestOutputHelper _outputHelper;
@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly string SHARD = "default";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
-        private const int TIMEOUT = 1_000 * 30;
+        private const int TIMEOUT = 1_000 * 300;
 
         #region Ctor
 
@@ -57,8 +57,8 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Migration_By_Receiver_Test
 
-        //[Fact(Timeout = TIMEOUT, Skip = "Use to migrate data between 2 different souces")]
-        [Fact(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT, Skip = "Use to migrate data between 2 different sources")]
+        //[Fact(Timeout = TIMEOUT)]
         public async Task Migration_By_Receiver_Test()
         {
             #region IRawProducer rawProducer = ...
@@ -83,13 +83,15 @@ namespace Weknow.EventSource.Backbone.Tests
                          .WithLogger(_fakeLogger)
                          .BuildIterator()
                          .GetAsyncEnumerable(new ConsumerAsyncEnumerableOptions { ExitWhenEmpty = true });
+            int count = 0;
             await foreach (var announcement in announcements.WithCancellation(cancellation))
             {
                 _fakeLogger.LogInformation(announcement.ToString());
                 await rawProducer.Produce(announcement);
+                count++;
+                _outputHelper.WriteLine($"{count} events processed");
             }
-
-
+            _outputHelper.WriteLine($"Total events = {count}");
         }
 
         #endregion // Migration_By_Receiver_Test
@@ -105,7 +107,7 @@ namespace Weknow.EventSource.Backbone.Tests
         {
             return new CancellationTokenSource(Debugger.IsAttached
                                 ? TimeSpan.FromMinutes(10)
-                                : TimeSpan.FromSeconds(10)).Token;
+                                : TimeSpan.FromMinutes(5)).Token;
         }
 
         #endregion // GetCancellationToken
