@@ -45,8 +45,9 @@ namespace Weknow.EventSource.Backbone.Tests
             IDatabaseAsync db = conn.GetDatabase();
 
             var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions {  MaxDegreeOfParallelism= 30});
-            foreach (string key in keys)
+            foreach (string? key in keys)
             {
+                if(string.IsNullOrWhiteSpace(key)) continue;
                 ab.Post(key);
             }
 

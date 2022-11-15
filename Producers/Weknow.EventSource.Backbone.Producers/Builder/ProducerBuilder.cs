@@ -310,6 +310,7 @@ namespace Weknow.EventSource.Backbone
 
         #region WithLogger
 
+        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -320,6 +321,7 @@ namespace Weknow.EventSource.Backbone
             return new ProducerBuilder(prms);
         }
 
+        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -329,6 +331,7 @@ namespace Weknow.EventSource.Backbone
             return WithLogger(logger);
         }
 
+        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -338,6 +341,7 @@ namespace Weknow.EventSource.Backbone
             return WithLogger(logger);
         }
 
+        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -347,6 +351,7 @@ namespace Weknow.EventSource.Backbone
             return WithLogger(logger);
         }
 
+        /// <summary>
         /// Attach logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -395,7 +400,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="options"></param>
         /// <returns></returns>
         IRawProducer IProducerRawBuilder.BuildRaw(RawProducerOptions? options)
-        { 
+        {
             var planBuilder = Plan;
             IProducerPlan plan = ((IProducerPlanBuilder)planBuilder).Build(); // attach he channel
             return new RawProducer(plan, options);
@@ -561,9 +566,10 @@ namespace Weknow.EventSource.Backbone
             #region Ctor
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="RawProducer"/> class.
+            /// Initializes a new instance of the <see cref="RawProducer" /> class.
             /// </summary>
             /// <param name="plan">The plan.</param>
+            /// <param name="options">The options.</param>
             public RawProducer(IProducerPlan plan, RawProducerOptions? options)
             {
                 _plan = plan;
@@ -595,7 +601,7 @@ namespace Weknow.EventSource.Backbone
                         Linked = metadata,
                     };
                 }
-                data = data with {  Metadata = meta };
+                data = data with { Metadata = meta };
                 await _plan.Channel.SendAsync(data, strategies);
             }
         }

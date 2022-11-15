@@ -57,10 +57,10 @@ namespace Weknow.EventSource.Backbone.Tests
             var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
                                         stg => stg with
                                         {
-                                            DelayWhenEmptyBehavior = 
-                                                stg.DelayWhenEmptyBehavior with 
+                                            DelayWhenEmptyBehavior =
+                                                stg.DelayWhenEmptyBehavior with
                                                 {
-                                                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2)) 
+                                                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
                                                 }
                                         });
             consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
@@ -265,8 +265,9 @@ namespace Weknow.EventSource.Backbone.Tests
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
-                foreach (string key in keys)
+                foreach (string? key in keys)
                 {
+                    if (string.IsNullOrEmpty(key)) continue;
                     ab.Post(key);
                 }
 

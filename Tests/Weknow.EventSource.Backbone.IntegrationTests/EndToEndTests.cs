@@ -55,7 +55,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         private ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
-        private const int TIMEOUT = 1_000 * 30;
+        private const int TIMEOUT = 1_000 * 50;
 
         #region Ctor
 

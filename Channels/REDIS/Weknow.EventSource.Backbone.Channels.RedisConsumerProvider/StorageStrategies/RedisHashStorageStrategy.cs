@@ -67,8 +67,14 @@ namespace Weknow.EventSource.Backbone.Channels
                 key = $"{type}~{meta.MessageId}";
                 entities = await db.HashGetAllAsync(key, CommandFlags.DemandMaster); // DemandMaster avoid racing
             }
+
+#pragma warning disable CS8600 
+#pragma warning disable CS8620
             var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
             var results = prevBucket.TryAddRange(pairs);
+#pragma warning restore CS8620
+#pragma warning restore CS8600
+
             return results;
 
         }

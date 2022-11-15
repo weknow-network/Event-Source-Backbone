@@ -36,6 +36,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="logger">The logger.</param>
         /// <param name="consumerBuilder">The builder.</param>
         /// <param name="forwarder">The forwarder.</param>
+        /// <param name="clientFactory">The client factory.</param>
         public MigrationJob(
             ILogger<MigrationJob> logger,
             IConsumerReadyBuilder consumerBuilder,
