@@ -17,7 +17,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="value">The value.</param>
         public Env(string value)
         {
-            _value = value;
+            _value = Env.Format(value);
         }
 
         #endregion // Ctor
@@ -50,16 +50,22 @@ namespace Weknow.EventSource.Backbone
         /// Formats the specified environment into WeKnow convention.
         /// </summary>
         /// <returns></returns>
-        public string Format()
+        public string Format() => Env.Format(_value);
+
+        /// <summary>
+        /// Formats the specified environment into WeKnow convention.
+        /// </summary>
+        /// <returns></returns>
+        private static string Format(string e)
         {
-            bool comp(string candidate) => string.Compare(this, candidate, OrdinalIgnoreCase) == 0;
+            bool comp(string candidate) => string.Compare(e, candidate, OrdinalIgnoreCase) == 0;
 
             if (comp("Production")) return "prod";
             if (comp("Prod")) return "prod";
             if (comp("Development")) return "dev";
             if (comp("Dev")) return "dev";
 
-            return this;
+            return e;
         }
 
         #endregion // Format
@@ -69,10 +75,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Converts to string.
         /// </summary>
-        public override string ToString()
-        {
-            return Format();
-        }
+        public override string ToString() => _value;
 
         #endregion // ToString
     }
