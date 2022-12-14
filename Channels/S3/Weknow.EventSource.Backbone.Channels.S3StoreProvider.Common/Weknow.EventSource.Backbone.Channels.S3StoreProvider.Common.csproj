@@ -4,8 +4,8 @@
     <ProjectReference Include="..\..\..\Weknow.EventSource.Backbone.Contracts\Weknow.EventSource.Backbone.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.101.16" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.44" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.101.35" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.46" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />

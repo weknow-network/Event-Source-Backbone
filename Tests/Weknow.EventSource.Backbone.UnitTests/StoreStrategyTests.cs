@@ -30,7 +30,7 @@ namespace Weknow.EventSource.Backbone
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-        private readonly Channel<Announcement> ch;
+        private readonly Channel<Announcement> _ch;
         private readonly ISequenceOfConsumer _subscriber = A.Fake<ISequenceOfConsumer>();
         private readonly IProducerStorageStrategy _producerStorageStrategyA = A.Fake<IProducerStorageStrategy>();
         private readonly IProducerStorageStrategy _producerStorageStrategyB = A.Fake<IProducerStorageStrategy>();
@@ -44,9 +44,9 @@ namespace Weknow.EventSource.Backbone
         {
             _outputHelper = outputHelper;
             // _serializer = new JsonDataSerializer();
-            ch = Channel.CreateUnbounded<Announcement>();
-            _producerChannel = _ => new ProducerTestChannel(ch);
-            _consumerChannel = _ => new ConsumerTestChannel(ch);
+            _ch = Channel.CreateUnbounded<Announcement>();
+            _producerChannel = _ => new ProducerTestChannel(_ch);
+            _consumerChannel = _ => new ConsumerTestChannel(_ch);
         }
 
         #endregion // Ctor
@@ -86,9 +86,9 @@ namespace Weknow.EventSource.Backbone
                          .Shard("Org: #RedSocks")
                          .Subscribe(new SequenceOfConsumerBridge(_subscriber));
 
-            ch.Writer.Complete();
+            _ch.Writer.Complete();
             await subscription.DisposeAsync();
-            await ch.Reader.Completion;
+            await _ch.Reader.Completion;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
