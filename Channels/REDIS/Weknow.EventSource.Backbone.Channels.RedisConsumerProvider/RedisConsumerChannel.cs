@@ -106,6 +106,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             var joinCancellation = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken).Token;
             ConsumerOptions options = plan.Options;
 
+            ILogger? logger = _logger ?? plan.Logger;
+            logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.Key(), plan.ConsumerGroup, plan.ConsumerName);
+
             while (!joinCancellation.IsCancellationRequested)
             {
                 try
@@ -223,7 +226,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             CommandFlags flags = CommandFlags.None;
             string? fetchUntil = options.FetchUntilUnixDateOrEmpty?.ToString();
 
-            ILogger logger = plan.Logger;
+            ILogger logger = plan.Logger ?? _logger;
 
             #region await db.CreateConsumerGroupIfNotExistsAsync(...)
 

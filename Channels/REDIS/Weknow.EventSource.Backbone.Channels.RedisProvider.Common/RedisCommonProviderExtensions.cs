@@ -52,7 +52,9 @@ namespace Weknow.EventSource.Backbone.Private
                         delay = Math.Min(delay * 2, 15_000);
                         await Task.Delay(delay);
                         if (tryNumber % 10 == 0)
-                            logger.LogWarning($"{nameof(CreateConsumerGroupIfNotExistsAsync)} still waiting {CurrentInfo()}");
+                        {
+                            logger.LogWarning("Create Consumer Group If Not Exists: still waiting {info}", CurrentInfo());
+                        }
                     }
 
                     #endregion // delay on retry
@@ -68,20 +70,20 @@ namespace Weknow.EventSource.Backbone.Private
                     if (!await db.KeyExistsAsync(eventSourceKey,
                                                  flags: CommandFlags.DemandMaster))
                     {
-                        logger.LogDebug(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: Key not exists");
+                        logger.LogDebug(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                     else
                     {
-                        logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: failed");
+                        logger.LogWarning(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                 }
                 catch (RedisConnectionException ex)
                 {
-                    logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync: connection failure {CurrentInfo()}");
+                    logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists: connection failure. {info}", CurrentInfo());
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.KeyExistsAsync [GroupInfo]: unexpected failure");
+                    logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists:  unexpected failure. {info}", CurrentInfo());                  
                 }
 
                 #endregion // Exception Handling
