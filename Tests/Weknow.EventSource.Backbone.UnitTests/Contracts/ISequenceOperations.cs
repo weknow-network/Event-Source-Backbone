@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.UnitTests.Entities
+﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     [GenerateEventSource(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
     [GenerateEventSource(EventSourceGenType.Consumer, Name = "ISequenceOfConsumer")]

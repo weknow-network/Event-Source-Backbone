@@ -1,20 +1,4 @@
-using FakeItEasy;
-
-using System;
-using System.Collections.Immutable;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-
-using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.UnitTests.Entities;
-
 using Xunit;
-using Xunit.Abstractions;
-
-using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -57,8 +41,8 @@ namespace Weknow.EventSource.Backbone
             var deserialize = serializer.Deserialize<Bucket>(buffer);
 
             Assert.True(deserialize.TryGetValue("X", out var arr));
-            Assert.Equal(1, arr.Span[0]) ;
-            Assert.Equal(2, arr.Span[1]) ;
+            Assert.Equal(1, arr.Span[0]);
+            Assert.Equal(2, arr.Span[1]);
         }
 
         #endregion // Bucket_Serialization_Test
@@ -90,8 +74,8 @@ namespace Weknow.EventSource.Backbone
 
             Assert.Equal(announcement.Metadata, deserialize.Metadata);
             Assert.True(deserialize.Segments.TryGetValue("X", out var arr));
-            Assert.Equal(1, arr.Span[0]) ;
-            Assert.Equal(2, arr.Span[1]) ;
+            Assert.Equal(1, arr.Span[0]);
+            Assert.Equal(2, arr.Span[1]);
         }
 
         #endregion // Announcement_Serialization_Test

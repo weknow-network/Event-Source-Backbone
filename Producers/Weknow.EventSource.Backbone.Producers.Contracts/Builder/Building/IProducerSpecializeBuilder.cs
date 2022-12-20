@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IProducerSpecializeBuilder: IProducerBuilderEnvironment<IProducerSpecializeBuilder>, IProducerRawBuilder
+    public interface IProducerSpecializeBuilder : IProducerBuilderEnvironment<IProducerSpecializeBuilder>, IProducerRawBuilder
     {
 
         /// <summary>

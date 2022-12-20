@@ -1,18 +1,12 @@
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
-using FakeItEasy;
-
-using Microsoft.Extensions.Logging;
-
 using StackExchange.Redis;
-
-using Weknow.EventSource.Backbone.Channels.RedisProvider;
-using Weknow.EventSource.Backbone.UnitTests.Entities;
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 using Xunit;
 using Xunit.Abstractions;
+
+using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Weknow.EventSource.Backbone.Tests
 {
@@ -33,7 +27,6 @@ namespace Weknow.EventSource.Backbone.Tests
         [InlineData("*test*")]
         [InlineData("dev:*")]
         [Trait("type", "delete-keys")]
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public async Task DELETE_KEYS_TEST(string pattern)
         {
             IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
@@ -44,10 +37,10 @@ namespace Weknow.EventSource.Backbone.Tests
             // IEnumerable<RedisKey> keys = server.Keys(pattern: "dev:*").ToArray();
             IDatabaseAsync db = conn.GetDatabase();
 
-            var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions {  MaxDegreeOfParallelism= 30});
+            var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
             foreach (string? key in keys)
             {
-                if(string.IsNullOrWhiteSpace(key)) continue;
+                if (string.IsNullOrWhiteSpace(key)) continue;
                 ab.Post(key);
             }
 
@@ -59,7 +52,7 @@ namespace Weknow.EventSource.Backbone.Tests
                 try
                 {
                     await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
-                    Trace.WriteLine(k); 
+                    Trace.WriteLine(k);
                 }
                 #region Exception Handling
 
@@ -75,7 +68,6 @@ namespace Weknow.EventSource.Backbone.Tests
                 #endregion // Exception Handling
             }
         }
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         #endregion // DELETE_KEYS_TEST
     }

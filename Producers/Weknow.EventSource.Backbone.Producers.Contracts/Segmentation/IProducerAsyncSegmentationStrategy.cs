@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible of splitting an instance into segments.

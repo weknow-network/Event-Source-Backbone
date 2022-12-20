@@ -1,22 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Buffers;
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
+
+using Microsoft.Extensions.Logging;
 
 using Polly;
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
-
 using Weknow.EventSource.Backbone.Building;
-using System.Text.Json;
-using System.IO;
 
 using static Weknow.EventSource.Backbone.EventSourceConstants;
-using System.Buffers;
-using System.Diagnostics;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -388,7 +381,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="consumerGroup">The consumer group.</param>
         /// <returns></returns>
         IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Group(string consumerGroup)
-        { 
+        {
             ConsumerPlan plan = _plan.WithConsumerGroup(consumerGroup);
             return new ConsumerBuilder(plan);
         }
@@ -403,7 +396,7 @@ namespace Weknow.EventSource.Backbone
         /// <param name="consumerName">Name of the consumer.</param>
         /// <returns></returns>
         IConsumerSubscribeBuilder IConsumerSubscribeBuilder.Name(string consumerName)
-        { 
+        {
             ConsumerPlan plan = _plan.WithConsumerName(consumerName);
             return new ConsumerBuilder(plan);
         }
@@ -446,7 +439,7 @@ namespace Weknow.EventSource.Backbone
             #endregion // Validation
 
 
-            ConsumerPlan plan = WithGroupIfEmpty(_plan);   
+            ConsumerPlan plan = WithGroupIfEmpty(_plan);
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
 
@@ -509,7 +502,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         private ConsumerPlan WithGroupIfEmpty(ConsumerPlan plan)
         {
-            if(plan.ConsumerGroup != null) return plan;
+            if (plan.ConsumerGroup != null) return plan;
             var consumerGroup = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm} {Guid.NewGuid():N}";
             return plan.WithConsumerGroup(consumerGroup);
         }
@@ -637,7 +630,7 @@ namespace Weknow.EventSource.Backbone
                         }
                         catch { }
 
-                        var err = $"GetJsonByIdAsync [{entryId}, { announcement.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
                             entryId, announcement.Key(), key,
                             Convert.ToBase64String(val.ToArray()),
@@ -667,7 +660,7 @@ namespace Weknow.EventSource.Backbone
         /// <returns></returns>
         /// <exception cref="System.DataMisalignedException"></exception>
         private static JsonElement ToJson(
-                                    IConsumerPlan plan, 
+                                    IConsumerPlan plan,
                                     Announcement announcement,
                                    bool ignoreMetadata = false)
         {
@@ -704,7 +697,7 @@ namespace Weknow.EventSource.Backbone
                         }
                         catch { }
 
-                        var err = $"GetJsonByIdAsync [{entryId}, { announcement.Metadata.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.Metadata.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
                             entryId, announcement.Metadata.Key(), key,
                             Convert.ToBase64String(val.ToArray()),

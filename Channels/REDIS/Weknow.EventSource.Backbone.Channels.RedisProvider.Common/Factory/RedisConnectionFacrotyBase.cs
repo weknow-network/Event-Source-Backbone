@@ -1,14 +1,6 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using Weknow.EventSource.Backbone;
-
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 
 namespace Weknow.EventSource.Backbone

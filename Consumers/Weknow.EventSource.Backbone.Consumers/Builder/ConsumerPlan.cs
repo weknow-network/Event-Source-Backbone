@@ -1,13 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
+
+using Microsoft.Extensions.Logging;
 
 using Polly;
-
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Private;
@@ -299,7 +295,9 @@ namespace Weknow.EventSource.Backbone
         /// <param name="argumentName">Name of the argument.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        async ValueTask<TParam> IConsumerPlan.GetParameterAsync<TParam>(Announcement arg, string argumentName)
+        async ValueTask<TParam> IConsumerPlan.GetParameterAsync<TParam>(
+                                Announcement arg,
+                                string argumentName)
         {
             foreach (var strategy in SegmentationStrategies)
             {
@@ -307,7 +305,7 @@ namespace Weknow.EventSource.Backbone
                 if (isValid)
                     return value;
             }
-            throw new NotSupportedException();
+            throw new NotSupportedException($"Consumer didn't find arg:[{argumentName}]");
         }
 
         #endregion // GetParameterAsync

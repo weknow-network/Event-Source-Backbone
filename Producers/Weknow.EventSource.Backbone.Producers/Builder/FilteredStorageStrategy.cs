@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -13,7 +7,7 @@ namespace Weknow.EventSource.Backbone
     /// Useful for 'Chain of Responsibility' by saving different parts
     /// into different storage (For example GDPR's PII).
     /// </summary>
-    internal class FilteredStorageStrategy: IProducerStorageStrategyWithFilter
+    internal class FilteredStorageStrategy : IProducerStorageStrategyWithFilter
     {
         private readonly IProducerStorageStrategy _storage;
         private readonly Predicate<string>? _filter;
@@ -58,11 +52,11 @@ namespace Weknow.EventSource.Backbone
                                                         string id,
                                                         Bucket bucket,
                                                         EventBucketCategories type,
-                                                        Metadata meta, 
+                                                        Metadata meta,
                                                         CancellationToken cancellation)
         {
             if ((_targetType & type) != type) return ImmutableDictionary<string, string>.Empty;
-            var filtered =  bucket.RemoveRange(_filter);
+            var filtered = bucket.RemoveRange(_filter);
             var results = await _storage.SaveBucketAsync(id, filtered, type, meta, cancellation);
             return results;
         }

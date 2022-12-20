@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible of converting raw segment (parameter) into object, i.e. deserialize a segment
@@ -46,13 +42,11 @@ namespace Weknow.EventSource.Backbone
                 #endregion // Exception Handling
             }
 
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             var t = default(T);
 
             return (false, t).ToValueTask();
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
         }
     }
 }

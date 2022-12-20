@@ -1,13 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-
-using OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
-
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
+
+using Microsoft.Extensions.Logging;
 
 using static Weknow.EventSource.Backbone.EventSourceConstants;
 
@@ -46,7 +41,7 @@ namespace Weknow.EventSource.Backbone
         /// <seealso cref="Weknow.EventSource.Backbone.IProducerStorageStrategy" />
         private class VoidStorageStrategy : IProducerStorageStrategy
         {
-            private string _providerPrefix;
+            private readonly string _providerPrefix;
 
             #region Ctor
 

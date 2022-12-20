@@ -1,8 +1,4 @@
-﻿
-using System;
-using System.Threading;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Building;
 

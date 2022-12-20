@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.WebEventTest
+﻿namespace Weknow.EventSource.Backbone.WebEventTest
 {
 
     public record Person(int Id, string Name, Address? Address = null);

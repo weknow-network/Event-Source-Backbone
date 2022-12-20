@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Producer stage of an interception operation provider.

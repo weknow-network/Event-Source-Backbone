@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Weknow.EventSource.Backbone.Building;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Receive data (on demand data query).
@@ -17,6 +9,6 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Ignore metadata.
         /// </summary>
-        public bool IgnoreMetadata { get; init; } 
+        public bool IgnoreMetadata { get; init; }
     }
 }

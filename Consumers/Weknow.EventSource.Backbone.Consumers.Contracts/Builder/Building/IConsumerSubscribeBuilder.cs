@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
 
     /// <summary>
@@ -53,7 +49,7 @@ namespace Weknow.EventSource.Backbone.Building
     }
 
     public interface IConsumerSubscribtionHubBuilder
-    { 
+    {
         /// <summary>
         /// Subscribe consumer.
         /// </summary>

@@ -1,13 +1,10 @@
-﻿using System;
-
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Bucket storage type
     /// </summary>
     [Flags]
-    public enum EventBucketCategories 
+    public enum EventBucketCategories
     {
         None = 0,
         Segments = 1,

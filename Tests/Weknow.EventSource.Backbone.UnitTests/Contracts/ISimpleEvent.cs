@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
@@ -11,7 +9,7 @@ namespace Weknow.EventSource.Backbone.UnitTests.Entities
     [GenerateEventSource(EventSourceGenType.Consumer)]
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface ISimpleEventTag: ISimpleEvent
+    public interface ISimpleEventTag : ISimpleEvent
     {
     }
 

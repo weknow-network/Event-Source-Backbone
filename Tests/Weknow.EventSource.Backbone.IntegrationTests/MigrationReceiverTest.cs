@@ -5,11 +5,9 @@ using FakeItEasy;
 using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
-#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 

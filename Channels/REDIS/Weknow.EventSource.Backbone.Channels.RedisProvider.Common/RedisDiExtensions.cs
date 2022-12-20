@@ -1,11 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone;
-
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 namespace Microsoft.Extensions.Configuration
 {

@@ -1,13 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Concurrent;
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Building;
 
@@ -19,7 +12,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// The consumer base.
     /// </summary>
-    partial class ConsumerBase
+    public partial class ConsumerBase
     {
         /// <summary>
         /// Represent single consuming subscription
@@ -85,14 +78,12 @@ namespace Weknow.EventSource.Backbone
             #endregion // GetParameterAsync
 
             #region Completion
-#pragma warning disable AMNF0001 // Asynchronous method name is not ending with 'Async'
 
             /// <summary>
             /// Represent the consuming completion..
             /// </summary>
             public Task Completion => _completion.Task;
 
-#pragma warning restore AMNF0001 // Asynchronous method name is not ending with 'Async'
             #endregion // Completion
 
             #region ConsumingAsync
@@ -165,7 +156,7 @@ namespace Weknow.EventSource.Backbone
                     {
                         var hasProcessed = await _plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
                         {
-                            if(ct.IsCancellationRequested) return false;
+                            if (ct.IsCancellationRequested) return false;
 
                             ConsumerMetadata._metaContext.Value = consumerMeta;
                             var tasks = _handlers.AsParallel().Select(h => h.Invoke(arg, this));

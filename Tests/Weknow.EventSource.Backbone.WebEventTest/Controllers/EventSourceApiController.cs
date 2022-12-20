@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 using StackExchange.Redis;
-using System.Text.Json;
-using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.WebEventTest;
 
 namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
 {
@@ -73,7 +73,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<JsonElement> GetMoreAsync(string partition, string shard, string eventKey, string? env = null)
         {
-            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env ?? String.Empty).BuildReceiver();
+            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env ?? string.Empty).BuildReceiver();
             var json = await receiver.GetJsonByIdAsync(eventKey);
             return json;
         }
@@ -99,7 +99,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
         //[ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<string> PostAsync(Person user)
         {
-            EventKey id =  await _eventFlowProducer.Stage1Async(user, "Stage 1 data");
+            EventKey id = await _eventFlowProducer.Stage1Async(user, "Stage 1 data");
             return id;
         }
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Weknow.EventSource.Backbone.Channels
+﻿namespace Weknow.EventSource.Backbone.Channels
 {
     public interface IS3RepositoryFactory
     {

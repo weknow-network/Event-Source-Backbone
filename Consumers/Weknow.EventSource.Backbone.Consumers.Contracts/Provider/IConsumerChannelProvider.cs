@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Channel provider responsible for passing the actual message 

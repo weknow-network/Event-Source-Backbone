@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible of translating announcement's parameter into object
@@ -15,6 +13,6 @@ namespace Weknow.EventSource.Backbone
         /// <param name="announcement">The announcement.</param>
         /// <param name="consumerPlan">The consumer plan.</param>
         /// <returns></returns>
-        Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(Announcement announcement, IConsumerPlan consumerPlan) where TCast: T;
+        Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(Announcement announcement, IConsumerPlan consumerPlan) where TCast : T;
     }
 }

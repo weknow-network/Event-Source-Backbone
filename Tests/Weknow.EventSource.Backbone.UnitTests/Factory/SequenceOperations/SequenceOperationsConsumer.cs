@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+﻿using System.Threading.Tasks.Dataflow;
 
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     public class SequenceOperationsConsumer : ISequenceOperationsConsumer
     {
-        private ActionBlock<User> _block = new ActionBlock<User>(
+        private readonly ActionBlock<User> _block = new ActionBlock<User>(
                             u => Console.WriteLine(u.Details.Id),
                             new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 10 });
         public ValueTask RegisterAsync(User user)

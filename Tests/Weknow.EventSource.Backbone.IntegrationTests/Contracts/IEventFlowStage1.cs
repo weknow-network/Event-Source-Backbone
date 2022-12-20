@@ -1,8 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.UnitTests.Entities
+﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     [GenerateEventSource(EventSourceGenType.Consumer)]
     public interface IEventFlowStage1

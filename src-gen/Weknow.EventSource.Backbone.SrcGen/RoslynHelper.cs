@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace Microsoft.CodeAnalysis
+﻿namespace Microsoft.CodeAnalysis
 {
     internal static class RoslynHelper
     {

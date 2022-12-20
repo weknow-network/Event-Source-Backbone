@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     [Obsolete("Deprecated, use GenerateEventSourceAttribute instead", true)]
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = true)]

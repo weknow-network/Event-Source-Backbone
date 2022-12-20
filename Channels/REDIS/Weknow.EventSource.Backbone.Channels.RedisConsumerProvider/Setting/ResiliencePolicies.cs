@@ -1,8 +1,4 @@
-﻿
-using System;
-using Microsoft.Extensions.Logging;
-using Polly;
-using System.Threading.Tasks;
+﻿using Polly;
 using Polly.CircuitBreaker;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider

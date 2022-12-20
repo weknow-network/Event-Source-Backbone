@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Bridge segmentation

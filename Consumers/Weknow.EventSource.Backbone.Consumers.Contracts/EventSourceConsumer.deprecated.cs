@@ -1,14 +1,9 @@
-﻿
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Base class for the consumer's code generator
     /// </summary>
-    [Obsolete ("Deprecated", true)]
+    [Obsolete("Deprecated", true)]
     public static class EventSourceConsumer
     {
         #region GetParameterAsync

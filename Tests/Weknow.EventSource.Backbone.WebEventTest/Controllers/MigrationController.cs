@@ -1,14 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Filters;
-using StackExchange.Redis;
-using Refit;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Weknow.EventSource.Backbone.WebEventTest.Controllers
 {

@@ -1,20 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using Polly;
-using Polly.Registry;
-
-using StackExchange.Redis;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Weknow.EventSource.Backbone.Private;
-
-using static System.Math;
+﻿using Polly;
 
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider

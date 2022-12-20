@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Responsible to load information from storage.
@@ -30,7 +23,7 @@ namespace Weknow.EventSource.Backbone
         ValueTask<Bucket> LoadBucketAsync(
             Metadata meta,
             Bucket prevBucket,
-            EventBucketCategories type, 
+            EventBucketCategories type,
             Func<string, string> getProperty,
             CancellationToken cancellation = default);
     }

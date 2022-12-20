@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using Weknow.EventSource.Backbone.Channels.RedisProvider;
 
 namespace Weknow.EventSource.Backbone.Channels
 {
@@ -61,7 +53,7 @@ namespace Weknow.EventSource.Backbone.Channels
                                                                     Metadata meta,
                                                                     CancellationToken cancellation)
         {
-                var conn = await _connFactory.GetAsync();
+            var conn = await _connFactory.GetAsync();
             try
             {
                 IDatabaseAsync db = conn.GetDatabase();

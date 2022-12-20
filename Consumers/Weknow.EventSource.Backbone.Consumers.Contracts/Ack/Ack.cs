@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Acknowledge context
@@ -10,7 +6,7 @@ namespace Weknow.EventSource.Backbone
     /// <seealso cref="System.IAsyncDisposable" />
     public static class Ack
     {
-        private static AsyncLocal<IAck> _context = new AsyncLocal<IAck>();
+        private static readonly AsyncLocal<IAck> _context = new AsyncLocal<IAck>();
         public static readonly IAck Empty = NOP.Default;
 
         #region Ctor
@@ -54,7 +50,7 @@ namespace Weknow.EventSource.Backbone
         /// Empty implementation
         /// </summary>
         /// <seealso cref="Weknow.EventSource.Backbone.IAck" />
-        private struct NOP : IAck
+        private readonly struct NOP : IAck
         {
             public static readonly IAck Default = new NOP();
             /// <summary>

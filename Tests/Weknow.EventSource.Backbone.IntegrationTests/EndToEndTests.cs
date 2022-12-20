@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using System.Text.Json;
+using System.Threading.Tasks.Dataflow;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
@@ -6,25 +10,14 @@ using Polly;
 
 using StackExchange.Redis;
 
-using System;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
 
-using static Weknow.EventSource.Backbone.EventSourceConstants;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
-using System.Threading.Tasks.Dataflow;
-using FakeItEasy.Configuration;
-#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
+using static Weknow.EventSource.Backbone.EventSourceConstants;
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
@@ -49,11 +42,11 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly IEventFlowStage1Consumer _stage1Consumer = A.Fake<IEventFlowStage1Consumer>();
         private readonly IEventFlowStage2Consumer _stage2Consumer = A.Fake<IEventFlowStage2Consumer>();
 
-        private string ENV = $"Development";
-        private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string ENV = $"Development";
+        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
-        private ILogger _fakeLogger = A.Fake<ILogger>();
+        private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
         private const int TIMEOUT = 1_000 * 50;
 
@@ -395,7 +388,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Receiver_Json_Test
 
-        record TestEmailPass(string email, string password);
+        private record TestEmailPass(string email, string password);
 
 
         [Fact(Timeout = TIMEOUT)]
@@ -845,8 +838,8 @@ namespace Weknow.EventSource.Backbone.Tests
             int i = 0;
             var options = new ConsumerAsyncEnumerableJsonOptions
             {
-                OperationFilter = meta => meta.Operation == nameof(ISequenceOperationsConsumer.LoginAsync) ||
-                                          meta.Operation == nameof(ISequenceOperationsConsumer.EarseAsync)
+                OperationFilter = meta => meta.Operation is (nameof(ISequenceOperationsConsumer.LoginAsync)) or
+                                          (nameof(ISequenceOperationsConsumer.EarseAsync))
             };
             await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable(options).WithCancellation(cancellation))
             {
@@ -1046,7 +1039,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed)  with { FetchUntilDateOrEmpty = DateTimeOffset.UtcNow })
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with { FetchUntilDateOrEmpty = DateTimeOffset.UtcNow })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -1722,12 +1715,12 @@ namespace Weknow.EventSource.Backbone.Tests
 
             await using IConsumerLifetime subscription = consumerPipe
                             .WithOptions(o => o with
-                                        { 
-                                            ClaimingTrigger = o.ClaimingTrigger with 
-                                                    { 
-                                                        MinIdleTime = TimeSpan.FromMilliseconds(50) 
-                                                    } 
-                                        })
+                            {
+                                ClaimingTrigger = o.ClaimingTrigger with
+                                {
+                                    MinIdleTime = TimeSpan.FromMilliseconds(50)
+                                }
+                            })
                              .Group(CONSUMER_GROUP)
                              .Name($"TEST OK {DateTime.UtcNow:HH:mm:ss}")
                              .Subscribe(new SequenceOperationsConsumerBridge(_subscriber));

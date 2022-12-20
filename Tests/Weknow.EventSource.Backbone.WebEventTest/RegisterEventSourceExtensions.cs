@@ -1,12 +1,4 @@
-﻿using Microsoft.AspNetCore.Server.Kestrel.Core;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using System.Text.Json;
-using StackExchange.Redis;
-using Weknow.EventSource.Backbone;
-using Newtonsoft.Json.Serialization;
-using System.Text.Json.Serialization;
+﻿using Weknow.EventSource.Backbone;
 
 using Weknow.EventSource.Backbone.WebEventTest;
 

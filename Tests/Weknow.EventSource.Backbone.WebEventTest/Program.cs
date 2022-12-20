@@ -1,23 +1,13 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
 
-using Weknow.EventSource.Backbone.WebEventTest.Jobs;
-using Weknow.EventSource.Backbone;
+using Refit;
+
+using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone.WebEventTest;
-using StackExchange.Redis;
-using Microsoft.OpenApi.Models;
-using Refit;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Weknow.EventSource.Backbone.WebEventTest.Jobs;
 
 const string ENV = $"test";
 

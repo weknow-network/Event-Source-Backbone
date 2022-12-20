@@ -1,15 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using Polly;
-using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using OpenTelemetry.Trace;
+
+using Polly;
+
+using StackExchange.Redis;
+
 using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.Private;
-using OpenTelemetry.Trace;
-using System.Diagnostics;
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using Microsoft.Extensions.Configuration;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -44,7 +44,7 @@ namespace Weknow.EventSource.Backbone
             {
                 var connFactory = new EventSourceRedisConnectionFacroty(logger, configuration, credentialsKeys);
                 var channel = new RedisProducerChannel(
-                                    connFactory,    
+                                    connFactory,
                                     logger ?? EventSourceFallbakLogger.Default,
                                     resiliencePolicy);
                 return channel;

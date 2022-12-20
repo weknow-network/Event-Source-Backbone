@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Server.Kestrel.Core;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+
+using Newtonsoft.Json.Serialization;
+
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System.Text.Json;
-using StackExchange.Redis;
-using Weknow.EventSource.Backbone;
-using Newtonsoft.Json.Serialization;
-using System.Text.Json.Serialization;
 
-using Weknow.EventSource.Backbone.WebEventTest;
-using Newtonsoft.Json;
+using StackExchange.Redis;
+
+using Weknow.EventSource.Backbone;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 

@@ -1,14 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Reflection;
+using System.Text;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 using static Weknow.EventSource.Backbone.Helper;
 
@@ -17,7 +12,7 @@ namespace Weknow.EventSource.Backbone
     [Generator]
     internal class BridgeGenerator : GeneratorBase
     {
-        const string TARGET_ATTRIBUTE = "GenerateEventSourceBridge";
+        private const string TARGET_ATTRIBUTE = "GenerateEventSourceBridge";
 
         public BridgeGenerator() : base(TARGET_ATTRIBUTE)
         {
@@ -34,7 +29,7 @@ namespace Weknow.EventSource.Backbone
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
-            
+
             var verrideInterfaceArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "InterfaceName");
             var overrideInterfaceName = verrideInterfaceArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
@@ -58,7 +53,7 @@ namespace Weknow.EventSource.Backbone
         {
             string prefix = (info.Name ?? interfaceName).StartsWith("I") &&
                 interfaceName.Length > 1 &&
-                Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
+                char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
 
@@ -96,7 +91,7 @@ namespace Weknow.EventSource.Backbone
             string fileName = $"{bridge}Extensions";
 
             builder.AppendLine("\t/// <summary>");
-            builder.AppendLine($"\t/// Subscription bridge extensions for { interfaceName}");
+            builder.AppendLine($"\t/// Subscription bridge extensions for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
@@ -155,7 +150,7 @@ namespace Weknow.EventSource.Backbone
             string fileName = $"{prefix}Bridge";
 
             builder.AppendLine("\t/// <summary>");
-            builder.AppendLine($"\t/// Subscription bridge for { interfaceName}");
+            builder.AppendLine($"\t/// Subscription bridge for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
@@ -322,7 +317,7 @@ namespace Weknow.EventSource.Backbone
             // CopyDocumentation(builder, kind, item, "\t");
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
-                Char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
+                char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
             string fileName = $"{prefix}BridgePipeline";
 
             builder.AppendLine("\t/// <summary>");

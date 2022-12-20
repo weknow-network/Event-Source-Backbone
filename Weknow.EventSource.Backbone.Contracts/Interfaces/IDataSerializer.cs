@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Enable to replace the default serialization

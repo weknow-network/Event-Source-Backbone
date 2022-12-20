@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text.Json.Serialization;
 
 namespace Weknow.EventSource.Backbone
 {    /// <summary>
@@ -13,7 +12,7 @@ namespace Weknow.EventSource.Backbone
      /// Unlike the segments, this part can be flow with
      /// message & will be set as async-context.]]> 
      /// </summary>
-     [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, {Environment}->{Partition}->{Shard}, EventKey:{EventKey}")]
+    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, {Environment}->{Partition}->{Shard}, EventKey:{EventKey}")]
     public record Metadata
     {
         #region MessageId
@@ -87,7 +86,7 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets a linked metadata (usually in case of Origin = Copy).
         /// </summary>
-        public Metadata? Linked { get; init; } 
+        public Metadata? Linked { get; init; }
 
         #endregion // Linked
 
@@ -115,7 +114,7 @@ namespace Weknow.EventSource.Backbone
         /// Converts to string.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString() => $"{EventKey}, {this.Key()}";
 

@@ -1,26 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-
-using Polly;
-
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
+﻿using System.Diagnostics;
+using System.Text.Json;
 
 using Weknow.EventSource.Backbone.Building;
-using System.Text.Json;
-using System.IO;
-
-using static Weknow.EventSource.Backbone.EventSourceConstants;
-using System.Buffers;
-using System.Diagnostics;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace Weknow.EventSource.Backbone
 {
-    partial class ConsumerBuilder
+    public partial class ConsumerBuilder
     {
         #region private class Receiver
 
@@ -66,7 +51,7 @@ namespace Weknow.EventSource.Backbone
             #endregion // Environment
 
 
-           /// <summary>
+            /// <summary>
             /// replace the partition of the stream key.
             /// for example: production:partition-name:shard-name
             /// </summary>

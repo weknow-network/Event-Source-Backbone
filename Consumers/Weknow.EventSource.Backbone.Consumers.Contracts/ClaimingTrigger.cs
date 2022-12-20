@@ -1,7 +1,4 @@
-﻿
-using System;
-
-// TODO: [bnaya 2021-02] use Record
+﻿// TODO: [bnaya 2021-02] use Record
 
 namespace Weknow.EventSource.Backbone
 {

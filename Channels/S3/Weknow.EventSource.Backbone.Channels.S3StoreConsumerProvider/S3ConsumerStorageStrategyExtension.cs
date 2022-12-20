@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.Extensions.Logging;
 
-using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.Channels;
 

@@ -4,7 +4,7 @@
     /// <summary>
     /// Event Source raw producer builder.
     /// </summary>
-    public interface IProducerRawBuilder 
+    public interface IProducerRawBuilder
     {
         /// <summary>
         /// <![CDATA[ Ceate Producer proxy for raw events sequence.

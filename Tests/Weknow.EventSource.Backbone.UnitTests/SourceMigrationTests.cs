@@ -1,12 +1,9 @@
 
+using System.Threading.Channels;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
-
-using System;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 using Weknow.EventSource.Backbone.Building;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
@@ -87,9 +84,9 @@ namespace Weknow.EventSource.Backbone
 
             // ASSERT
             Announcement a1 = await _chOfMigration.Reader.ReadAsync();
-            Assert.Equal( MessageOrigin.Copy, a1.Metadata.Origin);
-            Assert.Equal( MessageOrigin.Original, a1.Metadata.Linked.Origin);
-            Assert.Equal( "ExecuteAsync", a1.Metadata.Operation);
+            Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
+            Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
+            Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
             Assert.Equal("Organizations", a1.Metadata.Partition);
             Assert.Equal("Organizations", a1.Metadata.Linked.Partition);
             Assert.Equal("Org: #RedSocks", a1.Metadata.Shard);
@@ -166,16 +163,16 @@ namespace Weknow.EventSource.Backbone
             Announcement a1 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
-            Assert.Equal( "ExecuteAsync", a1.Metadata.Operation);
+            Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
             Assert.Equal("New-Organizations", a1.Metadata.Partition);
             Assert.Equal("Organizations", a1.Metadata.Linked.Partition);
             Assert.Equal("Org: #WhiteSocks", a1.Metadata.Shard);
             Assert.Equal("Org: #RedSocks", a1.Metadata.Linked.Shard);
             Assert.Equal(2, a1.Segments.Count());
             Assert.True(a1.Segments.TryGet("key", out string k1));
-            Assert.Equal( "Id", k1);
+            Assert.Equal("Id", k1);
             Assert.True(a1.Segments.TryGet("value", out int v1));
-            Assert.Equal( 1, v1);
+            Assert.Equal(1, v1);
 
             Announcement a2 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a2.Metadata.Origin);
@@ -186,7 +183,7 @@ namespace Weknow.EventSource.Backbone
             Assert.Equal("Org: #WhiteSocks", a2.Metadata.Shard);
             Assert.Equal("Org: #RedSocks", a2.Metadata.Linked.Shard);
             Assert.Equal(2, a1.Segments.Count());
-            Assert.True(a2.Segments.TryGet("id", out int i2 ));
+            Assert.True(a2.Segments.TryGet("id", out int i2));
             Assert.Equal(1, i2);
             Assert.True(a2.Segments.TryGet("date", out DateTime d2));
 
@@ -199,7 +196,7 @@ namespace Weknow.EventSource.Backbone
             Assert.Equal("Org: #WhiteSocks", a3.Metadata.Shard);
             Assert.Equal("Org: #RedSocks", a3.Metadata.Linked.Shard);
             Assert.Equal(2, a1.Segments.Count());
-            Assert.True(a3.Segments.TryGet("id", out int i3 ));
+            Assert.True(a3.Segments.TryGet("id", out int i3));
             Assert.Equal(2, i3);
             Assert.True(a3.Segments.TryGet("date", out DateTime d3));
 

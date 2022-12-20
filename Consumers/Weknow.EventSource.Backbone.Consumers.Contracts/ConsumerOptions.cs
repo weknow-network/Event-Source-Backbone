@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     public record ConsumerOptions :
         EventSourceOptions
@@ -43,12 +41,12 @@ namespace Weknow.EventSource.Backbone
         /// <value>
         ///   <c>true</c> if [stop when empty]; otherwise, <c>false</c>.
         /// </value>
-        public DateTimeOffset? FetchUntilDateOrEmpty 
+        public DateTimeOffset? FetchUntilDateOrEmpty
         {
             get
             {
                 var value = FetchUntilUnixDateOrEmpty;
-                return  (value == null) 
+                return (value == null)
                             ? null
                             : DateTimeOffset.FromUnixTimeMilliseconds(value.Value);
             }
@@ -115,8 +113,9 @@ namespace Weknow.EventSource.Backbone
         /// <summary>
         /// Gets the maximum messages to consume before detaching the subscription.
         /// any number > 0 will activate this mechanism.
+        /// Make sure to set it to Origin in case you have clone the stream (copy) and you don't want to process copied messages.
         /// </summary>
-        public MessageOrigin OriginFilter { get; init; } = MessageOrigin.Original;
+        public MessageOrigin OriginFilter { get; init; } = MessageOrigin.None;
 
         #endregion OriginFilter 
 

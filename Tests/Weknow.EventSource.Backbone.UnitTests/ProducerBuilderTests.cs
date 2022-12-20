@@ -1,14 +1,10 @@
+using System.Threading.Channels;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using System;
-using System.Linq;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.UnitTests;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;

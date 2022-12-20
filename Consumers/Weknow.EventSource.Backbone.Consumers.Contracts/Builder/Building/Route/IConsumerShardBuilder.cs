@@ -3,7 +3,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerShardBuilder:
+    public interface IConsumerShardBuilder :
         IConsumerReadyBuilder, IConsumerShardOfBuilder<IConsumerReadyBuilder>
     {
     }

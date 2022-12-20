@@ -323,17 +323,13 @@ namespace Weknow.EventSource.Backbone
             string? shard = null,
             RouteAssignmentType type = RouteAssignmentType.Replace)
         {
-            switch (type)
+            return type switch
             {
-                case RouteAssignmentType.Prefix:
-                    return new ProducerPlan(this, environment: environment, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}");
-                case RouteAssignmentType.Replace:
-                    return new ProducerPlan(this, environment: environment, partition: partition ?? this.Partition, shard: shard ?? this.Shard);
-                case RouteAssignmentType.Suffix:
-                    return new ProducerPlan(this, environment: environment, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}");
-                default:
-                    return this;
-            }
+                RouteAssignmentType.Prefix => new ProducerPlan(this, environment: environment, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, environment: environment, partition: partition ?? this.Partition, shard: shard ?? this.Shard),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, environment: environment, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}"),
+                _ => this,
+            };
         }
 
         #endregion // WithEnvironment
@@ -350,17 +346,13 @@ namespace Weknow.EventSource.Backbone
         public ProducerPlan WithPartition(string partition, string? shard = null,
             RouteAssignmentType type = RouteAssignmentType.Replace)
         {
-            switch (type)
+            return type switch
             {
-                case RouteAssignmentType.Prefix:
-                    return new ProducerPlan(this, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}");
-                case RouteAssignmentType.Replace:
-                    return new ProducerPlan(this, partition: partition, shard: shard ?? this.Shard);
-                case RouteAssignmentType.Suffix:
-                    return new ProducerPlan(this, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}");
-                default:
-                    return this;
-            }
+                RouteAssignmentType.Prefix => new ProducerPlan(this, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, partition: partition, shard: shard ?? this.Shard),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}"),
+                _ => this,
+            };
         }
 
         #endregion // WithPartition
@@ -376,17 +368,13 @@ namespace Weknow.EventSource.Backbone
         public ProducerPlan WithShard(string shard,
             RouteAssignmentType type = RouteAssignmentType.Replace)
         {
-            switch (type)
+            return type switch
             {
-                case RouteAssignmentType.Prefix:
-                    return new ProducerPlan(this, shard: $"{shard}{this.Shard}");
-                case RouteAssignmentType.Replace:
-                    return new ProducerPlan(this, shard: shard ?? this.Shard);
-                case RouteAssignmentType.Suffix:
-                    return new ProducerPlan(this, shard: $"{this.Shard}{shard}");
-                default:
-                    return this;
-            }
+                RouteAssignmentType.Prefix => new ProducerPlan(this, shard: $"{shard}{this.Shard}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, shard: shard ?? this.Shard),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, shard: $"{this.Shard}{shard}"),
+                _ => this,
+            };
         }
 
         #endregion // WithShard

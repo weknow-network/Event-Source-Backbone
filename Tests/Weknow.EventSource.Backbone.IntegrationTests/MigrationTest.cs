@@ -14,7 +14,6 @@ using Xunit;
 using Xunit.Abstractions;
 
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
@@ -133,11 +132,11 @@ namespace Weknow.EventSource.Backbone.Tests
             #endregion // ISequenceOperations producer = ...
 
             IRawProducer rawProducer = _producerBuilder
-                                            .Environment("Migrated") 
+                                            .Environment("Migrated")
                                             .BuildRaw();
 
             await SendSequenceAsync(producer);
-            SubscriptionBridge subscriberBridge = new (rawProducer);
+            SubscriptionBridge subscriberBridge = new(rawProducer);
 
             CancellationToken cancellation = GetCancellationToken();
 

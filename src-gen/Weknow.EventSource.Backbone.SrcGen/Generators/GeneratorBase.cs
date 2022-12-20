@@ -1,12 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Text;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using static Weknow.EventSource.Backbone.Helper;
 
@@ -62,7 +57,7 @@ namespace Weknow.EventSource.Backbone
 
             foreach (var info in syntax.Contracts)
             {
-                if(_kindFilter == nameof(KindFilter.Any) || info.Kind == _kindFilter)
+                if (_kindFilter == nameof(KindFilter.Any) || info.Kind == _kindFilter)
                     ExecuteSingle(context, info);
             }
         }
@@ -96,7 +91,7 @@ namespace Weknow.EventSource.Backbone
 
                 foreach (var u in usn)
                 {
-                    if(!usingSet.Contains(u))
+                    if (!usingSet.Contains(u))
                         usingSet.Add(u);
                 }
 

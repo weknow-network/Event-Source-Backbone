@@ -1,27 +1,19 @@
+using System.Diagnostics;
+using System.Threading.Tasks.Dataflow;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using Polly;
-
 using StackExchange.Redis;
 
-using System;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Building;
-using Weknow.EventSource.Backbone.Channels.RedisProvider;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;
 
-using static Weknow.EventSource.Backbone.EventSourceConstants;
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using System.Threading.Tasks.Dataflow;
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
@@ -34,11 +26,11 @@ namespace Weknow.EventSource.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerHooksBuilder _consumerBuilder;
 
-        private string ENV = $"test";
-        private string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string ENV = $"test";
+        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
-        private ILogger _fakeLogger = A.Fake<ILogger>();
+        private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
         private const int TIMEOUT = 1000 * 30;
 

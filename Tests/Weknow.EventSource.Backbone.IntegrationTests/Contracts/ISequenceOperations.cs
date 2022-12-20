@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.UnitTests.Entities
+﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     /// <summary>
     /// The sequence operations.

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -30,9 +24,9 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         ValueTask<IImmutableDictionary<string, string>> SaveBucketAsync(
             string id,
-            Bucket bucket, 
-            EventBucketCategories type, 
-            Metadata meta, 
+            Bucket bucket,
+            EventBucketCategories type,
+            Metadata meta,
             CancellationToken cancellation = default);
     }
 

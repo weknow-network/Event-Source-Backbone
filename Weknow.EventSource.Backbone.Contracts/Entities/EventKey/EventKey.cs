@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-using static Weknow.Text.Json.Constants;
-using static Weknow.EventSource.Backbone.EventSourceConstants;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Event Id
@@ -46,7 +36,7 @@ namespace Weknow.EventSource.Backbone
         /// Converts to string.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {

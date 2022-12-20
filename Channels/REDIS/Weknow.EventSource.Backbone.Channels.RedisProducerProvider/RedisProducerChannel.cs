@@ -1,21 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Text.Json;
+
+using Microsoft.Extensions.Logging;
+
+using OpenTelemetry;
 
 using Polly;
 
 using StackExchange.Redis;
 
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.Json;
-
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using OpenTelemetry;
-using System.Diagnostics;
-using OpenTelemetry.Context.Propagation;
-using System.Text;
 
 namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 {
@@ -161,12 +156,12 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     }
                     else
                     {
-                       await SaveBucketAsync(_defaultStorageStrategy);
+                        await SaveBucketAsync(_defaultStorageStrategy);
                     }
 
                     async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                     {
-                        IImmutableDictionary<string, string> metaItems = 
+                        IImmutableDictionary<string, string> metaItems =
                             await strategy.SaveBucketAsync(id, bucket, storageType, meta);
                         foreach (var item in metaItems)
                         {

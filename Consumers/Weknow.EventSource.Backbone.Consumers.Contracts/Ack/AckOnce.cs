@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Weknow.EventSource.Backbone
 {
     /// <summary>

@@ -1,11 +1,4 @@
-﻿using OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
-
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Weknow.EventSource.Backbone

@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-using Weknow.EventSource.Backbone.Building;
+﻿using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
 {

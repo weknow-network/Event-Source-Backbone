@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-
-namespace Weknow.EventSource.Backbone.Channels
+﻿namespace Weknow.EventSource.Backbone.Channels
 {
     /// <summary>
     /// Response structure
@@ -44,7 +39,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
         #region Key
 
-        private string _key =  string.Empty;
+        private string _key = string.Empty;
         /// <summary>
         /// Gets or sets the key.
         /// </summary>
@@ -74,7 +69,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
         #region FileName
 
-        private string? _fileName =  string.Empty;
+        private string? _fileName = string.Empty;
         /// <summary>
         /// Gets or sets the file name.
         /// </summary>
@@ -104,7 +99,7 @@ namespace Weknow.EventSource.Backbone.Channels
 
         #region ContentVersion
 
-        private string _contentVersion =  string.Empty;
+        private string _contentVersion = string.Empty;
         /// <summary>
         /// Gets or sets the contentVersion.
         /// </summary>

@@ -125,8 +125,11 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Fail to subscribe into the [{partition}->{shard}] event stream",
-                        plan.Partition, plan.Shard);
+                    if (_logger == null)
+                        Console.WriteLine($"Fail to subscribe into the [{plan.Key()}] event stream");
+                    else
+                        _logger.LogError(ex, "Fail to subscribe into the [{partition}->{shard}] event stream",
+                            plan.Partition, plan.Shard);
                     throw;
                 }
 
@@ -326,10 +329,28 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #endregion // Metadata meta = ...
 
+                        int local = i;
+                        var cancellableIds = results[local..].Select(m => m.Id);
+                        var ack = new AckOnce(
+                                        () => AckAsync(result.Id),
+                                        plan.Options.AckBehavior, logger,
+                                        async () =>
+                                        {
+                                            batchCancellation.CancelSafe(); // cancel forward
+                                            await CancelAsync(cancellableIds);
+                                        });
+
                         #region OriginFilter
 
-                        if (plan.Options.OriginFilter != MessageOrigin.None && (plan.Options.OriginFilter & meta.Origin) == MessageOrigin.None)
+                        MessageOrigin originFilter = plan.Options.OriginFilter;
+                        if (originFilter != MessageOrigin.None && (originFilter & meta.Origin) == MessageOrigin.None)
                         {
+                            Ack.Set(ack);
+                            #region Log
+
+                            _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.Key());
+
+                            #endregion // Log
                             continue;
                         }
 
@@ -349,17 +370,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #endregion // var announcement = new Announcement(...)
 
-                        int local = i;
-                        var cancellableIds = results[local..].Select(m => m.Id);
-                        var ack = new AckOnce(
-                                        () => AckAsync(result.Id),
-                                        plan.Options.AckBehavior, logger,
-                                        async () =>
-                                        {
-                                            batchCancellation.CancelSafe(); // cancel forward
-                                            await CancelAsync(cancellableIds);
-                                        });
-
                         #region Start Telemetry Span
 
                         ActivityContext parentContext = meta.ExtractSpan(channelMeta, ExtractTraceContext);
@@ -368,7 +378,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                         var activityName = $"{meta.Operation} consume";
 
                         bool traceAsParent = (DateTimeOffset.UtcNow - meta.ProducedAt) < plan.Options.TraceAsParent;
-                        ActivityContext parentActivityContext = traceAsParent ? parentContext : default(ActivityContext);
+                        ActivityContext parentActivityContext = traceAsParent ? parentContext : default;
                         using var activity = ACTIVITY_SOURCE.StartActivity(
                                                                 activityName,
                                                                 ActivityKind.Consumer,
@@ -547,7 +557,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             if (ids.Length == 0)
                                 continue;
 
-                            plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                            #region Log
+
+                            if (plan.Logger == null)
+                                Console.WriteLine($"Event Source Consumer [{plan.ConsumerName}]: Claimed {c.PendingMessageCount} messages, from Consumer [{c.Name}]");
+                            else
+                                plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+
+                            #endregion // Log
+
                             // will claim messages only if older than _setting.ClaimingTrigger.MinIdleTime
                             values = await db.StreamClaimAsync(key,
                                                       plan.ConsumerGroup,

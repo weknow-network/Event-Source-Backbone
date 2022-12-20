@@ -2,11 +2,6 @@
 
 using StackExchange.Redis;
 
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Weknow.EventSource.Backbone.Private
 {
     /// <summary>
@@ -83,7 +78,7 @@ namespace Weknow.EventSource.Backbone.Private
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists:  unexpected failure. {info}", CurrentInfo());                  
+                    logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists:  unexpected failure. {info}", CurrentInfo());
                 }
 
                 #endregion // Exception Handling

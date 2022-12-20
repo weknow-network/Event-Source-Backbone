@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-using Weknow.EventSource.Backbone;
 using Weknow.EventSource.Backbone.Building;
 
 // TODO: Register the service at the Program.cs file services.AddHostedService<...>
@@ -53,7 +44,7 @@ namespace Weknow.EventSource.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            _builder.Group("Demo-GROUP")                
+            _builder.Group("Demo-GROUP")
                     .SubscribeEventFlowConsumer(new Subscriber(_logger, _producer));
 
             var tcs = new TaskCompletionSource();

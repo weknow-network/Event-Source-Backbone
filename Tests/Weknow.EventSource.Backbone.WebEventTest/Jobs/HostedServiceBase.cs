@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Microsoft.Extensions.Hosting
+﻿namespace Microsoft.Extensions.Hosting
 {
     /// <summary>
     /// Base class for hosted services (workers) which 

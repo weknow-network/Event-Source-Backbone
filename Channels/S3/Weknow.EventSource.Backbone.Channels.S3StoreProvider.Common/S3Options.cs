@@ -3,7 +3,7 @@
     /// <summary>
     /// S3 provider options
     /// </summary>
-    public record struct S3Options
+    public readonly record struct S3Options
     {
         public S3Options()
         {

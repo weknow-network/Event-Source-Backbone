@@ -2,7 +2,6 @@
 
 using Polly;
 
-using Weknow.EventSource.Backbone;
 using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
@@ -10,7 +9,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerReadyBuilder: IConsumerSubscribeBuilder
+    public interface IConsumerReadyBuilder : IConsumerSubscribeBuilder
     {
         /// <summary>
         /// Attach logger.

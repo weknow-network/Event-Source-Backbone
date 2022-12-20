@@ -1,13 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Text;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using static Weknow.EventSource.Backbone.Helper;
 
@@ -16,7 +11,7 @@ namespace Weknow.EventSource.Backbone
     [Generator]
     internal class ContractGenerator : GeneratorBase
     {
-        const string TARGET_ATTRIBUTE = "GenerateEventSource";
+        private const string TARGET_ATTRIBUTE = "GenerateEventSource";
         private readonly BridgeGenerator _bridge = new BridgeGenerator();
 
         public ContractGenerator() : base(TARGET_ATTRIBUTE)
@@ -78,7 +73,7 @@ namespace Weknow.EventSource.Backbone
             if (!contractOnly)
                 _bridge.ExecuteSingle(context, info);
 
-            return new[] { new GenInstruction(interfaceName, builder.ToString())};
+            return new[] { new GenInstruction(interfaceName, builder.ToString()) };
         }
     }
 }

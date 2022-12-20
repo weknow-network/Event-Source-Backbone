@@ -1,14 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using static Weknow.EventSource.Backbone.Helper;
 
@@ -163,7 +157,7 @@ namespace Weknow.EventSource.Backbone
                     continue;
                 string mtdName = mds.Identifier.ValueText;
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
-                string fullRecordName = $"{ recordPrefix }_{ recordSuffix}";
+                string fullRecordName = $"{recordPrefix}_{recordSuffix}";
 
                 string nameOfOperetion = $"{info.Name ?? interfaceName}.{mtdName}";
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";

@@ -25,7 +25,7 @@ namespace Weknow.EventSource.Backbone
         #region Cast overloads
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Env"/>.
+        /// Performs an implicit conversion from <see cref="string"/> to <see cref="Env"/>.
         /// </summary>
         /// <param name="env">The env.</param>
         /// <returns>
@@ -34,7 +34,7 @@ namespace Weknow.EventSource.Backbone
         public static implicit operator Env(string env) => new Env(env);
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="Env"/> to <see cref="System.String"/>.
+        /// Performs an implicit conversion from <see cref="Env"/> to <see cref="string"/>.
         /// </summary>
         /// <param name="env">The env.</param>
         /// <returns>

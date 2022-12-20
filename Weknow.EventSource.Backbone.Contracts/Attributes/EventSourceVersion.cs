@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Event source's version control.
@@ -22,7 +16,7 @@ namespace Weknow.EventSource.Backbone
         /// Initializes a new instance of the <see cref="GenerateEventSourceAttribute" /> class.
         /// </summary>
         /// <param name="version">The version which will be produce.</param>
-        public EventSourceVersionAttribute(ushort version) 
+        public EventSourceVersionAttribute(ushort version)
         {
             Version = version;
         }

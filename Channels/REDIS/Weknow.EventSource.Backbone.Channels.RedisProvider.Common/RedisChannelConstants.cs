@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.Channels.RedisProvider.Common
+﻿namespace Weknow.EventSource.Backbone.Channels.RedisProvider.Common
 {
     public static class RedisChannelConstants
     {

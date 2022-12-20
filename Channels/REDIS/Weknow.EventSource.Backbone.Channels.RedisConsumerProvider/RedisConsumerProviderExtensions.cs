@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using Polly;
-using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
-using Weknow.EventSource.Backbone.Channels.RedisProvider;
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
+
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Channels.RedisProvider;
 
 namespace Weknow.EventSource.Backbone
 {

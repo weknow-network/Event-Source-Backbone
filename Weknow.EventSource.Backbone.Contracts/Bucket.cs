@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 
@@ -262,8 +257,8 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public static implicit operator ImmutableDictionary<string, string>(Bucket instance)
         {
-            var result = instance.Aggregate(ImmutableDictionary<string, string>.Empty , 
-                (acc,m) =>
+            var result = instance.Aggregate(ImmutableDictionary<string, string>.Empty,
+                (acc, m) =>
             {
                 byte[] bytes = m.Value.ToArray();
                 var json = Encoding.UTF8.GetString(bytes);

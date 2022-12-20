@@ -1,14 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
     /// <summary>
     /// Preform acknowledge (which should prevent the 
     /// message from process again by the consumer)
     /// </summary>
     /// <seealso cref="System.IAsyncDisposable" />
-    public interface IAck: IAsyncDisposable
+    public interface IAck : IAsyncDisposable
     {
         /// <summary>
         /// Preform acknowledge (which should prevent the 

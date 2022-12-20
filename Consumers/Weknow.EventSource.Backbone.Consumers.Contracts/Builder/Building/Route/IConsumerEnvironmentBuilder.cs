@@ -3,8 +3,8 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerEnvironmentBuilder : 
-        IConsumerPartitionBuilder<IConsumerShardBuilder>, 
+    public interface IConsumerEnvironmentBuilder :
+        IConsumerPartitionBuilder<IConsumerShardBuilder>,
         IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerShardBuilder>>
     {
     }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IProducerHooksBuilder:
+    public interface IProducerHooksBuilder :
         IProducerLoggerBuilder
     {
         #region Parameters
@@ -71,7 +71,7 @@
         /// </example>
         IProducerHooksBuilder UseSegmentation(
                                 IProducerSegmentationStrategy segmentationStrategy);
-       
+
         ///// <summary>
         ///// Register segmentation strategy,
         ///// Segmentation responsible of splitting an instance into segments.

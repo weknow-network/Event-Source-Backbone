@@ -1,9 +1,8 @@
-﻿using OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
-
-using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics;
+
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 
 namespace Weknow.EventSource.Backbone
 {

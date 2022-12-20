@@ -1,12 +1,9 @@
-﻿
-using Weknow.EventSource.Backbone.Building;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Enable configuration.
     /// </summary>
-    public interface IProducerShardBuilder: IProducerRawBuilder, IProducerLoggerBuilder<IProducerShardBuilder>
+    public interface IProducerShardBuilder : IProducerRawBuilder, IProducerLoggerBuilder<IProducerShardBuilder>
     {
         /// <summary>
         /// Shard key represent physical sequence.

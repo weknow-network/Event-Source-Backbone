@@ -18,7 +18,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IProducerLoggerBuilder: IProducerSpecializeBuilder, IProducerLoggerBuilder<IProducerSpecializeBuilder>
+    public interface IProducerLoggerBuilder : IProducerSpecializeBuilder, IProducerLoggerBuilder<IProducerSpecializeBuilder>
     {
     }
 }

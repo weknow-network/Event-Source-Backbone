@@ -1,26 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-
-using Polly;
-
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 using Weknow.EventSource.Backbone.Building;
-using System.Text.Json;
-using System.IO;
-
-using static Weknow.EventSource.Backbone.EventSourceConstants;
-using System.Buffers;
-using System.Diagnostics;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace Weknow.EventSource.Backbone
 {
-    partial class ConsumerBuilder
+    public partial class ConsumerBuilder
     {
         #region private class Iterator
 
@@ -93,7 +79,7 @@ namespace Weknow.EventSource.Backbone
             async IAsyncEnumerable<Announcement> IConsumerIteratorCommands.GetAsyncEnumerable(
                 ConsumerAsyncEnumerableOptions? options,
                 [EnumeratorCancellation] CancellationToken cancellationToken)
-            { 
+            {
                 var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken).WithCancellation(cancellationToken);
                 await foreach (var announcement in loop.WithCancellation(cancellationToken))
                 {
@@ -115,7 +101,7 @@ namespace Weknow.EventSource.Backbone
             /// <returns></returns>
             async IAsyncEnumerable<JsonElement> IConsumerIteratorCommands.GetJsonAsyncEnumerable(
                 ConsumerAsyncEnumerableJsonOptions? options,
-                [EnumeratorCancellation]CancellationToken cancellationToken)
+                [EnumeratorCancellation] CancellationToken cancellationToken)
             {
                 var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
                 await foreach (Announcement announcement in loop.WithCancellation(cancellationToken))
@@ -184,7 +170,7 @@ namespace Weknow.EventSource.Backbone
             IAsyncEnumerable<Announcement> IConsumerIteratorCommands.GetAsyncEnumerable(
                 ConsumerAsyncEnumerableOptions? options,
                 CancellationToken cancellationToken)
-            { 
+            {
                 return _iterator.GetAsyncEnumerable(options, cancellationToken);
             }
 
@@ -218,7 +204,7 @@ namespace Weknow.EventSource.Backbone
             /// <returns></returns>
             async IAsyncEnumerable<TCast> IConsumerIteratorCommands<TEntityFamily>.GetAsyncEnumerable<TCast>(
                 ConsumerAsyncEnumerableOptions? options,
-                [EnumeratorCancellation]CancellationToken cancellationToken)
+                [EnumeratorCancellation] CancellationToken cancellationToken)
             {
                 var loop = _plan.Channel.GetAsyncEnumerable(_plan, options, cancellationToken);
                 await foreach (Announcement announcement in loop.WithCancellation(cancellationToken))
@@ -229,7 +215,7 @@ namespace Weknow.EventSource.Backbone
 
                     var (result, succeed) = await _mapper.TryMapAsync<TCast>(announcement, _plan);
 
-                    if(succeed && result != null)
+                    if (succeed && result != null)
                         yield return result;
                 }
             }

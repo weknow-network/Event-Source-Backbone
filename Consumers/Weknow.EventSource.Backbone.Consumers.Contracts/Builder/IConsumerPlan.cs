@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using Polly;
-
-using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 using Weknow.EventSource.Backbone.Building;
 

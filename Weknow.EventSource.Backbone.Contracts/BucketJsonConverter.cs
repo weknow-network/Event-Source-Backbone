@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using static Weknow.EventSource.Backbone.EventSourceOptions;
@@ -46,7 +45,7 @@ namespace Weknow.EventSource.Backbone
             JsonSerializerOptions options)
         {
             var data = JsonSerializer.Deserialize<BucketData>(ref reader, SerializerOptions);
-            Bucket result = data  ?? BucketData.Empty;
+            Bucket result = data ?? BucketData.Empty;
             return result;
         }
 

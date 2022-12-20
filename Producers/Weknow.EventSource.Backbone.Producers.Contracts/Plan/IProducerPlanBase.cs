@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
 using Microsoft.Extensions.Logging;
-
-using Weknow.EventSource.Backbone.Building;
 
 namespace Weknow.EventSource.Backbone
 {

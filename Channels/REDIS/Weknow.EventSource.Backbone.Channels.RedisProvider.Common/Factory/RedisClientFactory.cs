@@ -1,21 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Reflection;
+using System.Text;
 
-using Polly;
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Weknow.EventSource.Backbone.Private;
 
 using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
@@ -26,12 +14,10 @@ namespace Weknow.EventSource.Backbone
     /// </summary>
     public static class RedisClientFactory
     {
-#pragma warning disable ConstFieldDocumentationHeader // The field must have a documentation header.
         private static int _index = 0;
         private const string CONNECTION_NAME_PATTERN = "ev-src:{0}:{1}:{2}";
         private static readonly string? ASSEMBLY_NAME = Assembly.GetEntryAssembly()?.GetName()?.Name?.ToDash();
         private static readonly Version? ASSEMBLY_VERSION = Assembly.GetEntryAssembly()?.GetName()?.Version;
-#pragma warning restore ConstFieldDocumentationHeader // The field must have a documentation header.
 
         /// <summary>
         /// Blocking Create REDIS client.

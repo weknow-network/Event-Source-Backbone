@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-using Refit;
+﻿using Refit;
 
 namespace Weknow.EventSource.Backbone.WebEventTest
 {
@@ -23,6 +15,6 @@ namespace Weknow.EventSource.Backbone.WebEventTest
         /// <param name="announcement">The announcement.</param>
         /// <returns></returns>
         [Post("")]
-        Task ForwardEventAsync([Body]Announcement announcement);
+        Task ForwardEventAsync([Body] Announcement announcement);
     }
 }

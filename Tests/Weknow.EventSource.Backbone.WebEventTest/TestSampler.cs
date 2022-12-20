@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 
 using OpenTelemetry.Trace;
-
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 
 
 namespace Microsoft.Extensions.Configuration
@@ -15,7 +12,7 @@ namespace Microsoft.Extensions.Configuration
     /// <seealso cref="OpenTelemetry.Trace.Sampler" />
     internal class TestSampler : Sampler
     {
-        private Sampler? _sampler;
+        private readonly Sampler? _sampler;
         private readonly IImmutableSet<string> _ignore = ImmutableHashSet.Create("XPENDING", "XREADGROUP", "XADD", "XACK");
 
         public static Sampler Create(LogLevel logLevel = LogLevel.Information, Sampler? chainedSampler = null)

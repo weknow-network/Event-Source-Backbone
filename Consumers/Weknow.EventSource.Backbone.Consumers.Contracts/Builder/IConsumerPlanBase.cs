@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Immutable;
+
+using Microsoft.Extensions.Logging;
 
 using Polly;
-
-using System;
-using System.Collections.Immutable;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -13,7 +10,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// Common plan properties
     /// </summary>
-    public interface IConsumerPlanBase: IPlanRoute
+    public interface IConsumerPlanBase : IPlanRoute
     {
         /// <summary>
         /// Gets the consumer group.

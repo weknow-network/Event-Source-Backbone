@@ -1,13 +1,4 @@
-﻿using OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
-using OpenTelemetry.Trace;
-
-using StackExchange.Redis;
-
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace Weknow.EventSource.Backbone
 {

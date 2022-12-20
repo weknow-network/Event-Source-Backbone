@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-using static Weknow.Text.Json.Constants;
 
 namespace Weknow.EventSource.Backbone
 {
@@ -120,7 +112,7 @@ namespace Weknow.EventSource.Backbone
         /// Converts to string.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString() => string.Join(", ", _keys);
 

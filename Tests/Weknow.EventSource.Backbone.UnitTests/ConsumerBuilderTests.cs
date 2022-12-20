@@ -2,8 +2,6 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using System;
-
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;

@@ -1,14 +1,6 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using Weknow.EventSource.Backbone;
-
-using static Weknow.EventSource.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 
 namespace Weknow.EventSource.Backbone
@@ -51,7 +43,7 @@ namespace Weknow.EventSource.Backbone
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
             Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default): base(logger, configuration, credentialsKeys)
+            RedisCredentialsKeys credentialsKeys = default) : base(logger, configuration, credentialsKeys)
         {
             //CredentialsKeys = credentialsKeys;
         }

@@ -1,9 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Weknow.EventSource.Backbone.Building;
 
 using static System.String;
@@ -315,7 +311,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        ProducerBuilder WithLogger(ILogger logger)
+        private ProducerBuilder WithLogger(ILogger logger)
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Weknow.EventSource.Backbone.Building
+﻿namespace Weknow.EventSource.Backbone.Building
 {
     /// <summary>
     /// Responsible to load information from storage.
@@ -13,7 +7,7 @@ namespace Weknow.EventSource.Backbone.Building
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    public interface IConsumerStorageStrategyWithFilter: IConsumerStorageStrategy
+    public interface IConsumerStorageStrategyWithFilter : IConsumerStorageStrategy
     {
         /// <summary>
         /// Determines whether is of the right target type.
