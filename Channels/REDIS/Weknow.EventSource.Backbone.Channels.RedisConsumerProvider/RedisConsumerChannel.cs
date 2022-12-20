@@ -526,6 +526,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 StreamEntry[] values,
                 CancellationToken ct)
             {
+                var logger = plan.Logger ?? _logger;
                 ct.ThrowIfCancellationRequested();
                 if (values.Length != 0) return values;
                 if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
@@ -558,11 +559,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                 continue;
 
                             #region Log
-
-                            if (plan.Logger == null)
-                                Console.WriteLine($"Event Source Consumer [{plan.ConsumerName}]: Claimed {c.PendingMessageCount} messages, from Consumer [{c.Name}]");
-                            else
-                                plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                            logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
 
                             #endregion // Log
 
@@ -574,19 +571,19 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                       ids,
                                                       flags: CommandFlags.DemandMaster);
                             if (values.Length != 0)
-                                plan.Logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                                logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
                         }
                         #region Exception Handling
 
                         catch (RedisTimeoutException ex)
                         {
-                            plan.Logger.LogWarning(ex, "Timeout (handle pending): {name}{self}", c.Name, self);
+                            logger.LogWarning(ex, "Timeout (handle pending): {name}{self}", c.Name, self);
                             continue;
                         }
 
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, "Fail to claim pending: {name}{self}", c.Name, self);
+                            logger.LogError(ex, "Fail to claim pending: {name}{self}", c.Name, self);
                         }
 
                         #endregion // Exception Handling

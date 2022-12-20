@@ -5,6 +5,7 @@
 		<DockerfileContext>..\..</DockerfileContext>
 		<Configurations>Debug;Release;Gen</Configurations>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 
@@ -35,12 +36,6 @@
 		<ProjectReference Include="..\..\src-gen\Weknow.EventSource.Backbone.SrcGen\Weknow.EventSource.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Update="icon.png">
-			<PackagePath></PackagePath>
-			<Pack>True</Pack>
-		</None>
-	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />

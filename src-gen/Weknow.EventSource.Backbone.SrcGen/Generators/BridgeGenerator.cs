@@ -191,34 +191,43 @@ namespace Weknow.EventSource.Backbone
 
             builder.AppendLine();
 
-            builder.AppendLine("\t\tasync Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.Append("\t\t");
+            if (item.Members.Count != 0)
+                builder.Append("async ");
+            builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
-            builder.AppendLine("\t\t\t{");
-            foreach (var method in item.Members)
+            if (item.Members.Count != 0)
             {
-                if (method is not MethodDeclarationSyntax mds)
-                    continue;
-                string mtdName = mds.Identifier.ValueText;
-                builder.AppendLine($"\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
-                builder.AppendLine("\t\t\t\t{");
-                var prms = mds.ParameterList.Parameters;
-                int i = 0;
-                foreach (var p in prms)
+                builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
+                builder.AppendLine("\t\t\t{");
+                foreach (var method in item.Members)
                 {
-                    var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
-                    i++;
-                }
-                IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                    if (method is not MethodDeclarationSyntax mds)
+                        continue;
+                    string mtdName = mds.Identifier.ValueText;
+                    builder.AppendLine($"\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
+                    builder.AppendLine("\t\t\t\t{");
+                    var prms = mds.ParameterList.Parameters;
+                    int i = 0;
+                    foreach (var p in prms)
+                    {
+                        var pName = p.Identifier.ValueText;
+                        builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                        i++;
+                    }
+                    IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
-                builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
-                builder.AppendLine("\t\t\t\t\treturn true;");
-                builder.AppendLine("\t\t\t\t}");
+                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
+                    builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
+                    builder.AppendLine("\t\t\t\t\treturn true;");
+                    builder.AppendLine("\t\t\t\t}");
+                }
+                builder.AppendLine("\t\t\t}");
             }
-            builder.AppendLine("\t\t\t}");
-            builder.AppendLine("\t\t\treturn false;");
+            if (item.Members.Count == 0)
+                builder.AppendLine("\t\t\treturn Task.FromResult(false);");
+            else
+                builder.AppendLine("\t\t\treturn false;");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine("\t}");
@@ -254,32 +263,40 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t\t{");
 
-            builder.AppendLine("\t\t\t async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.Append("\t\t\t");
+            if (item.Members.Count != 0)
+                builder.Append("async ");
+            builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t\t{");
-            builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
-            builder.AppendLine("\t\t\t\t{");
-            foreach (var method in item.Members)
+            if (item.Members.Count != 0)
             {
-                if (method is not MethodDeclarationSyntax mds)
-                    continue;
-                string mtdName = mds.Identifier.ValueText;
-                builder.AppendLine($"\t\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
-                builder.AppendLine("\t\t\t\t\t{");
-                var prms = mds.ParameterList.Parameters;
-                int i = 0;
-                foreach (var p in prms)
+                builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
+                builder.AppendLine("\t\t\t\t{");
+                foreach (var method in item.Members)
                 {
-                    var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
-                    i++;
+                    if (method is not MethodDeclarationSyntax mds)
+                        continue;
+                    string mtdName = mds.Identifier.ValueText;
+                    builder.AppendLine($"\t\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
+                    builder.AppendLine("\t\t\t\t\t{");
+                    var prms = mds.ParameterList.Parameters;
+                    int i = 0;
+                    foreach (var p in prms)
+                    {
+                        var pName = p.Identifier.ValueText;
+                        builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                        i++;
+                    }
+                    IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                    builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({string.Join(", ", ps)});");
+                    builder.AppendLine("\t\t\t\t\t\treturn true;");
+                    builder.AppendLine("\t\t\t\t\t}");
                 }
-                IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
-                builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({string.Join(", ", ps)});");
-                builder.AppendLine("\t\t\t\t\t\treturn true;");
-                builder.AppendLine("\t\t\t\t\t}");
+                builder.AppendLine("\t\t\t\t}");
+                builder.AppendLine("\t\t\t\treturn false;");
             }
-            builder.AppendLine("\t\t\t\t}");
-            builder.AppendLine("\t\t\t\treturn false;");
+            else
+                builder.AppendLine("\t\t\t\treturn Task.FromResult(false);");
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine();

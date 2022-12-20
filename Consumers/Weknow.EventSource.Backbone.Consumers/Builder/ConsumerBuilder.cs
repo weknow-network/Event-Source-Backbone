@@ -114,8 +114,12 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         /// <param name="optionsStrategy"></param>
         /// <returns></returns>
-        IConsumerHooksBuilder IConsumerOptionsBuilder.WithOptions(Func<ConsumerOptions, ConsumerOptions> optionsStrategy)
+        IConsumerHooksBuilder IConsumerOptionsBuilder.WithOptions(
+            Func<ConsumerOptions, ConsumerOptions>? optionsStrategy)
         {
+            if (optionsStrategy == null)
+                return this;
+
             var options = optionsStrategy(_plan.Options);
             var prms = _plan.WithOptions(options);
             var result = new ConsumerBuilder(prms);

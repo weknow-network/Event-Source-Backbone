@@ -11,6 +11,6 @@
         /// </summary>
         /// <param name="optionsStrategy">The options strategy.</param>
         /// <returns></returns>
-        IConsumerHooksBuilder WithOptions(Func<ConsumerOptions, ConsumerOptions> optionsStrategy);
+        IConsumerHooksBuilder WithOptions(Func<ConsumerOptions, ConsumerOptions>? optionsStrategy);
     }
 }

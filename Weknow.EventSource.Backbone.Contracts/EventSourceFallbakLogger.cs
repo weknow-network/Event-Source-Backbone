@@ -32,7 +32,7 @@ namespace Weknow.EventSource.Backbone.Private
         /// <returns>
         /// An <see cref="T:System.IDisposable" /> that ends the logical operation scope on dispose.
         /// </returns>
-        public IDisposable BeginScope<TState>(TState state) => this;
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => this;
 
         #endregion // BeginScope
 

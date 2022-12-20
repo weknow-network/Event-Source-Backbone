@@ -15,6 +15,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
+		<IsPackable>true</IsPackable>
 		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
 		<PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>

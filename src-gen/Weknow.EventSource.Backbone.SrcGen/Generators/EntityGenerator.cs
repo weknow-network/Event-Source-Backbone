@@ -143,7 +143,12 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t/// <typeparam name=\"TCast\">Cast target</typeparam>");
             builder.AppendLine("\t\t\t/// <param name=\"announcement\">The announcement.</param>");
             builder.AppendLine("\t\t\t/// <param name=\"consumerPlan\">The consumer plan.</param>");
-            builder.AppendLine($"\t\t\t public async Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
+            if(item.Members.Count == 0)
+                builder.Append($"\t\t\t public ");
+            else
+                builder.Append($"\t\t\t public async ");
+
+            builder.AppendLine($"Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
             builder.AppendLine($"\t\t\t\t\tAnnouncement announcement, ");
             builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {interfaceName}_EntityFamily");
@@ -180,7 +185,10 @@ namespace Weknow.EventSource.Backbone
                 builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
             }
-            builder.AppendLine($"\t\t\t\treturn (default, false);");
+            if (item.Members.Count == 0)
+                builder.AppendLine($"\t\t\t\treturn Task.FromResult<(TCast? value, bool succeed)>((default, false));");
+            else
+                builder.AppendLine($"\t\t\t\treturn (default, false);");
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine("\t\t}");
