@@ -66,8 +66,8 @@ namespace Weknow.EventSource.Backbone
                 EntityGenerator.GenerateEntityFamilyContract(prefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapper(prefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapperExtensions(prefix, info, interfaceName , generateFrom, assemblyName),
-                OnGenerateConsumerBase(prefix, info, interfaceName, generateFrom, assemblyName),
-                OnGenerateConsumerBridge(prefix, info, interfaceName, generateFrom, assemblyName),
+                OnGenerateConsumerBase(prefix, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridge(prefix, info, interfaceName, assemblyName),
                 OnGenerateConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
             };
 
@@ -141,7 +141,6 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
@@ -193,30 +192,31 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine();
 
             builder.Append("\t\t");
-            if (item.Members.Count != 0)
+            var allMethods = symbol.GetAllMethods().ToArray();
+            if (allMethods.Length != 0)
                 builder.Append("async ");
             builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t{");
-            if (item.Members.Count != 0)
+            if (allMethods.Length != 0)
             {
                 builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
                 builder.AppendLine("\t\t\t{");
-                foreach (var method in item.Members)
+                foreach (var method in allMethods)
                 {
-                    if (method is not MethodDeclarationSyntax mds)
-                        continue;
-                    string mtdName = mds.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
+                    string mtdName = method.Name;
+                    string mtdType = method.ContainingType.Name;
+                    mtdType = info.FormatName(mtdType);
+                    builder.AppendLine($"\t\t\t\tcase nameof({mtdType}.{mtdName}):");
                     builder.AppendLine("\t\t\t\t{");
-                    var prms = mds.ParameterList.Parameters;
+                    var prms = method.Parameters;
                     int i = 0;
                     foreach (var p in prms)
                     {
-                        var pName = p.Identifier.ValueText;
+                        var pName = p.Name;
                         builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                         i++;
                     }
-                    IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                    IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
 
                     builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
                     builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
@@ -225,7 +225,7 @@ namespace Weknow.EventSource.Backbone
                 }
                 builder.AppendLine("\t\t\t}");
             }
-            if (item.Members.Count == 0)
+            if (allMethods.Length == 0)
                 builder.AppendLine("\t\t\treturn Task.FromResult(false);");
             else
                 builder.AppendLine("\t\t\treturn false;");
@@ -243,7 +243,6 @@ namespace Weknow.EventSource.Backbone
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
-            string generateFrom,
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
@@ -264,30 +263,31 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t{");
 
             builder.Append("\t\t\t");
-            if (item.Members.Count != 0)
+            var allMethods = symbol.GetAllMethods().ToArray();
+            if (allMethods.Length != 0)
                 builder.Append("async ");
             builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t\t{");
-            if (item.Members.Count != 0)
+            if (allMethods.Length != 0)
             {
                 builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
                 builder.AppendLine("\t\t\t\t{");
-                foreach (var method in item.Members)
+                foreach (var method in allMethods)
                 {
-                    if (method is not MethodDeclarationSyntax mds)
-                        continue;
-                    string mtdName = mds.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\tcase nameof({interfaceName}.{mtdName}):");
+                    string mtdName = method.Name;
+                    string mtdType = method.ContainingType.Name;
+                    mtdType = info.FormatName(mtdType);
+                    builder.AppendLine($"\t\t\t\t\tcase nameof({mtdType}.{mtdName}):");
                     builder.AppendLine("\t\t\t\t\t{");
-                    var prms = mds.ParameterList.Parameters;
+                    var prms = method.Parameters;
                     int i = 0;
                     foreach (var p in prms)
                     {
-                        var pName = p.Identifier.ValueText;
+                        var pName = p.Name;
                         builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                         i++;
                     }
-                    IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                    IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
                     builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({string.Join(", ", ps)});");
                     builder.AppendLine("\t\t\t\t\t\treturn true;");
                     builder.AppendLine("\t\t\t\t\t}");
@@ -300,15 +300,13 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine();
-            foreach (var method in item.Members)
+            foreach (var method in allMethods)
             {
-                if (method is not MethodDeclarationSyntax mds)
-                    continue;
-                string mtdName = mds.Identifier.ValueText;
+                string mtdName = method.Name;
 
-                CopyDocumentation(builder, kind, mds);
-                var prms = mds.ParameterList.Parameters;
-                IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Identifier.ValueText}");
+                //CopyDocumentation(builder, kind, mds);
+                var prms = method.Parameters;
+                IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
                 builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({string.Join(", ", ps)});"); ;
                 builder.AppendLine();
             }
@@ -355,38 +353,9 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine($"\t\tprivate {fileName}(IProducerPlan plan) : base(plan){{}}");
             builder.AppendLine();
-            foreach (var method in item.Members)
+            foreach (IMethodSymbol method in symbol.GetAllMethods())
             {
-                if (method is not MethodDeclarationSyntax mds)
-                    continue;
-
-                CopyDocumentation(builder, kind, mds);
-
-                string mtdName = mds.Identifier.ValueText;
-                builder.Append("\t\tasync ValueTask");
-                if (isProducer)
-                    builder.Append("<EventKeys>");
-                builder.Append($" {interfaceName}.{mtdName}(");
-
-                IEnumerable<string> ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
-                builder.Append("\t\t\t");
-                builder.Append(string.Join(", ", ps));
-                builder.AppendLine(")");
-                builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tvar operation = nameof({interfaceName}.{mtdName});");
-                int i = 0;
-                var prms = mds.ParameterList.Parameters;
-                foreach (var p in prms)
-                {
-                    var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\tvar classification{i} = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
-                    i++;
-                }
-                var classifications = Enumerable.Range(0, prms.Count).Select(m => $"classification{m}");
-                builder.AppendLine($"\t\t\treturn await SendAsync(operation, {string.Join(", ", classifications)});");
-                builder.AppendLine("\t\t}");
-                builder.AppendLine();
-
+                GenerateProducerMethods(builder, info, method);
             }
             builder.AppendLine("\t}");
 
@@ -412,5 +381,41 @@ namespace Weknow.EventSource.Backbone
         }
 
         #endregion // OnGenerateProducer
+
+        #region GenerateProducerMethods
+
+        private static void GenerateProducerMethods(
+            StringBuilder builder,
+            SyntaxReceiverResult info,
+            IMethodSymbol mds)
+        {
+            string mtdName = mds.Name;
+            string interfaceName = mds.ContainingType.Name;
+            interfaceName = info.FormatName(interfaceName);
+            builder.Append("\t\tasync ValueTask");
+            builder.Append("<EventKeys>");
+            builder.Append($" {interfaceName}.{mtdName}(");
+
+            IEnumerable<string> ps = mds.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Name}");
+            builder.Append("\t\t\t");
+            builder.Append(string.Join(", ", ps));
+            builder.AppendLine(")");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar operation = nameof({interfaceName}.{mtdName});");
+            int i = 0;
+            var prms = mds.Parameters;
+            foreach (var p in prms)
+            {
+                var pName = p.Name;
+                builder.AppendLine($"\t\t\tvar classification{i} = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
+                i++;
+            }
+            var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification{m}");
+            builder.AppendLine($"\t\t\treturn await SendAsync(operation, {string.Join(", ", classifications)});");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
+        }
+
+        #endregion // GenerateProducerMethods
     }
 }

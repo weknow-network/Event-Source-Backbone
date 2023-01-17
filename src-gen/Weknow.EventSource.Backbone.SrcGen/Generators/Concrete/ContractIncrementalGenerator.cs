@@ -43,13 +43,13 @@ namespace Weknow.EventSource.Backbone
             CopyDocumentation(builder, kind, type, "\t");
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
-            builder.AppendLine($"\tpublic interface {interfaceName}");
-            var baseTypes = symbol.GetBaseTypes().Select(m => info.FormatName(m.Name));
+            builder.Append($"\tpublic interface {interfaceName}");
+            var baseTypes = symbol.Interfaces.Select(m => info.FormatName(m.Name));
             string inheritance = string.Join(", ", baseTypes);
-            if (!string.IsNullOrEmpty(inheritance))
-            {
+            if (string.IsNullOrEmpty(inheritance))
+                builder.AppendLine();
+            else
                 builder.AppendLine($" : {inheritance}");
-            }
             builder.AppendLine("\t{");
 
             foreach (var method in type.Members)
@@ -76,7 +76,7 @@ namespace Weknow.EventSource.Backbone
             var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
             var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
 
-            info = info.OverrideName(interfaceName);
+            //info = info.OverrideName(interfaceName);
             if (!contractOnly)
                 _bridge.GenerateSingle(context, compilation, info);
 

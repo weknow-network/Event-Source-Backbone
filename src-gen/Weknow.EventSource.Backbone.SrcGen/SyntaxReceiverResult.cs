@@ -5,22 +5,22 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Weknow.EventSource.Backbone;
 
-/// <summary>
-/// Syntax Receiver Result Extensions
-/// </summary>
-internal static class SyntaxReceiverResultExtentions
-{
-    /// <summary>
-    /// Overrides the name.
-    /// </summary>
-    /// <param name="source">The source.</param>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public static SyntaxReceiverResult OverrideName(this SyntaxReceiverResult source, string name)
-    {
-        return new SyntaxReceiverResult(source.Type, source.Symbol, name, source.Namespace, source.Kind, source.Att);
-    }
-}
+///// <summary>
+///// Syntax Receiver Result Extensions
+///// </summary>
+//internal static class SyntaxReceiverResultExtentions
+//{
+//    /// <summary>
+//    /// Overrides the name.
+//    /// </summary>
+//    /// <param name="source">The source.</param>
+//    /// <param name="name">The name.</param>
+//    /// <returns></returns>
+//    public static SyntaxReceiverResult OverrideName(this SyntaxReceiverResult source, string name)
+//    {
+//        return new SyntaxReceiverResult(source.Type, source.Symbol, name, source.Namespace, source.Kind, source.Att);
+//    }
+//}
 
 /// <summary>
 /// Syntax Receiver Result
