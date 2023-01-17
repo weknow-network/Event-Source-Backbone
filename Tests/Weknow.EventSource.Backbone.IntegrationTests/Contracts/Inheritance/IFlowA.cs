@@ -1,6 +1,4 @@
-﻿using Weknow.EventSource.Backbone.UnitTests.Entities;
-
-namespace Weknow.EventSource.Backbone.UnitTests.Entities;
+﻿namespace Weknow.EventSource.Backbone.UnitTests.Entities;
 
 [GenerateEventSource(EventSourceGenType.Producer)]
 [GenerateEventSource(EventSourceGenType.Consumer)]

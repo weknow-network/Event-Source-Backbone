@@ -1,12 +1,12 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
 using System.Text;
-using System.Xml.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
+
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
@@ -64,7 +64,7 @@ namespace Weknow.EventSource.Backbone
             /// </summary>
             bool ShouldTriggerGeneration(SyntaxNode node, CancellationToken cancellationToken)
             {
-                if (!(node is TypeDeclarationSyntax t)) return false;
+                if (node is not TypeDeclarationSyntax t) return false;
 
                 if (node is not TypeDeclarationSyntax tds ||
                     tds.Kind() != SyntaxKind.InterfaceDeclaration)

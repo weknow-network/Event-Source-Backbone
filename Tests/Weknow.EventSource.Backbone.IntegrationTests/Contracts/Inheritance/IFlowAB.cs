@@ -2,6 +2,6 @@
 
 [GenerateEventSource(EventSourceGenType.Producer)]
 [GenerateEventSource(EventSourceGenType.Consumer)]
-public interface IFlowAB: IFlowA, IFlowB
+public interface IFlowAB : IFlowA, IFlowB
 {
 }

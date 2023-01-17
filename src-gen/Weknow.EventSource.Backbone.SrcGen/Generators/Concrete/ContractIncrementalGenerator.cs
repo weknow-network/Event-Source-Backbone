@@ -3,8 +3,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
-using Weknow.EventSource.Backbone.SrcGen.Generators.Sync;
+
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
@@ -13,7 +14,7 @@ namespace Weknow.EventSource.Backbone
     internal class ContractncrementalGenerator : GeneratorIncrementalBase
     {
         private const string TARGET_ATTRIBUTE = "GenerateEventSource";
-        private readonly BridgeIncrementalGenerator _bridge = new ();
+        private readonly BridgeIncrementalGenerator _bridge = new();
 
         public ContractncrementalGenerator() : base(TARGET_ATTRIBUTE)
         {
@@ -41,7 +42,6 @@ namespace Weknow.EventSource.Backbone
             var (item, att, name, kind, suffix, ns, isProducer) = info;
             var builder = new StringBuilder();
             CopyDocumentation(builder, kind, item, "\t");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}");

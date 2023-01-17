@@ -4,9 +4,10 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
 using Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers;
-using Weknow.EventSource.Backbone.SrcGen.Generators.Sync;
+
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
@@ -96,7 +97,6 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Subscription bridge extensions for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic static class {fileName}");
             builder.AppendLine("\t{");
@@ -155,7 +155,6 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Subscription bridge for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic sealed class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t{");
@@ -260,7 +259,6 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Base Subscription class of {interfaceName}");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
@@ -343,7 +341,6 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Bridge {kind} of {interfaceName}");
             builder.AppendLine("\t/// </summary>");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
             builder.AppendLine($"\tpublic class {fileName}: ProducerPipeline, {interfaceName}");

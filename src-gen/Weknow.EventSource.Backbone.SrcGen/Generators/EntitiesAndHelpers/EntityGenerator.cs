@@ -3,7 +3,9 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
+
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
@@ -84,7 +86,6 @@ namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Marker interface for entity mapper family contract generated from {interfaceName}");
             builder.AppendLine("\t/// </summary>");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}_EntityFamily");
@@ -117,7 +118,6 @@ namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic sealed class {friendlyName}EntityMapper: IConsumerEntityMapper<{interfaceName}_EntityFamily>");
@@ -219,7 +219,6 @@ namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t/// <inheritdoc cref=\"{generateFrom}\" />");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\tpublic static class {fileName}");
             builder.AppendLine("\t{");
