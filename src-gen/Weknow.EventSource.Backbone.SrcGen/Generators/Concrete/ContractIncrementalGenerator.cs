@@ -34,27 +34,32 @@ namespace Weknow.EventSource.Backbone
         protected override GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info,
-                            string interfaceName,
-                            string generateFrom)
+                            SyntaxReceiverResult info)
         {
 
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (type, att, symbol,  kind, ns, isProducer) = info;
+            string interfaceName = info.FormatName();
             var builder = new StringBuilder();
-            CopyDocumentation(builder, kind, item, "\t");
+            CopyDocumentation(builder, kind, type, "\t");
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
             builder.AppendLine($"\tpublic interface {interfaceName}");
+            var baseTypes = symbol.GetBaseTypes().Select(m => info.FormatName(m.Name));
+            string inheritance = string.Join(", ", baseTypes);
+            if (!string.IsNullOrEmpty(inheritance))
+            {
+                builder.AppendLine($" : {inheritance}");
+            }
             builder.AppendLine("\t{");
 
-            foreach (var method in item.Members)
+            foreach (var method in type.Members)
             {
                 if (method is MethodDeclarationSyntax mds)
                 {
                     CopyDocumentation(builder, kind, mds);
 
 
-                    builder.Append("\t\tpublic ValueTask");
+                    builder.Append("\t\tValueTask");
                     if (isProducer)
                         builder.Append("<EventKeys>");
                     builder.Append($" {mds.Identifier.ValueText}(");

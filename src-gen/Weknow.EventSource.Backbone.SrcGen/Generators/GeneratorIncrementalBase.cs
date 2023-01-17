@@ -109,7 +109,9 @@ namespace Weknow.EventSource.Backbone
                     var ctorArg = att.ArgumentList?.Arguments.First().GetText().ToString();
                     string kind = ctorArg?.Substring("EventSourceGenType.".Length) ?? "NONE";
 
-                    var result = new SyntaxReceiverResult(tds, name, ns, kind, att);
+                    var symbol = ctx.SemanticModel.GetDeclaredSymbol(tds);
+
+                    var result = new SyntaxReceiverResult(tds, symbol, name, ns, kind, att);
                     yield return result;
                 }
             }
@@ -147,7 +149,7 @@ namespace Weknow.EventSource.Backbone
                             Compilation compilation,
                             SyntaxReceiverResult info)
         {
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, symbol, att, name, kind, suffix, ns, isProducer) = info;
 
             #region Validation
 
@@ -159,10 +161,7 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Validation
 
-            string generateFrom = item.Identifier.ValueText;
-            string interfaceName = GetInterfaceConvention(name, generateFrom, kind, suffix);
-
-            GenInstruction[] codes = OnGenerate(context, compilation, info, interfaceName, generateFrom);
+            GenInstruction[] codes = OnGenerate(context, compilation, info);
 
             foreach (var (fileName, content, dynamicNs, usn) in codes)
             {
@@ -223,14 +222,13 @@ namespace Weknow.EventSource.Backbone
         protected abstract GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info,
-                            string interfaceName,
-                            string generateFrom);
+                            SyntaxReceiverResult info);
 
         #endregion // OnGenerate
 
         #region GetInterfaceConvention
 
+        [Obsolete("deprecate", true)]
         protected virtual string GetInterfaceConvention(
             string? name,
             string generateFrom,

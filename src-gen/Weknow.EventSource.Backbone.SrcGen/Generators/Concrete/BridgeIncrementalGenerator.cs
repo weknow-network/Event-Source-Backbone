@@ -27,22 +27,21 @@ namespace Weknow.EventSource.Backbone
         protected override GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info,
-                            string interfaceName,
-                            string generateFrom)
+                            SyntaxReceiverResult info)
         {
+            string interfaceName = info.FormatName();
             var builder = new StringBuilder();
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
 
             var verrideInterfaceArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "InterfaceName");
             var overrideInterfaceName = verrideInterfaceArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
             if (info.Kind == "Producer")
             {
-                var file = OnGenerateProducer(builder, info, interfaceName, generateFrom);
+                var file = OnGenerateProducer(builder, info, interfaceName);
                 return new[] { new GenInstruction(file, builder.ToString()) };
             }
-            return OnGenerateConsumers(info, interfaceName, generateFrom);
+            return OnGenerateConsumers(info, interfaceName);
 
         }
 
@@ -52,9 +51,9 @@ namespace Weknow.EventSource.Backbone
 
         protected GenInstruction[] OnGenerateConsumers(
             SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom)
+            string interfaceName)
         {
+            string generateFrom = info.FormatName();
             string prefix = (info.Name ?? interfaceName).StartsWith("I") &&
                 interfaceName.Length > 1 &&
                 char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
@@ -87,7 +86,7 @@ namespace Weknow.EventSource.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
@@ -146,7 +145,7 @@ namespace Weknow.EventSource.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
@@ -248,7 +247,7 @@ namespace Weknow.EventSource.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
@@ -326,10 +325,9 @@ namespace Weknow.EventSource.Backbone
         protected string OnGenerateProducer(
             StringBuilder builder,
             SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom)
+            string interfaceName)
         {
-            var (item, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
             builder.AppendLine("\tusing Weknow.EventSource.Backbone.Building;");
 
             // CopyDocumentation(builder, kind, item, "\t");

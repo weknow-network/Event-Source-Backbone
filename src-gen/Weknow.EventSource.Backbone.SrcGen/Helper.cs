@@ -8,7 +8,7 @@ namespace Weknow.EventSource.Backbone
     /// <summary>
     /// 
     /// </summary>
-    public static class Helper
+    internal static class Helper
     {
         #region Convert
 
@@ -37,7 +37,6 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // Convert
 
-
         #region CopyDocumentation
 
         /// <summary>
@@ -61,5 +60,20 @@ namespace Weknow.EventSource.Backbone
 
         #endregion // CopyDocumentation
 
+        #region // Hierarchy
+
+        //public static IList<INamedTypeSymbol> Hierarchy(this INamedTypeSymbol symbol)
+        //{
+        //    var hierarchy = new List<INamedTypeSymbol> { symbol };
+        //    var s = symbol.BaseType;
+        //    while (s != null && s.Name != "Object")
+        //    {
+        //        hierarchy.Add(s);
+        //        s = s.BaseType;
+        //    }
+        //    return hierarchy;
+        //}
+
+        #endregion // Hierarchy
     }
 }
