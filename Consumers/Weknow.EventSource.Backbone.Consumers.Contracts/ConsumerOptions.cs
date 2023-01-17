@@ -1,4 +1,6 @@
-﻿namespace Weknow.EventSource.Backbone
+﻿using Weknow.EventSource.Backbone.Enums;
+
+namespace Weknow.EventSource.Backbone
 {
     public record ConsumerOptions :
         EventSourceOptions
@@ -82,11 +84,36 @@
         #region PartialBehavior
 
         /// <summary>
-        /// Gets or sets the partial behavior (does consumer had to handle all events?).
+        /// Gets or sets the partial behavior 
+        ///  - does consumer had to handle all events?.
+        ///  - can it ignore event and proceed (marking the event as consumed on its Consumer Group) 
+        ///    or should it wait to other consumers to consume the event.
         /// </summary>
-        public PartialConsumerBehavior PartialBehavior { get; init; } = PartialConsumerBehavior.Strict;
+        public PartialConsumerBehavior PartialBehavior { get; init; } = PartialConsumerBehavior.Sequential;
 
         #endregion // PartialBehavior
+
+        #region MultiConsumerBehavior
+
+        /// <summary>
+        /// Collaborate behavior of multi consumers registered via common subscription object.
+        /// </summary>
+        /// <example>
+        /// <![CDATA[
+        /// await using IConsumerLifetime subscription = _consumerBuilder
+        ///           .Environment(ENV)
+        ///           .Partition(PARTITION)
+        ///           .Shard(SHARD)
+        ///           .Group("CONSUMER_GROUP_X_1")
+        ///           .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+        ///           .SubscribeFlowAConsumer(_subscriberA)
+        ///           .SubscribeFlowBConsumer(_subscriberB)
+        ///           .SubscribeFlowABConsumer(_subscriberAB);
+        /// ]]>
+        /// </example>
+        public MultiConsumerBehavior MultiConsumerBehavior { get; init; } = MultiConsumerBehavior.All;
+
+        #endregion // MultiConsumerBehavior
 
         #region MaxMessages
 

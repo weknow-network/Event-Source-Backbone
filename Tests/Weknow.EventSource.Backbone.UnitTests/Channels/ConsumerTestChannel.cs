@@ -33,7 +33,7 @@ namespace Weknow.EventSource.Backbone
         /// </returns>
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken)
         {
             ConsumerOptions options = plan.Options;

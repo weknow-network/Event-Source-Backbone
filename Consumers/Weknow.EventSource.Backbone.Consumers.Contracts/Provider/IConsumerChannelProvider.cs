@@ -10,14 +10,14 @@
         /// Subscribe to the channel for specific metadata.
         /// </summary>
         /// <param name="plan">The consumer plan.</param>
-        /// <param name="func">The function.</param>
+        /// <param name="func">The consuming function, returns boolean indication whether the message was consumed.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// When completed
         /// </returns>
         ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken);
 
         /// <summary>

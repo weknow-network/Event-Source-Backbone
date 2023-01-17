@@ -18,6 +18,5 @@
         /// </summary>
         /// <returns></returns>
         ValueTask CancelAsync();
-
     }
 }

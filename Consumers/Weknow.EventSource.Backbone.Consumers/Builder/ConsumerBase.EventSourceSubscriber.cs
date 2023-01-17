@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Enums;
 
 using Handler = System.Func<Weknow.EventSource.Backbone.Announcement, Weknow.EventSource.Backbone.IConsumerBridge, System.Threading.Tasks.Task<bool>>;
 
@@ -96,7 +97,7 @@ namespace Weknow.EventSource.Backbone
             /// The acknowledge callback which will prevent message from 
             /// being re-fetch from same consumer group.</param>
             /// <returns></returns>
-            private async ValueTask ConsumingAsync(
+            private async ValueTask<bool> ConsumingAsync(
                 Announcement arg,
                 IAck ack)
             {
@@ -148,32 +149,57 @@ namespace Weknow.EventSource.Backbone
                 #endregion // _plan.Interceptors.InterceptAsync(...)
 
                 string operation = meta.Operation;
+                PartialConsumerBehavior partialBehavior = _options.PartialBehavior;
 
+                bool hasProcessed = false;
                 try
                 {
 
                     await using (Ack.Set(ack))
                     {
-                        var hasProcessed = await _plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
+                        hasProcessed = await _plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
                         {
                             if (ct.IsCancellationRequested) return false;
 
                             ConsumerMetadata._metaContext.Value = consumerMeta;
-                            var tasks = _handlers.AsParallel().Select(h => h.Invoke(arg, this));
-                            var results = await Task.WhenAll(tasks);
-                            return results?.Any(m => m) ?? false;
+                            if (_options.MultiConsumerBehavior == MultiConsumerBehavior.All)
+                            {
+                                var tasks = _handlers.AsParallel().Select(h => h.Invoke(arg, this));
+                                var results = await Task.WhenAll(tasks);
+                                return results?.Any(m => m) ?? false;
+                            }
+                            foreach (Handler handler in _handlers)
+                            {
+                                if (await handler.Invoke(arg, this))
+                                    return true;
+                            }
+                            return false;
                         }, cancellation);
                         logger.LogDebug("Consumed event: {0}", meta.Key());
 
                         var options = _plan.Options;
                         var behavior = options.AckBehavior;
-                        if (options.PartialBehavior == PartialConsumerBehavior.Strict && !hasProcessed)
+                        if (partialBehavior == PartialConsumerBehavior.ThrowIfNotHandled && !hasProcessed)
                         {
                             _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
                             throw new InvalidOperationException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
                         }
-                        if (behavior == AckBehavior.OnSucceed || !hasProcessed)
-                            await ack.AckAsync();
+                        if (hasProcessed)
+                        {
+                            if (behavior == AckBehavior.OnSucceed)
+                                await ack.AckAsync();
+                        }
+                        else
+                        {
+                            if (partialBehavior == PartialConsumerBehavior.Loose)
+                            {
+                                await ack.AckAsync();
+                            }
+                            if (partialBehavior == PartialConsumerBehavior.Sequential)
+                            {
+                                await ack.AckAsync();
+                            }
+                        }
                     }
                 }
                 #region Exception Handling
@@ -200,8 +226,14 @@ namespace Weknow.EventSource.Backbone
                 #endregion // Exception Handling
                 finally
                 {
+
                     if (_plan.Options.AckBehavior == AckBehavior.OnFinally)
-                        await ack.AckAsync();
+                    {
+                        if (partialBehavior != PartialConsumerBehavior.Sequential)
+                        {
+                            await ack.AckAsync();
+                        }
+                    }
 
                     #region Validation Max Messages Limit
 
@@ -212,6 +244,8 @@ namespace Weknow.EventSource.Backbone
 
                     #endregion // Validation Max Messages Limit
                 }
+
+                return hasProcessed;
             }
 
             #endregion // ConsumingAsync

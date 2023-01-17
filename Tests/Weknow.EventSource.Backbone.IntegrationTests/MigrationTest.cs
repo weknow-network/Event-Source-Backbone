@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Enums;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;

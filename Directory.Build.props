@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.1.258</Version>
+		<Version>1.2.0</Version>
 		<PackageReleaseNotes>
 		</PackageReleaseNotes>
 	</PropertyGroup>
@@ -34,7 +34,13 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReleaseNotes>[BREAKING CHANGES] Consumer options / consumer channel setting had changed</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			1.1.258: [BREAKING CHANGES] Consumer options / consumer channel setting had changed
+			1.2.1: 
+			  Support Inheritance
+			  [BREAKING CHANGES] Renaming of Enum
+			  
+		</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<PropertyGroup>

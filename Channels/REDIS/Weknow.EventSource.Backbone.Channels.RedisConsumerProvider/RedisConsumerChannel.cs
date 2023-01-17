@@ -44,6 +44,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
         private const string META_SLOT = "__<META>__";
+        private const string NONE_CUNSUMER = "__NONE_CUNSUMER__"; // a work around used to release messages back to the stream
+        private const int INIT_RELEASE_DELAY = 100;
+        private const int MAX_RELEASE_DELAY = 1000 * 30; // 30 seconds
 
         #region Ctor
 
@@ -100,7 +103,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </returns>
         public async ValueTask SubsribeAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken)
         {
             var joinCancellation = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken).Token;
@@ -153,7 +156,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// </returns>
         private async ValueTask SubsribePartitionAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask<bool>> func,
                     ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
@@ -216,7 +219,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         /// <param name="cancellationToken">The cancellation token.</param>
         private async Task SubsribeShardAsync(
                     IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask> func,
+                    Func<Announcement, IAck, ValueTask<bool>> func,
                     ConsumerOptions options,
                     CancellationToken cancellationToken)
         {
@@ -236,10 +239,18 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                 key,
+                NONE_CUNSUMER,
+                logger);
+
+            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                key,
                 plan.ConsumerGroup,
                 logger);
 
             #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
+
+            int releaseDelay = INIT_RELEASE_DELAY;
+            int bachSize = options.BatchSize;
 
             TimeSpan delay = TimeSpan.Zero;
             int emptyBatchCount = 0;
@@ -277,7 +288,13 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 try
                 {
                     var batchCancellation = new CancellationTokenSource();
-                    for (int i = 0; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
+                    int i = 0;
+                    batchCancellation.Token.Register(async () =>
+                    {
+                        RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
+                        await ReleaseAsync(freeTargets);
+                    });
+                    for (; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                     {
                         StreamEntry result = results[i];
 
@@ -415,7 +432,21 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                         #endregion // Start Telemetry Span
 
-                        await func(announcement, ack);
+                        bool succeed = await func(announcement, ack);
+                        if (succeed)
+                        {
+                            releaseDelay = INIT_RELEASE_DELAY;
+                            bachSize = options.BatchSize;
+                        }
+                        else
+                        {
+                            if (options.PartialBehavior == Enums.PartialConsumerBehavior.Sequential)
+                            {
+                                RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
+                                await ReleaseAsync(freeTargets);
+                                await Task.Delay(1000);
+                            }
+                        }
                     }
                 }
                 catch
@@ -452,7 +483,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                                                 plan.ConsumerGroup,
                                                                 plan.ConsumerName,
                                                                 position: StreamPosition.NewMessages,
-                                                                count: options.BatchSize,
+                                                                count: bachSize,
                                                                 flags: flags);
                         }
                         StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
@@ -659,6 +690,34 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
             }
 
             #endregion // CancelAsync
+
+            #region ReleaseAsync
+
+            /// <summary>
+            /// Releases the messages (work around).
+            /// </summary>
+            /// <param name="freeTargets">The free targets.</param>
+            async Task ReleaseAsync(RedisValue[] freeTargets)
+            {
+                IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                IDatabaseAsync db = conn.GetDatabase();
+                await db.StreamClaimAsync(plan.Key(),
+                                          plan.ConsumerGroup,
+                                          NONE_CUNSUMER,
+                                          1,
+                                          freeTargets,
+                                          flags: CommandFlags.DemandMaster);
+                await Task.Delay(releaseDelay);
+                if(releaseDelay < MAX_RELEASE_DELAY)
+                    releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
+
+                if (bachSize == options.BatchSize)
+                    bachSize = 1;
+                else
+                    bachSize = Math.Min(bachSize * 2, options.BatchSize);
+            }
+
+            #endregion // ReleaseAsync
         }
 
         #endregion // SubsribeShardAsync

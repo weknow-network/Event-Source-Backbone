@@ -11,6 +11,7 @@ using Polly;
 using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Enums;
 using Weknow.EventSource.Backbone.UnitTests.Entities;
 
 using Xunit;
@@ -113,6 +114,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #endregion // Ctor
 
+        #region DefaultOptions
 
         private ConsumerOptions DefaultOptions(
                     ConsumerOptions options,
@@ -129,6 +131,8 @@ namespace Weknow.EventSource.Backbone.Tests
                 PartialBehavior = behavior ?? options.PartialBehavior
             };
         }
+
+        #endregion // DefaultOptions
 
         #region Environmet_Test
 
@@ -264,7 +268,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed))
+                         .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed) with { PartialBehavior = PartialConsumerBehavior.ThrowIfNotHandled })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
@@ -317,7 +321,7 @@ namespace Weknow.EventSource.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, times * 2, AckBehavior.OnSucceed, PartialConsumerBehavior.allow))
+                         .WithOptions(o => DefaultOptions(o, times * 2, AckBehavior.OnSucceed, PartialConsumerBehavior.Loose))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Partition(PARTITION)
