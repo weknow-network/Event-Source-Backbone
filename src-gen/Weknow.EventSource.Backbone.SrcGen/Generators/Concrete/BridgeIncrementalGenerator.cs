@@ -4,28 +4,31 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
+using Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers;
+using Weknow.EventSource.Backbone.SrcGen.Generators.Sync;
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
 {
     [Generator]
-    internal class BridgeGenerator : GeneratorBase
+    internal class BridgeIncrementalGenerator : GeneratorIncrementalBase
     {
         private const string TARGET_ATTRIBUTE = "GenerateEventSourceBridge";
 
-        public BridgeGenerator() : base(TARGET_ATTRIBUTE)
+        public BridgeIncrementalGenerator() : base(TARGET_ATTRIBUTE)
         {
 
         }
 
-        #region OnExecute
+        #region OnGenerate
 
-        protected override GenInstruction[] OnExecute(
-            GeneratorExecutionContext context,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom)
+        protected override GenInstruction[] OnGenerate(
+                            SourceProductionContext context,
+                            Compilation compilation,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom)
         {
             var builder = new StringBuilder();
             var (item, att, name, kind, suffix, ns, isProducer) = info;
@@ -35,18 +38,18 @@ namespace Weknow.EventSource.Backbone
 
             if (info.Kind == "Producer")
             {
-                var file = OnExecuteProducer(builder, info, interfaceName, generateFrom);
+                var file = OnGenerateProducer(builder, info, interfaceName, generateFrom);
                 return new[] { new GenInstruction(file, builder.ToString()) };
             }
-            return OnExecuteConsumers(info, interfaceName, generateFrom);
+            return OnGenerateConsumers(info, interfaceName, generateFrom);
 
         }
 
-        #endregion // OnExecute
+        #endregion // OnGenerate
 
-        #region OnExecuteConsumers
+        #region OnGenerateConsumers
 
-        protected GenInstruction[] OnExecuteConsumers(
+        protected GenInstruction[] OnGenerateConsumers(
             SyntaxReceiverResult info,
             string interfaceName,
             string generateFrom)
@@ -63,19 +66,19 @@ namespace Weknow.EventSource.Backbone
                 EntityGenerator.GenerateEntityFamilyContract(prefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapper(prefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapperExtensions(prefix, info, interfaceName , generateFrom, assemblyName),
-                OnExecuteConsumerBase(prefix, info, interfaceName, generateFrom, assemblyName),
-                OnExecuteConsumerBridge(prefix, info, interfaceName, generateFrom, assemblyName),
-                OnExecuteConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
+                OnGenerateConsumerBase(prefix, info, interfaceName, generateFrom, assemblyName),
+                OnGenerateConsumerBridge(prefix, info, interfaceName, generateFrom, assemblyName),
+                OnGenerateConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
             };
 
             return dtos.Concat(gens).ToArray();
         }
 
-        #endregion // OnExecuteConsumers
+        #endregion // OnGenerateConsumers
 
-        #region OnExecuteConsumerBridgeExtensions
+        #region OnGenerateConsumerBridgeExtensions
 
-        protected GenInstruction OnExecuteConsumerBridgeExtensions(
+        protected GenInstruction OnGenerateConsumerBridgeExtensions(
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -131,11 +134,11 @@ namespace Weknow.EventSource.Backbone
             return new GenInstruction($"{prefix}.Consumer.Extensions", builder.ToString());
         }
 
-        #endregion // OnExecuteConsumerBridgeExtensions
+        #endregion // OnGenerateConsumerBridgeExtensions
 
-        #region OnExecuteConsumerBridge
+        #region OnGenerateConsumerBridge
 
-        protected GenInstruction OnExecuteConsumerBridge(
+        protected GenInstruction OnGenerateConsumerBridge(
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -234,11 +237,11 @@ namespace Weknow.EventSource.Backbone
             return new GenInstruction($"{prefix}.Subscription.Bridge", builder.ToString());
         }
 
-        #endregion // OnExecuteConsumerBridge
+        #endregion // OnGenerateConsumerBridge
 
-        #region OnExecuteConsumerBase
+        #region OnGenerateConsumerBase
 
-        protected GenInstruction OnExecuteConsumerBase(
+        protected GenInstruction OnGenerateConsumerBase(
             string prefix,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -318,11 +321,11 @@ namespace Weknow.EventSource.Backbone
             return new GenInstruction($"{prefix}.Subscription.Bridge.Base", builder.ToString());
         }
 
-        #endregion // OnExecuteConsumerBase
+        #endregion // OnGenerateConsumerBase
 
-        #region OnExecuteProducer
+        #region OnGenerateProducer
 
-        protected string OnExecuteProducer(
+        protected string OnGenerateProducer(
             StringBuilder builder,
             SyntaxReceiverResult info,
             string interfaceName,
@@ -413,6 +416,6 @@ namespace Weknow.EventSource.Backbone
             return fileName;
         }
 
-        #endregion // OnExecuteProducer
+        #endregion // OnGenerateProducer
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone.SrcGen.Generators.Entities
 {
     internal class GenInstruction
     {

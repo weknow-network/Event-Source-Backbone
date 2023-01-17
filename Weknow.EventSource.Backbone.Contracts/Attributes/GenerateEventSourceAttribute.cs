@@ -14,11 +14,5 @@
         public GenerateEventSourceAttribute(EventSourceGenType generateType) : base(generateType)
         {
         }
-
-        /// <summary>
-        /// When true, it will only generate the contract interface(i.e. won't generate the bridge).
-        /// </summary>
-        [Obsolete("Deprecated", true)]
-        public bool ContractOnly { get; init; }
     }
 }

@@ -2,10 +2,10 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
 using static Weknow.EventSource.Backbone.Helper;
 
-namespace Weknow.EventSource.Backbone
+namespace Weknow.EventSource.Backbone.SrcGen.Generators.Sync
 {
 
     internal abstract class GeneratorBase : ISourceGenerator
@@ -79,7 +79,7 @@ namespace Weknow.EventSource.Backbone
             string generateFrom = item.Identifier.ValueText;
             string interfaceName = GetInterfaceConvention(name, generateFrom, kind, suffix);
 
-            GenInstruction[] codes = OnExecute(context, info, interfaceName, generateFrom);
+            var codes = OnExecute(context, info, interfaceName, generateFrom);
 
             foreach (var (fileName, content, dynamicNs, usn) in codes)
             {

@@ -2,6 +2,7 @@
 #nullable enable
 
 using System.CodeDom.Compiler;
+
 namespace Weknow.EventSource.Backbone.UnitTests.Entities
 {
     /// <summary>

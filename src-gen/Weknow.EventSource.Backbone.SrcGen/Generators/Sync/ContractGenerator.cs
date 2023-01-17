@@ -3,12 +3,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
+using Weknow.EventSource.Backbone.SrcGen.Generators.Sync;
 using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
 {
-    [Generator]
+    //[Generator]
     internal class ContractGenerator : GeneratorBase
     {
         private const string TARGET_ATTRIBUTE = "GenerateEventSource";

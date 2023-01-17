@@ -3,10 +3,10 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
 using static Weknow.EventSource.Backbone.Helper;
 
-namespace Weknow.EventSource.Backbone
+namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
 {
     internal static class EntityGenerator
     {
@@ -143,7 +143,7 @@ namespace Weknow.EventSource.Backbone
             builder.AppendLine("\t\t\t/// <typeparam name=\"TCast\">Cast target</typeparam>");
             builder.AppendLine("\t\t\t/// <param name=\"announcement\">The announcement.</param>");
             builder.AppendLine("\t\t\t/// <param name=\"consumerPlan\">The consumer plan.</param>");
-            if(item.Members.Count == 0)
+            if (item.Members.Count == 0)
                 builder.Append($"\t\t\t public ");
             else
                 builder.Append($"\t\t\t public async ");
@@ -178,7 +178,7 @@ namespace Weknow.EventSource.Backbone
                     builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                     i++;
                 }
-                IEnumerable<string> ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                var ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
                 builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
