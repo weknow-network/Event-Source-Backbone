@@ -396,7 +396,7 @@ namespace Weknow.EventSource.Backbone
             builder.Append("<EventKeys>");
             builder.Append($" {interfaceName}.{mtdName}(");
 
-            IEnumerable<string> ps = mds.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Name}");
+            IEnumerable<string> ps = mds.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
             builder.Append("\t\t\t");
             builder.Append(string.Join(", ", ps));
             builder.AppendLine(")");

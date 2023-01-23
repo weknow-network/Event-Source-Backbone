@@ -64,7 +64,7 @@ namespace Weknow.EventSource.Backbone
                         builder.Append("<EventKeys>");
                     builder.Append($" {mds.Identifier.ValueText}(");
 
-                    var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
+                    var ps = mds.ParameterList.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}");
                     builder.Append("\t\t\t");
                     builder.Append(string.Join(", ", ps));
                     builder.AppendLine(");");

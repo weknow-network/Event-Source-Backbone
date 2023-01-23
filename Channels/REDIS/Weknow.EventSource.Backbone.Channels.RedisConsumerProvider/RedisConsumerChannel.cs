@@ -693,10 +693,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region ReleaseAsync
 
-            /// <summary>
-            /// Releases the messages (work around).
-            /// </summary>
-            /// <param name="freeTargets">The free targets.</param>
+
+            // Releases the messages (work around).
             async Task ReleaseAsync(RedisValue[] freeTargets)
             {
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();

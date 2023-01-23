@@ -53,7 +53,7 @@ namespace Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     builder.Append("\tpublic record");
                     builder.Append($" {recordPrefix}_{mtdName}(");
 
-                    var ps = mds.ParameterList.Parameters.Select(p => $"{Environment.NewLine}\t\t\t{p.Type} {p.Identifier.ValueText}");
+                    var ps = mds.ParameterList.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}");
                     builder.Append("\t\t");
                     builder.Append(string.Join(", ", ps));
                     builder.AppendLine($"): {interfaceName}_EntityFamily;");
