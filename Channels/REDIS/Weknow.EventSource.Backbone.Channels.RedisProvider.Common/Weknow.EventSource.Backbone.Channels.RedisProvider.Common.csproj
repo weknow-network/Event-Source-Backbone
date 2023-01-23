@@ -5,8 +5,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.86" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.47" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.49" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
