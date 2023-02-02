@@ -2,6 +2,8 @@
 
 using StackExchange.Redis;
 
+using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
+
 namespace Weknow.EventSource.Backbone.Private
 {
     /// <summary>
@@ -9,6 +11,11 @@ namespace Weknow.EventSource.Backbone.Private
     /// </summary>
     public static class RedisCommonProviderExtensions
     {
+        private const int MAX_DELAY = 15_000;
+        private const int KEY_NOT_EXISTS_DELAY = 3_000;
+
+        private static readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(20));
+
         #region CreateConsumerGroupIfNotExistsAsync
 
         /// <summary>
@@ -38,13 +45,25 @@ namespace Weknow.EventSource.Backbone.Private
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
+                    #region Validation (if key exists)
+
+                    if (!await db.KeyExistsAsync(eventSourceKey,
+                                                 flags: CommandFlags.DemandMaster))
+                    {
+                        await Task.Delay(KEY_NOT_EXISTS_DELAY);
+                        logger.LogDebug("Key not exists (yet): {info}", CurrentInfo());
+                        continue;
+                    }
+
+                    #endregion // Validation (if key exists)
+
                     #region delay on retry
 
                     if (delay == 0)
                         delay = 4;
                     else
                     {
-                        delay = Math.Min(delay * 2, 15_000);
+                        delay = Math.Min(delay * 2, MAX_DELAY);
                         await Task.Delay(delay);
                         if (tryNumber % 10 == 0)
                         {
@@ -52,7 +71,10 @@ namespace Weknow.EventSource.Backbone.Private
                         }
                     }
 
+
                     #endregion // delay on retry
+
+                    using var lk = await _lock.AcquireAsync();
                     groupsInfo = await db.StreamGroupInfoAsync(
                                                 eventSourceKey,
                                                 flags: CommandFlags.DemandMaster);
@@ -62,19 +84,24 @@ namespace Weknow.EventSource.Backbone.Private
 
                 catch (RedisServerException ex)
                 {
-                    if (!await db.KeyExistsAsync(eventSourceKey,
+                    if (await db.KeyExistsAsync(eventSourceKey,
                                                  flags: CommandFlags.DemandMaster))
                     {
-                        logger.LogDebug(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
+                        logger.LogWarning(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                     else
                     {
-                        logger.LogWarning(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
+                        await Task.Delay(KEY_NOT_EXISTS_DELAY);
+                        logger.LogDebug(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                 }
                 catch (RedisConnectionException ex)
                 {
                     logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists: connection failure. {info}", CurrentInfo());
+                }
+                catch (RedisTimeoutException ex)
+                {
+                    logger.LogWarning(ex.FormatLazy(), "Create Consumer Group If Not Exists:  timeout failure. {info}", CurrentInfo());
                 }
                 catch (Exception ex)
                 {
@@ -86,6 +113,7 @@ namespace Weknow.EventSource.Backbone.Private
                 {
                     try
                     {
+                        using var lk = await _lock.AcquireAsync();
                         await db.StreamCreateConsumerGroupAsync(eventSourceKey,
                                                                 consumerGroup,
                                                                 StreamPosition.Beginning,

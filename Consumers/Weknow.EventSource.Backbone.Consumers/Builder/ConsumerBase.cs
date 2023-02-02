@@ -3,7 +3,7 @@
     /// <summary>
     /// Base class for the consumer's code generator
     /// </summary>
-    public partial class ConsumerBase
+    public partial class ConsumerBase: IConsumer
     {
         private readonly IConsumerPlan _plan;
         private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> _handlers;
@@ -46,10 +46,19 @@
         /// <returns></returns>
         public IConsumerLifetime Subscribe()
         {
-            var subscription = new EventSourceSubscriber(_plan, _handlers);
+            var subscription = new EventSourceSubscriber(this, _handlers);
             return subscription;
         }
 
         #endregion // Subscribe
+
+        #region Plan
+
+        /// <summary>
+        /// Gets the plan.
+        /// </summary>
+        IConsumerPlan IConsumer.Plan => _plan;
+
+        #endregion // Plan
     }
 }

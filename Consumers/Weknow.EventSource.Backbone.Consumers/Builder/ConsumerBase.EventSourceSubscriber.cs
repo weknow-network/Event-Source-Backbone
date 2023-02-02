@@ -20,7 +20,7 @@ namespace Weknow.EventSource.Backbone
         /// </summary>
         private class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
         {
-            private readonly IConsumerPlan _plan;
+            private readonly IConsumer _consumer;
             private readonly CancellationTokenSource _disposeCancellation = new CancellationTokenSource();
             private readonly ValueTask _subscriptionLifetime;
             private readonly ConsumerOptions _options;
@@ -38,19 +38,20 @@ namespace Weknow.EventSource.Backbone
             /// <summary>
             /// Initializes a new subscription.
             /// </summary>
-            /// <param name="plan">The plan.</param>
+            /// <param name="consumer">The consumer.</param>
             /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
 
             public EventSourceSubscriber(
-                IConsumerPlan plan,
+                IConsumer consumer,
                 IEnumerable<Handler> handlers)
             {
+                var plan = consumer.Plan;
                 var channel = plan.Channel;
-                _plan = plan;
+                _consumer = consumer;
                 if (plan.Options.KeepAlive)
                     _keepAlive.TryAdd(this, null);
 
-                _options = _plan.Options;
+                _options = Plan.Options;
                 _maxMessages = _options.MaxMessages;
                 _handlers = new ConcurrentQueue<Handler>(handlers);
 
@@ -64,6 +65,9 @@ namespace Weknow.EventSource.Backbone
 
             #endregion // Ctor
 
+            private IConsumerPlan Plan => _consumer.Plan;
+            private ILogger Logger => Plan.Logger;
+
             #region GetParameterAsync
 
             /// <summary>
@@ -74,7 +78,7 @@ namespace Weknow.EventSource.Backbone
             /// <param name="argumentName">Name of the argument.</param>
             /// <returns></returns>
             /// <exception cref="NotSupportedException"></exception>
-            ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName) => _plan.GetParameterAsync<TParam>(arg, argumentName);
+            ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName) => Plan.GetParameterAsync<TParam>(arg, argumentName);
 
             #endregion // GetParameterAsync
 
@@ -107,13 +111,13 @@ namespace Weknow.EventSource.Backbone
                 {
                     var err = "Must supply non-null instance for the subscription";
                     var ex = new ArgumentNullException(err);
-                    _plan.Logger?.LogWarning(ex, err);
+                    Logger.LogWarning(ex, err);
                     throw ex;
                 }
 
                 #endregion // Validation
 
-                CancellationToken cancellation = _plan.Cancellation;
+                CancellationToken cancellation = Plan.Cancellation;
                 Metadata meta = arg.Metadata;
 
                 #region Increment & Validation Max Messages Limit
@@ -129,13 +133,13 @@ namespace Weknow.EventSource.Backbone
 
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
 
-                var logger = _plan.Logger;
+                var logger = Logger;
                 logger.LogDebug("Consuming event: {0}", meta.Key());
 
                 #region _plan.Interceptors.InterceptAsync(...)
 
                 Bucket interceptionBucket = arg.InterceptorsData;
-                foreach (var interceptor in _plan.Interceptors)
+                foreach (var interceptor in Plan.Interceptors)
                 {
                     if (!interceptionBucket.TryGetValue(
                                             interceptor.InterceptorName,
@@ -157,7 +161,7 @@ namespace Weknow.EventSource.Backbone
 
                     await using (Ack.Set(ack))
                     {
-                        hasProcessed = await _plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
+                        hasProcessed = await Plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
                         {
                             if (ct.IsCancellationRequested) return false;
 
@@ -177,11 +181,11 @@ namespace Weknow.EventSource.Backbone
                         }, cancellation);
                         logger.LogDebug("Consumed event: {0}", meta.Key());
 
-                        var options = _plan.Options;
+                        var options = Plan.Options;
                         var behavior = options.AckBehavior;
                         if (partialBehavior == PartialConsumerBehavior.ThrowIfNotHandled && !hasProcessed)
                         {
-                            _plan.Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
+                            Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
                             throw new InvalidOperationException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
                         }
                         if (hasProcessed)
@@ -207,7 +211,7 @@ namespace Weknow.EventSource.Backbone
                 catch (OperationCanceledException)
                 {
                     logger.LogWarning("Canceled event: {0}", meta.Key());
-                    if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
+                    if (Plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();
                         throw;
@@ -216,7 +220,7 @@ namespace Weknow.EventSource.Backbone
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "event: {0}", meta.Key());
-                    if (_plan.Options.AckBehavior != AckBehavior.OnFinally)
+                    if (Plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();
                         throw;
@@ -227,7 +231,7 @@ namespace Weknow.EventSource.Backbone
                 finally
                 {
 
-                    if (_plan.Options.AckBehavior == AckBehavior.OnFinally)
+                    if (Plan.Options.AckBehavior == AckBehavior.OnFinally)
                     {
                         if (partialBehavior != PartialConsumerBehavior.Sequential)
                         {
@@ -249,7 +253,6 @@ namespace Weknow.EventSource.Backbone
             }
 
             #endregion // ConsumingAsync
-
 
             #region Subscribe
 
@@ -318,7 +321,6 @@ namespace Weknow.EventSource.Backbone
             }
 
             #endregion // Subscribe
-
 
             #region DisposeAsync
 

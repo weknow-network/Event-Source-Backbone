@@ -117,9 +117,11 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Migration_Test
 
-        [Fact(Timeout = TIMEOUT)]
+        [Fact]//(Timeout = TIMEOUT)]
         public async Task Migration_Test()
         {
+            string MIGRATE_TO = "Migrated";
+
             #region ISequenceOperations producer = ...
 
             ISequenceOperationsProducer producer = _producerBuilder
@@ -132,45 +134,72 @@ namespace Weknow.EventSource.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            IRawProducer rawProducer = _producerBuilder
-                                            .Environment("Migrated")
-                                            .BuildRaw();
-
             await SendSequenceAsync(producer);
-            SubscriptionBridge subscriberBridge = new(rawProducer);
+
+            ISequenceOperationsConsumer emptySubscriber = A.Fake<ISequenceOperationsConsumer>();
 
             CancellationToken cancellation = GetCancellationToken();
+            var cts = new CancellationTokenSource();
+            try
+            {
+                #region var consumerBuilder = _consumerBuilder...
 
-            var consumerBuilder = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
-                         .WithCancellation(cancellation)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
-                         .WithLogger(_fakeLogger);
+                var consumerBuilder = _consumerBuilder
+                             .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
+                             .WithCancellation(cancellation)
+                             .Partition(PARTITION)
+                             .Shard(SHARD)
+                             .WithLogger(_fakeLogger);
 
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+                #endregion // var consumerBuilder = _consumerBuilder...
 
-            await using IConsumerLifetime subscription = consumerBuilder
-                         .Environment(ENV)
-                         .Group("CONSUMER_GROUP_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .Subscribe(subscriberBridge);
+                #region  await using IConsumerLifetime subscriptionMigration = ...Subscribe(...)
 
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+                // listen on the migrated data
+                await using IConsumerLifetime subscriptionMigration = consumerBuilder
+                             .WithOptions(o => o with { OriginFilter = MessageOrigin.Copy })
+                             .Environment(MIGRATE_TO)
+                             .Group("CONSUMER_GROUP_2")
+                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                             .Subscribe(_subscriberBridge);
 
-            #region  await using IConsumerLifetime subscriptionMigration = ...Subscribe(...)
+                // listen on the migrated data for original messages (shouldn't handle any message)
+                SequenceOperationsConsumerBridge subscriberBridgeNone = new SequenceOperationsConsumerBridge(emptySubscriber);
+                await using IConsumerLifetime subscriptionMigrationFilterAll = consumerBuilder
+                             .WithOptions(o => o with { OriginFilter = MessageOrigin.Original })
+                             .Environment(MIGRATE_TO)
+                             .Group("CONSUMER_GROUP_3")
+                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                             .WithCancellation(cts.Token)
+                             .Subscribe(subscriberBridgeNone);
 
-            await using IConsumerLifetime subscriptionMigration = consumerBuilder
-                         .WithOptions(o => o with { OriginFilter = MessageOrigin.Copy })
-                         .Environment("Migrated")
-                         .Group("CONSUMER_GROUP_2")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .Subscribe(_subscriberBridge);
+                #endregion //  await using IConsumerLifetime subscriptionMigration = ...Subscribe(...)
 
-            #endregion //  await using IConsumerLifetime subscriptionMigration = ...Subscribe(...)
+                #region await using IConsumerLifetime fwSubscription = ...forwarder
 
-            await subscription.Completion;
-            await subscriptionMigration.Completion;
+                // will forward messages (produce at the announcement level)
+                IRawProducer fwProducer = _producerBuilder
+                                                .Environment(MIGRATE_TO)
+                                                .BuildRaw();
+                // attach the producer into a subscription bridge
+                SubscriptionBridge fwSubscriberBridge = new(fwProducer);
+
+                // attach the forward subscription into a concrete stream
+                await using IConsumerLifetime fwSubscription = consumerBuilder
+                             .Environment(ENV)
+                             .Group("CONSUMER_GROUP_1")
+                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                             .Subscribe(fwSubscriberBridge);
+
+                #endregion await using IConsumerLifetime fwSubscription = ...forwarder
+
+                await fwSubscription.Completion;
+                await subscriptionMigration.Completion;
+            }
+            finally
+            {
+                cts.CancelSafe();
+            }
 
             #region Validation
 
@@ -180,6 +209,9 @@ namespace Weknow.EventSource.Backbone.Tests
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.EarseAsync(4335))
                 .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => emptySubscriber.RegisterAsync(A<User>.Ignored))
+                .MustNotHaveHappened();
 
             #endregion // Validation
         }

@@ -85,7 +85,6 @@ namespace Weknow.EventSource.Backbone
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
             Routes = routes ?? copyFrom.Routes;
-            Cancellation = cancellation ?? copyFrom.Cancellation;
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
             ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
@@ -93,6 +92,13 @@ namespace Weknow.EventSource.Backbone
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
             StorageStrategiesAsync = copyFrom.StorageStrategiesAsync;
+            if (cancellation == null)
+                Cancellation = copyFrom.Cancellation;
+            else
+            {
+                var combine = CancellationTokenSource.CreateLinkedTokenSource(cancellation ?? CancellationToken.None, copyFrom.Cancellation);
+                Cancellation = combine.Token;
+            }
         }
 
         #endregion // Ctor
@@ -362,6 +368,7 @@ namespace Weknow.EventSource.Backbone
         internal ConsumerPlan WithCancellation(
                                         CancellationToken cancellation)
         {
+
             return new ConsumerPlan(this, cancellation: cancellation);
         }
 

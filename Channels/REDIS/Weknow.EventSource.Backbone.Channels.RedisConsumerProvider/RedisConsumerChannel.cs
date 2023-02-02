@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using Weknow.EventSource.Backbone.Building;
+using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
 using Weknow.EventSource.Backbone.Private;
 
 using static System.Math;
@@ -44,7 +45,6 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
         private readonly IEventSourceRedisConnectionFacroty _connFactory;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
         private const string META_SLOT = "__<META>__";
-        private const string NONE_CUNSUMER = "__NONE_CUNSUMER__"; // a work around used to release messages back to the stream
         private const int INIT_RELEASE_DELAY = 100;
         private const int MAX_RELEASE_DELAY = 1000 * 30; // 30 seconds
 
@@ -106,7 +106,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                     Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken)
         {
-            var joinCancellation = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken).Token;
+            var joinCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken);
+            var joinCancellation = joinCancellationSource.Token;
             ConsumerOptions options = plan.Options;
 
             ILogger? logger = _logger ?? plan.Logger;
@@ -126,6 +127,15 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 }
                 #region Exception Handling
 
+                catch (OperationCanceledException)
+                {
+                    if (_logger == null)
+                        Console.WriteLine($"Subscribe cancellation [{plan.Key()}] event stream (may have reach the messages limit)");
+                    else
+                        _logger.LogError("Subscribe cancellation [{partition}->{shard}] event stream (may have reach the messages limit)",
+                            plan.Partition, plan.Shard);
+                    joinCancellationSource.CancelSafe();
+                }
                 catch (Exception ex)
                 {
                     if (_logger == null)
@@ -236,10 +246,9 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
             #region await db.CreateConsumerGroupIfNotExistsAsync(...)
 
-
             await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                 key,
-                NONE_CUNSUMER,
+                RedisChannelConstants.NONE_CONSUMER,
                 logger);
 
             await _connFactory.CreateConsumerGroupIfNotExistsAsync(
@@ -701,7 +710,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                 IDatabaseAsync db = conn.GetDatabase();
                 await db.StreamClaimAsync(plan.Key(),
                                           plan.ConsumerGroup,
-                                          NONE_CUNSUMER,
+                                          RedisChannelConstants.NONE_CONSUMER,
                                           1,
                                           freeTargets,
                                           flags: CommandFlags.DemandMaster);
