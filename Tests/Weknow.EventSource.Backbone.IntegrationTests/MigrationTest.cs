@@ -117,7 +117,7 @@ namespace Weknow.EventSource.Backbone.Tests
 
         #region Migration_Test
 
-        [Fact]//(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Migration_Test()
         {
             string MIGRATE_TO = "Migrated";

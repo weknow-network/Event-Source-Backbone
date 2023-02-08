@@ -51,7 +51,8 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                   .RetryForeverAsync((ex, i, c) => onRetry_(ex, TimeSpan.Zero, i, c));
 
 
-            AsyncPolicy breaker = Polly.Policy.Handle<Exception>()
+            AsyncPolicy breaker = Polly.Policy
+                .Handle<Exception>()
                             //.CircuitBreakerAsync(10, TimeSpan.FromSeconds(20), onBreak_, onReset_, onHalfOpen_);
                             .AdvancedCircuitBreakerAsync(
                                 failureThreshold: 0.5, // Break on >=50% actions result in handled exceptions...

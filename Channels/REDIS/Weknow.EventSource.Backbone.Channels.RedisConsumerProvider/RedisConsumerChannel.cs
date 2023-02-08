@@ -453,7 +453,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                             {
                                 RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
                                 await ReleaseAsync(freeTargets);
-                                await Task.Delay(1000);
+                                await Task.Delay(1000, ct);
                             }
                         }
                     }
@@ -487,13 +487,16 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
 
                             IConnectionMultiplexer conn = await _connFactory.GetAsync();
                             IDatabaseAsync db = conn.GetDatabase();
+
                             values = await db.StreamReadGroupAsync(
                                                                 key,
                                                                 plan.ConsumerGroup,
                                                                 plan.ConsumerName,
                                                                 position: StreamPosition.NewMessages,
                                                                 count: bachSize,
-                                                                flags: flags);
+                                                                flags: flags)
+                                            .WithCancellation(ct, () => Array.Empty<StreamEntry>())
+                                            .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
                         }
                         StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
                         return results;
@@ -714,7 +717,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                           1,
                                           freeTargets,
                                           flags: CommandFlags.DemandMaster);
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken);
                 if(releaseDelay < MAX_RELEASE_DELAY)
                     releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
 
