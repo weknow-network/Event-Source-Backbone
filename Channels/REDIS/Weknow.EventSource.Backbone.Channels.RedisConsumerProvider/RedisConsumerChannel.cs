@@ -718,7 +718,7 @@ namespace Weknow.EventSource.Backbone.Channels.RedisProvider
                                           freeTargets,
                                           flags: CommandFlags.DemandMaster);
                 await Task.Delay(releaseDelay, cancellationToken);
-                if(releaseDelay < MAX_RELEASE_DELAY)
+                if (releaseDelay < MAX_RELEASE_DELAY)
                     releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
 
                 if (bachSize == options.BatchSize)

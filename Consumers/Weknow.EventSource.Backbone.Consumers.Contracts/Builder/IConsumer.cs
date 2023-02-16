@@ -1,8 +1,4 @@
-﻿using System.Collections.Immutable;
-
-using Weknow.EventSource.Backbone.Building;
-
-namespace Weknow.EventSource.Backbone
+﻿namespace Weknow.EventSource.Backbone
 {
 
     /// <summary>

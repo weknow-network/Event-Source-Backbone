@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Weknow.EventSource.Backbone;

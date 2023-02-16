@@ -3,12 +3,9 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using Weknow.EventSource.Backbone.SrcGen.Generators.Entities;
 using Weknow.EventSource.Backbone.SrcGen.Generators.EntitiesAndHelpers;
-
-using static Weknow.EventSource.Backbone.Helper;
 
 namespace Weknow.EventSource.Backbone
 {

@@ -3,7 +3,7 @@
     /// <summary>
     /// Base class for the consumer's code generator
     /// </summary>
-    public partial class ConsumerBase: IConsumer
+    public partial class ConsumerBase : IConsumer
     {
         private readonly IConsumerPlan _plan;
         private readonly IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> _handlers;

@@ -37,7 +37,7 @@ namespace Weknow.EventSource.Backbone
                             SyntaxReceiverResult info)
         {
 
-            var (type, att, symbol,  kind, ns, isProducer) = info;
+            var (type, att, symbol, kind, ns, isProducer) = info;
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
             CopyDocumentation(builder, kind, type, "\t");

@@ -2,8 +2,6 @@
 
 using StackExchange.Redis;
 
-using Weknow.EventSource.Backbone.Channels.RedisProvider.Common;
-
 namespace Weknow.EventSource.Backbone.Private
 {
     /// <summary>

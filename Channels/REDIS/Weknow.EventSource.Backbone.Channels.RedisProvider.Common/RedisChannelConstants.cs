@@ -11,7 +11,7 @@
         /// <summary>
         /// a work around used to release messages back to the stream (consumer)
         /// </summary>
-        public const string NONE_CONSUMER = "__NONE_CUNSUMER__"; 
+        public const string NONE_CONSUMER = "__NONE_CUNSUMER__";
 
         public static class MetaKeys
         {

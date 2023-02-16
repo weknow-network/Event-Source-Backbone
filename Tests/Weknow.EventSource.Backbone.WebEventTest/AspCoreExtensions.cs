@@ -67,38 +67,41 @@ namespace Microsoft.Extensions.Configuration
 
             Console.WriteLine($"JAEGER endpoint: key='OTEL_EXPORTER_JAEGER_ENDPOINT', env='{hostEnv.EnvironmentName}'"); // will be visible in the pods logs
 
-            services.AddOpenTelemetryTracing(builder =>
-            {
-                builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                    .AddService(shortAppName))
-                    .ListenToEventSourceRedisChannel()
-                    // .SetSampler<AlwaysOnSampler>()
-                    .AddAspNetCoreInstrumentation(m =>
-                    {
-                        m.Filter = OpenTelemetryFilter;
-                        // m.Enrich
-                        m.RecordException = true;
-                        m.EnableGrpcAspNetCoreSupport = true;
-                    })
-                    .AddHttpClientInstrumentation(m =>
-                    {
-                        // m.Enrich
-                        m.RecordException = true;
-                    })
-                    //.AddRedisInstrumentation(redisConnection
-                    //        //, m => { 
-                    //        //    m.FlushInterval
-                    //        //}
-                    //        )
-                    .AddOtlpExporter()
-                    .SetSampler(TestSampler.Create(LogLevel.Information));
-                ;
-                if (hostEnv.IsDevelopment())
+#pragma warning disable S125 // Sections of code should not be commented out
+            services.AddOpenTelemetry()
+                .WithTracing(builder =>
                 {
-                    builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
-                }
-            });
+                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                        .AddService(shortAppName))
+                        .ListenToEventSourceRedisChannel()
+                        // .SetSampler<AlwaysOnSampler>()
+                        .AddAspNetCoreInstrumentation(m =>
+                        {
+                            m.Filter = OpenTelemetryFilter;
+                            // m.Enrich
+                            m.RecordException = true;
+                            m.EnableGrpcAspNetCoreSupport = true;
+                        })
+                        .AddHttpClientInstrumentation(m =>
+                        {
+                            // m.Enrich
+                            m.RecordException = true;
+                        })
+                        //.AddRedisInstrumentation(redisConnection
+                        //        //, m => { 
+                        //        //    m.FlushInterval
+                        //        //}
+                        //        )
+                        .AddOtlpExporter()
+                        .SetSampler(TestSampler.Create(LogLevel.Information));
+                    
+                    if (hostEnv.IsDevelopment())
+                    {
+                        builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
+                    }
+                });
             return services;
+#pragma warning restore S125 // Sections of code should not be commented out
 
             #region OpenTelemetryFilter
 
@@ -144,7 +147,6 @@ namespace Microsoft.Extensions.Configuration
                 setting.WithDefault();
 
             });
-            //JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
         }
 
         #endregion // WithJsonOptions
@@ -153,13 +155,10 @@ namespace Microsoft.Extensions.Configuration
         {
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-            // setting.PropertyNameCaseInsensitive = true;
-            // setting.IgnoreNullValues = true;
             options.WriteIndented = true;
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             options.Converters.Add(JsonImmutableDictionaryConverter.Default);
             options.Converters.Add(JsonMemoryBytesConverterFactory.Default);
-            //setting.AddContext<EventSOurceJsonContext>();
             return options;
         }
 
@@ -201,20 +200,7 @@ namespace Microsoft.Extensions.Configuration
                             options.IncludeScopes = true;
                             options.ParseStateValues = true;
                             options.IncludeFormattedMessage = true;
-                            //options.AddConsoleExporter();
                         });
-                        //builder.AddOpenTelemetry(options =>
-                        //{
-                        //    options.IncludeScopes = true;
-                        //    options.ParseStateValues = true;
-                        //    options.IncludeFormattedMessage = true;
-                        //    options.AddOtlpExporter(options => options.Endpoint = new System.Uri(jaegerEndPoint));
-                        //    if (hostEnv.IsDevelopment())
-                        //    {
-                        //        builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
-                        //    }
-                        //    options.AddConsoleExporter();
-                        //});
                     });
             return builder;
         }

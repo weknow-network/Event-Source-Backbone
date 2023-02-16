@@ -53,7 +53,7 @@ internal static class RoslynHelper
     {
         foreach (var member in type.GetMembers())
         {
-            if(member is IMethodSymbol ms && !ms.IsStatic) 
+            if (member is IMethodSymbol ms && !ms.IsStatic)
                 yield return ms;
         }
         foreach (var child in type.Interfaces)
