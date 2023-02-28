@@ -12,14 +12,14 @@
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
-		<PackageReference Include="OpenTelemetry" Version="1.4.0-rc.4" />
-		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.4.0-rc.4" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0-rc.4" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.4.0-rc.4" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.13" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.13" />
+		<PackageReference Include="OpenTelemetry" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.4.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
-		<PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.96" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 
