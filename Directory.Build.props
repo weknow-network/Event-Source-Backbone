@@ -16,9 +16,9 @@
 
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
-		<PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, bnaya</PackageTags>
+		<PackageProjectUrl>https://medium.com/@bnayae</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bnayae/Event-Source-Backbone</RepositoryUrl>
 		<RepositoryType>GitHub</RepositoryType>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,12 +34,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReleaseNotes>
-			1.1.274: [BREAKING CHANGES] Consumer options / consumer channel setting had changed
-			1.2.17: 
-			  Support Inheritance
-			  [BREAKING CHANGES] Renaming of Enum
-			  
+		<PackageReleaseNotes>			  
 		</PackageReleaseNotes>
 	</PropertyGroup>
 

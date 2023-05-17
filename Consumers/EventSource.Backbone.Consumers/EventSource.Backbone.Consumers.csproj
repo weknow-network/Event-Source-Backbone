@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventSource.Backbone.Consumers.Contracts\EventSource.Backbone.Consumers.Contracts.csproj" />
+    <ProjectReference Include="..\..\EventSource.Backbone.Contracts\EventSource.Backbone.Contracts.csproj" />
+    <ProjectReference Include="..\..\EventSource.Backbone\EventSource.Backbone.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Interceptors\**" />
+    <Compile Remove="Options\**" />
+    <EmbeddedResource Remove="Interceptors\**" />
+    <EmbeddedResource Remove="Options\**" />
+    <None Remove="Interceptors\**" />
+    <None Remove="Options\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

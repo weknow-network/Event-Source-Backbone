@@ -35,7 +35,7 @@ jobs:
       uses: EndBug/add-and-commit@v7
       with:
         author_name: CI/CD
-        author_email: bnaya@weknow.network.com
+        author_email: ci.bnaya@gmail.com
         message: 'Increment Version'
         add: 'Directory.Build.props'  
         
@@ -50,7 +50,7 @@ jobs:
     - name: Build
       run: dotnet build  --configuration ${{ env.BUILD_CONFIG }} --no-restore 
     - name: Test
-      run: dotnet test Tests/Weknow.EventSource.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
+      run: dotnet test Tests/EventSource.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
 
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH }} -s https://api.nuget.org/v3/index.json --skip-duplicate 
