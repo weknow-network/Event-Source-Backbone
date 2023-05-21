@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
+using EventSourcing.Backbone.Building;
+
 using Microsoft.Extensions.Logging;
 
 using Polly;
-
-using EventSourcing.Backbone.Building;
 
 using static EventSourcing.Backbone.EventSourceConstants;
 

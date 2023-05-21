@@ -186,13 +186,13 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public bool TryGetValue(string key, out ReadOnlyMemory<byte> value)
         {
-            if(_data.TryGetValue(key, out value))
+            if (_data.TryGetValue(key, out value))
                 return true;
-            if(_data.TryGetValue(key.ToPascal(), out value))
+            if (_data.TryGetValue(key.ToPascal(), out value))
                 return true;
-            if(_data.TryGetValue(key.ToCamel(), out value))
+            if (_data.TryGetValue(key.ToCamel(), out value))
                 return true;
-            if(_data.TryGetValue(key.ToDash(), out value))
+            if (_data.TryGetValue(key.ToDash(), out value))
                 return true;
             return _data.TryGetValue(key.ToLower(), out value);
         }

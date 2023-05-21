@@ -1,13 +1,13 @@
 using System.Text.Json;
 
+using EventSourcing.Backbone.WebEventTest;
+using EventSourcing.Backbone.WebEventTest.Jobs;
+
 using Microsoft.OpenApi.Models;
 
 using Refit;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.WebEventTest;
-using EventSourcing.Backbone.WebEventTest.Jobs;
 
 const string ENV = $"test";
 

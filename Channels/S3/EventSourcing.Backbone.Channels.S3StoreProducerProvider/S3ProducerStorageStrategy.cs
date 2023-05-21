@@ -1,9 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 
-using Microsoft.Extensions.Logging;
-
 using EventSourcing.Backbone.Channels;
+
+using Microsoft.Extensions.Logging;
 
 using static EventSourcing.Backbone.EventSourceConstants;
 

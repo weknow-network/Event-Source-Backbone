@@ -50,7 +50,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
-        public required string Operation { get; init; } 
+        public required string Operation { get; init; }
 
         #endregion Operation 
 
@@ -119,7 +119,7 @@ namespace EventSourcing.Backbone
     {
         private const string EMPTY_KEY = "~EMPTY~";
 
-        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Operation="NONE", Uri=string.Empty };
+        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Operation = "NONE", Uri = string.Empty };
 
         #region Duration
 

@@ -2,6 +2,10 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
 
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Enums;
+using EventSourcing.Backbone.UnitTests.Entities;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
@@ -9,10 +13,6 @@ using Microsoft.Extensions.Logging;
 using Polly;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Enums;
-using EventSourcing.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;

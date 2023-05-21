@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 
+using EventSourcing.Backbone.Building;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
-
-using EventSourcing.Backbone.Building;
 
 namespace EventSourcing.Backbone
 {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Immutable;
 
-using Microsoft.Extensions.Logging;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Private;
+
+using Microsoft.Extensions.Logging;
 
 namespace EventSourcing.Backbone
 {
@@ -34,7 +34,6 @@ namespace EventSourcing.Backbone
         /// <param name="channel">The channel.</param>
         /// <param name="environment">The environment.</param>
         /// <param name="key">The partition.</param>
-        /// <param name="shard">The shard.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
@@ -96,8 +95,13 @@ namespace EventSourcing.Backbone
         {
             get
             {
+#pragma warning disable S2372 // Exceptions should not be thrown from property getters
+#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
                 if (_channel == null)
                     throw new ArgumentNullException("Event Source Producer channel not set");
+#pragma warning restore S3928 // 
+#pragma warning restore S2372
+
                 return _channel;
             }
         }
@@ -391,29 +395,6 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // AddForward
-
-        #region class NopChannel
-
-        /// <summary>
-        /// Not operational channel
-        /// </summary>
-        /// <seealso cref="EventSourcing.Backbone.IProducerChannelProvider" />
-        private class NopChannel : IProducerChannelProvider
-        {
-            public static readonly IProducerChannelProvider Empty = new NopChannel();
-            /// <summary>
-            /// Send.
-            /// </summary>
-            /// <param name="payload">The payload.</param>
-            /// <param name="storageStrategy">The storage strategy.</param>
-            /// <returns>A ValueTask.</returns>
-            public ValueTask<string> SendAsync(Announcement payload, ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
-            {
-                throw new NotSupportedException("Channel must be assign");
-            }
-        }
-
-        #endregion // class NopChannel
 
         // ---------------------------------------
 

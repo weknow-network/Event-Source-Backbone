@@ -4,14 +4,14 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Enums;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Enums;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -205,38 +205,38 @@ namespace EventSourcing.Backbone.Tests
 
             var hash = new ConcurrentDictionary<string, int>();
             A.CallTo(() => _subscriberA.AAsync(1))
-                .Invokes(c => 
-                { 
-                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); 
-                    if(Interlocked.Increment(ref i) == 3)
+                .Invokes(c =>
+                {
+                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
+                    if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
             A.CallTo(() => _subscriberB.BAsync(A<DateTimeOffset>.Ignored))
-                .Invokes(c => 
+                .Invokes(c =>
                 {
-                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); 
-                    if(Interlocked.Increment(ref i) == 3)
+                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
+                    if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
             A.CallTo(() => _subscriberAB.DerivedAsync("Hi"))
-                .Invokes(c => 
-                { 
-                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); 
-                    if(Interlocked.Increment(ref i) == 3)
+                .Invokes(c =>
+                {
+                    hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
+                    if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
             A.CallTo(() => _subscriberAB.AAsync(1))
-                .Invokes(c => 
-                { 
+                .Invokes(c =>
+                {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
-                    if(Interlocked.Increment(ref i) == 3)
+                    if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
             A.CallTo(() => _subscriberAB.BAsync(A<DateTimeOffset>.Ignored))
-                .Invokes(c => 
+                .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
-                    if(Interlocked.Increment(ref i) == 3)
+                    if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
 

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 
-using Microsoft.Extensions.Logging;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Enums;
+
+using Microsoft.Extensions.Logging;
 
 using Handler = System.Func<EventSourcing.Backbone.Announcement, EventSourcing.Backbone.IConsumerBridge, System.Threading.Tasks.Task<bool>>;
 

@@ -1,14 +1,14 @@
 using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.UnitTests.Entities;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;

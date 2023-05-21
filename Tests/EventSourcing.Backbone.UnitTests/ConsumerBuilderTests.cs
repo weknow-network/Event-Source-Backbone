@@ -1,8 +1,8 @@
+using EventSourcing.Backbone.UnitTests.Entities;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
-
-using EventSourcing.Backbone.UnitTests.Entities;
 
 using Xunit;
 using Xunit.Abstractions;

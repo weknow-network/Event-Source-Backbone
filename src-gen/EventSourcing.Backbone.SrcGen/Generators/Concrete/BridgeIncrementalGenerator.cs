@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
 using System.Text;
 
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace EventSourcing.Backbone
 {

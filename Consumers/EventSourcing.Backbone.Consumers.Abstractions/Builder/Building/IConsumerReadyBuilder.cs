@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EventSourcing.Backbone.Building;
+
+using Microsoft.Extensions.Logging;
 
 using Polly;
-
-using EventSourcing.Backbone.Building;
 
 namespace EventSourcing.Backbone
 {

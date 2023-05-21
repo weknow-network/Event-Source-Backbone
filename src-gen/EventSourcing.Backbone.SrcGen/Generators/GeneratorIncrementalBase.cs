@@ -1,11 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 
+using EventSourcing.Backbone.SrcGen.Generators.Entities;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using static EventSourcing.Backbone.Helper;
 

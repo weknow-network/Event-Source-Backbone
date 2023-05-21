@@ -2,8 +2,6 @@
 
 using EventSourcing.Backbone.Building;
 
-// TODO: Register the service at the Program.cs file services.AddHostedService<...>
-
 namespace EventSourcing.Backbone.WebEventTest.Jobs
 {
     /// <summary>
@@ -59,13 +57,15 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
+#pragma warning disable S1186 // Methods should not be empty
         public void Dispose()
         {
         }
+#pragma warning restore S1186 // Methods should not be empty
 
         #endregion Dispose
 
-        private class Subscriber : IEventFlowConsumer
+        private sealed class Subscriber : IEventFlowConsumer
         {
             private readonly ILogger _logger;
             private readonly IEventFlowProducer _producer;
@@ -83,7 +83,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
             {
                 Metadata? meta = ConsumerMetadata.Context;
 
-                _logger.LogInformation("Consume First Stage {partition} {shard} {PII} {data}",
+                _logger.LogInformation("Consume First Stage {partition} {PII} {data}",
                     meta?.Uri, PII, payload);
 
                 await _producer.Stage2Async(
@@ -94,7 +94,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
             ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
             {
                 var meta = ConsumerMetadata.Context;
-                _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
+                _logger.LogInformation("Consume 2 Stage {partition} {PII} {data}",
                     meta?.Metadata?.Uri, PII, data);
                 return ValueTask.CompletedTask;
             }

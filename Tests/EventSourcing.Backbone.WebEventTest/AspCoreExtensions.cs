@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using EventSourcing.Backbone;
+
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 using Newtonsoft.Json.Serialization;
@@ -10,8 +12,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 
@@ -94,7 +94,7 @@ namespace Microsoft.Extensions.Configuration
                         //        )
                         .AddOtlpExporter()
                         .SetSampler(TestSampler.Create(LogLevel.Information));
-                    
+
                     if (hostEnv.IsDevelopment())
                     {
                         builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);

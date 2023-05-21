@@ -3,13 +3,13 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
-using Microsoft.Extensions.Logging;
-
-using StackExchange.Redis;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider.Common;
 using EventSourcing.Backbone.Private;
+
+using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
 
 using static System.Math;
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;

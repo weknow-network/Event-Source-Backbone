@@ -1,12 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
 
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Private;
+
 using Microsoft.Extensions.Logging;
 
 using Polly;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Private;
 
 namespace EventSourcing.Backbone
 {

@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EventSourcing.Backbone.Building;
 
-using EventSourcing.Backbone.Building;
+using Microsoft.Extensions.Logging;
 
 namespace EventSourcing.Backbone
 {

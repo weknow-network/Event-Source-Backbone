@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EventSourcing.Backbone;
 
-using EventSourcing.Backbone;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.Configuration
 {

@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EventSourcing.Backbone.Channels.RedisProvider;
+using EventSourcing.Backbone.Private;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -7,9 +10,6 @@ using OpenTelemetry.Trace;
 using Polly;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.Channels.RedisProvider;
-using EventSourcing.Backbone.Private;
 
 namespace EventSourcing.Backbone
 {

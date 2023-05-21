@@ -1,15 +1,18 @@
 using System.Threading.Channels;
 
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.UnitTests.Entities;
+
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.UnitTests.Entities;
-
 using Xunit;
 using Xunit.Abstractions;
 
+#pragma warning disable S2699 // Tests should include assertions
+#pragma warning disable S1481 // Unused local variables should be removed
+#pragma warning disable S125 // Sections of code should not be commented out
 
 
 namespace EventSourcing.Backbone
@@ -19,7 +22,6 @@ namespace EventSourcing.Backbone
         private readonly ITestOutputHelper _outputHelper;
         private readonly IProducerBuilder _builder = ProducerBuilder.Empty;
         private readonly Func<ILogger, IProducerChannelProvider> _channel;
-        //private readonly IDataSerializer _serializer;
         private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
         private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
         private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
@@ -69,6 +71,8 @@ namespace EventSourcing.Backbone
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
                                         .CustomBuildSequenceOfProducer();
+
+            _outputHelper.WriteLine("sending");
 
             string[] ids1 = await producer.RegisterAsync(new User());
             string[] ids2 = await producer.LoginAsync("admin", "1234");
@@ -148,28 +152,6 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Build_GeneratedFactory_Specialize_Producer_Test
-
-        #region Build_Factory_Producer_Test
-
-        [Fact]
-        public async Task Build_Factory_Producer_Test()
-        {
-            //var option = new EventSourceOptions(_serializer);
-
-            ISequenceOperationsProducer producer =
-                _builder.UseChannel(_channel)
-                        //.WithOptions(option)
-                        .Uri("Kids:HappySocks")
-                        .BuildSequenceOperationsProducer();
-
-            await producer.RegisterAsync(new User());
-            await producer.LoginAsync("admin", "1234");
-            await producer.EarseAsync(4335);
-
-            var message = await ch.Reader.ReadAsync();
-        }
-
-        #endregion // Build_Factory_Producer_Test
 
         #region Build_Factory_Producer_WithReturn_Test
 

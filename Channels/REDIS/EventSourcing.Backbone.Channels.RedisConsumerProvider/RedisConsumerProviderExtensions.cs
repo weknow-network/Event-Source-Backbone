@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Channels.RedisProvider;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Channels.RedisProvider;
 
 namespace EventSourcing.Backbone
 {
