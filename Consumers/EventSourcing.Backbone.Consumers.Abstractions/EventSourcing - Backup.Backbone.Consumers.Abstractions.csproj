@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <PropertyGroup>
+    <RootNamespace>EventSourcing.Backbone</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove=".\EventSourcing.Backbone.Consumers.Contracts.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EventSourcing.Backbone.Contracts\EventSourcing.Backbone.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+</Project>

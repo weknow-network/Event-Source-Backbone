@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Configurations>Debug;Release;Gen</Configurations>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="payload.json" />
+    <None Remove="person.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="payload.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="person.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+    <PackageReference Include="FakeItEasy" Version="7.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\EventSourcing.Backbone.Channels.RedisConsumerProvider.csproj" />
+    <ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />
+    <ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProvider.Common\EventSourcing.Backbone.Channels.RedisProvider.Common.csproj" />
+    <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreConsumerProvider\EventSourcing.Backbone.Channels.S3StoreConsumerProvider.csproj" />
+    <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProducerProvider\EventSourcing.Backbone.Channels.S3StoreProducerProvider.csproj" />
+    <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers.Contracts\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers.Contracts\EventSourcing.Backbone.Producers.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone.Contracts\EventSourcing.Backbone.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>
