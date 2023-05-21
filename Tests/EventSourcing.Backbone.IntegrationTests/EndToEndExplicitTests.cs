@@ -183,9 +183,9 @@ namespace EventSourcing.Backbone.Tests
         {
             GC.SuppressFinalize(this);
             string key = URI;
-            IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
-                                                _fakeLogger,
-                                                cfg => cfg.AllowAdmin = true);
+            IConnectionMultiplexer conn = RedisClientFactory.CreateProviderAsync(
+                                                    logger: _fakeLogger,
+                                                    configurationHook: cfg => cfg.AllowAdmin = true).Result;
             IDatabaseAsync db = conn.GetDatabase();
 
             db.KeyDeleteAsync(key, CommandFlags.DemandMaster).Wait();

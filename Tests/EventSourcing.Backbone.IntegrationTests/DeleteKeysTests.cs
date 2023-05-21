@@ -29,8 +29,8 @@ namespace EventSourcing.Backbone.Tests
         [Trait("type", "delete-keys")]
         public async Task DELETE_KEYS_TEST(string pattern)
         {
-            IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
-                                                cfg => cfg.AllowAdmin = true);
+            IConnectionMultiplexer conn = await RedisClientFactory.CreateProviderAsync(
+                                                    configurationHook: cfg => cfg.AllowAdmin = true);
             string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
             var server = conn.GetServer(serverName);
             IEnumerable<RedisKey> keys = server.Keys(pattern: pattern).ToArray();

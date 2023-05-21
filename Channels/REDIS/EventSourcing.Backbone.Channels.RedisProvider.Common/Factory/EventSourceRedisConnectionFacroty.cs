@@ -12,42 +12,53 @@ namespace EventSourcing.Backbone
     /// This factory is also responsible of the connection health.
     /// It will return same connection as long as it healthy.
     /// </summary>
-    public sealed class EventSourceRedisConnectionFacroty : RedisConnectionFacrotyBase, IEventSourceRedisConnectionFacroty
+    public sealed class EventSourceRedisConnectionFacroty : RedisConnectionFacrotyBase
     {
         #region Ctor
 
-        #region Overloads
-
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty"/> class.
         /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="configuration"></param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
-        public EventSourceRedisConnectionFacroty(
-            ILogger<EventSourceRedisConnectionFacroty> logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default
-            ) : this((ILogger)logger, configuration, credentialsKeys)
-        {
-        }
-
-        #endregion // Overloads
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="configuration"></param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default) : base(logger, configuration, credentialsKeys)
+            ConfigurationOptions? configuration) :
+                base(logger, configuration)
         {
-            //CredentialsKeys = credentialsKeys;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty"/> class.
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        public EventSourceRedisConnectionFacroty(
+            RedisCredentialsKeys credential,
+            ILogger logger,
+            Action<ConfigurationOptions>? configurationHook = null) :
+                base(credential, logger, configurationHook)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
+        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        public EventSourceRedisConnectionFacroty(
+            ILogger logger,
+            string? endpoint = null,
+            string? password = null,
+            Action<ConfigurationOptions>? configurationHook = null) :
+                base(logger, endpoint, password, configurationHook)
+        {
+        }
 
         #endregion // Ctor
 
@@ -56,17 +67,8 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the kind.
         /// </summary>
-        protected override string Kind => "Event-Sourcing";
+        protected override string Kind { get; } = "Event-Sourcing";
 
         #endregion // Kind
-
-        //#region CredentialsKeys
-
-        ///// <summary>
-        ///// Gets the credentials keys.
-        ///// </summary>
-        //protected override RedisCredentialsKeys CredentialsKeys { get; }
-
-        //#endregion // CredentialsKeys
     }
 }

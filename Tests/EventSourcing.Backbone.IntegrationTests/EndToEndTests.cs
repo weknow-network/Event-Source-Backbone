@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
 
 using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Enums;
 using EventSourcing.Backbone.UnitTests.Entities;
 
@@ -67,15 +68,14 @@ namespace EventSourcing.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
-            var consumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(
-                                        stg => stg with
-                                        {
-                                            DelayWhenEmptyBehavior =
-                                                stg.DelayWhenEmptyBehavior with
-                                                {
-                                                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
-                                                }
-                                        });
+            var stg = new RedisConsumerChannelSetting
+            {
+                DelayWhenEmptyBehavior = new DelayWhenEmptyBehavior
+                {
+                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
+                }
+            };
+            var consumerBuilder = stg.CreateRedisConsumerBuilder();
             _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
             A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
@@ -1756,8 +1756,9 @@ namespace EventSourcing.Backbone.Tests
             GC.SuppressFinalize(this);
             try
             {
-                IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
-                                                    cfg => cfg.AllowAdmin = true);
+                IConnectionMultiplexer conn = RedisClientFactory.CreateProviderAsync(
+                                                    logger: _fakeLogger,
+                                                    configurationHook: cfg => cfg.AllowAdmin = true).Result;
                 string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
                 var server = conn.GetServer(serverName);
                 IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");

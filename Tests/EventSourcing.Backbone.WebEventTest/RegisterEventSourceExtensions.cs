@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
-                IRawProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
+                IRawProducer producer = ProducerBuilder.Empty.GetRedisChannelService(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .BuildRaw();
                 return producer;
@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
-                IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
+                IEventFlowProducer producer = ProducerBuilder.Empty.GetRedisChannelService(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .Environment(env)
                                      .Uri(PARTITION)
@@ -40,7 +40,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 IConsumerReadyBuilder consumer =
-                            ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
+                           ioc.UseRedisChannelInjection()
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 IConsumerHooksBuilder consumer =
-                            ConsumerBuilder.Empty.UseRedisChannelInjection(ioc)
+                            ioc.UseRedisChannelInjection()
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {

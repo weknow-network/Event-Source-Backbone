@@ -19,57 +19,160 @@ namespace EventSourcing.Backbone
         private static readonly string? ASSEMBLY_NAME = Assembly.GetEntryAssembly()?.GetName()?.Name?.ToDash();
         private static readonly Version? ASSEMBLY_VERSION = Assembly.GetEntryAssembly()?.GetName()?.Version;
 
+        #region CreateConfigurationOptions
+
         /// <summary>
-        /// Blocking Create REDIS client.
-        /// Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+        /// Create REDIS configuration options.
         /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="credential">The credential.</param>
+        /// <param name="endpoint">
+        /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
+        /// </param>
+        /// <param name="password">
+        /// Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.
+        /// </param>
+        /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static IConnectionMultiplexer CreateProviderBlocking(
-                    Action<ConfigurationOptions>? configuration = null,
-                    RedisCredentialsKeys credential = default)
+        public static ConfigurationOptions CreateConfigurationOptions(
+                    string? endpoint = null,
+                    string? password = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
         {
-            var task = CreateProviderAsync(null, configuration, credential);
-            return task.Result;
+            RedisCredentialsKeys credential = new RedisCredentialsKeys { Endpoint = endpoint };
+            if (!string.IsNullOrEmpty(password))
+                credential = credential with { Password = password };
+            var redis = credential.CreateConfigurationOptions(configurationHook);
+            return redis;
         }
 
         /// <summary>
-        /// Blocking Create REDIS client.
-        /// Exist only for code which don't support async (like ASP.NET setup (AddSingleton))
+        /// Create REDIS configuration options.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="credential">The credential.</param>
+        /// <param name="credential">The credential's environment keys.</param>
+        /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static IConnectionMultiplexer CreateProviderBlocking(
-                    ILogger logger,
-                    Action<ConfigurationOptions>? configuration = null,
-                    RedisCredentialsKeys credential = default)
+        public static ConfigurationOptions CreateConfigurationOptions(
+                    this RedisCredentialsKeys credential,
+                    Action<ConfigurationOptions>? configurationHook = null)
         {
-            var task = CreateProviderAsync(logger, configuration, credential);
-            return task.Result;
+            string endpointKey = credential.Endpoint;
+            string passwordKey = credential.Password;
+            string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? endpointKey;
+            string? password = Environment.GetEnvironmentVariable(passwordKey) ?? passwordKey;
+
+            var sb = new StringBuilder();
+            var writer = new StringWriter(sb);
+
+            // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
+            var configuration = ConfigurationOptions.Parse(endpoint);
+            configuration.Password = password;
+            if (configurationHook != null)
+                configuration.Apply(configurationHook);
+            return configuration;
+        }
+
+        #endregion // CreateConfigurationOptions
+
+        #region CreateProviderAsync
+
+        /// <summary>
+        /// Create REDIS client.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">A configuration hook.</param>
+        /// <returns></returns>
+        public static async Task<IConnectionMultiplexer> CreateProviderAsync(
+                    string? endpoint = null,
+                    string? password = null,
+                    ILogger? logger = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            RedisCredentialsKeys credential = new RedisCredentialsKeys { Endpoint = endpoint };
+            if (!string.IsNullOrEmpty(password))
+                credential = credential with { Password = password };
+            var redis = await credential.CreateProviderAsync(logger, configurationHook);
+            return redis;
         }
 
         /// <summary>
         /// Create REDIS client.
         /// </summary>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="credential">The credential.</param>
+        /// <param name="credential">The credential's environment keys.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
-        /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
-        /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
-        public static Task<IConnectionMultiplexer> CreateProviderAsync(
-                    Action<ConfigurationOptions>? configuration = null,
-                    RedisCredentialsKeys credential = default)
+        public static async Task<IConnectionMultiplexer> CreateProviderAsync(
+                    this RedisCredentialsKeys credential,
+                    ILogger? logger = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
         {
-            return CreateProviderAsync(null, configuration, credential);
-        }
+            string endpointKey = credential.Endpoint;
+            string passwordKey = credential.Password;
+            string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? endpointKey;
 
+            try
+            {
+                string? password = Environment.GetEnvironmentVariable(passwordKey) ?? passwordKey;
+
+                var sb = new StringBuilder();
+                var writer = new StringWriter(sb);
+
+                // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
+                var configuration = ConfigurationOptions.Parse(endpoint);
+                configuration.Password = password;
+                if (configurationHook != null)
+                    configuration.Apply(configurationHook);
+                var redis = await configuration.CreateProviderAsync(logger);
+                return redis;
+            }
+            catch (Exception ex)
+            {
+                if (logger != null)
+                    logger.LogError(ex.FormatLazy(), "REDIS CONNECTION Setting ERROR: {endpoint}", endpoint);
+                else
+                    Console.WriteLine($"REDIS CONNECTION Setting ERROR: {ex.FormatLazy()}");
+                throw;
+            }
+            #region Event Handlers
+
+            void OnInternalConnError(object? sender, InternalErrorEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}",
+                                                 e.ConnectionType, e.Origin);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection internal failure: Failure type = {e.ConnectionType}, Origin = {e.Origin}");
+            }
+
+            void OnConnErrorMessage(object? sender, RedisErrorEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogWarning("REDIS Connection error: {message}",
+                                        e.Message);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection error: {e.Message}");
+            }
+
+
+            void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
+            {
+                if (logger != null)
+                {
+                    logger.LogError(e.Exception, "REDIS Connection failure: Failure type = {typeOfConnection}, Failure type = {typeOfFailure}", e.ConnectionType, e.FailureType);
+                }
+                else
+                    Console.WriteLine($"REDIS Connection failure: Failure type = {e.ConnectionType}, Failure type = {e.FailureType}");
+            }
+
+            #endregion // Event Handlers
+        }
 
         /// <summary>
         /// Create REDIS client.
@@ -83,57 +186,40 @@ namespace EventSourcing.Backbone
         /// <exception cref="StackExchange.Redis.RedisConnectionException">Fail to establish REDIS connection</exception>
         /// <exception cref="RedisConnectionException">Fail to establish REDIS connection</exception>
         public static async Task<IConnectionMultiplexer> CreateProviderAsync(
-                    ILogger? logger,
-                    Action<ConfigurationOptions>? configuration = null,
-                    RedisCredentialsKeys credential = default)
+                    this ConfigurationOptions configuration,
+                    ILogger? logger = null)
         {
-            string endpointKey = credential.EndpointKey ?? END_POINT_KEY;
-            string passwordKey = credential.PasswordKey ?? PASSWORD_KEY;
-            string? endpoint = Environment.GetEnvironmentVariable(endpointKey);
-
             try
             {
-                if (endpoint == null)
-                {
-                    #region Throw + Log
-
-                    if (logger != null)
-                        logger.LogError("REDIS CONNECTION: ENDPOINT [ENV variable: {endpointKey}] is missing", endpointKey);
-                    else
-                        Console.WriteLine($"REDIS CONNECTION: ENDPOINT [ENV variable: {endpointKey}] is missing");
-                    throw new KeyNotFoundException($"REDIS KEY [ENV variable: {endpointKey}] is missing");
-
-                    #endregion // Throw + Log
-                }
-
-                string? password = Environment.GetEnvironmentVariable(passwordKey);
-
                 var sb = new StringBuilder();
                 var writer = new StringWriter(sb);
 
                 // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
-                var redisConfiguration = ConfigurationOptions.Parse(endpoint);
-                redisConfiguration.ClientName = string.Format(
+                configuration.ClientName = string.Format(
                                         CONNECTION_NAME_PATTERN,
                                         ASSEMBLY_NAME,
                                         ASSEMBLY_VERSION,
                                         Interlocked.Increment(ref _index));
 
-                configuration?.Invoke(redisConfiguration);
-                redisConfiguration.Password = password;
-                // keep retry to get connection on failure
-                redisConfiguration.AbortOnConnectFail = false;
-                //redisConfiguration.ConnectTimeout = 15;
-                //redisConfiguration.SyncTimeout = 10;
-                //redisConfiguration.AsyncTimeout = 10;
-                //redisConfiguration.DefaultDatabase = Debugger.IsAttached ? 1 : null;
+                configuration = configuration.Apply(cfg =>
+                {
+                    // keep retry to get connection on failure
+                    cfg.AbortOnConnectFail = false;
+                    //cfg.ConnectTimeout = 15;
+                    //cfg.SyncTimeout = 10;
+                    //cfg.AsyncTimeout = 10;
+                    //cfg.DefaultDatabase = Debugger.IsAttached ? 1 : null;
+                });
 
 
-                IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(redisConfiguration, writer);
+                IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(configuration, writer);
+                string endpoints = string.Join(";", configuration.EndPoints);
                 if (logger != null)
-                    logger.LogInformation("REDIS Connection [{envKey}]: {info} succeed", endpointKey, sb);
+                    logger.LogInformation("REDIS Connection [{envKey}]: {info} succeed",
+                        endpoints,
+                        sb);
                 else
-                    Console.WriteLine($"REDIS Connection [{endpointKey}] succeed: {sb}");
+                    Console.WriteLine($"REDIS Connection [{endpoints}] succeed: {sb}");
                 redis.ConnectionFailed += OnConnectionFailed;
                 redis.ErrorMessage += OnConnErrorMessage;
                 redis.InternalError += OnInternalConnError;
@@ -187,5 +273,7 @@ namespace EventSourcing.Backbone
             #endregion // Event Handlers
 
         }
+
+        #endregion // CreateProviderAsync
     }
 }

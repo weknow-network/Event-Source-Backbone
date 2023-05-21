@@ -29,7 +29,7 @@ namespace EventSourcing.Backbone.WebEventTest.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<string> GetAsync()
         {
-            var conn = await RedisClientFactory.CreateProviderAsync(_logger);
+            var conn = await RedisClientFactory.CreateProviderAsync(logger: _logger);
             var status = conn.GetStatus();
             var db = conn.GetDatabase();
             var p = await db.PingAsync();

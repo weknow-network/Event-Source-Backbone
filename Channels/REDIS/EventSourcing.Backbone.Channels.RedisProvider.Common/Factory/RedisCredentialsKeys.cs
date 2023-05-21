@@ -6,21 +6,17 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// Environment keys for REDIS's credentials
     /// </summary>
-    public readonly record struct RedisCredentialsKeys
+    public record RedisCredentialsKeys
     {
-        public RedisCredentialsKeys()
-        {
-            EndpointKey = END_POINT_KEY;
-            PasswordKey = PASSWORD_KEY;
-        }
-
         /// <summary>
-        /// Endpoint Key
+        /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
         /// </summary>
-        public string EndpointKey { get; init; }
+        public string Endpoint { get; init; } = END_POINT_KEY;
         /// <summary>
-        /// Password Key
+        /// Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.
         /// </summary>
-        public string PasswordKey { get; init; }
+        public string Password { get; init; } = PASSWORD_KEY;
     }
 }

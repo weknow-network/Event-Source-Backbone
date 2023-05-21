@@ -7,8 +7,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
     <ProjectReference Include="..\EventSourcing.Backbone.Channels.RedisProvider.Common\EventSourcing.Backbone.Channels.RedisProvider.Common.csproj" />
-    <ProjectReference Include="..\..\..\Producers\EventSourcing.Backbone.Producers.Abstractions\EventSourcing.Backbone.Producers.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />

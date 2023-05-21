@@ -25,10 +25,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
     {
         private const string BEGIN_OF_STREAM = "0000000000000";
         /// <summary>
-        /// Max delay
-        /// </summary>
-        private const int MAX_DELAY = 5000;
-        /// <summary>
         /// The read by identifier chunk size.
         /// REDIS don't have option to read direct position (it read from a position, not includes the position itself),
         /// therefore read should start before the actual position.
@@ -76,13 +72,58 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public RedisConsumerChannel(
                         ILogger logger,
-                        Action<ConfigurationOptions>? configuration = null,
-                        RedisConsumerChannelSetting? setting = null,
-                        RedisCredentialsKeys credentialsKeys = default) : this(
+                        ConfigurationOptions? configuration = null,
+                        RedisConsumerChannelSetting? setting = null) : this(
                             new EventSourceRedisConnectionFacroty(
                                                     logger,
-                                                    configuration,
-                                                    credentialsKeys),
+                                                    configuration),
+                            logger,
+                            setting)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="credentialsKeys">Environment keys of the credentials</param>
+        /// <param name="setting">The setting.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        public RedisConsumerChannel(
+                        ILogger logger,
+                        RedisCredentialsKeys credentialsKeys,
+                        RedisConsumerChannelSetting? setting = null,
+                        Action<ConfigurationOptions>? configurationHook = null) : this(
+                            new EventSourceRedisConnectionFacroty(
+                                                    credentialsKeys,
+                                                    logger,
+                                                    configurationHook),
+                            logger,
+                            setting)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
+        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
+        /// <param name="setting">The setting.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        public RedisConsumerChannel(
+                        ILogger logger,
+                        string? endpoint = null,
+                        string? password = null,
+                        RedisConsumerChannelSetting? setting = null,
+                        Action<ConfigurationOptions>? configurationHook = null) : this(
+                            new EventSourceRedisConnectionFacroty(
+                                                    logger,
+                                                    endpoint,
+                                                    password,
+                                                    configurationHook),
                             logger,
                             setting)
         {

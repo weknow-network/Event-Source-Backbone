@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.Configuration
             IHostEnvironment hostEnv,
             string shortAppName)
         {
-            IConnectionMultiplexer redisConnection = RedisClientFactory.CreateProviderBlocking();
+            IConnectionMultiplexer redisConnection = RedisClientFactory.CreateProviderAsync().Result;
             services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 
             return redisConnection;

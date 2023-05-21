@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -12,13 +14,12 @@ namespace EventSourcing.Backbone
     /// This factory is also responsible of the connection health.
     /// It will return same connection as long as it healthy.
     /// </summary>
-    public abstract class RedisConnectionFacrotyBase : IRedisConnectionFacrotyBase, IDisposable, IAsyncDisposable
+    public abstract class RedisConnectionFacrotyBase : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
     {
         private const int CLOSE_DELEY_MILLISECONDS = 5000;
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
-        private readonly Action<ConfigurationOptions>? _configuration;
-        private readonly RedisCredentialsKeys _credentialsKeys;
+        private readonly ConfigurationOptions _configuration;
         private readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(CLOSE_DELEY_MILLISECONDS));
         private DateTime _lastResetConnection = DateTime.Now;
         private int _reconnectTry = 0;
@@ -31,15 +32,46 @@ namespace EventSourcing.Backbone
         /// Constructor
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="credentialsKeys">The credentials keys.</param>
-        public RedisConnectionFacrotyBase(
-            ILogger<EventSourceRedisConnectionFacroty> logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default
-            ) : this((ILogger)logger, configuration, credentialsKeys)
+        /// <summary>
+        /// Create REDIS configuration options.
+        /// </summary>
+        /// <param name="endpoint">
+        /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
+        /// </param>
+        /// <param name="password">
+        /// Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
+        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.
+        /// </param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        protected RedisConnectionFacrotyBase(
+                    ILogger logger,
+                    string? endpoint = null,
+                    string? password = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
         {
+            _logger = logger;
+            _configuration = RedisClientFactory.CreateConfigurationOptions(endpoint, password, configurationHook);
+            _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
         }
+
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        protected RedisConnectionFacrotyBase(
+                    RedisCredentialsKeys credential,
+                    ILogger logger,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            _logger = logger;
+            _configuration = credential.CreateConfigurationOptions(configurationHook);
+            _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
+        }
+
 
         #endregion // Overloads
 
@@ -48,29 +80,17 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="credentialsKeys">The credentials keys.</param>
-        public RedisConnectionFacrotyBase(
+        protected RedisConnectionFacrotyBase(
             ILogger logger,
-            Action<ConfigurationOptions>? configuration = null,
-            RedisCredentialsKeys credentialsKeys = default)
+            ConfigurationOptions? configuration)
         {
             _logger = logger;
             _configuration = configuration;
-            _credentialsKeys = credentialsKeys;
-            _redisTask = RedisClientFactory.CreateProviderAsync(logger, configuration, credentialsKeys);
+            _redisTask = RedisClientFactory.CreateProviderAsync(configuration, logger);
         }
 
 
         #endregion // Ctor
-
-        //#region CredentialsKeys
-
-        ///// <summary>
-        ///// Gets the credentials keys.
-        ///// </summary>
-        //protected abstract RedisCredentialsKeys CredentialsKeys { get; }
-
-        //#endregion // CredentialsKeys
 
         #region Kind
 
@@ -86,7 +106,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Get a valid connection 
         /// </summary>
-        async Task<IConnectionMultiplexer> IRedisConnectionFacrotyBase.GetAsync()
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync()
         {
             var conn = await _redisTask;
             if (conn.IsConnected)
@@ -110,7 +130,7 @@ namespace EventSourcing.Backbone
                     _lastResetConnection = DateTime.Now;
                     var cn = conn;
                     Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
-                    _redisTask = RedisClientFactory.CreateProviderAsync(_logger, _configuration, _credentialsKeys);
+                    _redisTask = _configuration.CreateProviderAsync(_logger);
                     var newConn = await _redisTask;
                     return newConn;
                 }
@@ -125,9 +145,9 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Get database 
         /// </summary>
-        async Task<IDatabaseAsync> IRedisConnectionFacrotyBase.GetDatabaseAsync()
+        async Task<IDatabaseAsync> IEventSourceRedisConnectionFacroty.GetDatabaseAsync()
         {
-            IRedisConnectionFacrotyBase self = this;
+            IEventSourceRedisConnectionFacroty self = this;
             IConnectionMultiplexer conn = await self.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
             return db;
