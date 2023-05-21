@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Configurations>Debug;Release;Gen</Configurations>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+    <PackageReference Include="FakeItEasy" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers.Abstractions\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers.Abstractions\EventSourcing.Backbone.Producers.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

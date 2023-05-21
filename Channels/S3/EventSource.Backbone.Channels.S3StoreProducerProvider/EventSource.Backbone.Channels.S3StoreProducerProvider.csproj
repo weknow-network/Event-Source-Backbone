@@ -1,9 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\EventSource.Backbone.Channels.S3StoreProvider.Common\EventSource.Backbone.Channels.S3StoreProvider.Common.csproj" />
-    <ProjectReference Include="..\..\..\Producers\EventSource.Backbone.Producers.Contracts\EventSource.Backbone.Producers.Contracts.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
-  </ItemGroup>
-</Project>
