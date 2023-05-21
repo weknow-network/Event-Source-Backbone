@@ -33,7 +33,7 @@ namespace EventSource.Backbone
         /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
         /// <param name="environment">The environment.</param>
-        /// <param name="partition">The partition.</param>
+        /// <param name="key">The partition.</param>
         /// <param name="shard">The shard.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
@@ -48,8 +48,7 @@ namespace EventSource.Backbone
             Func<ILogger, IProducerChannelProvider>? channelFactory = null,
             IProducerChannelProvider? channel = null,
             string? environment = null,
-            string? partition = null,
-            string? shard = null,
+            string? key = null,
             ILogger? logger = null,
             EventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
@@ -62,8 +61,7 @@ namespace EventSource.Backbone
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
             Environment = environment ?? copyFrom.Environment;
-            Partition = partition ?? copyFrom.Partition;
-            Shard = shard ?? copyFrom.Shard;
+            Uri = key ?? copyFrom.Uri;
             Options = options ?? copyFrom.Options;
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
@@ -145,36 +143,14 @@ namespace EventSource.Backbone
 
         #endregion // Environment
 
-        #region Partition
+        #region Key
 
         /// <summary>
-        /// Partition key represent logical group of 
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its 
-        /// own messaging sequence, yet can live concurrency with 
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order 
-        /// flow or limiting the throughput.
+        /// The stream key
         /// </summary>
-        public string Partition { get; } = string.Empty;
+        public string Uri { get; } = string.Empty;
 
-        #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its 
-        /// own messaging sequence, in this case you can split each 
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        public string Shard { get; } = string.Empty;
-
-        #endregion // Shard
+        #endregion // Key
 
         #region Options
 
@@ -325,59 +301,37 @@ namespace EventSource.Backbone
         {
             return type switch
             {
-                RouteAssignmentType.Prefix => new ProducerPlan(this, environment: environment, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}"),
-                RouteAssignmentType.Replace => new ProducerPlan(this, environment: environment, partition: partition ?? this.Partition, shard: shard ?? this.Shard),
-                RouteAssignmentType.Suffix => new ProducerPlan(this, environment: environment, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}"),
+                RouteAssignmentType.Prefix => new ProducerPlan(this, environment: environment, key: $"{partition}{this.Uri}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, environment: environment, key: partition ?? this.Uri),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, environment: environment, key: $"{this.Uri}{partition}"),
                 _ => this,
             };
         }
 
         #endregion // WithEnvironment
 
-        #region WithPartition
+        #region WithKey
 
         /// <summary>
-        /// Withes the partition.
+        /// Withes the stream's key (identifier).
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <param name="shard">The shard.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        public ProducerPlan WithPartition(string partition, string? shard = null,
+        public ProducerPlan WithKey(string partition, string? shard = null,
             RouteAssignmentType type = RouteAssignmentType.Replace)
         {
             return type switch
             {
-                RouteAssignmentType.Prefix => new ProducerPlan(this, partition: $"{partition}{this.Partition}", shard: $"{shard}{this.Shard}"),
-                RouteAssignmentType.Replace => new ProducerPlan(this, partition: partition, shard: shard ?? this.Shard),
-                RouteAssignmentType.Suffix => new ProducerPlan(this, partition: $"{this.Partition}{partition}", shard: $"{this.Shard}{shard}"),
+                RouteAssignmentType.Prefix => new ProducerPlan(this, key: $"{partition}{this.Uri}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, key: partition),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, key: $"{this.Uri}{partition}"),
                 _ => this,
             };
         }
 
-        #endregion // WithPartition
-
-        #region WithShard
-
-        /// <summary>
-        /// Withes the shard.
-        /// </summary>
-        /// <param name="shard">The shard.</param>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        public ProducerPlan WithShard(string shard,
-            RouteAssignmentType type = RouteAssignmentType.Replace)
-        {
-            return type switch
-            {
-                RouteAssignmentType.Prefix => new ProducerPlan(this, shard: $"{shard}{this.Shard}"),
-                RouteAssignmentType.Replace => new ProducerPlan(this, shard: shard ?? this.Shard),
-                RouteAssignmentType.Suffix => new ProducerPlan(this, shard: $"{this.Shard}{shard}"),
-                _ => this,
-            };
-        }
-
-        #endregion // WithShard
+        #endregion // WithKey
 
         #region AddRoute
 

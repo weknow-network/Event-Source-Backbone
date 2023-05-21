@@ -32,8 +32,7 @@ namespace Microsoft.Extensions.Configuration
                 IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannelInjection(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .Environment(env)
-                                     .Partition(PARTITION)
-                                     .Shard("default")
+                                     .Uri(PARTITION)
                                      .WithLogger(logger)
                                      .BuildEventFlowProducer();
                 return producer;
@@ -49,8 +48,7 @@ namespace Microsoft.Extensions.Configuration
                                          OriginFilter = MessageOrigin.Original
                                      })
                                      .Environment(env)
-                                     .Partition(PARTITION)
-                                     .Shard("default");
+                                     .Uri(PARTITION);
                 return consumer;
             });
             services.AddSingleton(ioc =>

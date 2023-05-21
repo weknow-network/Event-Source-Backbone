@@ -50,7 +50,7 @@ namespace EventSource.Backbone
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
-        public string Operation { get; init; } = string.Empty;
+        public required string Operation { get; init; } 
 
         #endregion Operation 
 
@@ -63,14 +63,14 @@ namespace EventSource.Backbone
 
         #endregion  Environment
 
-        #region Partition
+        #region Uri
 
         /// <summary>
-        /// Gets or sets the partition.
+        /// The stream identifier (the URI combined with the environment separate one stream from another)
         /// </summary>
-        public string Partition { get; init; } = string.Empty;
+        public required string Uri { get; init; }
 
-        #endregion Partition 
+        #endregion  Uri
 
         #region Origin
 
@@ -90,15 +90,6 @@ namespace EventSource.Backbone
 
         #endregion // Linked
 
-        #region Shard
-
-        /// <summary>
-        /// Gets or sets the shard.
-        /// </summary>
-        public string Shard { get; init; } = string.Empty;
-
-        #endregion Shard 
-
         #region ChannelType
 
         /// <summary>
@@ -116,7 +107,7 @@ namespace EventSource.Backbone
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public override string ToString() => $"{EventKey}, {this.Key()}";
+        public override string ToString() => $"{EventKey}, {this.FullUri()}";
 
         #endregion // ToString
     }
@@ -128,7 +119,7 @@ namespace EventSource.Backbone
     {
         private const string EMPTY_KEY = "~EMPTY~";
 
-        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY };
+        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Operation="NONE", Uri=string.Empty };
 
         #region Duration
 
@@ -139,21 +130,21 @@ namespace EventSource.Backbone
 
         #endregion // Duration
 
-        #region Key
+        #region FullUri
 
         /// <summary>
         /// Gets the partition:shard as key.
         /// </summary>
-        public static string Key(this Metadata meta, char separator = ':')
+        public static string FullUri(this Metadata meta, char separator = ':')
         {
             if (string.IsNullOrEmpty(meta.Environment))
-                return $"{meta.Partition}{separator}{meta.Shard}";
+                return meta.Uri;
             Env env = meta.Environment;
             string envFormatted = env.Format();
-            return $"{envFormatted}{separator}{meta.Partition}{separator}{meta.Shard}";
+            return $"{envFormatted}{separator}{meta.Uri}";
         }
 
-        #endregion // Key
+        #endregion // FullUri
 
         #region IsEmpty
 

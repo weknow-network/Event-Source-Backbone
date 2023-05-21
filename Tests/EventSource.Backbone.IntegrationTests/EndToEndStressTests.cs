@@ -27,8 +27,7 @@ namespace EventSource.Backbone.Tests
         private readonly IConsumerHooksBuilder _consumerBuilder;
 
         private readonly string ENV = $"test";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
@@ -97,8 +96,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -113,8 +111,7 @@ namespace EventSource.Backbone.Tests
             IConsumerReceiver receiver = _consumerBuilder
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
@@ -138,8 +135,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -152,8 +148,7 @@ namespace EventSource.Backbone.Tests
             IConsumerReceiver receiver = _consumerBuilder
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
@@ -253,7 +248,7 @@ namespace EventSource.Backbone.Tests
                                                     cfg => cfg.AllowAdmin = true);
                 string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
                 var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });

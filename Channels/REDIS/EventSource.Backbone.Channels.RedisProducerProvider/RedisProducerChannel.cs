@@ -119,7 +119,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                     IConnectionMultiplexer conn = await _connFactory.GetAsync();
                     IDatabaseAsync db = conn.GetDatabase();
                     using var scope = SuppressInstrumentationScope.Begin();
-                    var k = meta.Key();
+                    var k = meta.FullUri();
                     var result = await db.StreamAddAsync(k, entries,
                                                    flags: CommandFlags.DemandMaster);
                     return result;
@@ -128,14 +128,14 @@ namespace EventSource.Backbone.Channels.RedisProvider
 
                 catch (RedisConnectionException ex)
                 {
-                    _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{partition}->{shard}] stream: {operation}",
-                        meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
+                    _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{URI}] stream: {operation}",
+                        meta.MessageId, meta.Uri, meta.Operation);
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Fail to push event [{id}] into the [{partition}->{shard}] stream: {operation}",
-                        meta.MessageId, meta.Partition, meta.Shard, meta.Operation);
+                    _logger.LogError(ex, "Fail to push event [{id}] into the [{URI}] stream: {operation}",
+                        meta.MessageId, meta.Uri, meta.Operation);
                     throw;
                 }
 

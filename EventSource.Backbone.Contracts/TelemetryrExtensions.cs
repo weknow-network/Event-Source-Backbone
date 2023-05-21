@@ -25,8 +25,7 @@ namespace EventSource.Backbone
         /// <param name="activity">The activity.</param>
         public static void InjectMetaTelemetryTags(this Metadata meta, Activity? activity)
         {
-            activity?.SetTag("event-source.partition", meta.Partition);
-            activity?.SetTag("event-source.shard", meta.Shard);
+            activity?.SetTag("event-source.uri", meta.Uri);
             activity?.SetTag("event-source.operation", meta.Operation);
             activity?.SetTag("event-source.message-id", meta.MessageId);
             activity?.SetTag("event-source.channel-type", meta.ChannelType);

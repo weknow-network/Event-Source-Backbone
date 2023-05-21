@@ -41,20 +41,17 @@ namespace EventSource.Backbone
         {
             var producerA =
                 _builder.UseChannel(_channel)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .AddInterceptor(_rawAsyncInterceptor);
 
             var producerB =
                 _builder.UseTestProducerChannel1()
-                        .Partition("NGOs")
-                        .Shard("NGO #2782228")
+                        .Uri("NGOs:NGO #2782228")
                         .UseSegmentation(_segmentationStrategy);
 
             var producerC =
                 _builder.UseChannel(_channel)
-                        .Partition("Fans")
-                        .Shard("Geek: @someone")
+                        .Uri("Fans:Geek: @someone")
                         .UseSegmentation(_otherSegmentationStrategy);
 
 
@@ -82,8 +79,7 @@ namespace EventSource.Backbone
             ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
                         .WithOptions(option)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .WithLogger(_logger)
                         .BuildSequenceOperationsProducer();
 
@@ -101,8 +97,7 @@ namespace EventSource.Backbone
         {
             ISequenceOperationsProducer producer =
                 _builder.UseChannel(_channel)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .AddInterceptor(_rawInterceptor)
                         .AddInterceptor(_rawAsyncInterceptor)
                         .UseSegmentation(_segmentationStrategy)

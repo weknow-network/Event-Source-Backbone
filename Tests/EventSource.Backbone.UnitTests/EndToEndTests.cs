@@ -63,8 +63,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids#HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -78,8 +77,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids#HappySocks")
                          .SubscribeSimpleEvent(_simpleEventConsumer);
 
             ch.Writer.Complete();
@@ -106,8 +104,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids#HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -121,8 +118,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids#HappySocks")
                          .Subscribe(_simpleBridgeSubscription.BridgeAsync);
 
             ch.Writer.Complete();
@@ -149,8 +145,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids#HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -164,8 +159,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids#HappySocks")
                          .Subscribe(_simpleGenSubscription);
 
             ch.Writer.Complete();
@@ -192,8 +186,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids#HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -207,8 +200,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids#HappySocks")
                          .Subscribe(_simpleGenBridgeSubscription.BridgeAsync);
 
             ch.Writer.Complete();
@@ -235,8 +227,7 @@ namespace EventSource.Backbone
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids#HappySocks")
                         .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
@@ -250,8 +241,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids#HappySocks")
                          .Subscribe(new SequenceOfConsumerBridge(_subscriber));
 
             ch.Writer.Complete();

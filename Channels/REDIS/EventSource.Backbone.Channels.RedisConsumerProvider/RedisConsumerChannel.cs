@@ -111,16 +111,15 @@ namespace EventSource.Backbone.Channels.RedisProvider
             ConsumerOptions options = plan.Options;
 
             ILogger? logger = _logger ?? plan.Logger;
-            logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.Key(), plan.ConsumerGroup, plan.ConsumerName);
+            logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.FullUri(), plan.ConsumerGroup, plan.ConsumerName);
 
             while (!joinCancellation.IsCancellationRequested)
             {
                 try
                 {
-                    if (plan.Shard != string.Empty)
-                        await SubsribeShardAsync(plan, func, options, joinCancellation);
-                    else
-                        await SubsribePartitionAsync(plan, func, options, joinCancellation);
+                    await SubsribeToSingleAsync(plan, func, options, joinCancellation);
+                    //else
+                    //    await SubsribePartitionAsync(plan, func, options, joinCancellation);
 
                     if (options.FetchUntilUnixDateOrEmpty != null)
                         break;
@@ -130,19 +129,19 @@ namespace EventSource.Backbone.Channels.RedisProvider
                 catch (OperationCanceledException)
                 {
                     if (_logger == null)
-                        Console.WriteLine($"Subscribe cancellation [{plan.Key()}] event stream (may have reach the messages limit)");
+                        Console.WriteLine($"Subscribe cancellation [{plan.FullUri()}] event stream (may have reach the messages limit)");
                     else
-                        _logger.LogError("Subscribe cancellation [{partition}->{shard}] event stream (may have reach the messages limit)",
-                            plan.Partition, plan.Shard);
+                        _logger.LogError("Subscribe cancellation [{uri}] event stream (may have reach the messages limit)",
+                            plan.Uri);
                     joinCancellationSource.CancelSafe();
                 }
                 catch (Exception ex)
                 {
                     if (_logger == null)
-                        Console.WriteLine($"Fail to subscribe into the [{plan.Key()}] event stream");
+                        Console.WriteLine($"Fail to subscribe into the [{plan.FullUri()}] event stream");
                     else
-                        _logger.LogError(ex, "Fail to subscribe into the [{partition}->{shard}] event stream",
-                            plan.Partition, plan.Shard);
+                        _logger.LogError(ex, "Fail to subscribe into the [{uri}] event stream",
+                            plan.Uri);
                     throw;
                 }
 
@@ -154,71 +153,71 @@ namespace EventSource.Backbone.Channels.RedisProvider
 
         #region SubsribePartitionAsync
 
-        /// <summary>
-        /// Subscribe to all shards under a partition.
-        /// </summary>
-        /// <param name="plan">The consumer plan.</param>
-        /// <param name="func">The function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// When completed
-        /// </returns>
-        private async ValueTask SubsribePartitionAsync(
-                    IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask<bool>> func,
-                    ConsumerOptions options,
-                    CancellationToken cancellationToken)
-        {
-            var subscriptions = new Queue<Task>();
-            int delay = 1;
-            string partition = plan.Partition;
-            int partitionSplit = partition.Length + 1;
-            while (!cancellationToken.IsCancellationRequested)
-            {   // loop for error cases
-                try
-                {
-                    // infinite until cancellation (return unique shareds)
-                    var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*")
-                                                    .WithCancellation(cancellationToken);
+        ///// <summary>
+        ///// Subscribe to all shards under a partition.
+        ///// </summary>
+        ///// <param name="plan">The consumer plan.</param>
+        ///// <param name="func">The function.</param>
+        ///// <param name="options">The options.</param>
+        ///// <param name="cancellationToken">The cancellation token.</param>
+        ///// <returns>
+        ///// When completed
+        ///// </returns>
+        //private async ValueTask SubsribePartitionAsync(
+        //            IConsumerPlan plan,
+        //            Func<Announcement, IAck, ValueTask<bool>> func,
+        //            ConsumerOptions options,
+        //            CancellationToken cancellationToken)
+        //{
+        //    var subscriptions = new Queue<Task>();
+        //    int delay = 1;
+        //    string partition = plan.Uri;
+        //    int partitionSplit = partition.Length + 1;
+        //    while (!cancellationToken.IsCancellationRequested)
+        //    {   // loop for error cases
+        //        try
+        //        {
+        //            // infinite until cancellation (return unique shareds)
+        //            var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*")
+        //                                            .WithCancellation(cancellationToken);
 
-                    await foreach (string key in keys)
-                    {
-                        string shard = key.Substring(partitionSplit);
-                        IConsumerPlan p = plan.WithShard(shard);
-                        // infinite task (until cancellation)
-                        Task subscription = SubsribeShardAsync(plan, func, options, cancellationToken);
-                        subscriptions.Enqueue(subscription);
-                    }
+        //            await foreach (string key in keys)
+        //            {
+        //                string shard = key.Substring(partitionSplit);
+        //                IConsumerPlan p = plan.WithShard(shard);
+        //                // infinite task (until cancellation)
+        //                Task subscription = SubsribeToSingleAsync(plan, func, options, cancellationToken);
+        //                subscriptions.Enqueue(subscription);
+        //            }
 
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    plan.Logger.LogError(ex, "Partition subscription");
-                    await DelayIfRetry();
-                }
-            }
+        //            break;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            plan.Logger.LogError(ex, "Partition subscription");
+        //            await DelayIfRetry();
+        //        }
+        //    }
 
-            // run until cancellation or error
-            await Task.WhenAll(subscriptions);
+        //    // run until cancellation or error
+        //    await Task.WhenAll(subscriptions);
 
-            #region DelayIfRetry
+        //    #region DelayIfRetry
 
-            async Task DelayIfRetry()
-            {
-                await Task.Delay(delay, cancellationToken);
-                delay *= Max(delay, 2);
-                delay = Min(MAX_DELAY, delay);
-            }
+        //    async Task DelayIfRetry()
+        //    {
+        //        await Task.Delay(delay, cancellationToken);
+        //        delay *= Max(delay, 2);
+        //        delay = Min(MAX_DELAY, delay);
+        //    }
 
-            #endregion // DelayIfRetry
+        //    #endregion // DelayIfRetry
 
-        }
+        //}
 
         #endregion // SubsribePartitionAsync
 
-        #region SubsribeShardAsync
+        #region SubsribeToSingleAsync
 
         /// <summary>
         /// Subscribe to specific shard.
@@ -227,7 +226,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
         /// <param name="func">The function.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        private async Task SubsribeShardAsync(
+        private async Task SubsribeToSingleAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask<bool>> func,
                     ConsumerOptions options,
@@ -236,7 +235,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
             var claimingTrigger = options.ClaimingTrigger;
             var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
 
-            string key = plan.Key(); //  $"{plan.Partition}:{plan.Shard}";
+            string key = plan.FullUri(); //  $"{plan.Partition}:{plan.Shard}";
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
@@ -337,8 +336,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                                 MessageId = id,
                                 EventKey = eventKey,
                                 Environment = plan.Environment,
-                                Partition = plan.Partition,
-                                Shard = plan.Shard,
+                                Uri = plan.Uri,
                                 Operation = operation,
                                 ProducedAt = producedAt
                             };
@@ -374,7 +372,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                             Ack.Set(ack);
                             #region Log
 
-                            _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.Key());
+                            _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.FullUri());
 
                             #endregion // Log
                             continue;
@@ -711,7 +709,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
             {
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
-                await db.StreamClaimAsync(plan.Key(),
+                await db.StreamClaimAsync(plan.FullUri(),
                                           plan.ConsumerGroup,
                                           RedisChannelConstants.NONE_CONSUMER,
                                           1,
@@ -730,7 +728,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
             #endregion // ReleaseAsync
         }
 
-        #endregion // SubsribeShardAsync
+        #endregion // SubsribeToSingleAsync
 
         #region GetByIdAsync
 
@@ -783,8 +781,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                     MessageId = id,
                     EventKey = entry.Id,
                     Environment = plan.Environment,
-                    Partition = plan.Partition,
-                    Shard = plan.Shard,
+                    Uri = plan.Uri,
                     Operation = operation,
                     ProducedAt = producedAt,
                     ChannelType = channelType
@@ -810,7 +807,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                 async Task<StreamEntry> FindAsync(EventKey entryId)
                 {
                     string lookForId = (string)entryId;
-                    string key = plan.Key();
+                    string key = plan.FullUri();
 
                     string originId = lookForId;
                     int len = originId.IndexOf('-');
@@ -858,7 +855,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
 
             catch (Exception ex)
             {
-                string key = plan.Key();
+                string key = plan.FullUri();
                 _logger.LogError(ex.FormatLazy(), "{mtd} Failed: Entry [{entryId}] from [{key}] event stream",
                     mtdName, entryId, key);
                 throw;
@@ -908,8 +905,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
                     MessageId = id,
                     EventKey = entry.Id,
                     Environment = plan.Environment,
-                    Partition = plan.Partition,
-                    Shard = plan.Shard,
+                    Uri = plan.Uri,
                     Operation = operation,
                     ProducedAt = producedAt
                 };
@@ -938,7 +934,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
 
             async IAsyncEnumerable<StreamEntry> AsyncLoop()
             {
-                string key = plan.Key();
+                string uri = plan.FullUri();
 
                 int iteration = 0;
                 RedisValue startPosition = options?.From ?? BEGIN_OF_STREAM;
@@ -949,7 +945,7 @@ namespace EventSource.Backbone.Channels.RedisProvider
 
                     iteration++;
                     StreamEntry[] entries = await db.StreamReadAsync(
-                                                            key,
+                                                            uri,
                                                             startPosition,
                                                             READ_BY_ID_CHUNK_SIZE,
                                                             CommandFlags.DemandMaster);

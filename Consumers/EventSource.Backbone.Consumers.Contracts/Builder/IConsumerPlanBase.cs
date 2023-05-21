@@ -57,13 +57,6 @@ namespace EventSource.Backbone
         IImmutableList<IConsumerAsyncSegmentationStrategy> SegmentationStrategies { get; }
 
         /// <summary>
-        /// Attach the shard.
-        /// </summary>
-        /// <param name="shard">The shard.</param>
-        /// <returns></returns>
-        IConsumerPlan WithShard(string shard);
-
-        /// <summary>
         /// Gets or sets the invocation resilience policy.
         /// </summary>
         AsyncPolicy ResiliencePolicy { get; }
@@ -74,21 +67,21 @@ namespace EventSource.Backbone
     /// </summary>
     public static class IConsumerPlanBaseExtensions
     {
-        #region Key
+        #region FullUri
 
         /// <summary>
-        /// Gets the partition:shard as key.
+        /// The stream's full identifier which is a combination of the URI and the environment
         /// </summary>
-        public static string Key(this IConsumerPlanBase meta, char separator = ':')
+        public static string FullUri(this IConsumerPlanBase meta, char separator = ':')
         {
             if (string.IsNullOrEmpty(meta.Environment))
-                return $"{meta.Partition}{separator}{meta.Shard}";
+                return meta.Uri;
             Env env = meta.Environment;
             string envFormatted = env.Format();
-            return $"{envFormatted}{separator}{meta.Partition}{separator}{meta.Shard}";
+            return $"{envFormatted}{separator}{meta.Uri}";
         }
 
-        #endregion // Key
+        #endregion // FullUri
     }
 
 }

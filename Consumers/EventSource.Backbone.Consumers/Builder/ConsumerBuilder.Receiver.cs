@@ -57,9 +57,9 @@ namespace EventSource.Backbone
             /// </summary>
             /// <param name="partition">The partition.</param>
             /// <returns></returns>
-            IConsumerReceiver IConsumerPartitionBuilder<IConsumerReceiver>.Partition(string partition)
+            IConsumerReceiver IConsumerPartitionBuilder<IConsumerReceiver>.Uri(string partition)
             {
-                IConsumerPlan plan = _plan.ChangePartition(partition);
+                IConsumerPlan plan = _plan.ChangeKey(partition);
                 var result = new Receiver(plan);
                 return result;
             }

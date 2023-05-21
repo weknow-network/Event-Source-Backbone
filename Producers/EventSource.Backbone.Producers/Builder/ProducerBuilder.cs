@@ -11,7 +11,6 @@ namespace EventSource.Backbone
     /// </summary>
     public class ProducerBuilder :
         IProducerBuilder,
-        IProducerShardBuilder,
         IProducerHooksBuilder,
         IProducerStoreStrategyBuilder
     {
@@ -163,49 +162,20 @@ namespace EventSource.Backbone
 
         #endregion // Environment
 
-        #region Partition
+        #region Key
 
         /// <summary>
-        /// Partition key represent logical group of
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its
-        /// own messaging sequence, yet can live concurrency with
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order
-        /// flow or limiting the throughput.
+        /// The stream's key
         /// </summary>
-        /// <param name="partition">The partition key.</param>
+        /// <param name="key">The partition key.</param>
         /// <returns></returns>
-        IProducerShardBuilder IProducerPartitionBuilder.Partition(string partition)
+        IProducerHooksBuilder IProducerPartitionBuilder.Uri(string key)
         {
-            var prms = Plan.WithPartition(partition);
+            var prms = Plan.WithKey(key);
             return new ProducerBuilder(prms);
         }
 
-        #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its
-        /// own messaging sequence, in this case you can split each
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        /// <param name="shard">The shard key.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        IProducerHooksBuilder IProducerShardBuilder.Shard(string shard)
-        {
-            var prms = Plan.WithShard(shard);
-            return new ProducerBuilder(prms);
-        }
-
-        #endregion // Shard
+        #endregion // Key
 
         #region WithOptions
 
@@ -315,16 +285,6 @@ namespace EventSource.Backbone
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);
-        }
-
-        /// <summary>
-        /// Attach logger.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <returns></returns>
-        IProducerShardBuilder IProducerLoggerBuilder<IProducerShardBuilder>.WithLogger(ILogger logger)
-        {
-            return WithLogger(logger);
         }
 
         /// <summary>
@@ -482,14 +442,14 @@ namespace EventSource.Backbone
 
             /// <summary>
             /// Dynamic override of the stream id before sending.
-            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
+            /// Can use for scenario like routing between environment like dev vs. prod or AWS vs azure.
             /// </summary>
             /// <param name="routeStrategy">The routing strategy.</param>
             /// <returns></returns>
-            IProducerOverrideBuildBuilder<T> IProducerOverrideBuilder<T>.Strategy(Func<IPlanRoute, (string? environment, string? partition, string? shard)> routeStrategy)
+            IProducerOverrideBuildBuilder<T> IProducerOverrideBuilder<T>.Strategy(Func<IPlanRoute, (string? environment, string? uri)> routeStrategy)
             {
-                var (environment, partition, shard) = routeStrategy(_plan);
-                var plan = _plan.WithEnvironment(environment ?? _plan.Environment, partition, shard);
+                var (environment, uri) = routeStrategy(_plan);
+                var plan = _plan.WithEnvironment(environment ?? _plan.Environment, uri);
                 return new Router<T>(plan);
             }
 
@@ -520,30 +480,13 @@ namespace EventSource.Backbone
             /// <param name="partition">The partition.</param>
             /// <param name="type">The type.</param>
             /// <returns></returns>
-            IProducerOverrideShardBuilder<T> IProducerOverridePartitionBuilder<T>.Partition(string partition, RouteAssignmentType type)
+            IProducerOverrideBuildBuilder<T> IProducerOverridePartitionBuilder<T>.Partition(string partition, RouteAssignmentType type)
             {
-                var plan = _plan.WithPartition(partition, type: type);
+                var plan = _plan.WithKey(partition, type: type);
                 return new Router<T>(plan);
             }
 
             #endregion // Partition
-
-            #region Shard
-
-            /// <summary>
-            /// Override the shard.
-            /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
-            /// </summary>
-            /// <param name="shard">The shard.</param>
-            /// <param name="type">The type.</param>
-            /// <returns></returns>
-            IProducerOverrideBuildBuilder<T> IProducerOverrideShardBuilder<T>.Shard(string shard, RouteAssignmentType type)
-            {
-                var plan = _plan.WithShard(shard, type);
-                return new Router<T>(plan);
-            }
-
-            #endregion // Shard
         }
 
         #endregion // Router
@@ -591,8 +534,7 @@ namespace EventSource.Backbone
                     {
                         MessageId = Guid.NewGuid().ToString("N"),
                         Environment = IsNullOrEmpty(_plan.Environment) ? metadata.Environment : _plan.Environment,
-                        Partition = IsNullOrEmpty(_plan.Partition) ? metadata.Partition : _plan.Partition,
-                        Shard = IsNullOrEmpty(_plan.Shard) ? metadata.Shard : _plan.Shard,
+                        Uri = IsNullOrEmpty(_plan.Uri) ? metadata.Uri : _plan.Uri,
                         Origin = MessageOrigin.Copy,
                         Linked = metadata,
                     };

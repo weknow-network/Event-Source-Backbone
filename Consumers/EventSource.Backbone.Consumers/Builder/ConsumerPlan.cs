@@ -43,8 +43,7 @@ namespace EventSource.Backbone
         /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
         /// <param name="environment">The environment.</param>
-        /// <param name="partition">The partition.</param>
-        /// <param name="shard">The shard.</param>
+        /// <param name="key">The stream's key (identity).</param>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
@@ -62,8 +61,7 @@ namespace EventSource.Backbone
             Func<ILogger, IConsumerChannelProvider>? channelFactory = null,
             IConsumerChannelProvider? channel = null,
             string? environment = null,
-            string? partition = null,
-            string? shard = null,
+            string? key = null,
             ILogger? logger = null,
             ConsumerOptions? options = null,
             IImmutableList<IConsumerAsyncSegmentationStrategy>? segmentationStrategies = null,
@@ -78,8 +76,7 @@ namespace EventSource.Backbone
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
             Environment = environment ?? copyFrom.Environment;
-            Partition = partition ?? copyFrom.Partition;
-            Shard = shard ?? copyFrom.Shard;
+            Uri = key ?? copyFrom.Uri;
             Logger = logger ?? copyFrom.Logger;
             Options = options ?? copyFrom.Options;
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
@@ -167,36 +164,14 @@ namespace EventSource.Backbone
 
         #endregion // Environment
 
-        #region Partition
+        #region Key
 
         /// <summary>
-        /// Partition key represent logical group of 
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its 
-        /// own messaging sequence, yet can live concurrency with 
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order 
-        /// flow or limiting the throughput.
+        /// The stream's key (identity)
         /// </summary>
-        public string Partition { get; } = string.Empty;
+        public string Uri { get; } = string.Empty;
 
         #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its 
-        /// own messaging sequence, in this case you can split each 
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        public string Shard { get; } = string.Empty;
-
-        #endregion // Shard
 
         #region Options
 
@@ -418,55 +393,35 @@ namespace EventSource.Backbone
 
         #endregion // ChangeEnvironment
 
-        #region ChangePartition
+        #region ChangeKey
 
         /// <summary>
-        /// Attach the environment.
+        /// change the stream's key.
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        IConsumerPlan IConsumerPlan.ChangePartition(Env? partition)
+        IConsumerPlan IConsumerPlan.ChangeKey(string? partition)
         {
             if (partition == null) return this;
 
-            return new ConsumerPlan(this, partition: partition);
+            return WithKey(partition);
         }
 
-        #endregion // ChangePartition
+        #endregion // ChangeKey
 
-        #region WithPartition
+        #region WithKey
 
         /// <summary>
-        /// Attach the partition.
+        /// Attach a key.
         /// </summary>
         /// <param name="partition">The partition.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithPartition(string partition)
+        internal ConsumerPlan WithKey(string partition)
         {
-            return new ConsumerPlan(this, partition: partition);
+            return new ConsumerPlan(this, key: partition);
         }
 
-        #endregion // WithPartition
-
-        #region WithShard
-
-        /// <summary>
-        /// Attach the shard.
-        /// </summary>
-        /// <param name="shard">The shard.</param>
-        /// <returns></returns>
-        IConsumerPlan IConsumerPlanBase.WithShard(string shard) => WithShard(shard);
-        /// <summary>
-        /// Attach the shard.
-        /// </summary>
-        /// <param name="shard">The shard.</param>
-        /// <returns></returns>
-        internal ConsumerPlan WithShard(string shard)
-        {
-            return new ConsumerPlan(this, shard: shard);
-        }
-
-        #endregion // WithShard
+        #endregion // WithKey
 
         #region WithResiliencePolicy
 

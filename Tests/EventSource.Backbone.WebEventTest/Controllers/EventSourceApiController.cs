@@ -71,9 +71,9 @@ namespace EventSource.Backbone.WebEventTest.Controllers
         [HttpGet("more/{partition}/{shard}/{eventKey}/{env?}")]
         //[AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async ValueTask<JsonElement> GetMoreAsync(string partition, string shard, string eventKey, string? env = null)
+        public async ValueTask<JsonElement> GetMoreAsync(string uri, string eventKey, string? env = null)
         {
-            var receiver = _baseBuilder.Partition(partition).Shard(shard).Environment(env ?? string.Empty).BuildReceiver();
+            var receiver = _baseBuilder.Uri(uri).Environment(env ?? string.Empty).BuildReceiver();
             var json = await receiver.GetJsonByIdAsync(eventKey);
             return json;
         }

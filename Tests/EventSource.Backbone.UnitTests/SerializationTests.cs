@@ -13,8 +13,7 @@ namespace EventSource.Backbone
             {
                 MessageId = "message1",
                 Environment = "env1",
-                Partition = "partition1",
-                Shard = "shard1",
+                Uri = "partition1",
                 Operation = "operation1"
             };
 
@@ -56,8 +55,7 @@ namespace EventSource.Backbone
             {
                 MessageId = "message1",
                 Environment = "env1",
-                Partition = "partition1",
-                Shard = "shard1",
+                Uri = "partition1",
                 Operation = "operation1"
             };
             meta = meta with { Linked = meta, Origin = MessageOrigin.Copy };

@@ -61,8 +61,7 @@ namespace EventSource.Backbone
                         .AddStorageStrategy(l => _producerStorageStrategyA.ToValueTask(), filter: LocalOnlyEmail)
                         .AddStorageStrategy(l => _producerStorageStrategyB.ToValueTask(), filter: LocalAllButEmail)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
@@ -79,8 +78,7 @@ namespace EventSource.Backbone
                          .AddStorageStrategyFactory(l => _consumerStorageStrategyC.ToValueTask(), EventBucketCategories.Interceptions)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids:HappySocks")
                          .Subscribe(new SequenceOfConsumerBridge(_subscriber));
 
             _ch.Writer.Complete();

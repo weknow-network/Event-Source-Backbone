@@ -134,7 +134,7 @@ namespace EventSource.Backbone
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
 
                 var logger = Logger;
-                logger.LogDebug("Consuming event: {0}", meta.Key());
+                logger.LogDebug("Consuming event: {0}", meta.FullUri());
 
                 #region _plan.Interceptors.InterceptAsync(...)
 
@@ -179,14 +179,14 @@ namespace EventSource.Backbone
                             }
                             return false;
                         }, cancellation);
-                        logger.LogDebug("Consumed event: {0}", meta.Key());
+                        logger.LogDebug("Consumed event: {0}", meta.FullUri());
 
                         var options = Plan.Options;
                         var behavior = options.AckBehavior;
                         if (partialBehavior == PartialConsumerBehavior.ThrowIfNotHandled && !hasProcessed)
                         {
-                            Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.Key(), meta.Operation, meta.MessageId);
-                            throw new InvalidOperationException($"No handler is matching event: {meta.Key()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
+                            Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.FullUri(), meta.Operation, meta.MessageId);
+                            throw new InvalidOperationException($"No handler is matching event: {meta.FullUri()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
                         }
                         if (hasProcessed)
                         {
@@ -210,7 +210,7 @@ namespace EventSource.Backbone
 
                 catch (OperationCanceledException)
                 {
-                    logger.LogWarning("Canceled event: {0}", meta.Key());
+                    logger.LogWarning("Canceled event: {0}", meta.FullUri());
                     if (Plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();
@@ -219,7 +219,7 @@ namespace EventSource.Backbone
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "event: {0}", meta.Key());
+                    logger.LogError(ex, "event: {0}", meta.FullUri());
                     if (Plan.Options.AckBehavior != AckBehavior.OnFinally)
                     {
                         await ack.CancelAsync();

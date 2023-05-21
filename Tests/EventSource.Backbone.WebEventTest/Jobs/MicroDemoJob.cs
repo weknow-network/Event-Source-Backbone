@@ -84,7 +84,7 @@ namespace EventSource.Backbone.WebEventTest.Jobs
                 Metadata? meta = ConsumerMetadata.Context;
 
                 _logger.LogInformation("Consume First Stage {partition} {shard} {PII} {data}",
-                    meta?.Partition, meta?.Shard, PII, payload);
+                    meta?.Uri, PII, payload);
 
                 await _producer.Stage2Async(
                     JsonDocument.Parse("{\"name\":\"john\"}").RootElement,
@@ -95,7 +95,7 @@ namespace EventSource.Backbone.WebEventTest.Jobs
             {
                 var meta = ConsumerMetadata.Context;
                 _logger.LogInformation("Consume 2 Stage {partition} {shard} {PII} {data}",
-                    meta?.Metadata?.Partition, meta?.Metadata?.Shard, PII, data);
+                    meta?.Metadata?.Uri, PII, data);
                 return ValueTask.CompletedTask;
             }
 

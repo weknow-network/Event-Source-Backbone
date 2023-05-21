@@ -62,15 +62,15 @@ namespace EventSource.Backbone.Channels
                                                 .Select(sgm =>
                                                         new HashEntry(sgm.Key, sgm.Value))
                                                 .ToArray();
-                var key = $"{meta.Key()}:{type}:{id}";
+                var key = $"{meta.FullUri()}:{type}:{id}";
                 await db.HashSetAsync(key, segmentsEntities);
 
-                return ImmutableDictionary<string, string>.Empty; // .Add($"redis:{type}:key", key);
+                return ImmutableDictionary<string, string>.Empty;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{partition}->{shard}] stream: {operation}, IsConnecting: {connecting}",
-                    id, type, meta.Partition, meta.Shard, meta.Operation, conn.IsConnecting);
+                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{URI}] stream: {operation}, IsConnecting: {connecting}",
+                    id, type, meta.Uri, meta.Operation, conn.IsConnecting);
                 throw;
             }
         }

@@ -73,7 +73,7 @@ namespace EventSource.Backbone
         {
             var date = DateTime.UtcNow;
             int index = Interlocked.Increment(ref _index);
-            string basePath = $"{meta.Partition}/{meta.Shard}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{index}/{type}";
+            string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{index}/{type}";
             var tasks = bucket.Select(SaveAsync);
             var propKeyToS3Key = await Task.WhenAll(tasks);
             string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);

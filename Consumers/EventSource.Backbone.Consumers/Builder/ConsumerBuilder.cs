@@ -19,7 +19,7 @@ namespace EventSource.Backbone
     [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
     public partial class ConsumerBuilder :
         IConsumerBuilder,
-        IConsumerShardBuilder,
+        IConsumerReadyBuilder,
         IConsumerStoreStrategyBuilder
     {
         private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
@@ -149,7 +149,7 @@ namespace EventSource.Backbone
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerPartitionBuilder<IConsumerShardBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerShardBuilder>>.Environment(Env? environment)
+        IConsumerPartitionBuilder<IConsumerReadyBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerReadyBuilder>>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -191,12 +191,13 @@ namespace EventSource.Backbone
         /// central place without affecting sequence of specific order
         /// flow or limiting the throughput.
         /// </summary>
-        /// <param name="partition">The partition key.</param>
+        /// <param name="uri">
+        /// The stream identifier (the URI combined with the environment separate one stream from another)
+        /// </param>
         /// <returns></returns>
-        IConsumerShardBuilder IConsumerPartitionBuilder<IConsumerShardBuilder>.Partition(
-                                    string partition)
+        IConsumerReadyBuilder IConsumerPartitionBuilder<IConsumerReadyBuilder>.Uri(string uri)
         {
-            var prms = _plan.WithPartition(partition);
+            var prms = _plan.WithKey(uri);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -213,59 +214,19 @@ namespace EventSource.Backbone
         /// central place without affecting sequence of specific order
         /// flow or limiting the throughput.
         /// </summary>
-        /// <param name="partition">The partition key.</param>
+        /// <param name="uri">
+        /// The stream identifier (the URI combined with the environment separate one stream from another)
+        /// </param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerPartitionBuilder<IConsumerSubscribeBuilder>.Partition(
-                                    string partition)
+        IConsumerSubscribeBuilder IConsumerPartitionBuilder<IConsumerSubscribeBuilder>.Uri(
+                                    string uri)
         {
-            var prms = _plan.WithPartition(partition);
+            var prms = _plan.WithKey(uri);
             var result = new ConsumerBuilder(prms);
             return result;
         }
 
         #endregion // Partition
-
-        #region Shard
-
-        /// <summary>
-        /// Shard key represent physical sequence.
-        /// On the consumer side shard is optional
-        /// for listening on a physical source rather on the entire partition.
-        /// Use same shard when order is matter.
-        /// For example: assuming each ORDERING flow can have its
-        /// own messaging sequence, in this case you can split each
-        /// ORDER into different shard and gain performance bust..
-        /// </summary>
-        /// <param name="shard">The shard key.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        IConsumerReadyBuilder IConsumerShardOfBuilder<IConsumerReadyBuilder>.Shard(string shard)
-        {
-            var prms = _plan.WithShard(shard);
-            var result = new ConsumerBuilder(prms);
-            return result;
-        }
-
-        ///// <summary>
-        ///// Shard key represent physical sequence.
-        ///// On the consumer side shard is optional
-        ///// for listening on a physical source rather on the entire partition.
-        ///// Use same shard when order is matter.
-        ///// For example: assuming each ORDERING flow can have its
-        ///// own messaging sequence, in this case you can split each
-        ///// ORDER into different shard and gain performance bust..
-        ///// </summary>
-        ///// <param name="shard">The shard key.</param>
-        ///// <returns></returns>
-        ///// <exception cref="NotImplementedException"></exception>
-        //IConsumerSubscribeBuilder IConsumerShardOfBuilder<IConsumerSubscribeBuilder>.Shard(string shard)
-        //{
-        //    var prms = _plan.WithShard(shard);
-        //    var result = new ConsumerBuilder(prms);
-        //    return result;
-        //}
-
-        #endregion // Shard
 
         #region RegisterSegmentationStrategy
 
@@ -604,11 +565,8 @@ namespace EventSource.Backbone
                     w.WritePropertyName("__env__");
                     w.WriteStringValue(announcement.Environment);
 
-                    w.WritePropertyName("__partition__");
-                    w.WriteStringValue(announcement.Partition);
-
-                    w.WritePropertyName("__shard__");
-                    w.WriteStringValue(announcement.Shard);
+                    w.WritePropertyName("__uri__");
+                    w.WriteStringValue(announcement.Uri);
 
                     w.WritePropertyName("__operation__");
                     w.WriteStringValue(announcement.Operation);
@@ -634,9 +592,9 @@ namespace EventSource.Backbone
                         }
                         catch { }
 
-                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.FullUri()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
-                            entryId, announcement.Key(), key,
+                            entryId, announcement.FullUri(), key,
                             Convert.ToBase64String(val.ToArray()),
                             encoded);
                         throw new DataMisalignedException(err, ex);
@@ -701,9 +659,9 @@ namespace EventSource.Backbone
                         }
                         catch { }
 
-                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.Metadata.Key()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
+                        var err = $"GetJsonByIdAsync [{entryId}, {announcement.Metadata.FullUri()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
-                            entryId, announcement.Metadata.Key(), key,
+                            entryId, announcement.Metadata.FullUri(), key,
                             Convert.ToBase64String(val.ToArray()),
                             encoded);
                         throw new DataMisalignedException(err, ex);

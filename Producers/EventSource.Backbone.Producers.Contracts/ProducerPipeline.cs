@@ -228,8 +228,7 @@
             {
                 MessageId = id,
                 Environment = plan.Environment,
-                Partition = plan.Partition,
-                Shard = plan.Shard,
+                Uri = plan.Uri,
                 Operation = operation
             };
 

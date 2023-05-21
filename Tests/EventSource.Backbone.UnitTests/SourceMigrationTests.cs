@@ -57,8 +57,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -78,8 +77,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)r
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids:HappySocks")
                          .Subscribe(subscriptionBridge);
 
             // ASSERT
@@ -87,10 +85,8 @@ namespace EventSource.Backbone
             Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
             Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
-            Assert.Equal("Organizations", a1.Metadata.Partition);
-            Assert.Equal("Organizations", a1.Metadata.Linked.Partition);
-            Assert.Equal("Org: #RedSocks", a1.Metadata.Shard);
-            Assert.Equal("Org: #RedSocks", a1.Metadata.Linked.Shard);
+            Assert.Equal("Kids:HappySocks", a1.Metadata.Uri);
+            Assert.Equal("Kids:HappySocks", a1.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
 
             Assert.True(a1.Segments.TryGet("key", out string k1));
@@ -131,8 +127,7 @@ namespace EventSource.Backbone
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
-                        .Partition("Organizations")
-                        .Shard("Org: #RedSocks")
+                        .Uri("Kids:HappySocks")
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -143,8 +138,7 @@ namespace EventSource.Backbone
             IRawProducer rawProducer =
                _producerBuilder.UseChannel(_rawProducerChannel)
                        //.WithOptions(producerOption)
-                       .Partition("New-Organizations")
-                       .Shard("Org: #WhiteSocks")
+                       .Uri("Man:Socks")
                        .BuildRaw();
 
             ISubscriptionBridge subscriptionBridge = new SubscriptionBridge(rawProducer);
@@ -155,8 +149,7 @@ namespace EventSource.Backbone
                  _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)r
                          .WithCancellation(cts.Token)
-                         .Partition("Organizations")
-                         .Shard("Org: #RedSocks")
+                         .Uri("Kids:HappySocks")
                          .Subscribe(subscriptionBridge);
 
             // ASSERT
@@ -164,10 +157,8 @@ namespace EventSource.Backbone
             Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
             Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
-            Assert.Equal("New-Organizations", a1.Metadata.Partition);
-            Assert.Equal("Organizations", a1.Metadata.Linked.Partition);
-            Assert.Equal("Org: #WhiteSocks", a1.Metadata.Shard);
-            Assert.Equal("Org: #RedSocks", a1.Metadata.Linked.Shard);
+            Assert.Equal("Man:Socks", a1.Metadata.Uri);
+            Assert.Equal("Kids:HappySocks", a1.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
             Assert.True(a1.Segments.TryGet("key", out string k1));
             Assert.Equal("Id", k1);
@@ -178,10 +169,8 @@ namespace EventSource.Backbone
             Assert.Equal(MessageOrigin.Copy, a2.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a2.Metadata.Linked.Origin);
             Assert.Equal("RunAsync", a2.Metadata.Operation);
-            Assert.Equal("New-Organizations", a2.Metadata.Partition);
-            Assert.Equal("Organizations", a2.Metadata.Linked.Partition);
-            Assert.Equal("Org: #WhiteSocks", a2.Metadata.Shard);
-            Assert.Equal("Org: #RedSocks", a2.Metadata.Linked.Shard);
+            Assert.Equal("Man:Socks", a2.Metadata.Uri);
+            Assert.Equal("Kids:HappySocks", a2.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
             Assert.True(a2.Segments.TryGet("id", out int i2));
             Assert.Equal(1, i2);
@@ -191,10 +180,8 @@ namespace EventSource.Backbone
             Assert.Equal(MessageOrigin.Copy, a3.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a3.Metadata.Linked.Origin);
             Assert.Equal("RunAsync", a3.Metadata.Operation);
-            Assert.Equal("New-Organizations", a3.Metadata.Partition);
-            Assert.Equal("Organizations", a3.Metadata.Linked.Partition);
-            Assert.Equal("Org: #WhiteSocks", a3.Metadata.Shard);
-            Assert.Equal("Org: #RedSocks", a3.Metadata.Linked.Shard);
+            Assert.Equal("Man:Socks", a3.Metadata.Uri);
+            Assert.Equal("Kids:HappySocks", a3.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
             Assert.True(a3.Segments.TryGet("id", out int i3));
             Assert.Equal(2, i3);

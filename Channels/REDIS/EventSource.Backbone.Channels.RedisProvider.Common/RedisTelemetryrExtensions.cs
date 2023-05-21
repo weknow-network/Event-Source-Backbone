@@ -21,7 +21,7 @@ namespace EventSource.Backbone
 
             activity?.SetTag("messaging.destination", meta.Operation);
             activity?.SetTag("messaging.message_id", meta.MessageId);
-            activity?.SetTag("messaging.redis.key", $"{meta.Partition}:{meta.Shard}");
+            activity?.SetTag("messaging.redis.key", meta.Uri);
 
             meta.InjectMetaTelemetryTags(activity);
         }

@@ -59,9 +59,9 @@ namespace EventSource.Backbone
             /// </summary>
             /// <param name="partition">The partition.</param>
             /// <returns></returns>
-            IConsumerIterator IConsumerPartitionBuilder<IConsumerIterator>.Partition(string partition)
+            IConsumerIterator IConsumerPartitionBuilder<IConsumerIterator>.Uri(string partition)
             {
-                IConsumerPlan plan = _plan.ChangePartition(partition);
+                IConsumerPlan plan = _plan.ChangeKey(partition);
                 var result = new Iterator(plan);
                 return result;
             }

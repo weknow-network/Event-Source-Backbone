@@ -37,7 +37,7 @@ namespace EventSource.Backbone
                          .RegisterInterceptor(_rawAsyncInterceptor)
                          .RegisterInterceptor(_rawInterceptor)
                          .RegisterSegmentationStrategy(_segmentation)
-                         .Partition("ORDERS")
+                         .Uri("ORDERS")
                          // .Shard("ORDER-AHS7821X")
                          .WithLogger(_logger)
                          .SubscribeSequenceOperationsConsumer(_subscriber);

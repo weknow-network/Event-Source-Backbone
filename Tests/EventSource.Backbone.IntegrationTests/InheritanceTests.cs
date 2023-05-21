@@ -36,8 +36,7 @@ namespace EventSource.Backbone.Tests
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
         private readonly string ENV = $"Development";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private const int TIMEOUT = 1_000 * 50;
@@ -104,8 +103,7 @@ namespace EventSource.Backbone.Tests
 
             IFlowABProducer producer = _producerBuilder
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(PARTITION)
                                             .BuildFlowABProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -142,8 +140,7 @@ namespace EventSource.Backbone.Tests
                          })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(PARTITION)
                          .Group("CONSUMER_GROUP_X_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
                          .SubscribeFlowAConsumer(_subscriberA)
@@ -191,8 +188,7 @@ namespace EventSource.Backbone.Tests
 
             IFlowABProducer producer = _producerBuilder
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(PARTITION)
                                             .BuildFlowABProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -255,8 +251,7 @@ namespace EventSource.Backbone.Tests
                          })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(PARTITION)
                          .Group("CONSUMER_GROUP_X_1");
 
             await using IConsumerLifetime subscriptionA =

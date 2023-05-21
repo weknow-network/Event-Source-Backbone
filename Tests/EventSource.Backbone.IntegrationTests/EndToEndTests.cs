@@ -44,8 +44,7 @@ namespace EventSource.Backbone.Tests
         private readonly IEventFlowStage2Consumer _stage2Consumer = A.Fake<IEventFlowStage2Consumer>();
 
         private readonly string ENV = $"Development";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
@@ -144,8 +143,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -161,8 +159,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -196,8 +193,7 @@ namespace EventSource.Backbone.Tests
             IEventFlowProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildEventFlowProducer();
 
@@ -215,8 +211,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_X_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -252,8 +247,7 @@ namespace EventSource.Backbone.Tests
             IEventFlowProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildEventFlowProducer();
 
@@ -271,8 +265,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed) with { PartialBehavior = PartialConsumerBehavior.ThrowIfNotHandled })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_X_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -299,8 +292,7 @@ namespace EventSource.Backbone.Tests
             IEventFlowProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildEventFlowProducer();
 
@@ -324,8 +316,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, times * 2, AckBehavior.OnSucceed, PartialConsumerBehavior.Loose))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_X_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -355,8 +346,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -372,8 +362,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
@@ -403,8 +392,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -420,8 +408,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildReceiver();
 
@@ -458,8 +445,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment("FakeTest")
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .Environment(ENV)
                                             .BuildSequenceOperationsProducer();
@@ -476,8 +462,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment("DemoTest")
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildReceiver()
                          .Environment(ENV);
@@ -505,8 +490,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment("FakeTest")
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .Environment(ENV)
                                             .BuildSequenceOperationsProducer();
@@ -523,8 +507,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment("DemoTest")
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Environment(ENV)
                          .BuildReceiver();
@@ -552,8 +535,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -569,8 +551,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
@@ -611,8 +592,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -631,8 +611,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
@@ -684,8 +663,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -701,8 +679,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
@@ -750,8 +727,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -767,8 +743,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
@@ -812,11 +787,7 @@ namespace EventSource.Backbone.Tests
         {
             #region ISequenceOperations producer = ...
 
-            ISequenceOperationsProducer producer = _producerBuilder
-                                            //.WithOptions(producerOption)
-                                            .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+            ISequenceOperationsProducer producer = _producerBuilder.Environment(ENV).Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -832,8 +803,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator();
 
@@ -876,8 +846,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -893,8 +862,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator()
                          .SpecializeSequenceOperationsConsumer();
@@ -924,8 +892,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -941,8 +908,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator()
                          .Specialize(UnitTests.Entities.SequenceOperationsConsumerEntityMapper.Default);
@@ -972,8 +938,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -989,8 +954,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1024,8 +988,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -1046,8 +1009,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with { FetchUntilDateOrEmpty = DateTimeOffset.UtcNow })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1082,8 +1044,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer1 = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -1094,8 +1055,7 @@ namespace EventSource.Backbone.Tests
             IProducerSequenceOperations producer2 = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .Build(ProducerSequenceOperationsBridgePipeline.Create);
 
@@ -1112,8 +1072,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 6, AckBehavior.OnSucceed)) /* detach consumer after 6 messages*/
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1148,8 +1107,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer1 = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -1160,8 +1118,7 @@ namespace EventSource.Backbone.Tests
             IProducerSequenceOperations producer2 = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .Build(ProducerSequenceOperationsBridgePipeline.Create);
 
@@ -1178,8 +1135,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 6, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1213,8 +1169,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -1245,8 +1200,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 4, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
@@ -1282,8 +1236,7 @@ namespace EventSource.Backbone.Tests
 
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -1315,8 +1268,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnFinally))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
@@ -1353,8 +1305,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -1390,8 +1341,7 @@ namespace EventSource.Backbone.Tests
                                 .WithOptions(o => DefaultOptions(o, 4, AckBehavior.Manual))
                                 .WithCancellation(cancellation)
                                 .Environment(ENV)
-                                .Partition(PARTITION)
-                                .Shard(SHARD)
+                                .Uri(URI)
                                 .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3, (ex, i) => _outputHelper.WriteLine($"Retry {i}")))
                                 .WithLogger(_fakeLogger)
                                 .Group("CONSUMER_GROUP_1")
@@ -1428,8 +1378,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -1459,8 +1408,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.Manual))
                              .WithCancellation(cancellation)
                              .Environment(ENV)
-                             .Partition(PARTITION)
-                             .Shard(SHARD)
+                             .Uri(URI)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
                              .WithLogger(_fakeLogger)
                              .Group("CONSUMER_GROUP_1")
@@ -1495,15 +1443,13 @@ namespace EventSource.Backbone.Tests
             var producerBuilder = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger);
             ISequenceOperationsProducer producer = producerBuilder.BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
                 .Environment("dev")
                 .Partition("p0.")
-                .Shard("p1.")
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix1 = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
@@ -1511,7 +1457,6 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producerSuffix = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
                 .Partition(".s0", RouteAssignmentType.Suffix)
-                .Shard(".s1", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerSuffix1 = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
@@ -1519,7 +1464,7 @@ namespace EventSource.Backbone.Tests
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerDynamic = producerBuilder.Environment("Fake Env")
                 .Specialize<ISequenceOperationsProducer>()
-                .Strategy(m => (ENV, $"d.{m.Partition}", $"{m.Shard}.d"))
+                .Strategy(m => (ENV, $"d.{m.Uri}"))
                 .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -1539,8 +1484,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1550,8 +1494,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment("dev")
-                         .Partition($"p0.{PARTITION}")
-                         .Shard($"p1.{SHARD}")
+                         .Uri($"p0.{URI}")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1561,8 +1504,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition($"p2.{PARTITION}")
-                         .Shard(SHARD)
+                         .Uri($"p2.{URI}")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1572,8 +1514,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition($"{PARTITION}.s0")
-                         .Shard($"{SHARD}.s1")
+                         .Uri($"{URI}.s0")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1583,8 +1524,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition($"{PARTITION}.s2")
-                         .Shard(SHARD)
+                         .Uri($"{URI}.s2")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
@@ -1594,8 +1534,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition($"d.{PARTITION}")
-                         .Shard($"{SHARD}.d")
+                         .Uri($"d.{URI}")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_D")
                          .Name($"TEST_D {DateTime.UtcNow:HH:mm:ss}")
@@ -1673,8 +1612,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             .BuildSequenceOperationsProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -1704,8 +1642,7 @@ namespace EventSource.Backbone.Tests
                              .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                              .WithCancellation(cancellation)
                              .Environment(ENV)
-                             .Partition(PARTITION)
-                             .Shard(SHARD)
+                             .Uri(URI)
                              .WithResiliencePolicy(Policy.Handle<Exception>().RetryAsync(3))
                              .WithLogger(_fakeLogger);
 
@@ -1823,7 +1760,7 @@ namespace EventSource.Backbone.Tests
                                                     cfg => cfg.AllowAdmin = true);
                 string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
                 var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });

@@ -40,9 +40,8 @@ namespace EventSource.Backbone
             EventKey = this.EventKey,
             MessageId = this.MessageId,
             Operation = this.Operation,
-            Partition = this.Partition,
+            Uri = this.Uri,
             ProducedAt = this.ProducedAt,
-            Shard = this.Shard,
         };
 
         #endregion // ExtractMeta
@@ -69,8 +68,7 @@ namespace EventSource.Backbone
                 MessageId = meta.MessageId,
                 ProducedAt = meta.ProducedAt,
                 Operation = meta.Operation,
-                Partition = meta.Partition,
-                Shard = meta.Shard
+                Uri = meta.Uri,
             };
         }
 

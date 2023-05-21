@@ -63,8 +63,7 @@ namespace EventSource.Backbone.Tests
 
             IRawProducer rawProducer = _targetProducerBuilder
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(PARTITION)
                                             .WithLogger(_fakeLogger)
                                             .BuildRaw(new RawProducerOptions { KeepOriginalMeta = true });
 
@@ -76,8 +75,7 @@ namespace EventSource.Backbone.Tests
             IAsyncEnumerable<Announcement> announcements = _sourceConsumerBuilder
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Partition(PARTITION)
-                         .Shard(SHARD)
+                         .Uri(PARTITION)
                          .WithLogger(_fakeLogger)
                          .BuildIterator()
                          .GetAsyncEnumerable(new ConsumerAsyncEnumerableOptions { ExitWhenEmpty = true });

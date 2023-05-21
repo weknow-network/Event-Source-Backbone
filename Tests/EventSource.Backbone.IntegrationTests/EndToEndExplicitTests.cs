@@ -31,8 +31,7 @@ namespace EventSource.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
 
@@ -98,8 +97,7 @@ namespace EventSource.Backbone.Tests
             IEventFlowProducer producer = _producerBuilder
                                             .Environment(ENV)
                                             //.WithOptions(producerOption)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(URI)
                                             //.WithLogger(_fakeLogger)
                                             .BuildEventFlowProducer();
 
@@ -120,8 +118,7 @@ namespace EventSource.Backbone.Tests
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Environment(ENV)
-                             .Partition(PARTITION)
-                             .Shard(SHARD)
+                             .Uri(URI)
                              .WithLogger(_fakeLogger);
             await using IConsumerLifetime subscription = builder
                                         .Group("CONSUMER_GROUP_1")
@@ -185,7 +182,7 @@ namespace EventSource.Backbone.Tests
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            string key = $"{PARTITION}:{SHARD}";
+            string key = URI;
             IConnectionMultiplexer conn = RedisClientFactory.CreateProviderBlocking(
                                                 _fakeLogger,
                                                 cfg => cfg.AllowAdmin = true);

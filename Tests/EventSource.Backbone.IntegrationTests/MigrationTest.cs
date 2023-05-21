@@ -127,8 +127,7 @@ namespace EventSource.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Partition(PARTITION)
-                                            .Shard(SHARD)
+                                            .Uri(PARTITION)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -147,8 +146,7 @@ namespace EventSource.Backbone.Tests
                 var consumerBuilder = _consumerBuilder
                              .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                              .WithCancellation(cancellation)
-                             .Partition(PARTITION)
-                             .Shard(SHARD)
+                             .Uri(PARTITION)
                              .WithLogger(_fakeLogger);
 
                 #endregion // var consumerBuilder = _consumerBuilder...

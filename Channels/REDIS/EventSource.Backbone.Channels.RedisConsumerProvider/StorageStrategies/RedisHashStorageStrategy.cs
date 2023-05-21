@@ -41,7 +41,7 @@ namespace EventSource.Backbone.Channels
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
-            string key = $"{meta.Key()}:{type}:{meta.MessageId}";
+            string key = $"{meta.FullUri()}:{type}:{meta.MessageId}";
 
             IConnectionMultiplexer conn = await _connFactory.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
