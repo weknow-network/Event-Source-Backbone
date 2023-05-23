@@ -1,6 +1,6 @@
 ﻿namespace EventSourcing.Backbone.UnitTests.Entities
 {
-    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [EventsContract(EventsContractType.Consumer)]
     public interface IEventFlowStage1
     {
         /// <summary>

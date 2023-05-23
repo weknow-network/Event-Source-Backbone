@@ -5,7 +5,7 @@ namespace EventSourcing.Backbone.UnitTests.Entities
     /// <summary>
     /// use to test consumer which have partial operation from IEventFlow
     /// </summary>
-    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [EventsContract(EventsContractType.Consumer)]
     public interface IEventFlowStage2
     {
         /// <summary>

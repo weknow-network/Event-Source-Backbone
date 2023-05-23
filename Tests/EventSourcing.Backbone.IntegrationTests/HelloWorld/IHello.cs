@@ -3,8 +3,8 @@
     /// <summary>
     /// The sequence operations.
     /// </summary>
-    [GenerateEventSource(EventSourceGenType.Producer)]
-    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [EventsContract(EventsContractType.Producer)]
+    [EventsContract(EventsContractType.Consumer)]
     public interface IHello
     {
         ValueTask HelloAsync(string message);

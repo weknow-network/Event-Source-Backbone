@@ -13,7 +13,7 @@ namespace EventSourcing.Backbone
     [Generator]
     internal class ContractncrementalGenerator : GeneratorIncrementalBase
     {
-        private const string TARGET_ATTRIBUTE = "GenerateEventSource";
+        private const string TARGET_ATTRIBUTE = "EventsContract";
         private readonly BridgeIncrementalGenerator _bridge = new();
 
         public ContractncrementalGenerator() : base(TARGET_ATTRIBUTE)

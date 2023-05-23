@@ -3,7 +3,7 @@
     /// <summary>
     /// Event Source Generation Type
     /// </summary>
-    public enum EventSourceGenType
+    public enum EventsContractType
     {
         Producer,
         Consumer

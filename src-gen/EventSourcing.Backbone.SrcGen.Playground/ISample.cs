@@ -3,8 +3,8 @@
     /// <summary>
     /// Some doc
     /// </summary>
-    [GenerateEventSource(EventSourceGenType.Producer)]
-    [GenerateEventSource(EventSourceGenType.Consumer)]
+    [EventsContract(EventsContractType.Producer)]
+    [EventsContract(EventsContractType.Consumer)]
     public interface ISample
     {
         /// <summary>

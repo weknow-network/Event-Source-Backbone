@@ -3,12 +3,12 @@
     /// <summary>
     /// The sequence operations.
     /// </summary>
-    //[GenerateEventSource(EventSourceGenType.Producer, Name = "IProducerSequenceOperations", ContractOnly = true)]
-    [GenerateEventSource(EventSourceGenType.Producer, Name = "IProducerSequenceOperations")]
-    [GenerateEventSource(EventSourceGenType.Producer)]
-    //[GenerateEventSourceBridge(EventSourceGenType.Producer)]
-    [GenerateEventSource(EventSourceGenType.Consumer)]
-    //[GenerateEventSourceBridge(EventSourceGenType.Consumer)]
+    //[EventsContract(EventSourceGenType.Producer, Name = "IProducerSequenceOperations", ContractOnly = true)]
+    [EventsContract(EventsContractType.Producer, Name = "IProducerSequenceOperations")]
+    [EventsContract(EventsContractType.Producer)]
+    //[EventsContractBridge(EventSourceGenType.Producer)]
+    [EventsContract(EventsContractType.Consumer)]
+    //[EventsContractBridge(EventSourceGenType.Consumer)]
     public interface ISequenceOperations
     {
         /// <summary>

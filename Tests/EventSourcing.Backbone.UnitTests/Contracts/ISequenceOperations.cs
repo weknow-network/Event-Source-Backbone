@@ -1,10 +1,10 @@
 ﻿namespace EventSourcing.Backbone.UnitTests.Entities
 {
-    [GenerateEventSource(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
-    [GenerateEventSource(EventSourceGenType.Consumer, Name = "ISequenceOfConsumer")]
-    [GenerateEventSource(EventSourceGenType.Producer)]
-    [GenerateEventSource(EventSourceGenType.Consumer)]
-    //[GenerateEventSourceBridge(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
+    [EventsContract(EventsContractType.Producer, Name = "ISequenceOfProducer")]
+    [EventsContract(EventsContractType.Consumer, Name = "ISequenceOfConsumer")]
+    [EventsContract(EventsContractType.Producer)]
+    [EventsContract(EventsContractType.Consumer)]
+    //[EventsContractBridge(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
     [Obsolete("Use ISequenceOfProducer or ISequenceOfConsumer", true)]
     public interface ISequenceOperations
     {

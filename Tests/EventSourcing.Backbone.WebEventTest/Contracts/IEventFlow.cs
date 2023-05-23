@@ -3,10 +3,10 @@ using System.Text.Json;
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [GenerateEventSource(EventSourceGenType.Consumer)]
-    [GenerateEventSource(EventSourceGenType.Producer)]
-    //[GenerateEventSource(EventSourceGenType.Consumer, Namespace = "EventSourcing.Backbone.WebEventTest")]
-    //[GenerateEventSource(EventSourceGenType.Producer, Namespace = "EventSourcing.Backbone.WebEventTest")]
+    [EventsContract(EventsContractType.Consumer)]
+    [EventsContract(EventsContractType.Producer)]
+    //[EventsContract(EventSourceGenType.Consumer, Namespace = "EventSourcing.Backbone.WebEventTest")]
+    //[EventsContract(EventSourceGenType.Producer, Namespace = "EventSourcing.Backbone.WebEventTest")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Used for code generation, use the producer / consumer version of it", true)]
     public interface IEventFlow

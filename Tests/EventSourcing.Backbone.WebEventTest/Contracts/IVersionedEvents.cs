@@ -2,8 +2,8 @@
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [GenerateEventSource(EventSourceGenType.Consumer)]
-    [GenerateEventSource(EventSourceGenType.Producer)]
+    [EventsContract(EventsContractType.Consumer)]
+    [EventsContract(EventsContractType.Producer)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Used for code generation, use the producer / consumer version of it", true)]
     public interface IVersionedEvents

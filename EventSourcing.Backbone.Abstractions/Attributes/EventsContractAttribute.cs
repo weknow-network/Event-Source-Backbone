@@ -7,13 +7,13 @@ namespace EventSourcing.Backbone
     /// </summary>
     /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = true)]
-    public class GenerateEventSourceAttribute : Attribute
+    public class EventsContractAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
         /// <param name="generateType">Type of the generate.</param>
-        public GenerateEventSourceAttribute(EventSourceGenType generateType)
+        public EventsContractAttribute(EventsContractType generateType)
         {
             Type = generateType;
         }
@@ -32,6 +32,6 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Type of the generation
         /// </summary>
-        public EventSourceGenType Type { get; }
+        public EventsContractType Type { get; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace EventSourcing.Backbone.UnitTests.Entities;
 
-[GenerateEventSource(EventSourceGenType.Producer)]
-[GenerateEventSource(EventSourceGenType.Consumer)]
+[EventsContract(EventsContractType.Producer)]
+[EventsContract(EventsContractType.Consumer)]
 public interface IFlowA
 {
     ValueTask AAsync(int id);
