@@ -7,7 +7,7 @@ namespace EventSourcing.Backbone
     /// </summary>
     public interface IConsumerReceiver :
         IConsumerEnvironmentOfBuilder<IConsumerReceiver>,
-        IConsumerPartitionBuilder<IConsumerReceiver>,
+        IConsumerUriBuilder<IConsumerReceiver>,
         IConsumerReceiverCommands
     {
     }

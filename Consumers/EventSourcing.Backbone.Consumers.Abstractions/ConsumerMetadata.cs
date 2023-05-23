@@ -7,7 +7,7 @@ namespace EventSourcing.Backbone
     /// a communication channel (Pub/Sub, Event Source, REST, GraphQL).
     /// It represent the operation's intent or represent event.
     /// </summary>
-    [DebuggerDisplay("{Metadata.Partition}/{Metadata.Shard} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
+    [DebuggerDisplay("{Metadata.Uri} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
     public sealed class ConsumerMetadata
     {
         internal static readonly AsyncLocal<ConsumerMetadata> _metaContext = new AsyncLocal<ConsumerMetadata>();

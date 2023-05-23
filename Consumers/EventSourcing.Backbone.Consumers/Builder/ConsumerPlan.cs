@@ -15,7 +15,7 @@ namespace EventSourcing.Backbone
     /// Hold builder definitions.
     /// Define the consumer execution pipeline.
     /// </summary>
-    [DebuggerDisplay("{Environment}:{Partition}:{Shard}, Consumer: [{ConsumerGroup}, {ConsumerName}]")]
+    [DebuggerDisplay("{Environment}:{Uri}, Consumer: [{ConsumerGroup}, {ConsumerName}]")]
     public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
@@ -164,14 +164,14 @@ namespace EventSourcing.Backbone
 
         #endregion // Environment
 
-        #region Key
+        #region Uri
 
         /// <summary>
         /// The stream's key (identity)
         /// </summary>
         public string Uri { get; } = string.Empty;
 
-        #endregion // Partition
+        #endregion // Uri
 
         #region Options
 
@@ -227,7 +227,7 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// Routes are sub-pipelines are results of merge operation
-        /// which can split same payload into multiple partitions or shards.
+        /// which can split same payload into multiple URIs.
         /// </summary>
         private readonly IImmutableList<IConsumerHooksBuilder> Routes =
                 ImmutableList<IConsumerHooksBuilder>.Empty;
@@ -398,13 +398,13 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// change the stream's key.
         /// </summary>
-        /// <param name="partition">The partition.</param>
+        /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        IConsumerPlan IConsumerPlan.ChangeKey(string? partition)
+        IConsumerPlan IConsumerPlan.ChangeKey(string? uri)
         {
-            if (partition == null) return this;
+            if (uri == null) return this;
 
-            return WithKey(partition);
+            return WithKey(uri);
         }
 
         #endregion // ChangeKey
@@ -414,11 +414,11 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Attach a key.
         /// </summary>
-        /// <param name="partition">The partition.</param>
+        /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithKey(string partition)
+        internal ConsumerPlan WithKey(string uri)
         {
-            return new ConsumerPlan(this, key: partition);
+            return new ConsumerPlan(this, key: uri);
         }
 
         #endregion // WithKey

@@ -7,13 +7,12 @@ namespace EventSourcing.Backbone
 {
     public partial class ConsumerBuilder
     {
-        #region private class Receiver
 
         /// <summary>
         /// Receive data (on demand data query).
         /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Receiver : IConsumerReceiver
+        [DebuggerDisplay("{_plan.Environment}:{_plan.Uri}")]
+        private sealed class Receiver : IConsumerReceiver
         {
             private readonly IConsumerPlan _plan;
 
@@ -34,7 +33,7 @@ namespace EventSourcing.Backbone
 
             /// <summary>
             /// Include the environment as prefix of the stream key.
-            /// for example: production:partition-name:shard-name
+            /// for example: env:URI
             /// </summary>
             /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
             /// <returns></returns>
@@ -50,19 +49,22 @@ namespace EventSourcing.Backbone
 
             #endregion // Environment
 
+            #region Uri
 
             /// <summary>
-            /// replace the partition of the stream key.
-            /// for example: production:partition-name:shard-name
+            /// replace the URI of the stream key.
+            /// for example: env:URI
             /// </summary>
-            /// <param name="partition">The partition.</param>
+            /// <param name="uri">The URI.</param>
             /// <returns></returns>
-            IConsumerReceiver IConsumerPartitionBuilder<IConsumerReceiver>.Uri(string partition)
+            IConsumerReceiver IConsumerUriBuilder<IConsumerReceiver>.Uri(string uri)
             {
-                IConsumerPlan plan = _plan.ChangeKey(partition);
+                IConsumerPlan plan = _plan.ChangeKey(uri);
                 var result = new Receiver(plan);
                 return result;
             }
+
+            #endregion // Uri
 
             #region GetByIdAsync
 
@@ -104,7 +106,5 @@ namespace EventSourcing.Backbone
 
             #endregion // GetJsonByIdAsync
         }
-
-        #endregion // private class Receiver
     }
 }

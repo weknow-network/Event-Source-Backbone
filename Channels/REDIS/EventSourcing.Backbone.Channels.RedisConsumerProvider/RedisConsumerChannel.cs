@@ -156,7 +156,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 try
                 {
                     await SubsribeToSingleAsync(plan, func, options, joinCancellation);
-                    // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
+                    // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by partial uri * pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
 
                     if (options.FetchUntilUnixDateOrEmpty != null)
                         break;
@@ -713,8 +713,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// <param name="plan">The plan.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        /// <exception cref="System.Collections.Generic.KeyNotFoundException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] return nothing.</exception>
-        /// <exception cref="System.DataMisalignedException">IConsumerChannelProvider.GetAsync of [{entryId}] from [{plan.Partition}->{plan.Shard}] was expecting single result but got [{entries.Length}] results</exception>
         async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
             EventKey entryId,
             IConsumerPlan plan,

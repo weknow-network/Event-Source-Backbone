@@ -2,9 +2,9 @@
 {
 
     /// <summary>
-    /// Partition key represent logical group
+    /// The stream's key (identity)
     /// </summary>
-    public interface IProducerPartitionBuilder : IProducerRawBuilder, IProducerLoggerBuilder<IProducerPartitionBuilder>
+    public interface IProducerUriBuilder : IProducerRawBuilder, IProducerLoggerBuilder<IProducerUriBuilder>
     {
         /// <summary>
         /// The stream key

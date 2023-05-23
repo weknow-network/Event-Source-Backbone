@@ -33,7 +33,7 @@ namespace EventSourcing.Backbone
         /// <param name="channelFactory">The channel.</param>
         /// <param name="channel">The channel.</param>
         /// <param name="environment">The environment.</param>
-        /// <param name="key">The partition.</param>
+        /// <param name="uri">The URI.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="segmentationStrategies">The segmentation strategies.</param>
@@ -47,7 +47,7 @@ namespace EventSourcing.Backbone
             Func<ILogger, IProducerChannelProvider>? channelFactory = null,
             IProducerChannelProvider? channel = null,
             string? environment = null,
-            string? key = null,
+            string? uri = null,
             ILogger? logger = null,
             EventSourceOptions? options = null,
             IImmutableList<IProducerAsyncSegmentationStrategy>? segmentationStrategies = null,
@@ -60,7 +60,7 @@ namespace EventSourcing.Backbone
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
             Environment = environment ?? copyFrom.Environment;
-            Uri = key ?? copyFrom.Uri;
+            Uri = uri ?? copyFrom.Uri;
             Options = options ?? copyFrom.Options;
             SegmentationStrategies = segmentationStrategies ?? copyFrom.SegmentationStrategies;
             Interceptors = interceptors ?? copyFrom.Interceptors;
@@ -222,7 +222,7 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// Routes are sub-pipelines are results of merge operation
-        /// which can split same payload into multiple partitions or shards.
+        /// which can split same payload into multiple URIs.
         /// </summary>
         private readonly IImmutableList<IProducerHooksBuilder> Routes =
                 ImmutableList<IProducerHooksBuilder>.Empty;
@@ -293,21 +293,19 @@ namespace EventSourcing.Backbone
         /// Withes the environment.
         /// </summary>
         /// <param name="environment">The environment.</param>
-        /// <param name="partition">The partition.</param>
-        /// <param name="shard">The shard.</param>
-        /// <param name="type">The type (only for partition and shard).</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="type">The type (only for uri).</param>
         /// <returns></returns>
         public ProducerPlan WithEnvironment(
             Env environment,
-            string? partition = null,
-            string? shard = null,
+            string? uri = null,
             RouteAssignmentType type = RouteAssignmentType.Replace)
         {
             return type switch
             {
-                RouteAssignmentType.Prefix => new ProducerPlan(this, environment: environment, key: $"{partition}{this.Uri}"),
-                RouteAssignmentType.Replace => new ProducerPlan(this, environment: environment, key: partition ?? this.Uri),
-                RouteAssignmentType.Suffix => new ProducerPlan(this, environment: environment, key: $"{this.Uri}{partition}"),
+                RouteAssignmentType.Prefix => new ProducerPlan(this, environment: environment, uri: $"{uri}{this.Uri}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, environment: environment, uri: uri ?? this.Uri),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, environment: environment, uri: $"{this.Uri}{uri}"),
                 _ => this,
             };
         }
@@ -319,18 +317,17 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Withes the stream's key (identifier).
         /// </summary>
-        /// <param name="partition">The partition.</param>
-        /// <param name="shard">The shard.</param>
+        /// <param name="uri">The URI.</param>
         /// <param name="type">The type.</param>
+        /// 
         /// <returns></returns>
-        public ProducerPlan WithKey(string partition, string? shard = null,
-            RouteAssignmentType type = RouteAssignmentType.Replace)
+        public ProducerPlan WithKey(string uri, RouteAssignmentType type = RouteAssignmentType.Replace)
         {
             return type switch
             {
-                RouteAssignmentType.Prefix => new ProducerPlan(this, key: $"{partition}{this.Uri}"),
-                RouteAssignmentType.Replace => new ProducerPlan(this, key: partition),
-                RouteAssignmentType.Suffix => new ProducerPlan(this, key: $"{this.Uri}{partition}"),
+                RouteAssignmentType.Prefix => new ProducerPlan(this, uri: $"{uri}{this.Uri}"),
+                RouteAssignmentType.Replace => new ProducerPlan(this, uri: uri),
+                RouteAssignmentType.Suffix => new ProducerPlan(this, uri: $"{this.Uri}{uri}"),
                 _ => this,
             };
         }

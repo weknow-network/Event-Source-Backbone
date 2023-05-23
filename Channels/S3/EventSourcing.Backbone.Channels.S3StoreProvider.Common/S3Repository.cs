@@ -339,7 +339,7 @@ namespace EventSourcing.Backbone.Channels
 
                 if (_dryRun)
                 {
-                    return new BlobResponse(key, _bucket, string.Empty, string.Empty);
+                    return new BlobResponse(key, string.Empty, string.Empty);
                 }
 
                 #endregion // if (_dryRun) return ...
@@ -355,7 +355,7 @@ namespace EventSourcing.Backbone.Channels
 
                 #endregion // Validation
 
-                BlobResponse response = new BlobResponse(key, _bucket, res.ETag, res.VersionId);
+                BlobResponse response = new BlobResponse(key, res.ETag, res.VersionId);
                 return response;
             }
             #region Exception Handling

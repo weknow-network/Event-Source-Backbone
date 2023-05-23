@@ -4,16 +4,16 @@
     /// Enable dynamic transformation of the stream id before sending.
     /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
     /// </summary>
-    public interface IProducerOverridePartitionBuilder<T> : IProducerOverrideBuildBuilder<T> where T : class
+    public interface IProducerOverrideUriBuilder<T> : IProducerOverrideBuildBuilder<T> where T : class
     {
 
         /// <summary>
-        /// Override the partition.
+        /// Override the URI.
         /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
         /// </summary>
-        /// <param name="partition">The partition.</param>
+        /// <param name="uri">The URI.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        IProducerOverrideBuildBuilder<T> Partition(string partition, RouteAssignmentType type = RouteAssignmentType.Prefix);
+        IProducerOverrideBuildBuilder<T> Uri(string uri, RouteAssignmentType type = RouteAssignmentType.Prefix);
     }
 }

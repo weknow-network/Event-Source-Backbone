@@ -18,7 +18,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Represent single consuming subscription
         /// </summary>
-        private class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
+        private sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
         {
             private readonly IConsumer _consumer;
             private readonly CancellationTokenSource _disposeCancellation = new CancellationTokenSource();
@@ -261,7 +261,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
             /// <returns>
-            /// The partition subscription (dispose to remove the subscription)
+            /// The subscription lifetime (dispose to remove the subscription)
             /// </returns>
             /// <exception cref="System.ArgumentNullException">_plan</exception>
             IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
@@ -275,7 +275,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
             /// <returns>
-            /// The partition subscription (dispose to remove the subscription)
+            /// The subscription lifetime (dispose to remove the subscription)
             /// </returns>
             /// <exception cref="System.ArgumentNullException">_plan</exception>
             IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
@@ -291,7 +291,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
             /// <returns>
-            /// The partition subscription (dispose to remove the subscription)
+            /// The subscription lifetime (dispose to remove the subscription)
             /// </returns>
             /// <exception cref="System.ArgumentNullException">_plan</exception>
             IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
@@ -306,7 +306,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
             /// <returns>
-            /// The partition subscription (dispose to remove the subscription)
+            /// The subscription lifetime (dispose to remove the subscription)
             /// </returns>
             /// <exception cref="System.ArgumentNullException">_plan</exception>
             IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(

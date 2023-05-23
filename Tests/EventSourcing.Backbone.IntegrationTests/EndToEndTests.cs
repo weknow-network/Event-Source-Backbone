@@ -1348,18 +1348,18 @@ namespace EventSourcing.Backbone.Tests
             ISequenceOperationsProducer producerPrefix = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
                 .Environment("dev")
-                .Partition("p0.")
+                .Uri("p0.")
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix1 = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
-                .Partition("p2.").BuildSequenceOperationsProducer();
+                .Uri("p2.").BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerSuffix = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
-                .Partition(".s0", RouteAssignmentType.Suffix)
+                .Uri(".s0", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerSuffix1 = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
-                .Partition(".s2", RouteAssignmentType.Suffix)
+                .Uri(".s2", RouteAssignmentType.Suffix)
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerDynamic = producerBuilder.Environment("Fake Env")
                 .Specialize<ISequenceOperationsProducer>()

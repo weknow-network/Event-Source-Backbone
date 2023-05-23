@@ -4,13 +4,13 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerPartitionBuilder<T>
+    public interface IConsumerUriBuilder<T>
     {
         /// <summary>
         /// The stream identifier (the URI combined with the environment separate one stream from another)
         /// </summary>
-        /// <param name="partition">The partition key.</param>
+        /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        T Uri(string partition);
+        T Uri(string uri);
     }
 }

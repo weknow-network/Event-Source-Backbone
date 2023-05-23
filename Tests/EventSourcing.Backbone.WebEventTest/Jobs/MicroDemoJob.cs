@@ -83,7 +83,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
             {
                 Metadata? meta = ConsumerMetadata.Context;
 
-                _logger.LogInformation("Consume First Stage {partition} {PII} {data}",
+                _logger.LogInformation("Consume First Stage {uri} {PII} {data}",
                     meta?.Uri, PII, payload);
 
                 await _producer.Stage2Async(
@@ -94,7 +94,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
             ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
             {
                 var meta = ConsumerMetadata.Context;
-                _logger.LogInformation("Consume 2 Stage {partition} {PII} {data}",
+                _logger.LogInformation("Consume 2 Stage {uri} {PII} {data}",
                     meta?.Metadata?.Uri, PII, data);
                 return ValueTask.CompletedTask;
             }

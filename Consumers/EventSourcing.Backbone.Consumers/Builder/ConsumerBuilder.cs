@@ -16,7 +16,7 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// Event Source consumer builder.
     /// </summary>
-    [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
+    [DebuggerDisplay("{_plan.Environment}:{_plan.Uri}")]
     public partial class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerReadyBuilder,
@@ -145,11 +145,11 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// Include the environment as prefix of the stream key.
-        /// for example: production:partition-name:shard-name
+        /// for example: env:URI
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
-        IConsumerPartitionBuilder<IConsumerReadyBuilder> IConsumerEnvironmentOfBuilder<IConsumerPartitionBuilder<IConsumerReadyBuilder>>.Environment(Env? environment)
+        IConsumerUriBuilder<IConsumerReadyBuilder> IConsumerEnvironmentOfBuilder<IConsumerUriBuilder<IConsumerReadyBuilder>>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -161,7 +161,7 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// Include the environment as prefix of the stream key.
-        /// for example: production:partition-name:shard-name
+        /// for example: env:URI
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>
@@ -177,25 +177,16 @@ namespace EventSourcing.Backbone
 
         #endregion // Environment
 
-        #region Partition
+        #region Uri
 
         /// <summary>
-        /// Partition key represent logical group of
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its
-        /// own messaging sequence, yet can live concurrency with
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order
-        /// flow or limiting the throughput.
+        /// Stream's name
         /// </summary>
         /// <param name="uri">
         /// The stream identifier (the URI combined with the environment separate one stream from another)
         /// </param>
         /// <returns></returns>
-        IConsumerReadyBuilder IConsumerPartitionBuilder<IConsumerReadyBuilder>.Uri(string uri)
+        IConsumerReadyBuilder IConsumerUriBuilder<IConsumerReadyBuilder>.Uri(string uri)
         {
             var prms = _plan.WithKey(uri);
             var result = new ConsumerBuilder(prms);
@@ -203,22 +194,13 @@ namespace EventSourcing.Backbone
         }
 
         /// <summary>
-        /// Partition key represent logical group of
-        /// event source shards.
-        /// For example assuming each ORDERING flow can have its
-        /// own messaging sequence, yet can live concurrency with
-        /// other ORDER's sequences.
-        /// The partition will let consumer the option to be notify and
-        /// consume multiple shards from single consumer.
-        /// This way the consumer can handle all orders in
-        /// central place without affecting sequence of specific order
-        /// flow or limiting the throughput.
+        /// Stream's name
         /// </summary>
         /// <param name="uri">
         /// The stream identifier (the URI combined with the environment separate one stream from another)
         /// </param>
         /// <returns></returns>
-        IConsumerSubscribeBuilder IConsumerPartitionBuilder<IConsumerSubscribeBuilder>.Uri(
+        IConsumerSubscribeBuilder IConsumerUriBuilder<IConsumerSubscribeBuilder>.Uri(
                                     string uri)
         {
             var prms = _plan.WithKey(uri);
@@ -226,7 +208,7 @@ namespace EventSourcing.Backbone
             return result;
         }
 
-        #endregion // Partition
+        #endregion // Uri
 
         #region RegisterSegmentationStrategy
 
@@ -375,7 +357,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
+        /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
@@ -389,7 +371,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
+        /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
@@ -418,7 +400,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
+        /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
@@ -433,7 +415,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
-        /// The partition subscription (dispose to remove the subscription)
+        /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
         /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(

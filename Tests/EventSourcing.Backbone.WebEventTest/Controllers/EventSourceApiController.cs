@@ -68,7 +68,7 @@ namespace EventSourcing.Backbone.WebEventTest.Controllers
         /// </summary>
         /// <returns>
         /// </returns>
-        [HttpGet("more/{partition}/{shard}/{eventKey}/{env?}")]
+        [HttpGet("more/{uri}/{eventKey}/{env?}")]
         //[AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async ValueTask<JsonElement> GetMoreAsync(string uri, string eventKey, string? env = null)

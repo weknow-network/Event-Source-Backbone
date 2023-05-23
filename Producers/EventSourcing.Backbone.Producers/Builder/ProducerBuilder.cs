@@ -137,7 +137,7 @@ namespace EventSourcing.Backbone
         /// Origin environment of the message
         /// </summary>
         /// <returns></returns>
-        IProducerPartitionBuilder IProducerBuilderEnvironment<IProducerPartitionBuilder>.Environment(Env? environment)
+        IProducerUriBuilder IProducerBuilderEnvironment<IProducerUriBuilder>.Environment(Env? environment)
         {
             if (environment == null)
                 return this;
@@ -167,11 +167,11 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// The stream's key
         /// </summary>
-        /// <param name="key">The partition key.</param>
+        /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        IProducerHooksBuilder IProducerPartitionBuilder.Uri(string key)
+        IProducerHooksBuilder IProducerUriBuilder.Uri(string uri)
         {
-            var prms = Plan.WithKey(key);
+            var prms = Plan.WithKey(uri);
             return new ProducerBuilder(prms);
         }
 
@@ -312,7 +312,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        IProducerPartitionBuilder IProducerLoggerBuilder<IProducerPartitionBuilder>.WithLogger(ILogger logger)
+        IProducerUriBuilder IProducerLoggerBuilder<IProducerUriBuilder>.WithLogger(ILogger logger)
         {
             return WithLogger(logger);
         }
@@ -463,7 +463,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             /// <param name="environment">The environment.</param>
             /// <returns></returns>
-            IProducerOverridePartitionBuilder<T> IProducerOverrideEnvironmentBuilder<T>.Environment(Env environment)
+            IProducerOverrideUriBuilder<T> IProducerOverrideEnvironmentBuilder<T>.Environment(Env environment)
             {
                 var plan = _plan.WithEnvironment(environment ?? _plan.Environment);
                 return new Router<T>(plan);
@@ -471,22 +471,22 @@ namespace EventSourcing.Backbone
 
             #endregion // Environment
 
-            #region Partition
+            #region Uri
 
             /// <summary>
-            /// Override the partition.
+            /// Override the URI.
             /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
             /// </summary>
-            /// <param name="partition">The partition.</param>
+            /// <param name="uri">The URI.</param>
             /// <param name="type">The type.</param>
             /// <returns></returns>
-            IProducerOverrideBuildBuilder<T> IProducerOverridePartitionBuilder<T>.Partition(string partition, RouteAssignmentType type)
+            IProducerOverrideBuildBuilder<T> IProducerOverrideUriBuilder<T>.Uri(string uri, RouteAssignmentType type)
             {
-                var plan = _plan.WithKey(partition, type: type);
+                var plan = _plan.WithKey(uri, type: type);
                 return new Router<T>(plan);
             }
 
-            #endregion // Partition
+            #endregion // Uri
         }
 
         #endregion // Router

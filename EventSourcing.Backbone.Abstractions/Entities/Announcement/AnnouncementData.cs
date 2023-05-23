@@ -6,7 +6,7 @@ namespace EventSourcing.Backbone
     /// Non-generics form of announcement representation,
     /// used to transfer data via channels.
     /// </summary>
-    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, {Environment}->{Partition}->{Shard}, EventKey:{EventKey}")]
+    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, Target:{Environment}:{Uri}, EventKey:{EventKey}")]
     public record AnnouncementData : Metadata
     {
         #region Data

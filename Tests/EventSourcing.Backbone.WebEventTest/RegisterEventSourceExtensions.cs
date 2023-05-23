@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.Configuration
     /// </summary>
     public static class RegisterEventSourceExtensions
     {
-        private const string PARTITION = "demo";
+        private const string URI = "demo";
 
         public static IServiceCollection AddEventSource(
             this IServiceCollection services,
@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.Configuration
                 IEventFlowProducer producer = ProducerBuilder.Empty.GetRedisChannelService(ioc)
                                      // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .Environment(env)
-                                     .Uri(PARTITION)
+                                     .Uri(URI)
                                      .WithLogger(logger)
                                      .BuildEventFlowProducer();
                 return producer;
@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.Configuration
                                          OriginFilter = MessageOrigin.Original
                                      })
                                      .Environment(env)
-                                     .Uri(PARTITION);
+                                     .Uri(URI);
                 return consumer;
             });
             services.AddSingleton(ioc =>

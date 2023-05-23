@@ -7,7 +7,7 @@ namespace EventSourcing.Backbone
     /// </summary>
     public interface IConsumerIterator :
         IConsumerEnvironmentOfBuilder<IConsumerIterator>,
-        IConsumerPartitionBuilder<IConsumerIterator>,
+        IConsumerUriBuilder<IConsumerIterator>,
         IConsumerIteratorCommands
     {
         /// <summary>

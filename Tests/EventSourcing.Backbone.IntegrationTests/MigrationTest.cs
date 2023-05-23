@@ -32,7 +32,7 @@ namespace EventSourcing.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
         private readonly string ENV = $"Development";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
         private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
@@ -127,7 +127,7 @@ namespace EventSourcing.Backbone.Tests
             ISequenceOperationsProducer producer = _producerBuilder
                                             //.WithOptions(producerOption)
                                             .Environment(ENV)
-                                            .Uri(PARTITION)
+                                            .Uri(URI)
                                             .WithLogger(_fakeLogger)
                                             .BuildSequenceOperationsProducer();
 
@@ -146,7 +146,7 @@ namespace EventSourcing.Backbone.Tests
                 var consumerBuilder = _consumerBuilder
                              .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                              .WithCancellation(cancellation)
-                             .Uri(PARTITION)
+                             .Uri(URI)
                              .WithLogger(_fakeLogger);
 
                 #endregion // var consumerBuilder = _consumerBuilder...
@@ -275,7 +275,7 @@ namespace EventSourcing.Backbone.Tests
                                                     configurationHook: cfg => cfg.AllowAdmin = true).Result;
                 string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
                 var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });

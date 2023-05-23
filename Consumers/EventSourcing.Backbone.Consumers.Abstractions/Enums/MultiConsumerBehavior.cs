@@ -7,8 +7,7 @@
     /// <![CDATA[
     /// await using IConsumerLifetime subscription = _consumerBuilder
     ///           .Environment(ENV)
-    ///           .Partition(PARTITION)
-    ///           .Shard(SHARD)
+    ///           .Uri(Uri)
     ///           .Group("CONSUMER_GROUP_X_1")
     ///           .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
     ///           .SubscribeFlowAConsumer(_subscriberA)

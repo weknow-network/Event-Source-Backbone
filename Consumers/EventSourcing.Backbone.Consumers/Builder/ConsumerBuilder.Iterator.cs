@@ -8,13 +8,11 @@ namespace EventSourcing.Backbone
 {
     public partial class ConsumerBuilder
     {
-        #region private class Iterator
-
         /// <summary>
         /// Receive data (on demand data query).
         /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Iterator : IConsumerIterator
+        [DebuggerDisplay("{_plan.Environment}:{_plan.Uri}")]
+        private sealed class Iterator : IConsumerIterator
         {
             private readonly IConsumerPlan _plan;
 
@@ -35,7 +33,7 @@ namespace EventSourcing.Backbone
 
             /// <summary>
             /// Include the environment as prefix of the stream key.
-            /// for example: production:partition-name:shard-name
+            /// for example: env:URI
             /// </summary>
             /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
             /// <returns></returns>
@@ -51,22 +49,22 @@ namespace EventSourcing.Backbone
 
             #endregion // Environment
 
-            #region Partition
+            #region Uri
 
             /// <summary>
-            /// replace the partition of the stream key.
-            /// for example: production:partition-name:shard-name
+            /// replace the stream's key (identity).
+            /// for example: env:URI
             /// </summary>
-            /// <param name="partition">The partition.</param>
+            /// <param name="uri">The URI.</param>
             /// <returns></returns>
-            IConsumerIterator IConsumerPartitionBuilder<IConsumerIterator>.Uri(string partition)
+            IConsumerIterator IConsumerUriBuilder<IConsumerIterator>.Uri(string uri)
             {
-                IConsumerPlan plan = _plan.ChangeKey(partition);
+                IConsumerPlan plan = _plan.ChangeKey(uri);
                 var result = new Iterator(plan);
                 return result;
             }
 
-            #endregion // Partition
+            #endregion // Uri
 
             #region GetAsyncEnumerable
 
@@ -132,8 +130,8 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Receive data (on demand data query).
         /// </summary>
-        [DebuggerDisplay("{_plan.Environment}:{_plan.Partition}:{_plan.Shard}")]
-        private class Iterator<TEntityFamily> : IConsumerIterator<TEntityFamily>
+        [DebuggerDisplay("{_plan.Environment}:{_plan.Uri}")]
+        private sealed class Iterator<TEntityFamily> : IConsumerIterator<TEntityFamily>
         {
             private readonly IConsumerPlan _plan;
             private readonly IConsumerIterator _iterator;
@@ -222,7 +220,5 @@ namespace EventSourcing.Backbone
 
             #endregion // GetAsyncEnumerable<TCast>
         }
-
-        #endregion // private class Iterator
     }
 }

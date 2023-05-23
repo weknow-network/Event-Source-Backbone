@@ -102,8 +102,7 @@ namespace EventSourcing.Backbone
         /// <![CDATA[
         /// await using IConsumerLifetime subscription = _consumerBuilder
         ///           .Environment(ENV)
-        ///           .Partition(PARTITION)
-        ///           .Shard(SHARD)
+        ///           .Uri(URI)
         ///           .Group("CONSUMER_GROUP_X_1")
         ///           .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
         ///           .SubscribeFlowAConsumer(_subscriberA)

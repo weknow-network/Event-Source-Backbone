@@ -22,11 +22,11 @@ namespace EventSourcing.Backbone
         IConsumerPlan ChangeEnvironment(Env? environment);
 
         /// <summary>
-        /// change the stream's key (identity).
+        /// change the stream's name (identity).
         /// </summary>
-        /// <param name="partition">The partition.</param>
+        /// <param name="uri">The URI.</param>
         /// <returns>An IConsumerPlan.</returns>
-        IConsumerPlan ChangeKey(string? partition);
+        IConsumerPlan ChangeKey(string? uri);
 
         /// <summary>
         /// Gets the storage strategies.

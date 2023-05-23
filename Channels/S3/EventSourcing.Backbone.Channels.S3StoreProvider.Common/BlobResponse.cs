@@ -17,19 +17,17 @@
         /// Create request instance.
         /// </summary>
         /// <param name="key">The blob key.</param>
-        /// <param name="partition">The partition.</param>
         /// <param name="eTag">The e tag.</param>
         /// <param name="contentVersion">The content version.</param>
         /// <param name="fileName">Name of the file.</param>
+        /// 
         public BlobResponse(
             string key,
-            string partition,
             string eTag,
             string contentVersion,
             string? fileName = null)
         {
             _key = key;
-            _partition = partition;
             _eTag = eTag;
             _contentVersion = contentVersion;
             _fileName = fileName;
@@ -51,21 +49,6 @@
         }
 
         #endregion Key 
-
-        #region Partition
-
-        private string _partition = string.Empty;
-        /// <summary>
-        /// Gets or sets the partition.
-        /// </summary>
-        public string Partition
-        {
-            get => _partition;
-            [Obsolete("Exposed for the serializer", true)]
-            set => _partition = value;
-        }
-
-        #endregion Partition 
 
         #region FileName
 
@@ -138,7 +121,6 @@
             return other != null &&
                    _key == other._key &&
                    _fileName == other._fileName &&
-                   _partition == other._partition &&
                    _eTag == other._eTag &&
                    _contentVersion == other._contentVersion;
         }
@@ -151,8 +133,13 @@
         /// </returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(_key, _fileName, _partition, _eTag, _contentVersion);
+            return HashCode.Combine(
+                _key, 
+                _fileName,
+                _eTag,
+                _contentVersion);
         }
+
 
         /// <summary>
         /// Implements the operator ==.

@@ -12,7 +12,7 @@ namespace EventSourcing.Backbone
      /// Unlike the segments, this part can be flow with
      /// message & will be set as async-context.]]> 
      /// </summary>
-    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, {Environment}->{Partition}->{Shard}, EventKey:{EventKey}")]
+    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, Target:{Environment}:{Uri}, EventKey:{EventKey}")]
     public record Metadata
     {
         #region MessageId
@@ -133,7 +133,7 @@ namespace EventSourcing.Backbone
         #region FullUri
 
         /// <summary>
-        /// Gets the partition:shard as key.
+        /// Gets the env:URI as key.
         /// </summary>
         public static string FullUri(this Metadata meta, char separator = ':')
         {

@@ -4,7 +4,7 @@
     /// Enable dynamic transformation of the stream id before sending.
     /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
     /// </summary>
-    public interface IProducerOverrideEnvironmentBuilder<T> : IProducerOverridePartitionBuilder<T> where T : class
+    public interface IProducerOverrideEnvironmentBuilder<T> : IProducerOverrideUriBuilder<T> where T : class
     {
 
         /// <summary>
@@ -13,6 +13,6 @@
         /// </summary>
         /// <param name="environment">The environment.</param>
         /// <returns></returns>
-        IProducerOverridePartitionBuilder<T> Environment(Env environment);
+        IProducerOverrideUriBuilder<T> Environment(Env environment);
     }
 }

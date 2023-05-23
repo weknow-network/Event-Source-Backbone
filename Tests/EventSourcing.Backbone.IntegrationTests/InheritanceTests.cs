@@ -37,7 +37,7 @@ namespace EventSourcing.Backbone.Tests
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
         private readonly string ENV = $"Development";
-        private readonly string PARTITION = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private const int TIMEOUT = 1_000 * 50;
@@ -103,7 +103,7 @@ namespace EventSourcing.Backbone.Tests
 
             IFlowABProducer producer = _producerBuilder
                                             .Environment(ENV)
-                                            .Uri(PARTITION)
+                                            .Uri(URI)
                                             .BuildFlowABProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -140,7 +140,7 @@ namespace EventSourcing.Backbone.Tests
                          })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Uri(PARTITION)
+                         .Uri(URI)
                          .Group("CONSUMER_GROUP_X_1")
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
                          .SubscribeFlowAConsumer(_subscriberA)
@@ -188,7 +188,7 @@ namespace EventSourcing.Backbone.Tests
 
             IFlowABProducer producer = _producerBuilder
                                             .Environment(ENV)
-                                            .Uri(PARTITION)
+                                            .Uri(URI)
                                             .BuildFlowABProducer();
 
             #endregion // ISequenceOperations producer = ...
@@ -251,7 +251,7 @@ namespace EventSourcing.Backbone.Tests
                          })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
-                         .Uri(PARTITION)
+                         .Uri(URI)
                          .Group("CONSUMER_GROUP_X_1");
 
             await using IConsumerLifetime subscriptionA =
@@ -319,7 +319,7 @@ namespace EventSourcing.Backbone.Tests
                                                     configurationHook: cfg => cfg.AllowAdmin = true).Result;
                 string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
                 var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{PARTITION}*");
+                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
                 IDatabaseAsync db = conn.GetDatabase();
 
                 var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
