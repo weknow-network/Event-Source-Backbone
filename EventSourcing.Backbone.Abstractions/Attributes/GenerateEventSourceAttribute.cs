@@ -1,18 +1,37 @@
-﻿namespace EventSourcing.Backbone
+﻿using System.ComponentModel;
+
+namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Mark for code generation
     /// </summary>
-    /// <seealso cref="EventSourcing.Backbone.GenerateEventSourceBaseAttribute" />
+    /// <seealso cref="System.Attribute" />
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = true)]
-    public class GenerateEventSourceAttribute : GenerateEventSourceBaseAttribute
+    public class GenerateEventSourceAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenerateEventSourceAttribute"/> class.
+        /// Initializes a new instance.
         /// </summary>
         /// <param name="generateType">Type of the generate.</param>
-        public GenerateEventSourceAttribute(EventSourceGenType generateType) : base(generateType)
+        public GenerateEventSourceAttribute(EventSourceGenType generateType)
         {
+            Type = generateType;
         }
+        /// <summary>
+        /// The name of the interface.
+        /// If missing the generator will use a convention.
+        /// </summary>
+        public string? Name { get; init; }
+
+        /// <summary>
+        /// The Namespace.
+        /// If missing the generator will use a convention.
+        /// </summary>
+        public string? Namespace { get; init; }
+
+        /// <summary>
+        /// Type of the generation
+        /// </summary>
+        public EventSourceGenType Type { get; }
     }
 }
