@@ -289,7 +289,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         if (string.IsNullOrEmpty(metaJson))
                         { // backward comparability
 
-                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.ChannelType));
+                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.ChannelType));
 
                             if (channelType != CHANNEL_TYPE)
                             {
@@ -299,8 +299,8 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                 continue;
                             }
 
-                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.MessageId));
-                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.Operation));
+                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.MessageId));
+                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.Operation));
                             long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
                             DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
                             if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
@@ -318,7 +318,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         }
                         else
                         {
-                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new Exception(nameof(Metadata));
+                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
                             meta = meta with { EventKey = eventKey };
 
                         }

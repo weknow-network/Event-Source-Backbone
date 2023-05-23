@@ -65,7 +65,7 @@ namespace EventSourcing.Backbone.Tests
                     {
                         Metadata meta = ConsumerMetadata.Context;
                         if (string.IsNullOrEmpty(meta.EventKey))
-                            return ValueTask.FromException(new Exception("Event Key is missing"));
+                            return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
                         return ValueTask.CompletedTask;
                     });
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))

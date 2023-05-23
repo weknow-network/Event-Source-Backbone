@@ -154,7 +154,7 @@ namespace EventSourcing.Backbone.Channels
 
                 if (response == null)
                 {
-                    throw new NullReferenceException("Failed to deserialize industries");
+                    throw new EventSourcingException("Failed to deserialize industries");
                 }
 
                 #endregion // Validation
@@ -205,12 +205,12 @@ namespace EventSourcing.Backbone.Channels
 
                 if (res == null)
                 {
-                    throw new Exception($"S3 key [{key}] not found. bucket = {bucketName}");
+                    throw new EventSourcingException($"S3 key [{key}] not found. bucket = {bucketName}");
                 }
 
                 if (res.HttpStatusCode >= HttpStatusCode.Ambiguous)
                 {
-                    throw new Exception($"Failed to get blob [{res.HttpStatusCode}]");
+                    throw new EventSourcingException($"Failed to get blob [{res.HttpStatusCode}]");
                 }
 
                 #endregion // Validation
@@ -350,7 +350,7 @@ namespace EventSourcing.Backbone.Channels
 
                 if (res.HttpStatusCode >= HttpStatusCode.Ambiguous)
                 {
-                    throw new Exception($"Failed to save blob [{res.HttpStatusCode}]");
+                    throw new EventSourcingException($"Failed to save blob [{res.HttpStatusCode}]");
                 }
 
                 #endregion // Validation

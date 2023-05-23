@@ -85,7 +85,7 @@ namespace EventSourcing.Backbone.Tests
                     {
                         Metadata meta = ConsumerMetadata.Context;
                         if (string.IsNullOrEmpty(meta.EventKey))
-                            return ValueTask.FromException(new Exception("Event Key is missing"));
+                            return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
                         return ValueTask.CompletedTask;
                     });
             A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
@@ -641,7 +641,7 @@ namespace EventSourcing.Backbone.Tests
                 {
                     throw new OperationCanceledException("Should have been canceled");
                 }
-                else throw new Exception("Should have been canceled");
+                else throw new EventSourcingException("Should have been canceled");
 
                 i++;
             }
@@ -840,7 +840,7 @@ namespace EventSourcing.Backbone.Tests
                     var pj2 = json.GetProperty("id");
                     Assert.Equal(4335, pj2.GetInt32());
                 }
-                else throw new Exception("Should have been filtered");
+                else throw new EventSourcingException("Should have been filtered");
                 i++;
             }
         }
