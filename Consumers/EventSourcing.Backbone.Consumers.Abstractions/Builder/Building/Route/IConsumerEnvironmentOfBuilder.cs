@@ -3,11 +3,11 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerEnvironmentOfBuilder<T>
+    public interface IConsumerEnvironmentOfBuilder<out T>
     {
         /// <summary>
         /// Include the environment as prefix of the stream key.
-        /// for example: env:uri
+        /// for example: env:URI
         /// </summary>
         /// <param name="environment">The environment (null: keep current environment, empty: reset the environment to nothing).</param>
         /// <returns></returns>

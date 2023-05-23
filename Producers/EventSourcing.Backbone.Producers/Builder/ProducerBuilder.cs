@@ -69,7 +69,7 @@ namespace EventSourcing.Backbone
             #region Validation
 
             if (Plan == null)
-                throw new ArgumentNullException(nameof(Plan));
+                throw new EventSourcingException($"{nameof(Plan)} is null");
 
             #endregion // Validation
 
@@ -351,7 +351,9 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// <![CDATA[ Ceate Producer proxy for raw events sequence.
-        /// Useful for data migration at the raw data level.]]>
+        /// Useful for data migration at the raw data level.
+        /// This producer can be attached to a subscriber and route it data elesewhere.
+        /// For example, alternative cloud provider, qa environement, etc.]]>
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
@@ -395,7 +397,7 @@ namespace EventSourcing.Backbone
         /// Can use for scenario like routing between environment like dev vs. prod or aws vs azure.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        private class Router<T> : IProducerOverrideBuilder<T> where T : class
+        private sealed class Router<T> : IProducerOverrideBuilder<T> where T : class
         {
             private readonly ProducerPlan _plan;
 
@@ -497,7 +499,7 @@ namespace EventSourcing.Backbone
         /// Raw producer (useful for cluster migration)
         /// </summary>
         /// <seealso cref="EventSourcing.Backbone.IRawProducer" />
-        private class RawProducer : IRawProducer
+        private sealed class RawProducer : IRawProducer
         {
             private readonly IProducerPlan _plan;
             private readonly RawProducerOptions? _options;
@@ -528,7 +530,7 @@ namespace EventSourcing.Backbone
                 var strategies = await _plan.StorageStrategiesAsync;
                 Metadata metadata = data.Metadata;
                 Metadata meta = metadata;
-                if ((_options?.KeepOriginalMeta ?? false) == false)
+                if (!(_options?.KeepOriginalMeta ?? false))
                 {
                     meta = meta with
                     {

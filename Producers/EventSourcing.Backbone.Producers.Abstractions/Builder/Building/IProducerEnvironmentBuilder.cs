@@ -3,8 +3,7 @@
     /// <summary>
     /// Origin environment of the message
     /// </summary>
-    public interface IProducerEnvironmentBuilder : IProducerUriBuilder, IProducerBuilderEnvironment<IProducerUriBuilder>,
-        IProducerRawBuilder
+    public interface IProducerEnvironmentBuilder : IProducerUriBuilder, IProducerBuilderEnvironment<IProducerUriBuilder>
     {
     }
 }

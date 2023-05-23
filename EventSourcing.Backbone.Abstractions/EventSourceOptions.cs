@@ -7,26 +7,10 @@ namespace EventSourcing.Backbone
     {
         private static readonly JsonStringEnumConverter EnumConvertor = new JsonStringEnumConverter(JsonNamingPolicy.CamelCase);
 
-        //private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
-        //{
-        //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        //    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-        //    // PropertyNameCaseInsensitive = true,
-        //    // IgnoreNullValues = true,
-        //    //WriteIndented = true,
-        //    Converters =
-        //                {
-        //                    EnumConvertor,
-        //                    JsonDictionaryConverter.Default,
-        //                    JsonImmutableDictionaryConverter.Default
-        //    }
         internal static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            // PropertyNameCaseInsensitive = true,
-            // IgnoreNullValues = true,
-            //WriteIndented = true,
             Converters =
                         {
                             EnumConvertor,
@@ -38,9 +22,6 @@ namespace EventSourcing.Backbone
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-            // PropertyNameCaseInsensitive = true,
-            // IgnoreNullValues = true,
-            //WriteIndented = true,
             Converters =
                         {
                             EnumConvertor,
@@ -50,8 +31,6 @@ namespace EventSourcing.Backbone
         };
 
         private static readonly IDataSerializer DEFAULT_SERIALIZER = new JsonDataSerializer(FullSerializerOptions);
-
-        //public static readonly EventSourceOptions Empty = new EventSourceOptions();
 
         /// <summary>
         /// Gets the serializer.

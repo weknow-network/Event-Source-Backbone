@@ -120,8 +120,11 @@ namespace EventSourcing.Backbone
         {
             get
             {
+#pragma warning disable S2372 // Exceptions should not be thrown from property getters
                 if (_channel == null)
-                    throw new ArgumentNullException("Event Source Consumer channel not set");
+                    throw new EventSourcingException("Event Source Consumer channel not set");
+#pragma warning restore S2372 
+
                 return _channel;
             }
         }

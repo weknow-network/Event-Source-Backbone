@@ -5,8 +5,6 @@
     /// </summary>
     public interface ISubscriptionBridge
     {
-        // TODO: [bnaya 2021-10] version filtering
-
         /// <summary>
         /// Bridges to the subscriber implementation.
         /// </summary>

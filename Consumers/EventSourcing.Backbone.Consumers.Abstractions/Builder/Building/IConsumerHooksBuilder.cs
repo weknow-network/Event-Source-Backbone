@@ -59,38 +59,5 @@ namespace EventSourcing.Backbone
         /// </example>
         IConsumerHooksBuilder RegisterSegmentationStrategy(
                                 IConsumerAsyncSegmentationStrategy segmentationStrategy);
-
-        //[Consumer(Partition="X", Shard="y")]
-        //public class ConsumerX : Consumer, ISequenceOperations
-        //{ 
-        //}
-        //// void BuildAutoDiscover<T>();
-        //void Build<T>(Func<Meta, T> factory, string partition, string? shard = null);
-        //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                IConsumerSegmentationProvider<T> segmentationProvider,
-        //                params string[] intents);
-
-        //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                Func<ImmutableDictionary<string, ReadOnlyMemory<byte>>,
-        //                    IDataSerializer,
-        //                    T> segmentationProvider,
-        //                params string[] intents);
-
-        //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                IConsumerSegmentationProvider<T> segmentationProvider,
-        //                Func<AnnouncementMetadata, bool> filter);
-
-        //IEventSourceConsumer3Builder<T> ForType<T>(
-        //                Func<ImmutableDictionary<string, ReadOnlyMemory<byte>>,
-        //                    IDataSerializer,
-        //                    T> segmentationProvider,
-        //                Func<AnnouncementMetadata, bool> filter);
-
-        ///// <summary>
-        ///// Builds consumer for non-specialized announcements.
-        ///// This is perfect for scenarios like storing backups in blobs like S3.
-        ///// </summary>
-        ///// <returns></returns>
-        //ISourceBlock<Ackable<AnnouncementRaw>> BuildRaw();
     }
 }

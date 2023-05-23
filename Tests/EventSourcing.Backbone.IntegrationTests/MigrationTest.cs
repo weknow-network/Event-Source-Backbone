@@ -10,6 +10,8 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using StackExchange.Redis;
 
 using Xunit;
@@ -179,8 +181,9 @@ namespace EventSourcing.Backbone.Tests
                 IRawProducer fwProducer = _producerBuilder
                                                 .Environment(MIGRATE_TO)
                                                 .BuildRaw();
+
                 // attach the producer into a subscription bridge
-                SubscriptionBridge fwSubscriberBridge = new(fwProducer);
+                ISubscriptionBridge fwSubscriberBridge = fwProducer.ToSubscriptionBridge();
 
                 // attach the forward subscription into a concrete stream
                 await using IConsumerLifetime fwSubscription = consumerBuilder
@@ -327,26 +330,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Dispose pattern
-
-        #region SubscriptionBridge
-
-        private class SubscriptionBridge : ISubscriptionBridge
-        {
-            private readonly IRawProducer _fw;
-
-            public SubscriptionBridge(IRawProducer fw)
-            {
-                _fw = fw;
-            }
-
-            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
-            {
-                await _fw.Produce(announcement);
-                return true;
-
-            }
-        }
-
-        #endregion // SubscriptionBridge
     }
 }

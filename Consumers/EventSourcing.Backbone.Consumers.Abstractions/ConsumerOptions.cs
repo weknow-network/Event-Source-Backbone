@@ -5,8 +5,6 @@ namespace EventSourcing.Backbone
     public record ConsumerOptions :
         EventSourceOptions
     {
-        //public new static readonly ConsumerOptions Empty = new ConsumerOptions();
-
         #region BatchSize
 
         /// <summary>

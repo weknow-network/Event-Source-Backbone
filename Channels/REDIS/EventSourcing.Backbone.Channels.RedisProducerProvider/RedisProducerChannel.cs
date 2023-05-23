@@ -47,21 +47,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
         #endregion // Ctor
 
-        #region GetDB
-
-        /// <summary>
-        /// Gets the database.
-        /// </summary>
-        /// <param name="redisConnFactory">The redis connection factory.</param>
-        /// <returns></returns>
-        private static async Task<IDatabaseAsync> GetDB(IEventSourceRedisConnectionFacroty redisConnFactory)
-        {
-            var mp = await redisConnFactory.GetAsync();
-            return mp.GetDatabase();
-        }
-
-        #endregion // GetDB
-
         #region SendAsync
 
         /// <summary>

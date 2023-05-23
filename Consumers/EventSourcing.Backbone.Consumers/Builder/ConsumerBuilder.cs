@@ -262,12 +262,12 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Registers the interceptor.
         /// </summary>
-        /// <param name="interceptor">The interceptor.</param>
+        /// <param name="interceptorData">The interceptor.</param>
         /// <returns></returns>
         IConsumerHooksBuilder IConsumerHooksBuilder.RegisterInterceptor(
-                            IConsumerInterceptor interceptor)
+                            IConsumerInterceptor interceptorData)
         {
-            var bridge = new ConsumerInterceptorBridge(interceptor);
+            var bridge = new ConsumerInterceptorBridge(interceptorData);
             var prms = _plan.AddInterceptor(bridge);
             var result = new ConsumerBuilder(prms);
             return result;
@@ -276,12 +276,12 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Registers the interceptor.
         /// </summary>
-        /// <param name="interceptor">The interceptor.</param>
+        /// <param name="interceptorData">The interceptor.</param>
         /// <returns></returns>
         IConsumerHooksBuilder IConsumerHooksBuilder.RegisterInterceptor(
-                            IConsumerAsyncInterceptor interceptor)
+                            IConsumerAsyncInterceptor interceptorData)
         {
-            var prms = _plan.AddInterceptor(interceptor);
+            var prms = _plan.AddInterceptor(interceptorData);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -359,7 +359,6 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
 
         {
@@ -373,7 +372,6 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             IEnumerable<ISubscriptionBridge> handlers)
 
@@ -381,7 +379,7 @@ namespace EventSourcing.Backbone
             #region Validation
 
             if (_plan == null)
-                throw new ArgumentNullException(nameof(_plan));
+                throw new EventSourcingException(nameof(_plan));
 
             #endregion // Validation
 
@@ -402,7 +400,6 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
 
@@ -417,7 +414,6 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">_plan</exception>
         IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
             IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
 
@@ -425,7 +421,7 @@ namespace EventSourcing.Backbone
             #region Validation
 
             if (_plan == null)
-                throw new ArgumentNullException(nameof(_plan));
+                throw new EventSourcingException(nameof(_plan));
 
             #endregion // Validation
 
@@ -572,7 +568,10 @@ namespace EventSourcing.Backbone
                         {
                             encoded = Encoding.UTF8.GetString(val.Span);
                         }
-                        catch { }
+                        catch 
+                        {
+                            plan.Logger.LogDebug("Failed to encode value of ({key})", key);
+                        }
 
                         var err = $"GetJsonByIdAsync [{entryId}, {announcement.FullUri()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",
@@ -639,7 +638,14 @@ namespace EventSourcing.Backbone
                         {
                             encoded = Encoding.UTF8.GetString(val.Span);
                         }
-                        catch { }
+                        #region Exception Handling
+
+                        catch
+                        {
+                            plan.Logger.LogDebug("Encoding failure");
+                        }
+
+                        #endregion // Exception Handling
 
                         var err = $"GetJsonByIdAsync [{entryId}, {announcement.Metadata.FullUri()}]: failed to deserialize key='{key}', base64='{Convert.ToBase64String(val.ToArray())}', data={encoded}";
                         plan.Logger.LogError(ex.FormatLazy(), "GetJsonByIdAsync [{id}, {at}]: failed to deserialize key='{key}', base64='{value}', data={data}",

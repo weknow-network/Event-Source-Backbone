@@ -4,7 +4,8 @@
     /// <summary>
     /// Event Source producer builder.
     /// </summary>
-    public interface IConsumerUriBuilder<T>
+    /// <typeparam name="T"></typeparam>
+    public interface IConsumerUriBuilder<out T>
     {
         /// <summary>
         /// The stream identifier (the URI combined with the environment separate one stream from another)

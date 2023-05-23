@@ -1,19 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>EventSourcing.Backbone</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<RootNamespace>EventSourcing.Backbone</RootNamespace>
+		<RepositoryUrl>https://github.com/bnayae/Event-Source-Backbone</RepositoryUrl>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
-    <PackageReference Include="Bnaya.Extensions.Common" Version="1.0.63" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    <PackageReference Include="OpenTelemetry.Api" Version="1.4.0" />
-    <PackageReference Include="Polly" Version="7.2.3" />
-    <PackageReference Include="Bnaya.Extensions.Json" Version="5.1.159" />
-  </ItemGroup>
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+	  <None Include="..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+		<PackageReference Include="Bnaya.Extensions.Common" Version="1.0.63" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+		<PackageReference Include="OpenTelemetry.Api" Version="1.4.0" />
+		<PackageReference Include="Polly" Version="7.2.3" />
+		<PackageReference Include="Bnaya.Extensions.Json" Version="5.1.159" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+	</ItemGroup>
+
+
 </Project>

@@ -69,7 +69,7 @@ namespace EventSourcing.Backbone
                _producerBuilder.UseChannel(_rawProducerChannel)
                        .BuildRaw();
 
-            ISubscriptionBridge subscriptionBridge = new SubscriptionBridge(rawProducer);
+            ISubscriptionBridge subscriptionBridge = rawProducer.ToSubscriptionBridge();
 
 
             var cts = new CancellationTokenSource();
@@ -141,7 +141,7 @@ namespace EventSourcing.Backbone
                        .Uri("Man:Socks")
                        .BuildRaw();
 
-            ISubscriptionBridge subscriptionBridge = new SubscriptionBridge(rawProducer);
+            ISubscriptionBridge subscriptionBridge = rawProducer.ToSubscriptionBridge();
 
 
             var cts = new CancellationTokenSource();
@@ -194,23 +194,5 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Migration_Change_Target_Test
-
-
-        private class SubscriptionBridge : ISubscriptionBridge
-        {
-            private readonly IRawProducer _fw;
-
-            public SubscriptionBridge(IRawProducer fw)
-            {
-                _fw = fw;
-            }
-
-            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
-            {
-                await _fw.Produce(announcement);
-                return true;
-
-            }
-        }
     }
 }

@@ -4,7 +4,19 @@
   <PropertyGroup>
     <RootNamespace>EventSourcing.Backbone</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
+
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
     <None Remove=".\EventSourcing.Backbone.Consumers.Abstractions.xml" />
   </ItemGroup>
   <ItemGroup>

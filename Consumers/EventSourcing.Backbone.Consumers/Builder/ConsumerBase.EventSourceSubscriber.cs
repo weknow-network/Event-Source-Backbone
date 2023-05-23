@@ -126,7 +126,7 @@ namespace EventSourcing.Backbone
                 if (_maxMessages != 0 && _maxMessages < count)
                 {
                     await DisposeAsync();
-                    throw new OperationCanceledException(); // make sure it not auto ack;
+                    throw new OperationCanceledException(); 
                 }
 
                 #endregion // Increment & Validation Max Messages Limit
@@ -152,7 +152,6 @@ namespace EventSourcing.Backbone
 
                 #endregion // _plan.Interceptors.InterceptAsync(...)
 
-                string operation = meta.Operation;
                 PartialConsumerBehavior partialBehavior = _options.PartialBehavior;
 
                 bool hasProcessed = false;
@@ -231,12 +230,9 @@ namespace EventSourcing.Backbone
                 finally
                 {
 
-                    if (Plan.Options.AckBehavior == AckBehavior.OnFinally)
+                    if (Plan.Options.AckBehavior == AckBehavior.OnFinally && partialBehavior != PartialConsumerBehavior.Sequential)
                     {
-                        if (partialBehavior != PartialConsumerBehavior.Sequential)
-                        {
-                            await ack.AckAsync();
-                        }
+                        await ack.AckAsync();
                     }
 
                     #region Validation Max Messages Limit
