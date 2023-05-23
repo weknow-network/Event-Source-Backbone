@@ -13,6 +13,8 @@ using StackExchange.Redis;
 using Xunit;
 using Xunit.Abstractions;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
 
@@ -124,7 +126,6 @@ namespace EventSourcing.Backbone.Tests
                                         .Group("CONSUMER_GROUP_1")
                                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
                                         .SubscribeEventFlowConsumer(_subscriber);
-            //.SubscribeEventFlow(_subscriber, "CONSUMER_GROUP_1", $"TEST {DateTime.UtcNow:HH:mm:ss}");
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -173,7 +174,6 @@ namespace EventSourcing.Backbone.Tests
 
         #region Dispose pattern
 
-
         ~EndToEndExplicitTests()
         {
             Dispose();
@@ -192,27 +192,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Dispose pattern
-
-        /// <summary>
-        /// The subscriber.
-        /// </summary>
-        private class Subscriber : IEventFlow
-        {
-            private readonly IEventFlow _subscriber;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Subscriber"/> class.
-            /// </summary>
-            /// <param name="subscriber">The subscriber.</param>
-            public Subscriber(IEventFlow subscriber)
-            {
-                _subscriber = subscriber;
-            }
-
-            ValueTask IEventFlow.Stage1Async(Person PII, string payload) => _subscriber.Stage1Async(PII, payload);
-
-            ValueTask IEventFlow.Stage2Async(JsonElement PII, JsonElement data) => _subscriber.Stage2Async(PII, data);
-        }
-
     }
 }

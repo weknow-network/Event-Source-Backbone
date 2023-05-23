@@ -17,13 +17,13 @@ namespace EventSourcing.Backbone
         #region Ctor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty"/> class.
+        /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty" /> class.
         /// </summary>
-        /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="logger">The logger.</param>
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
-            ConfigurationOptions? configuration) :
+            ConfigurationOptions? configuration = null) :
                 base(logger, configuration)
         {
         }
@@ -35,7 +35,7 @@ namespace EventSourcing.Backbone
         /// <param name="logger">The logger.</param>
         /// <param name="configurationHook">The configuration hook.</param>
         public EventSourceRedisConnectionFacroty(
-            RedisCredentialsKeys credential,
+            IRedisCredentials credential,
             ILogger logger,
             Action<ConfigurationOptions>? configurationHook = null) :
                 base(credential, logger, configurationHook)
@@ -46,19 +46,19 @@ namespace EventSourcing.Backbone
         /// Initializes a new instance of the <see cref="EventSourceRedisConnectionFacroty"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
-        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
         /// <param name="configurationHook">The configuration hook.</param>
         public EventSourceRedisConnectionFacroty(
             ILogger logger,
-            string? endpoint = null,
+            string endpoint,
             string? password = null,
             Action<ConfigurationOptions>? configurationHook = null) :
                 base(logger, endpoint, password, configurationHook)
         {
         }
+
+
 
         #endregion // Ctor
 

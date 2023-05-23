@@ -14,6 +14,33 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Create REDIS consumer builder.
         /// </summary>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IConsumerStoreStrategyBuilder Create(
+                            string endpoint,
+                            string? password = null,
+                            Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var configuration = RedisClientFactory.CreateConfigurationOptions(endpoint, password, configurationHook);
+            return configuration.CreateRedisConsumerBuilder();
+        }
+        /// <summary>
+        /// Create REDIS consumer builder.
+        /// </summary>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IConsumerStoreStrategyBuilder Create(
+                            Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var configuration = RedisClientFactory.CreateConfigurationOptions(configurationHook);
+            return configuration.CreateRedisConsumerBuilder();
+        }
+
+        /// <summary>
+        /// Create REDIS consumer builder.
+        /// </summary>
         /// <param name="options">The redis configuration.</param>
         /// <param name="setting">The setting.</param>
         /// <returns></returns>
@@ -39,20 +66,14 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Create REDIS consumer builder.
         /// </summary>
-        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
-        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="configurationHook">The configuration hook.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder Create(
-                            string? endpoint = null,
-                            string? password = null,
-                            RedisConsumerChannelSetting? setting = null,
+        public static IConsumerStoreStrategyBuilder CreateRedisConsumerBuilder(
+                            this RedisConsumerChannelSetting setting,
                             Action<ConfigurationOptions>? configurationHook = null)
         {
-            var configuration = RedisClientFactory.CreateConfigurationOptions(endpoint, password, configurationHook);
+            var configuration = RedisClientFactory.CreateConfigurationOptions(configurationHook);
             return configuration.CreateRedisConsumerBuilder(setting);
         }
 
@@ -60,15 +81,13 @@ namespace EventSourcing.Backbone
         /// Create REDIS consumer builder.
         /// </summary>
         /// <param name="setting">The setting.</param>
-        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
-        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
         /// <param name="configurationHook">The configuration hook.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder CreateRedisConsumerBuilder(
                             this RedisConsumerChannelSetting setting,
-                            string? endpoint = null,
+                            string endpoint,
                             string? password = null,
                             Action<ConfigurationOptions>? configurationHook = null)
         {
@@ -85,7 +104,7 @@ namespace EventSourcing.Backbone
         /// <param name="configurationHook">The configuration hook.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder CreateRedisConsumerBuilder(
-                            this RedisCredentialsKeys credentialsKeys,
+                            this RedisCredentialsEnvKeys credentialsKeys,
                             RedisConsumerChannelSetting? setting = null,
                             Action<ConfigurationOptions>? configurationHook = null)
         {
@@ -128,7 +147,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
-                            RedisCredentialsKeys credentialsKeys,
+                            RedisCredentialsEnvKeys credentialsKeys,
                             RedisConsumerChannelSetting? setting = null)
         {
             var channelBuilder = builder.UseChannel(LocalCreate);
@@ -191,7 +210,6 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Uses REDIS consumer channel.
         /// </summary>
-        /// <param name="builder">The builder.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="setting">The setting.</param>
         /// <returns></returns>

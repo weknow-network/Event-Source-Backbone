@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+#pragma warning disable S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
+
 
 namespace EventSourcing.Backbone
 {
@@ -17,6 +20,7 @@ namespace EventSourcing.Backbone
     public abstract class RedisConnectionFacrotyBase : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
     {
         private const int CLOSE_DELEY_MILLISECONDS = 5000;
+        private static readonly IRedisCredentials _redisCredentials = new RedisCredentialsEnvKeys();
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly ConfigurationOptions _configuration;
@@ -35,26 +39,36 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Create REDIS configuration options.
         /// </summary>
-        /// <param name="endpoint">
-        /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
-        /// </param>
-        /// <param name="password">
-        /// Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.
-        /// </param>
         /// <param name="configurationHook">The configuration hook.</param>
         protected RedisConnectionFacrotyBase(
                     ILogger logger,
-                    string? endpoint = null,
-                    string? password = null,
                     Action<ConfigurationOptions>? configurationHook = null)
+                        : this(new RedisCredentialsEnvKeys(), logger, configurationHook)
         {
-            _logger = logger;
-            _configuration = RedisClientFactory.CreateConfigurationOptions(endpoint, password, configurationHook);
-            _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <summary>
+        /// Create REDIS configuration options.
+        /// </summary>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        protected RedisConnectionFacrotyBase(
+                    ILogger logger,
+                    string endpoint,
+                    string? password = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
+                                    : this(new RedisCredentialsRaw(endpoint, password), logger, configurationHook)
+
+        {
+        }
+
+
+        #endregion // Overloads
 
         /// <summary>
         /// Constructor
@@ -63,17 +77,16 @@ namespace EventSourcing.Backbone
         /// <param name="logger">The logger.</param>
         /// <param name="configurationHook">The configuration hook.</param>
         protected RedisConnectionFacrotyBase(
-                    RedisCredentialsKeys credential,
+                    IRedisCredentials credential,
                     ILogger logger,
                     Action<ConfigurationOptions>? configurationHook = null)
+                        
         {
             _logger = logger;
             _configuration = credential.CreateConfigurationOptions(configurationHook);
             _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
         }
 
-
-        #endregion // Overloads
 
         /// <summary>
         /// Constructor
@@ -85,8 +98,8 @@ namespace EventSourcing.Backbone
             ConfigurationOptions? configuration)
         {
             _logger = logger;
-            _configuration = configuration;
-            _redisTask = RedisClientFactory.CreateProviderAsync(configuration, logger);
+            _configuration = configuration ?? _redisCredentials.CreateConfigurationOptions();
+            _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
         }
 
 
@@ -129,7 +142,9 @@ namespace EventSourcing.Backbone
                 {
                     _lastResetConnection = DateTime.Now;
                     var cn = conn;
+#pragma warning disable S1481 
                     Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
+#pragma warning restore S1481
                     _redisTask = _configuration.CreateProviderAsync(_logger);
                     var newConn = await _redisTask;
                     return newConn;
@@ -181,7 +196,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Dispose
         /// </summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
@@ -193,7 +208,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="disposing">if set to <c>true</c> [disposing].</param>
         /// <returns></returns>
-        public virtual void OnDispose(bool disposing) { }
+        protected virtual void OnDispose(bool disposing) { }
 
         /// <summary>
         /// Dispose

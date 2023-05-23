@@ -21,7 +21,7 @@
         /// <summary>
         /// Consumer's group name.
         /// </summary>
-        /// <param name="consumerGroup">Name of the group.</param>
+        /// <param name="consumerGroup">Alter the default consumer's group name.</param>
         /// <returns></returns>
         IConsumerSubscribeBuilder Group(string consumerGroup);
 

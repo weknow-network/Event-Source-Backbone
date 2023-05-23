@@ -69,7 +69,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="setting">The setting.</param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
         public RedisConsumerChannel(
                         ILogger logger,
                         ConfigurationOptions? configuration = null,
@@ -91,7 +90,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// <param name="configurationHook">The configuration hook.</param>
         public RedisConsumerChannel(
                         ILogger logger,
-                        RedisCredentialsKeys credentialsKeys,
+                        IRedisCredentials credentialsKeys,
                         RedisConsumerChannelSetting? setting = null,
                         Action<ConfigurationOptions>? configurationHook = null) : this(
                             new EventSourceRedisConnectionFacroty(
@@ -107,15 +106,13 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="endpoint">Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.</param>
-        /// <param name="password">Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.</param>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
         /// <param name="setting">The setting.</param>
         /// <param name="configurationHook">The configuration hook.</param>
         public RedisConsumerChannel(
                         ILogger logger,
-                        string? endpoint = null,
+                        string endpoint,
                         string? password = null,
                         RedisConsumerChannelSetting? setting = null,
                         Action<ConfigurationOptions>? configurationHook = null) : this(
@@ -159,8 +156,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 try
                 {
                     await SubsribeToSingleAsync(plan, func, options, joinCancellation);
-                    //else
-                    //    await SubsribePartitionAsync(plan, func, options, joinCancellation);
+                    // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
 
                     if (options.FetchUntilUnixDateOrEmpty != null)
                         break;
@@ -192,72 +188,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
         #endregion // SubsribeAsync
 
-        #region SubsribePartitionAsync
-
-        ///// <summary>
-        ///// Subscribe to all shards under a partition.
-        ///// </summary>
-        ///// <param name="plan">The consumer plan.</param>
-        ///// <param name="func">The function.</param>
-        ///// <param name="options">The options.</param>
-        ///// <param name="cancellationToken">The cancellation token.</param>
-        ///// <returns>
-        ///// When completed
-        ///// </returns>
-        //private async ValueTask SubsribePartitionAsync(
-        //            IConsumerPlan plan,
-        //            Func<Announcement, IAck, ValueTask<bool>> func,
-        //            ConsumerOptions options,
-        //            CancellationToken cancellationToken)
-        //{
-        //    var subscriptions = new Queue<Task>();
-        //    int delay = 1;
-        //    string partition = plan.Uri;
-        //    int partitionSplit = partition.Length + 1;
-        //    while (!cancellationToken.IsCancellationRequested)
-        //    {   // loop for error cases
-        //        try
-        //        {
-        //            // infinite until cancellation (return unique shareds)
-        //            var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*")
-        //                                            .WithCancellation(cancellationToken);
-
-        //            await foreach (string key in keys)
-        //            {
-        //                string shard = key.Substring(partitionSplit);
-        //                IConsumerPlan p = plan.WithShard(shard);
-        //                // infinite task (until cancellation)
-        //                Task subscription = SubsribeToSingleAsync(plan, func, options, cancellationToken);
-        //                subscriptions.Enqueue(subscription);
-        //            }
-
-        //            break;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            plan.Logger.LogError(ex, "Partition subscription");
-        //            await DelayIfRetry();
-        //        }
-        //    }
-
-        //    // run until cancellation or error
-        //    await Task.WhenAll(subscriptions);
-
-        //    #region DelayIfRetry
-
-        //    async Task DelayIfRetry()
-        //    {
-        //        await Task.Delay(delay, cancellationToken);
-        //        delay *= Max(delay, 2);
-        //        delay = Min(MAX_DELAY, delay);
-        //    }
-
-        //    #endregion // DelayIfRetry
-
-        //}
-
-        #endregion // SubsribePartitionAsync
-
         #region SubsribeToSingleAsync
 
         /// <summary>
@@ -276,7 +206,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             var claimingTrigger = options.ClaimingTrigger;
             var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
 
-            string key = plan.FullUri(); //  $"{plan.Partition}:{plan.Shard}";
+            string key = plan.FullUri(); 
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
@@ -303,8 +233,11 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
             TimeSpan delay = TimeSpan.Zero;
             int emptyBatchCount = 0;
-            while (!cancellationToken.IsCancellationRequested && await HandleBatchAsync())
+            while (!cancellationToken.IsCancellationRequested)
             {
+                var proceed = await HandleBatchAsync();
+                if (!proceed)
+                    break;
             }
 
             #region HandleBatchAsync
@@ -356,7 +289,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         if (string.IsNullOrEmpty(metaJson))
                         { // backward comparability
 
-                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.ChannelType));
+                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.ChannelType));
 
                             if (channelType != CHANNEL_TYPE)
                             {
@@ -366,8 +299,8 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                 continue;
                             }
 
-                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.MessageId));
-                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new ArgumentNullException(nameof(MetadataExtensions.Empty.Operation));
+                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.MessageId));
+                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new Exception(nameof(MetadataExtensions.Empty.Operation));
                             long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
                             DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
                             if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
@@ -385,9 +318,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         }
                         else
                         {
-                            //byte[] metabytes = Convert.FromBase64String(meta64);
-                            //string metaJson = Encoding.UTF8.GetString(metabytes);
-                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new ArgumentNullException(nameof(Metadata)); //, EventSourceJsonContext..Metadata);
+                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new Exception(nameof(Metadata));
                             meta = meta with { EventKey = eventKey };
 
                         }
@@ -703,13 +634,15 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     IConnectionMultiplexer conn = await _connFactory.GetAsync();
                     IDatabaseAsync db = conn.GetDatabase();
                     // release the event (won't handle again in the future)
-                    long id = await db.StreamAcknowledgeAsync(key,
+                    await db.StreamAcknowledgeAsync(key,
                                                     plan.ConsumerGroup,
                                                     messageId,
                                                     flags: CommandFlags.DemandMaster);
                 }
-                catch (Exception)
-                { // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+                catch(Exception ex)
+                {
+                    // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+                    logger.LogWarning(ex.FormatLazy(), $"Fail to acknowledge message [{messageId}]");
                     throw;
                 }
             }
@@ -793,7 +726,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             {
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
-                ILogger logger = plan.Logger;
                 StreamEntry entry = await FindAsync(entryId);
 
                 #region var announcement = new Announcement(...)
@@ -921,11 +853,8 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     ConsumerAsyncEnumerableOptions? options,
                     [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetAsyncEnumerable)}";
-
             IConnectionMultiplexer conn = await _connFactory.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
-            ILogger logger = plan.Logger;
             var loop = AsyncLoop().WithCancellation(cancellationToken);
             await foreach (StreamEntry entry in loop)
             {
@@ -936,7 +865,6 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8601 // Possible null reference assignment.
-                string channelType = channelMeta[nameof(MetadataExtensions.Empty.ChannelType)];
                 string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
                 string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
                 long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
@@ -969,7 +897,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 #endregion // var announcement = new Announcement(...)
 
                 yield return announcement;
-            };
+            }
 
             #region AsyncLoop
 

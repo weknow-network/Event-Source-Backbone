@@ -34,7 +34,6 @@ namespace EventSourcing.Backbone.Tests
             string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
             var server = conn.GetServer(serverName);
             IEnumerable<RedisKey> keys = server.Keys(pattern: pattern).ToArray();
-            // IEnumerable<RedisKey> keys = server.Keys(pattern: "dev:*").ToArray();
             IDatabaseAsync db = conn.GetDatabase();
 
             var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });

@@ -45,6 +45,42 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
 
         #endregion // Ctor
 
+        #region HelloWorld_Minimal_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task HelloWorld_Minimal_Test()
+        {
+            IHelloProducer producer = RedisProducerBuilder.Create()
+                                            .Environment("testing")
+                                            .Uri(URI)
+                                            .BuildHelloProducer();
+
+            IConsumerLifetime subscription = RedisConsumerBuilder.Create()
+                         .Environment("testing")
+                         .Uri(URI)
+                         .SubscribeHelloConsumer(_subscriber);
+
+            A.CallTo(() => _subscriber.WorldAsync(5))
+                .Invokes(() => subscription.DisposeAsync());
+
+            await producer.HelloAsync("Hi");
+            await producer.WorldAsync(5);
+
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.HelloAsync("Hi"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.WorldAsync(5))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // HelloWorld_Minimal_Test
+
         #region HelloWorld_Test
 
         [Fact(Timeout = TIMEOUT)]
@@ -88,5 +124,49 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
         }
 
         #endregion // HelloWorld_Test
+
+        #region HelloWorld_Direct_Endpoint_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task HelloWorld_Direct_Endpoint_Test()
+        {
+            IHelloProducer producer = RedisProducerBuilder.Create("localhost:6379,localhost:6380")
+                                            .Environment("testing")
+                                            .Uri(URI)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildHelloProducer();
+
+            var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            IConsumerLifetime subscription = RedisConsumerBuilder.Create("localhost:6379,localhost:6380")
+                         .WithOptions(o => new ConsumerOptions
+                         {
+                             MaxMessages = 2, // disconnect after consuming 2 messages
+                             AckBehavior = AckBehavior.OnSucceed
+                         })
+                         .WithCancellation(cancellation.Token)
+                         .Environment("testing")
+                         .Uri(URI)
+                         .WithLogger(_fakeLogger)
+                         .Group("CONSUMER_GROUP_1") // the consumer group
+                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}") // the name of the specific consumer
+                         .SubscribeHelloConsumer(_subscriber);
+
+            await producer.HelloAsync("Hi");
+            await producer.WorldAsync(5);
+
+
+            await subscription.Completion;
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.HelloAsync("Hi"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.WorldAsync(5))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // HelloWorld_Direct_Endpoint_Test
     }
 }

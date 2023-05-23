@@ -16,6 +16,5 @@ namespace EventSourcing.Backbone.Tests
                     (b, logger) => b.AddS3Strategy(OPTIONS))
         {
         }
-
     }
 }

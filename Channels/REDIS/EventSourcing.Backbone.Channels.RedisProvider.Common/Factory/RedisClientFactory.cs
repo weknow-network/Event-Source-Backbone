@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 using Microsoft.Extensions.Logging;
@@ -24,24 +25,29 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Create REDIS configuration options.
         /// </summary>
-        /// <param name="endpoint">
-        /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
-        /// </param>
-        /// <param name="password">
-        /// Environment key of the password, if missing it use a default ('REDIS_EVENT_SOURCE_PASS').
-        /// If the environment variable doesn't exists, It assumed that the value represent an actual password and use it.
-        /// </param>
         /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
         public static ConfigurationOptions CreateConfigurationOptions(
-                    string? endpoint = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            IRedisCredentials credential = new RedisCredentialsEnvKeys();
+            var redis = credential.CreateConfigurationOptions(configurationHook);
+            return redis;
+        }
+
+        /// <summary>
+        /// Create REDIS configuration options.
+        /// </summary>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
+        /// <param name="configurationHook">A configuration hook.</param>
+        /// <returns></returns>
+        public static ConfigurationOptions CreateConfigurationOptions(
+                    string endpoint,
                     string? password = null,
                     Action<ConfigurationOptions>? configurationHook = null)
         {
-            RedisCredentialsKeys credential = new RedisCredentialsKeys { Endpoint = endpoint };
-            if (!string.IsNullOrEmpty(password))
-                credential = credential with { Password = password };
+            IRedisCredentials credential = new RedisCredentialsRaw(endpoint, password);
             var redis = credential.CreateConfigurationOptions(configurationHook);
             return redis;
         }
@@ -53,22 +59,32 @@ namespace EventSourcing.Backbone
         /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
         public static ConfigurationOptions CreateConfigurationOptions(
-                    this RedisCredentialsKeys credential,
+                    this IRedisCredentials credential,
                     Action<ConfigurationOptions>? configurationHook = null)
         {
-            string endpointKey = credential.Endpoint;
-            string passwordKey = credential.Password;
-            string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? endpointKey;
-            string? password = Environment.GetEnvironmentVariable(passwordKey) ?? passwordKey;
+            var (endpoint, password) = credential switch
+                {
+                    RedisCredentialsRaw raw => (raw.Endpoint, raw.Password),
+                    RedisCredentialsEnvKeys env => (
+                                                        Environment.GetEnvironmentVariable(env.Endpoint ?? END_POINT_KEY),
+                                                        Environment.GetEnvironmentVariable(env.Password ?? PASSWORD_KEY)
+                                                    ),
+                    _ => throw new InvalidOperationException(credential?.GetType()?.Name)
+                };
 
-            var sb = new StringBuilder();
-            var writer = new StringWriter(sb);
+            #region Validation
+
+            if(string.IsNullOrEmpty(endpoint))
+                throw new InvalidOperationException($"{nameof(endpoint)} is null");
+
+            #endregion // Validation
 
             // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
             var configuration = ConfigurationOptions.Parse(endpoint);
             configuration.Password = password;
             if (configurationHook != null)
                 configuration.Apply(configurationHook);
+
             return configuration;
         }
 
@@ -79,20 +95,33 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Create REDIS client.
         /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="password">The password.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
         public static async Task<IConnectionMultiplexer> CreateProviderAsync(
-                    string? endpoint = null,
+                    ILogger? logger = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            IRedisCredentials credential = new RedisCredentialsEnvKeys();
+            var redis = await credential.CreateProviderAsync(logger, configurationHook);
+            return redis;
+        }
+
+        /// <summary>
+        /// Create REDIS client.
+        /// </summary>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">A configuration hook.</param>
+        /// <returns></returns>
+        public static async Task<IConnectionMultiplexer> CreateProviderAsync(
+                    string endpoint,
                     string? password = null,
                     ILogger? logger = null,
                     Action<ConfigurationOptions>? configurationHook = null)
         {
-            RedisCredentialsKeys credential = new RedisCredentialsKeys { Endpoint = endpoint };
-            if (!string.IsNullOrEmpty(password))
-                credential = credential with { Password = password };
+            IRedisCredentials credential = new RedisCredentialsRaw(endpoint, password);
             var redis = await credential.CreateProviderAsync(logger, configurationHook);
             return redis;
         }
@@ -105,73 +134,25 @@ namespace EventSourcing.Backbone
         /// <param name="configurationHook">A configuration hook.</param>
         /// <returns></returns>
         public static async Task<IConnectionMultiplexer> CreateProviderAsync(
-                    this RedisCredentialsKeys credential,
+                    this IRedisCredentials credential,
                     ILogger? logger = null,
                     Action<ConfigurationOptions>? configurationHook = null)
         {
-            string endpointKey = credential.Endpoint;
-            string passwordKey = credential.Password;
-            string endpoint = Environment.GetEnvironmentVariable(endpointKey) ?? endpointKey;
-
             try
             {
-                string? password = Environment.GetEnvironmentVariable(passwordKey) ?? passwordKey;
-
-                var sb = new StringBuilder();
-                var writer = new StringWriter(sb);
-
                 // https://stackexchange.github.io/StackExchange.Redis/Configuration.html
-                var configuration = ConfigurationOptions.Parse(endpoint);
-                configuration.Password = password;
-                if (configurationHook != null)
-                    configuration.Apply(configurationHook);
+                var configuration = credential.CreateConfigurationOptions(configurationHook);
                 var redis = await configuration.CreateProviderAsync(logger);
                 return redis;
             }
             catch (Exception ex)
             {
                 if (logger != null)
-                    logger.LogError(ex.FormatLazy(), "REDIS CONNECTION Setting ERROR: {endpoint}", endpoint);
+                    logger.LogError(ex.FormatLazy(), "REDIS CONNECTION Setting ERROR");
                 else
                     Console.WriteLine($"REDIS CONNECTION Setting ERROR: {ex.FormatLazy()}");
                 throw;
             }
-            #region Event Handlers
-
-            void OnInternalConnError(object? sender, InternalErrorEventArgs e)
-            {
-                if (logger != null)
-                {
-                    logger.LogError(e.Exception, "REDIS Connection internal failure: Failure type = {typeOfConnection}, Origin = {typeOfFailure}",
-                                                 e.ConnectionType, e.Origin);
-                }
-                else
-                    Console.WriteLine($"REDIS Connection internal failure: Failure type = {e.ConnectionType}, Origin = {e.Origin}");
-            }
-
-            void OnConnErrorMessage(object? sender, RedisErrorEventArgs e)
-            {
-                if (logger != null)
-                {
-                    logger.LogWarning("REDIS Connection error: {message}",
-                                        e.Message);
-                }
-                else
-                    Console.WriteLine($"REDIS Connection error: {e.Message}");
-            }
-
-
-            void OnConnectionFailed(object? sender, ConnectionFailedEventArgs e)
-            {
-                if (logger != null)
-                {
-                    logger.LogError(e.Exception, "REDIS Connection failure: Failure type = {typeOfConnection}, Failure type = {typeOfFailure}", e.ConnectionType, e.FailureType);
-                }
-                else
-                    Console.WriteLine($"REDIS Connection failure: Failure type = {e.ConnectionType}, Failure type = {e.FailureType}");
-            }
-
-            #endregion // Event Handlers
         }
 
         /// <summary>
@@ -179,7 +160,6 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
-        /// <param name="credential">The credential's environment keys.</param>
         /// <returns></returns>
         /// <exception cref="StringBuilder">
         /// </exception>
@@ -205,11 +185,16 @@ namespace EventSourcing.Backbone
                 {
                     // keep retry to get connection on failure
                     cfg.AbortOnConnectFail = false;
-                    //cfg.ConnectTimeout = 15;
-                    //cfg.SyncTimeout = 10;
-                    //cfg.AsyncTimeout = 10;
-                    //cfg.DefaultDatabase = Debugger.IsAttached ? 1 : null;
-                });
+#pragma warning disable S125 
+                    /* 
+                       cfg.ConnectTimeout = 15;
+                       cfg.SyncTimeout = 10;
+                       cfg.AsyncTimeout = 10;
+                       cfg.DefaultDatabase = Debugger.IsAttached ? 1 : null;
+                    */
+#pragma warning restore S125 
+                }
+);
 
 
                 IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(configuration, writer);

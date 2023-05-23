@@ -38,11 +38,11 @@ namespace EventSourcing.Backbone.Tests
         public MigrationReceiverTest(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-            var credentials = new RedisCredentialsKeys { Endpoint = TARGET_KEY };
+            var credentials = new RedisCredentialsEnvKeys { Endpoint = TARGET_KEY };
             _targetProducerBuilder = credentials.CreateRedisProducerBuilder()
                 .AddVoidStrategy();
 
-            _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsKeys { Endpoint = SOURCE_KEY })
+            _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsEnvKeys { Endpoint = SOURCE_KEY })
                                         .AddS3Strategy(new S3Options { Bucket = "event-source-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
         }
 

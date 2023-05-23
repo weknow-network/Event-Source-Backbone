@@ -21,6 +21,8 @@ using Xunit.Abstractions;
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using static EventSourcing.Backbone.EventSourceConstants;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
@@ -42,7 +44,7 @@ namespace EventSourcing.Backbone.Tests
         /// Initializes a new instance of the <see cref="HelloWorldTests"/> class.
         /// </summary>
         /// <param name="outputHelper">The output helper.</param>
-        public TestsBase(ITestOutputHelper outputHelper)
+        protected TestsBase(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
         }

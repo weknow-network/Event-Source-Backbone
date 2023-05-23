@@ -25,6 +25,20 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Uses REDIS producer channel.
         /// </summary>
+        /// <param name="resiliencePolicy">The resilience policy.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IProducerStoreStrategyBuilder Create(
+                            AsyncPolicy? resiliencePolicy = null,
+                            Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var configuration = RedisClientFactory.CreateConfigurationOptions(configurationHook);
+            return CreateRedisProducerBuilder(configuration, resiliencePolicy);
+        }
+
+        /// <summary>
+        /// Uses REDIS producer channel.
+        /// </summary>
         /// <param name="endpoint">
         /// Environment key of the end-point, if missing it use a default ('REDIS_EVENT_SOURCE_ENDPOINT').
         /// If the environment variable doesn't exists, It assumed that the value represent an actual end-point and use it.
@@ -37,7 +51,7 @@ namespace EventSourcing.Backbone
         /// <param name="configurationHook">The configuration hook.</param>
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder Create(
-                            string? endpoint = null,
+                            string endpoint,
                             string? password = null,
                             AsyncPolicy? resiliencePolicy = null,
                             Action<ConfigurationOptions>? configurationHook = null)
@@ -54,7 +68,7 @@ namespace EventSourcing.Backbone
         /// <param name="configurationHook">The configuration hook.</param>
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder CreateRedisProducerBuilder(
-                            this RedisCredentialsKeys credential,
+                            this IRedisCredentials credential,
                             AsyncPolicy? resiliencePolicy = null,
                             Action<ConfigurationOptions>? configurationHook = null)
         {
@@ -74,7 +88,8 @@ namespace EventSourcing.Backbone
                             AsyncPolicy? resiliencePolicy = null)
         {
             var builder = ProducerBuilder.Empty;
-            return UseRedisChannel(builder, configuration, resiliencePolicy);
+
+            return builder.UseRedisChannel(configuration, resiliencePolicy);
         }
 
         /// <summary>
@@ -142,8 +157,6 @@ namespace EventSourcing.Backbone
                             IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
-            ILogger logger = serviceProvider.GetService<ILogger<IProducerBuilder>>() ?? throw new Exception("Cannot resolve a logger");
-
             var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
             if (connFactory == null)
                 throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
@@ -160,8 +173,6 @@ namespace EventSourcing.Backbone
                             this IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
-            ILogger logger = serviceProvider.GetService<ILogger<IProducerBuilder>>() ?? throw new Exception("Cannot resolve a logger");
-
             var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
             if (connFactory == null)
                 throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");

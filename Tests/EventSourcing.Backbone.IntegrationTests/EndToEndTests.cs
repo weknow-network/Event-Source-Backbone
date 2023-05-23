@@ -21,6 +21,8 @@ using Xunit.Abstractions;
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using static EventSourcing.Backbone.EventSourceConstants;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
@@ -369,12 +371,15 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerReceiver receiver = ...
 
             AnnouncementData? res0 = await receiver.GetByIdAsync(keys[0]);
+            Assert.NotNull(res0);
             var res1 = await receiver.GetByIdAsync(keys[1]);
             var hasEmail = res1.Data.TryGet("email", out string? email);
+            Assert.True(hasEmail);
             Assert.Equal("admin", email);
             var res2 = await receiver.GetByIdAsync(keys[2]);
             var hasId = res2.Data.TryGet("id", out int id);
             Assert.Equal(4335, id);
+            Assert.True(hasId);
         }
 
         #endregion // Receiver_Test
@@ -476,6 +481,9 @@ namespace EventSourcing.Backbone.Tests
             var res2 = await receiver.GetByIdAsync(keys[2]);
             var hasId = res2.Data.TryGet("id", out int id);
             Assert.Equal(4335, id);
+            Assert.NotNull(res0);
+            Assert.True(hasEmail);
+            Assert.True(hasId);
         }
 
         #endregion // Receiver_ChangeEnvironment_AfterBuild
@@ -521,6 +529,9 @@ namespace EventSourcing.Backbone.Tests
             var res2 = await receiver.GetByIdAsync(keys[2]);
             var hasId = res2.Data.TryGet("id", out int id);
             Assert.Equal(4335, id);
+            Assert.NotNull(res0);
+            Assert.True(hasEmail);
+            Assert.True(hasId);
         }
 
         #endregion // Receiver_ChangeEnvironment_Test
@@ -541,7 +552,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -598,7 +609,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             var cts = new CancellationTokenSource();
             CancellationToken globalCancellation = GetCancellationToken();
@@ -669,7 +680,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -733,7 +744,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -793,7 +804,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -852,7 +863,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -898,7 +909,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            EventKeys keys = await SendSequenceAsync(producer);
+            await SendSequenceAsync(producer);
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -927,56 +938,6 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Iterator_MapByType_WithExtension_Test
-
-        #region OnSucceed_ACK_Test
-
-        [Fact(Timeout = TIMEOUT)]
-        public async Task OnSucceed_ACK_Test()
-        {
-            #region ISequenceOperations producer = ...
-
-            ISequenceOperationsProducer producer = _producerBuilder
-                                            .Environment(ENV)
-                                            //.WithOptions(producerOption)
-                                            .Uri(URI)
-                                            .WithLogger(_fakeLogger)
-                                            .BuildSequenceOperationsProducer();
-
-            #endregion // ISequenceOperations producer = ...
-
-            await SendSequenceAsync(producer);
-
-            CancellationToken cancellation = GetCancellationToken();
-
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
-
-            await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
-                         .WithCancellation(cancellation)
-                         .Environment(ENV)
-                         .Uri(URI)
-                         .WithLogger(_fakeLogger)
-                         .Group("CONSUMER_GROUP_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .Subscribe(_subscriberBridge);
-
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
-
-            await subscription.Completion;
-
-            #region Validation
-
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(4335))
-                .MustHaveHappenedOnceExactly();
-
-            #endregion // Validation
-        }
-
-        #endregion // OnSucceed_ACK_Test
 
         #region Until_Test
 
@@ -1096,68 +1057,6 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // GeneratedContract_Test
-
-        #region GeneratedContract_Factory_Test
-
-        [Fact(Timeout = TIMEOUT)]
-        public async Task GeneratedContract_Factory_Test()
-        {
-            #region ISequenceOperations producer1 = ...
-
-            ISequenceOperationsProducer producer1 = _producerBuilder
-                                            //.WithOptions(producerOption)
-                                            .Environment(ENV)
-                                            .Uri(URI)
-                                            .WithLogger(_fakeLogger)
-                                            .BuildSequenceOperationsProducer();
-
-            #endregion // ISequenceOperations producer1 = ...
-
-            #region ISequenceOperations producer2 = ...
-
-            IProducerSequenceOperations producer2 = _producerBuilder
-                                            .Environment(ENV)
-                                            //.WithOptions(producerOption)
-                                            .Uri(URI)
-                                            .WithLogger(_fakeLogger)
-                                            .Build(ProducerSequenceOperationsBridgePipeline.Create);
-
-            #endregion // ISequenceOperations producer2 = ...
-
-            await SendSequenceAsync(producer1);
-            await SendSequenceAsync(producer2);
-
-            CancellationToken cancellation = GetCancellationToken();
-
-            #region await using IConsumerLifetime subscription = ...Subscribe(...)
-
-            await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 6, AckBehavior.OnSucceed))
-                         .WithCancellation(cancellation)
-                         .Environment(ENV)
-                         .Uri(URI)
-                         .WithLogger(_fakeLogger)
-                         .Group("CONSUMER_GROUP_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .Subscribe(new SequenceOperationsConsumerBridge(_autoSubscriber));
-
-            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
-
-            await subscription.Completion;
-
-            #region Validation
-
-            A.CallTo(() => _autoSubscriber.RegisterAsync(A<User>.Ignored))
-                .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _autoSubscriber.LoginAsync("admin", "1234"))
-                .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _autoSubscriber.EarseAsync(4335))
-                .MustHaveHappenedTwiceExactly();
-
-            #endregion // Validation
-        }
-
-        #endregion // GeneratedContract_Factory_Test
 
         #region OnSucceed_ACK_WithFailure_Test
 
@@ -1693,13 +1592,6 @@ namespace EventSourcing.Backbone.Tests
 
         #region SendSequenceAsync
 
-        private static async Task SendSequenceAsync(ISequenceOperations producer, string pass = "1234")
-        {
-            await producer.RegisterAsync(USER);
-            await producer.LoginAsync("admin", pass);
-            await producer.EarseAsync(4335);
-        }
-
         private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
         {
             EventKey r1 = await producer.RegisterAsync(USER with { Comment = null });
@@ -1716,17 +1608,6 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // SendSequenceAsync
-
-        #region SendLongSequenceAsync
-
-        private static async Task<EventKey> SendLongSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
-        {
-            var tasks = Enumerable.Range(1, 1500).Select(async m => await producer.SuspendAsync(m));
-            EventKeys[] ids = await Task.WhenAll(tasks);
-            return ids[ids.Length - 1].First();
-        }
-
-        #endregion // SendLongSequenceAsync
 
         #region GetCancellationToken
 

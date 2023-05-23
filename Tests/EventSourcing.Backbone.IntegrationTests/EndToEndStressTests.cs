@@ -16,6 +16,8 @@ using Xunit.Abstractions;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
@@ -31,7 +33,6 @@ namespace EventSourcing.Backbone.Tests
         private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
-        private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
         private const int TIMEOUT = 1000 * 30;
 
         #region Ctor
@@ -179,37 +180,13 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // ValidateLongSequenceAsync
 
-        #region SendSequenceAsync
-
-        private static async Task SendSequenceAsync(ISequenceOperations producer, string pass = "1234")
-        {
-            await producer.RegisterAsync(USER);
-            await producer.LoginAsync("admin", pass);
-            await producer.EarseAsync(4335);
-        }
-
-        private static async Task<EventKeys> SendSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
-        {
-            EventKey r1 = await producer.RegisterAsync(USER with { Comment = null });
-            EventKey r2 = await producer.LoginAsync("admin", pass);
-            EventKey r3 = await producer.EarseAsync(4335);
-            return new[] { r1, r2, r3 };
-        }
-        private static async Task<EventKeys> SendSequenceAsync(IProducerSequenceOperations producer, string pass = "1234")
-        {
-            EventKey r1 = await producer.RegisterAsync(USER);
-            EventKey r2 = await producer.LoginAsync("admin", pass);
-            EventKey r3 = await producer.EarseAsync(4335);
-            return new[] { r1, r2, r3 };
-        }
-
-        #endregion // SendSequenceAsync
-
         #region SendLongSequenceAsync
 
-        private static async Task<EventKey> SendLongSequenceAsync(ISequenceOperationsProducer producer, string pass = "1234")
+        private static async Task<EventKey> SendLongSequenceAsync(
+            ISequenceOperationsProducer producer)
         {
-            var tasks = Enumerable.Range(1, 1500).Select(async m => await producer.SuspendAsync(m));
+            var tasks = Enumerable.Range(1, 1500)
+                .Select(async m => await producer.SuspendAsync(m));
             EventKeys[] ids = await Task.WhenAll(tasks);
             return ids[ids.Length - 1].First();
         }

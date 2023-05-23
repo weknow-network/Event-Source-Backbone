@@ -59,7 +59,7 @@ namespace EventSourcing.Backbone.Tests
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
-            var stg = new RedisConsumerChannelSetting
+            RedisConsumerChannelSetting stg = new RedisConsumerChannelSetting
             {
                 DelayWhenEmptyBehavior = new DelayWhenEmptyBehavior
                 {
@@ -273,7 +273,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await tcs.Task.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(20)).Token); // new Task[] { subscriptionA.Completion, subscriptionB.Completion, subscriptionAB.Completion }.WhenN(2);
+            await tcs.Task.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(20)).Token); 
 
             #region Validation
 
