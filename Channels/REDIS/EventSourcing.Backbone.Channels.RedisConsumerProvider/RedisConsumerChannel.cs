@@ -827,7 +827,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             catch (Exception ex)
             {
                 string key = plan.FullUri();
-                _logger.LogError(ex.FormatLazy(), "{mtd} Failed: Entry [{entryId}] from [{key}] event stream",
+                _logger.LogError(ex.FormatLazy(), "{method} Failed: Entry [{entryId}] from [{key}] event stream",
                     mtdName, entryId, key);
                 throw;
             }
