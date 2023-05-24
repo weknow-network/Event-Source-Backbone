@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<Configurations>Debug;Release;Gen</Configurations>
-		<IsPackable>True</IsPackable>
+		<IsPackable>False</IsPackable>
 	</PropertyGroup>
 
 	<ItemGroup>
