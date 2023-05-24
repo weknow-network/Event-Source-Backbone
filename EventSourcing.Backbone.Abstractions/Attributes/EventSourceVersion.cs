@@ -8,7 +8,6 @@
     /// We don't expect a gap between ConsumeFrom to a lower version.
     /// Versions expect to start at 0, if no version specified It will consider version 0,
     /// </summary>
-    /// <seealso cref="EventSourcing.Backbone.EventsContractBaseAttribute" />
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class EventSourceVersionAttribute : Attribute
     {

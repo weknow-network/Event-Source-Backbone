@@ -25,9 +25,8 @@ namespace EventSourcing.Backbone
         /// Called when [execute].
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="compilation"></param>
         /// <param name="info">The information.</param>
-        /// <param name="interfaceName">Name of the interface.</param>
-        /// <param name="generateFrom"></param>
         /// <returns>
         /// File name
         /// </returns>
@@ -37,7 +36,7 @@ namespace EventSourcing.Backbone
                             SyntaxReceiverResult info)
         {
 
-            var (type, att, symbol, kind, ns, isProducer) = info;
+            var (type, att, symbol, kind, _, isProducer) = info;
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
             CopyDocumentation(builder, kind, type, "\t");
@@ -78,7 +77,6 @@ namespace EventSourcing.Backbone
             var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
             var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
 
-            //info = info.OverrideName(interfaceName);
             if (!contractOnly)
                 _bridge.GenerateSingle(context, compilation, info);
 

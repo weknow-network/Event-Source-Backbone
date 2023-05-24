@@ -5,7 +5,6 @@ using EventSourcing.Backbone.SrcGen.Generators.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace EventSourcing.Backbone
 {
@@ -28,10 +27,6 @@ namespace EventSourcing.Backbone
         {
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
-
-            var verrideInterfaceArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "InterfaceName");
-            var overrideInterfaceName = verrideInterfaceArg?.Expression.NormalizeWhitespace().ToString().Replace("\"", "");
 
             if (info.Kind == "Producer")
             {
@@ -83,9 +78,6 @@ namespace EventSourcing.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
-
-            // CopyDocumentation(builder, kind, item, "\t");
 
             string bridge = $"{prefix}Bridge";
             string fileName = $"{bridge}Extensions";
@@ -141,9 +133,7 @@ namespace EventSourcing.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
-
-            // CopyDocumentation(builder, kind, item, "\t");
+            var symbol = info.Symbol;
 
             string fileName = $"{prefix}Bridge";
 
@@ -243,9 +233,7 @@ namespace EventSourcing.Backbone
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
-
-            // CopyDocumentation(builder, kind, item, "\t");
+            var symbol = info.Symbol;
 
             string fileName = $"{prefix}Base";
 
@@ -301,10 +289,9 @@ namespace EventSourcing.Backbone
             {
                 string mtdName = method.Name;
 
-                //CopyDocumentation(builder, kind, mds);
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
-                builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({string.Join(", ", ps)});"); ;
+                builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({string.Join(", ", ps)});");
                 builder.AppendLine();
             }
             builder.AppendLine("\t\t}");
@@ -322,10 +309,10 @@ namespace EventSourcing.Backbone
             SyntaxReceiverResult info,
             string interfaceName)
         {
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
+            var symbol = info.Symbol;
+            var kind = info.Kind;
             builder.AppendLine("\tusing EventSourcing.Backbone.Building;");
 
-            // CopyDocumentation(builder, kind, item, "\t");
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
                 char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
@@ -401,12 +388,14 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\t\t\tvar operation = nameof({interfaceName}.{mtdName});");
             int i = 0;
             var prms = mds.Parameters;
-            foreach (var p in prms)
+            foreach (var pName in from p in prms
+                                  let pName = p.Name
+                                  select pName)
             {
-                var pName = p.Name;
                 builder.AppendLine($"\t\t\tvar classification{i} = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
                 i++;
             }
+
             var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification{m}");
 
             builder.Append($"\t\t\treturn await SendAsync(operation");
