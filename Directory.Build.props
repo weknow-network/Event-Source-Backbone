@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.2.47</Version>
+		<Version>1.2.48</Version>
 		<PackageReleaseNotes>
 		</PackageReleaseNotes>
 	</PropertyGroup>
@@ -44,7 +44,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.102" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.103" PrivateAssets="All" />
 	</ItemGroup>
 	
 	<ItemGroup>
