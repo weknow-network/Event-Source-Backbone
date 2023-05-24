@@ -134,7 +134,6 @@ namespace EventSourcing.Backbone
                 var consumerMeta = new ConsumerMetadata(meta, cancellation);
 
                 var logger = Logger;
-                logger.LogDebug("Consuming event: {0}", meta.FullUri());
 
                 #region _plan.Interceptors.InterceptAsync(...)
 
@@ -178,7 +177,6 @@ namespace EventSourcing.Backbone
                             }
                             return false;
                         }, cancellation);
-                        logger.LogDebug("Consumed event: {0}", meta.FullUri());
 
                         var options = Plan.Options;
                         var behavior = options.AckBehavior;

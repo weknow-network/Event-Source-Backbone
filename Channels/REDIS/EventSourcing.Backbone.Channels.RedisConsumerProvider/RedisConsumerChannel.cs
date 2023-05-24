@@ -991,7 +991,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         private async Task<TimeSpan> DelayIfEmpty(TimeSpan previousDelay, CancellationToken cancellationToken)
         {
             var cfg = _setting.DelayWhenEmptyBehavior;
-            var newDelay = cfg.CalcNextDelay(previousDelay);
+            var newDelay = cfg.CalcNextDelay(previousDelay, cfg);
             var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
             newDelay = TimeSpan.FromMilliseconds(limitDelay);
             await Task.Delay(newDelay, cancellationToken);

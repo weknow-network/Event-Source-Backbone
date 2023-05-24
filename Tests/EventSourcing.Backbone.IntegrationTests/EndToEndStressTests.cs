@@ -51,7 +51,7 @@ namespace EventSourcing.Backbone.Tests
             {
                 DelayWhenEmptyBehavior = new DelayWhenEmptyBehavior
                 {
-                    CalcNextDelay = (d => TimeSpan.FromMilliseconds(2))
+                    CalcNextDelay = ((d, _) => TimeSpan.FromMilliseconds(2))
                 }
             };
             var consumerBuilder = stg.CreateRedisConsumerBuilder();
