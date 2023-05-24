@@ -457,16 +457,29 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
                             IConnectionMultiplexer conn = await _connFactory.GetAsync();
                             IDatabaseAsync db = conn.GetDatabase();
+                            try
+                            {
+                                values = await db.StreamReadGroupAsync(
+                                                                    key,
+                                                                    plan.ConsumerGroup,
+                                                                    plan.ConsumerName,
+                                                                    position: StreamPosition.NewMessages,
+                                                                    count: bachSize,
+                                                                    flags: flags)
+                                                .WithCancellation(ct, () => Array.Empty<StreamEntry>())
+                                                .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
+                            }
+                            #region Exception Handling
 
-                            values = await db.StreamReadGroupAsync(
-                                                                key,
-                                                                plan.ConsumerGroup,
-                                                                plan.ConsumerName,
-                                                                position: StreamPosition.NewMessages,
-                                                                count: bachSize,
-                                                                flags: flags)
-                                            .WithCancellation(ct, () => Array.Empty<StreamEntry>())
-                                            .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
+                            catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+                            {
+                                await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                                        key,
+                                        plan.ConsumerGroup,
+                                        logger);
+                            }
+
+                            #endregion // Exception Handling
                         }
                         StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
                         return results;
@@ -503,30 +516,45 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
-                StreamPendingMessageInfo[] pendMsgInfo = await db.StreamPendingMessagesAsync(
-                                            key,
-                                            plan.ConsumerGroup,
-                                            options.BatchSize,
-                                            plan.ConsumerName,
-                                            flags: CommandFlags.DemandMaster);
-                if (pendMsgInfo != null && pendMsgInfo.Length != 0)
+                try
                 {
-                    var ids = pendMsgInfo
-                        .Select(m => m.MessageId).ToArray();
-                    if (ids.Length != 0)
+                    StreamPendingMessageInfo[] pendMsgInfo = await db.StreamPendingMessagesAsync(
+                                                key,
+                                                plan.ConsumerGroup,
+                                                options.BatchSize,
+                                                plan.ConsumerName,
+                                                flags: CommandFlags.DemandMaster);
+                    if (pendMsgInfo != null && pendMsgInfo.Length != 0)
                     {
-                        values = await db.StreamClaimAsync(key,
-                                                  plan.ConsumerGroup,
-                                                  plan.ConsumerName,
-                                                  0,
-                                                  ids,
-                                                  flags: CommandFlags.DemandMaster);
-                        values = values ?? Array.Empty<StreamEntry>();
-                        _logger.LogInformation("Claimed messages: {ids}", ids);
+                        var ids = pendMsgInfo
+                            .Select(m => m.MessageId).ToArray();
+                        if (ids.Length != 0)
+                        {
+                            values = await db.StreamClaimAsync(key,
+                                                      plan.ConsumerGroup,
+                                                      plan.ConsumerName,
+                                                      0,
+                                                      ids,
+                                                      flags: CommandFlags.DemandMaster);
+                            values = values ?? Array.Empty<StreamEntry>();
+                            _logger.LogInformation("Claimed messages: {ids}", ids);
+                        }
                     }
+
+                    return values;
+                }
+                #region Exception Handling
+
+                catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+                {
+                    await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                            key,
+                            plan.ConsumerGroup,
+                            logger);
+                    return Array.Empty<StreamEntry>();
                 }
 
-                return values;
+                #endregion // Exception Handling
             }
 
             #endregion // ReadSelfPending
@@ -683,20 +711,34 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             {
                 IConnectionMultiplexer conn = await _connFactory.GetAsync();
                 IDatabaseAsync db = conn.GetDatabase();
-                await db.StreamClaimAsync(plan.FullUri(),
-                                          plan.ConsumerGroup,
-                                          RedisChannelConstants.NONE_CONSUMER,
-                                          1,
-                                          freeTargets,
-                                          flags: CommandFlags.DemandMaster);
-                await Task.Delay(releaseDelay, cancellationToken);
-                if (releaseDelay < MAX_RELEASE_DELAY)
-                    releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
+                try
+                {
+                    await db.StreamClaimAsync(plan.FullUri(),
+                                              plan.ConsumerGroup,
+                                              RedisChannelConstants.NONE_CONSUMER,
+                                              1,
+                                              freeTargets,
+                                              flags: CommandFlags.DemandMaster);
+                    await Task.Delay(releaseDelay, cancellationToken);
+                    if (releaseDelay < MAX_RELEASE_DELAY)
+                        releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
 
-                if (bachSize == options.BatchSize)
-                    bachSize = 1;
-                else
-                    bachSize = Math.Min(bachSize * 2, options.BatchSize);
+                    if (bachSize == options.BatchSize)
+                        bachSize = 1;
+                    else
+                        bachSize = Math.Min(bachSize * 2, options.BatchSize);
+                }
+                #region Exception Handling
+
+                catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+                {
+                    await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                            key,
+                            plan.ConsumerGroup,
+                            logger);
+                }
+
+                #endregion // Exception Handling  
             }
 
             #endregion // ReleaseAsync
