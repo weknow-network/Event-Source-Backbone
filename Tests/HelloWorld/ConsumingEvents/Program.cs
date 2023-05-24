@@ -10,7 +10,7 @@ Console.WriteLine("Consuming Events");
 
 IConsumerLifetime subscription = RedisConsumerBuilder.Create()
                                             .Uri(URIs.Default)
-                                            .Group("sample.hello-world")
+                                            //.Group("sample.hello-world")
                                             .SubscribeHelloEventsConsumer(Subscription.Instance);
 Console.ReadKey(false);
 
