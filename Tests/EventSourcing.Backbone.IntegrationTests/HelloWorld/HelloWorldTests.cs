@@ -1,25 +1,10 @@
-using System.Diagnostics;
-using System.Text.Json;
-using System.Threading.Tasks.Dataflow;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Enums;
 using EventSourcing.Backbone.Tests;
 using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;
 
-using Microsoft.Extensions.Logging;
-
-using Polly;
-
-using StackExchange.Redis;
-
 using Xunit;
 using Xunit.Abstractions;
-
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using static EventSourcing.Backbone.EventSourceConstants;
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 

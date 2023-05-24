@@ -13,7 +13,6 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
-    <ProjectReference Include="..\..\..\Producers\EventSourcing.Backbone.Producers.Abstractions\EventSourcing.Backbone.Producers.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />

@@ -44,7 +44,7 @@ namespace EventSourcing.Backbone
         /// <param name="options">The redis configuration.</param>
         /// <param name="setting">The setting.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder CreateRedisConsumerBuilder  (
+        public static IConsumerStoreStrategyBuilder CreateRedisConsumerBuilder(
                             this ConfigurationOptions options,
                             RedisConsumerChannelSetting? setting = null)
         {

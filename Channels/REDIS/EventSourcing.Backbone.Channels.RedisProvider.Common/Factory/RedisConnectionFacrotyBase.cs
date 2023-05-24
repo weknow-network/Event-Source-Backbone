@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -80,7 +78,7 @@ namespace EventSourcing.Backbone
                     IRedisCredentials credential,
                     ILogger logger,
                     Action<ConfigurationOptions>? configurationHook = null)
-                        
+
         {
             _logger = logger;
             _configuration = credential.CreateConfigurationOptions(configurationHook);

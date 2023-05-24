@@ -13,7 +13,6 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
-    <ProjectReference Include="..\..\..\Consumers\EventSourcing.Backbone.Consumers.Abstractions\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.6.96" />

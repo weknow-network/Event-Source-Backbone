@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+    <ProjectReference Include="..\..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
     <ProjectReference Include="..\EventSourcing.Backbone.Channels.RedisProvider.Common\EventSourcing.Backbone.Channels.RedisProvider.Common.csproj" />
   </ItemGroup>
   <ItemGroup>

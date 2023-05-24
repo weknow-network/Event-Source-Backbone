@@ -6,13 +6,8 @@
 		<IsPackable>True</IsPackable>
 	</PropertyGroup>
 
-
 	<ItemGroup>
-		<ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers.Abstractions\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
-		<ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers.Abstractions\EventSourcing.Backbone.Producers.Abstractions.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
 		<ProjectReference Include="..\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 

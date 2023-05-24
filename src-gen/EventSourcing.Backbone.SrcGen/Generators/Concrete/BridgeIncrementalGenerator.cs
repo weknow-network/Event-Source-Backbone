@@ -408,7 +408,12 @@ namespace EventSourcing.Backbone
                 i++;
             }
             var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification{m}");
-            builder.AppendLine($"\t\t\treturn await SendAsync(operation, {string.Join(", ", classifications)});");
+
+            builder.Append($"\t\t\treturn await SendAsync(operation");
+            if (classifications.Any())
+                builder.AppendLine($", {string.Join(", ", classifications)});");
+            else
+                builder.AppendLine($");");
             builder.AppendLine("\t\t}");
             builder.AppendLine();
         }

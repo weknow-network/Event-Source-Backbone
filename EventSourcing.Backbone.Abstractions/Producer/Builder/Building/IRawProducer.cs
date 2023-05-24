@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Event Source raw producer.

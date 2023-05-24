@@ -273,7 +273,7 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await tcs.Task.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(20)).Token); 
+            await tcs.Task.WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(20)).Token);
 
             #region Validation
 

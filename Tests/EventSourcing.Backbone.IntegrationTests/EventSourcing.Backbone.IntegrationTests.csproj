@@ -45,9 +45,7 @@
     <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreConsumerProvider\EventSourcing.Backbone.Channels.S3StoreConsumerProvider.csproj" />
     <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProducerProvider\EventSourcing.Backbone.Channels.S3StoreProducerProvider.csproj" />
     <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
-    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers.Abstractions\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
     <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
-    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers.Abstractions\EventSourcing.Backbone.Producers.Abstractions.csproj" />
     <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
     <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
     <ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />

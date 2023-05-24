@@ -568,7 +568,7 @@ namespace EventSourcing.Backbone
                         {
                             encoded = Encoding.UTF8.GetString(val.Span);
                         }
-                        catch 
+                        catch
                         {
                             plan.Logger.LogDebug("Failed to encode value of ({key})", key);
                         }

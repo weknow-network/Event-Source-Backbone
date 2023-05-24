@@ -126,7 +126,7 @@ namespace EventSourcing.Backbone
                 if (_maxMessages != 0 && _maxMessages < count)
                 {
                     await DisposeAsync();
-                    throw new OperationCanceledException(); 
+                    throw new OperationCanceledException();
                 }
 
                 #endregion // Increment & Validation Max Messages Limit

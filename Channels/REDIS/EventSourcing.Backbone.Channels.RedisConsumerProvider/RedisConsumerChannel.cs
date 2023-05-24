@@ -206,7 +206,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             var claimingTrigger = options.ClaimingTrigger;
             var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
 
-            string key = plan.FullUri(); 
+            string key = plan.FullUri();
             bool isFirstBatchOrFailure = true;
 
             CommandFlags flags = CommandFlags.None;
@@ -639,7 +639,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                                     messageId,
                                                     flags: CommandFlags.DemandMaster);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
                     logger.LogWarning(ex.FormatLazy(), $"Fail to acknowledge message [{messageId}]");

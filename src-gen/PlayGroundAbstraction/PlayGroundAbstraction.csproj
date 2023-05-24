@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="icon.png">
+			<PackagePath></PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+	</ItemGroup>
+
+</Project>

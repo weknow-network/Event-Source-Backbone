@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 
 using Microsoft.Extensions.Logging;
@@ -63,18 +62,18 @@ namespace EventSourcing.Backbone
                     Action<ConfigurationOptions>? configurationHook = null)
         {
             var (endpoint, password) = credential switch
-                {
-                    RedisCredentialsRaw raw => (raw.Endpoint, raw.Password),
-                    RedisCredentialsEnvKeys env => (
-                                                        Environment.GetEnvironmentVariable(env.Endpoint ?? END_POINT_KEY),
-                                                        Environment.GetEnvironmentVariable(env.Password ?? PASSWORD_KEY)
-                                                    ),
-                    _ => throw new InvalidOperationException(credential?.GetType()?.Name)
-                };
+            {
+                RedisCredentialsRaw raw => (raw.Endpoint, raw.Password),
+                RedisCredentialsEnvKeys env => (
+                                                    Environment.GetEnvironmentVariable(env.Endpoint ?? END_POINT_KEY),
+                                                    Environment.GetEnvironmentVariable(env.Password ?? PASSWORD_KEY)
+                                                ),
+                _ => throw new InvalidOperationException(credential?.GetType()?.Name)
+            };
 
             #region Validation
 
-            if(string.IsNullOrEmpty(endpoint))
+            if (string.IsNullOrEmpty(endpoint))
                 throw new InvalidOperationException($"{nameof(endpoint)} is null");
 
             #endregion // Validation

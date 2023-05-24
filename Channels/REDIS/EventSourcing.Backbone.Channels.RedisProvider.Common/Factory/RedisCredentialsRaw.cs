@@ -1,12 +1,9 @@
-﻿using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Raw keys for REDIS's credentials 
     /// </summary>
-    public record RedisCredentialsRaw: IRedisCredentials
+    public record RedisCredentialsRaw : IRedisCredentials
     {
         #region Ctor
 
@@ -27,7 +24,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// The raw endpoint (not an environment variable)
         /// </summary>
-        public string? Endpoint { get;  }
+        public string? Endpoint { get; }
         /// <summary>
         /// The password (not an environment variable).
         /// </summary>

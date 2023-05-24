@@ -10,8 +10,6 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using Polly;
-
 using StackExchange.Redis;
 
 using Xunit;

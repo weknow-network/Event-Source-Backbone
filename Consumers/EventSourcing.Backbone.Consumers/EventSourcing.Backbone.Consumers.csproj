@@ -12,7 +12,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <ProjectReference Include="..\EventSourcing.Backbone.Consumers.Abstractions\EventSourcing.Backbone.Consumers.Abstractions.csproj" />
     <ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
     <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
   </ItemGroup>

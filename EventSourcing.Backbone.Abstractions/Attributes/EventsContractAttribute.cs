@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Mark for code generation

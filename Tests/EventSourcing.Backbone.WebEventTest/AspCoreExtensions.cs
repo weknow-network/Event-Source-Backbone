@@ -5,8 +5,6 @@ using EventSourcing.Backbone;
 
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-using Newtonsoft.Json.Serialization;
-
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -23,8 +21,6 @@ namespace Microsoft.Extensions.Configuration
     /// </summary>
     public static class AspCoreExtensions
     {
-        private static readonly NamingStrategy _namingStrategy = new CamelCaseNamingStrategy();
-
         #region AddRedis
 
         /// <summary>
@@ -71,7 +67,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddOpenTelemetry()
                 .WithTracing(builder =>
                 {
-                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                    var tracerProviderBuilder = builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
                         .AddService(shortAppName))
                         .ListenToEventSourceRedisChannel()
                         // .SetSampler<AlwaysOnSampler>()

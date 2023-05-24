@@ -44,6 +44,8 @@ namespace EventSourcing.Backbone
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
             builder.Append($"\tpublic interface {interfaceName}");
+            // TODO: [bnaya 2023-05-23] make sure to generate the base interfaces
+            // TODO: [bnaya 2023-05-23] SellectMany into interface hierarchic
             var baseTypes = symbol.Interfaces.Select(m => info.FormatName(m.Name));
             string inheritance = string.Join(", ", baseTypes);
             if (string.IsNullOrEmpty(inheritance))

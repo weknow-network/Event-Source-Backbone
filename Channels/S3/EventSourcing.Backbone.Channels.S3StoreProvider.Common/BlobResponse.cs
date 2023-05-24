@@ -134,7 +134,7 @@
         public override int GetHashCode()
         {
             return HashCode.Combine(
-                _key, 
+                _key,
                 _fileName,
                 _eTag,
                 _contentVersion);
