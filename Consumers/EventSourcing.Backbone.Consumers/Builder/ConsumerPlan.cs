@@ -244,7 +244,7 @@ namespace EventSourcing.Backbone
         /// Consumer Group allow a group of clients to cooperate
         /// consuming a different portion of the same stream of messages
         /// </summary>
-        public string ConsumerGroup { get; } = string.Empty;
+        public string ConsumerGroup { get; } = "default";
 
         #endregion // ConsumerGroup
 
