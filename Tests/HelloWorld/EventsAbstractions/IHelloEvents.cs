@@ -12,6 +12,6 @@ namespace EventsAbstractions;
 public interface IHelloEvents
 {
     ValueTask NameAsync(string name);
-    ValueTask ColorAcync(ConsoleColor color);
+    ValueTask ColorAsync(ConsoleColor color);
     ValueTask StarAsync();
 }

@@ -97,4 +97,24 @@ internal static class RoslynHelper
     }
 
     #endregion // GetUsing
+
+    #region ToNameConvention
+
+    public static string ToNameConvention(this MethodDeclarationSyntax method)
+    {
+        string name = method.Identifier.ValueText;
+        if (name.EndsWith("Async"))
+            return name;
+        return $"{name}Async";
+    }
+
+    public static string ToNameConvention(this IMethodSymbol method)
+    {
+        string name = method.Name;
+        if (name.EndsWith("Async"))
+            return name;
+        return $"{name}Async";
+    }
+
+    #endregion // ToNameConvention
 }

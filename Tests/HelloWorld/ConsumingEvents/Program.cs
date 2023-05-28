@@ -25,7 +25,7 @@ class Subscription : IHelloEventsConsumer
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask ColorAcync(ConsoleColor color)
+    public ValueTask ColorAsync(ConsoleColor color)
     {
         Console.ForegroundColor = color;
         return ValueTask.CompletedTask;

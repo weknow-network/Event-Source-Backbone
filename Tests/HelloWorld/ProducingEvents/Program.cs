@@ -27,7 +27,7 @@ while (!Console.KeyAvailable || Console.ReadKey(true).Key == ConsoleKey.Escape)
 {
     int index = Environment.TickCount % colors.Length;
     var color = colors[index];
-    await producer.ColorAcync(color);
+    await producer.ColorAsync(color);
     await producer.StarAsync();
 
     ConsoleKey press = Console.KeyAvailable ? Console.ReadKey(true).Key : ConsoleKey.Clear;

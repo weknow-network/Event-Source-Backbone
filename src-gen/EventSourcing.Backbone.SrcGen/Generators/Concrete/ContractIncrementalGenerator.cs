@@ -64,7 +64,7 @@ namespace EventSourcing.Backbone
                     builder.Append("\t\tValueTask");
                     if (isProducer)
                         builder.Append("<EventKeys>");
-                    builder.Append($" {mds.Identifier.ValueText}(");
+                    builder.Append($" {mds.ToNameConvention()}(");
 
                     var ps = mds.ParameterList.Parameters.Select(GetParameter);
                     builder.Append("\t\t\t");

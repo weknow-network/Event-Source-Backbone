@@ -46,7 +46,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
                         recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
 
-                    string mtdName = mds.Identifier.ValueText;
+                    string mtdName = mds.ToNameConvention();
                     if (mtdName.EndsWith("Async"))
                         mtdName = mtdName.Substring(0, mtdName.Length - 5);
                     builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
@@ -159,7 +159,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             {
                 if (method is not MethodDeclarationSyntax mds)
                     continue;
-                string mtdName = mds.Identifier.ValueText;
+                string mtdName = mds.ToNameConvention();
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
                 string fullRecordName = $"{recordPrefix}_{recordSuffix}";
 

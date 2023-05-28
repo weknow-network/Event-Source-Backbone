@@ -193,7 +193,7 @@ namespace EventSourcing.Backbone
                 builder.AppendLine("\t\t\t{");
                 foreach (var method in allMethods)
                 {
-                    string mtdName = method.Name;
+                    string mtdName = method.ToNameConvention();
                     string mtdType = method.ContainingType.Name;
                     mtdType = info.FormatName(mtdType);
                     builder.AppendLine($"\t\t\t\tcase nameof({mtdType}.{mtdName}):");
@@ -261,7 +261,7 @@ namespace EventSourcing.Backbone
                 builder.AppendLine("\t\t\t\t{");
                 foreach (var method in allMethods)
                 {
-                    string mtdName = method.Name;
+                    string mtdName = method.ToNameConvention();
                     string mtdType = method.ContainingType.Name;
                     mtdType = info.FormatName(mtdType);
                     builder.AppendLine($"\t\t\t\t\tcase nameof({mtdType}.{mtdName}):");
@@ -289,7 +289,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine();
             foreach (var method in allMethods)
             {
-                string mtdName = method.Name;
+                string mtdName = method.ToNameConvention();
 
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
@@ -384,7 +384,7 @@ namespace EventSourcing.Backbone
             SyntaxReceiverResult info,
             IMethodSymbol mds)
         {
-            string mtdName = mds.Name;
+            string mtdName = mds.ToNameConvention();
             string interfaceName = mds.ContainingType.Name;
             interfaceName = info.FormatName(interfaceName);
             builder.Append("\t\tasync ValueTask");
