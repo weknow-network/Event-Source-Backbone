@@ -19,7 +19,7 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
-		<PackageReference Include="StackExchange.Redis" Version="2.6.96" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.111" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 

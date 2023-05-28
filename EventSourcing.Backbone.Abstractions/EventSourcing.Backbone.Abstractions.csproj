@@ -17,7 +17,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+		<PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.67" />
 		<PackageReference Include="Bnaya.Extensions.Common" Version="1.0.63" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
 		<PackageReference Include="OpenTelemetry.Api" Version="1.4.0" />

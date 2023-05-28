@@ -27,14 +27,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.2.0">
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+    <PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.67" />
     <PackageReference Include="FakeItEasy" Version="7.4.0" />
   </ItemGroup>
 

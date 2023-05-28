@@ -20,7 +20,7 @@
 		<ProjectReference Include="..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.64" />
+		<PackageReference Include="Bnaya.CSharp.AsyncExtensions" Version="1.0.67" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
