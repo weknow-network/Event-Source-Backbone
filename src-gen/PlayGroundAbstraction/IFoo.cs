@@ -1,13 +1,14 @@
 ﻿using EventSourcing.Backbone;
 
-namespace PlayGroundAbstraction
+using PlayGroundAbstraction.Common.Local;
+
+namespace PlayGroundAbstraction.Common;
+
+
+
+[EventsContract(EventsContractType.Producer)]
+[EventsContract(EventsContractType.Consumer)]
+public interface IFoo
 {
-
-
-    [EventsContract(EventsContractType.Producer)]
-    [EventsContract(EventsContractType.Consumer)]
-    public interface IFoo
-    {
-        ValueTask Run();
-    }
+    ValueTask Run(User user);
 }

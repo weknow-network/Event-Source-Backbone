@@ -33,10 +33,11 @@ namespace EventSourcing.Backbone
         protected override GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info)
+                            SyntaxReceiverResult info,
+                            string[] usingStatements)
         {
 
-            var (type, att, symbol, kind, _, isProducer) = info;
+            var (type, att, symbol, kind, ns, isProducer, @using) = info;
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
             CopyDocumentation(builder, kind, type, "\t");
@@ -65,7 +66,7 @@ namespace EventSourcing.Backbone
                         builder.Append("<EventKeys>");
                     builder.Append($" {mds.Identifier.ValueText}(");
 
-                    var ps = mds.ParameterList.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}");
+                    var ps = mds.ParameterList.Parameters.Select(GetParameter);
                     builder.Append("\t\t\t");
                     builder.Append(string.Join(", ", ps));
                     builder.AppendLine(");");
@@ -81,6 +82,8 @@ namespace EventSourcing.Backbone
                 _bridge.GenerateSingle(context, compilation, info);
 
             return new[] { new GenInstruction(interfaceName, builder.ToString()) };
+
+            string GetParameter(ParameterSyntax p) => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}";
         }
     }
 }

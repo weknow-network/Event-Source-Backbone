@@ -11,6 +11,7 @@ using EventSourcing.Backbone.Enums;
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
+using EventSourcing.Backbone.UnitTests.Entities;
 
 using StackExchange.Redis;
 

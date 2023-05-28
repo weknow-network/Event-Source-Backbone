@@ -23,17 +23,18 @@ namespace EventSourcing.Backbone
         protected override GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info)
+                            SyntaxReceiverResult info,
+                            string[] usingStatements)
         {
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
 
             if (info.Kind == "Producer")
             {
-                var file = OnGenerateProducer(builder, info, interfaceName);
+                var file = OnGenerateProducer(builder, info, interfaceName, usingStatements);
                 return new[] { new GenInstruction(file, builder.ToString()) };
             }
-            return OnGenerateConsumers(info, interfaceName);
+            return OnGenerateConsumers(info, interfaceName, usingStatements);
 
         }
 
@@ -42,8 +43,9 @@ namespace EventSourcing.Backbone
         #region OnGenerateConsumers
 
         protected GenInstruction[] OnGenerateConsumers(
-            SyntaxReceiverResult info,
-            string interfaceName)
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string[] usingStatements)
         {
             string generateFrom = info.FormatName();
             string prefix = (info.Name ?? interfaceName).StartsWith("I") &&
@@ -51,6 +53,7 @@ namespace EventSourcing.Backbone
                 char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
+            string ns = info.Symbol.ContainingNamespace.ToDisplayString();
 
             var dtos = EntityGenerator.GenerateEntities(prefix, info, interfaceName, generateFrom, assemblyName);
             GenInstruction[] gens =
@@ -242,7 +245,6 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Base Subscription class of {interfaceName}");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t\t[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
             builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
             builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
             builder.AppendLine("\t\t{");
@@ -305,13 +307,22 @@ namespace EventSourcing.Backbone
         #region OnGenerateProducer
 
         protected string OnGenerateProducer(
-            StringBuilder builder,
-            SyntaxReceiverResult info,
-            string interfaceName)
+                            StringBuilder builder,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string[] usingStatements)
         {
             var symbol = info.Symbol;
             var kind = info.Kind;
+            var hash = new HashSet<string>();
+            hash.Add("using EventSourcing.Backbone.Building;");
             builder.AppendLine("\tusing EventSourcing.Backbone.Building;");
+            foreach (var u in usingStatements)
+            {
+                if (hash.Contains(u))
+                    continue;
+                builder.AppendLine(u);
+            }
 
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&

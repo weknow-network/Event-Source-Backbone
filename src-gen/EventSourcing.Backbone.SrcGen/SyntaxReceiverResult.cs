@@ -46,10 +46,11 @@ internal class SyntaxReceiverResult
         Type = type;
         Kind = kind;
         Name = name;
-        Namespace = ns;
+        Namespace = ns ?? symbol?.ContainingNamespace?.ToDisplayString();
         Att = att;
         Symbol = symbol ?? throw new NullReferenceException(nameof(symbol));
         GenerateFrom = type.Identifier.ValueText;
+        Using = att.GetUsing().ToArray();
     }
 
     /// <summary>
@@ -100,6 +101,11 @@ internal class SyntaxReceiverResult
     /// </summary>
     public INamedTypeSymbol Symbol { get; }
 
+    /// <summary>
+    /// Gets the using statements.
+    /// </summary>
+    public string[] Using { get; }
+
     #region FormatName
 
     public string FormatName()
@@ -125,6 +131,52 @@ internal class SyntaxReceiverResult
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="att">The attribute.</param>
+    /// <param name="symbol">The symbol.</param>
+    /// <param name="kind">The kind.</param>
+    /// <param name="ns">The namespace.</param>
+    /// <param name="usingStatement">The using statement.</param>
+    public void Deconstruct(out TypeDeclarationSyntax type,
+                            out INamedTypeSymbol symbol,
+                            out string kind,
+                            out string? ns,
+                            out string[] usingStatement)
+    {
+        type = Type;
+        symbol = Symbol;
+        kind = Kind;
+        ns = Namespace;
+        usingStatement = Using;
+    }
+
+    /// <summary>
+    /// Deconstruct the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="att">The attribute.</param>
+    /// <param name="symbol">The symbol.</param>
+    /// <param name="kind">The kind.</param>
+    /// <param name="ns">The namespace.</param>
+    /// <param name="usingStatement">The using statement.</param>
+    public void Deconstruct(out TypeDeclarationSyntax type,
+                            out AttributeSyntax att,
+                            out INamedTypeSymbol symbol,
+                            out string kind,
+                            out string? ns,
+                            out string[] usingStatement)
+    {
+        type = Type;
+        symbol = Symbol;
+        att = Att;
+        kind = Kind;
+        ns = Namespace;
+        usingStatement = Using;
+    }
+
+    /// <summary>
+    /// Deconstruct the specified type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="att">The attribute.</param>
     /// <param name="name">The name.</param>
     /// <param name="kind">The kind.</param>
     /// <param name="suffix">The suffix.</param>
@@ -135,7 +187,8 @@ internal class SyntaxReceiverResult
                             out INamedTypeSymbol symbol,
                             out string kind,
                             out string? ns,
-                            out bool isProducer)
+                            out bool isProducer,
+                            out string[] usingStatement)
     {
         type = Type;
         symbol = Symbol;
@@ -143,6 +196,7 @@ internal class SyntaxReceiverResult
         kind = Kind;
         ns = Namespace;
         isProducer = IsProducer;
+        usingStatement = Using;
     }
 
     /// <summary>
@@ -162,7 +216,8 @@ internal class SyntaxReceiverResult
                             out string kind,
                             out string suffix,
                             out string? ns,
-                            out bool isProducer)
+                            out bool isProducer,
+                            out string[] usingStatement)
     {
         type = Type;
         symbol = Symbol;
@@ -172,6 +227,7 @@ internal class SyntaxReceiverResult
         suffix = Suffix;
         ns = Namespace;
         isProducer = IsProducer;
+        usingStatement = Using;
     }
 
     #endregion // Deconstruct

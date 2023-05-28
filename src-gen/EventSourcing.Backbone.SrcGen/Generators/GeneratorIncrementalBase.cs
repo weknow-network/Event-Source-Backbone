@@ -149,7 +149,7 @@ namespace EventSourcing.Backbone
                             Compilation compilation,
                             SyntaxReceiverResult info)
         {
-            var (item, symbol, att, name, kind, suffix, ns, isProducer) = info;
+            var (item, symbol, kind, ns, usingStatements) = info;
 
             #region Validation
 
@@ -161,7 +161,7 @@ namespace EventSourcing.Backbone
 
             #endregion // Validation
 
-            GenInstruction[] codes = OnGenerate(context, compilation, info);
+            GenInstruction[] codes = OnGenerate(context, compilation, info, usingStatements);
 
             foreach (var (fileName, content, dynamicNs, usn) in codes)
             {
@@ -171,13 +171,13 @@ namespace EventSourcing.Backbone
                 builder.AppendLine();
                 builder.AppendLine("#nullable enable");
 
-                foreach (var u in usn)
+                foreach (var u in usingStatements.Concat(usn))
                 {
                     if (!usingSet.Contains(u))
                         usingSet.Add(u);
                 }
 
-                var overrideNS = dynamicNs ?? ns ?? att.ContainingNamespace.Name;
+                var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString();
                 //if (overrideNS == null && item.Parent is BaseNamespaceDeclarationSyntax ns_)
                 //{
                 //    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
@@ -213,16 +213,17 @@ namespace EventSourcing.Backbone
         /// Called when [execute].
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="compilation">The compilation.</param>
         /// <param name="info">The information.</param>
-        /// <param name="interfaceName">Name of the interface.</param>
-        /// <param name="generateFrom">Source of the generation.</param>
+        /// <param name="usingStatements">The using statements.</param>
         /// <returns>
         /// File name
         /// </returns>
         protected abstract GenInstruction[] OnGenerate(
                             SourceProductionContext context,
                             Compilation compilation,
-                            SyntaxReceiverResult info);
+                            SyntaxReceiverResult info,
+                            string[] usingStatements);
 
         #endregion // OnGenerate
 

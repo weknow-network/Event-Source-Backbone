@@ -1,4 +1,6 @@
-﻿namespace Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace Microsoft.CodeAnalysis;
 
 internal static class RoslynHelper
 {
@@ -66,4 +68,33 @@ internal static class RoslynHelper
     }
 
     #endregion // GetAllMethods
+
+    #region GetUsing
+
+    /// <summary>
+    /// Gets the using statements.
+    /// </summary>
+    /// <param name="syntaxNode">The syntax node.</param>
+    /// <returns></returns>
+    public static IEnumerable<string> GetUsing(this SyntaxNode syntaxNode)
+    {
+        if (syntaxNode is CompilationUnitSyntax m)
+        {
+            foreach (var u in m.Usings)
+            {
+                var match = u.ToString();
+                yield return match;
+            }
+        }
+
+        if(syntaxNode == null)
+            yield break;    
+
+        foreach (var u in GetUsing(syntaxNode.Parent))
+        { 
+            yield return u;
+        }
+    }
+
+    #endregion // GetUsing
 }

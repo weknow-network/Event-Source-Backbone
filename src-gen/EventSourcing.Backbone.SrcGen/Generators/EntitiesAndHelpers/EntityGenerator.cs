@@ -32,7 +32,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             AssemblyName assemblyName)
         {
 
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
+            var (item, symbol, kind, ns, usingStatements) = info;
 
             var results = new List<GenInstruction>();
             foreach (var method in item.Members)
@@ -106,7 +106,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
+            var (item, symbol, kind, ns, @using) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
@@ -208,7 +208,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, name, kind, suffix, ns, isProducer) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
