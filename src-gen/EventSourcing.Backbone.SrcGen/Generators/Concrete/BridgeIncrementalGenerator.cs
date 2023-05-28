@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 
 namespace EventSourcing.Backbone
 {
-    [Generator]
+    //[Generator]
     internal class BridgeIncrementalGenerator : GeneratorIncrementalBase
     {
         private const string TARGET_ATTRIBUTE = "EventsContractBridge";
