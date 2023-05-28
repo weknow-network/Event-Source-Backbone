@@ -177,21 +177,21 @@ namespace EventSourcing.Backbone
                         usingSet.Add(u);
                 }
 
-                var overrideNS = dynamicNs ?? ns;
-                if (overrideNS == null && item.Parent is NamespaceDeclarationSyntax ns_)
-                {
-                    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
-                    {
-                        if (c is UsingDirectiveSyntax use)
-                        {
-                            var u = use.ToFullString().Trim();
-                            if (!usingSet.Contains(u))
-                                usingSet.Add(u);
-                        }
-                    }
-                    builder.AppendLine();
-                    overrideNS = ns_?.Name?.ToString();
-                }
+                var overrideNS = dynamicNs ?? ns ?? att.ContainingNamespace.Name;
+                //if (overrideNS == null && item.Parent is BaseNamespaceDeclarationSyntax ns_)
+                //{
+                //    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
+                //    {
+                //        if (c is UsingDirectiveSyntax use)
+                //        {
+                //            var u = use.ToFullString().Trim();
+                //            if (!usingSet.Contains(u))
+                //                usingSet.Add(u);
+                //        }
+                //    }
+                //    builder.AppendLine();
+                //    overrideNS = ns_?.Name?.ToString();
+                //}
                 foreach (var u in usingSet.OrderBy(m => m))
                 {
                     builder.AppendLine(u);
