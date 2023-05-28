@@ -962,6 +962,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     {
                         if (options?.ExitWhenEmpty ?? true) yield break;
                         delay = await DelayIfEmpty(delay, cancellationToken);
+                        continue;
                     }
                     string k = string.Empty;
                     foreach (StreamEntry e in entries)
