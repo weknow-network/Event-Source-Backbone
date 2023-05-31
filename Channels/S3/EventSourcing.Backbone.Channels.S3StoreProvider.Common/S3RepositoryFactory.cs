@@ -15,7 +15,7 @@ namespace EventSourcing.Backbone.Channels
     public sealed class S3RepositoryFactory : IS3RepositoryFactory
     {
         private readonly ILogger _logger;
-        private readonly AmazonS3Client _client;
+        private readonly IAmazonS3 _client;
         private readonly ConcurrentDictionary<S3Options, S3Repository> _cache = new ConcurrentDictionary<S3Options, S3Repository>();
 
         #region Create

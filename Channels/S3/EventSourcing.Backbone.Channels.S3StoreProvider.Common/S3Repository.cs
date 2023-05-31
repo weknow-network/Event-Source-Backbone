@@ -24,7 +24,7 @@ namespace EventSourcing.Backbone.Channels
         private readonly string _bucket;
         private readonly ILogger _logger;
         private readonly string? _basePath;
-        private readonly AmazonS3Client _client;
+        private readonly IAmazonS3 _client;
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
         private readonly S3EnvironmentConvention _environmentConvension;
@@ -40,7 +40,7 @@ namespace EventSourcing.Backbone.Channels
         /// <param name="logger">The logger.</param>
         /// <param name="options">The s3 options.</param>
         public S3Repository(
-                    AmazonS3Client client,
+                    IAmazonS3 client,
                     ILogger logger,
                     S3Options options = default)
         {
