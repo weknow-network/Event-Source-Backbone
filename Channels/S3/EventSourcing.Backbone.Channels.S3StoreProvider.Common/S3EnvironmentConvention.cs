@@ -10,7 +10,7 @@
         /// </summary>
         None,
         /// <summary>
-        /// Environment as bucket perfix
+        /// Environment as bucket prefix
         /// </summary>
         BucketPrefix,
         /// <summary>

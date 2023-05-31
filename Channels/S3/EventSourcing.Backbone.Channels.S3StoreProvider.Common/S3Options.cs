@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone
+﻿using Amazon.S3;
+
+namespace EventSourcing.Backbone
 {
     /// <summary>
     /// S3 provider options
@@ -16,6 +18,7 @@
         /// The target bucket (see: UseEnvironmentConvension)
         /// </summary>
         public string? Bucket { get; init; }
+
 
         /// <summary>
         /// Base path

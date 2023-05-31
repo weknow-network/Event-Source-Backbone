@@ -46,8 +46,8 @@ namespace EventSourcing.Backbone.Tests
         private readonly IEventFlowStage1Consumer _stage1Consumer = A.Fake<IEventFlowStage1Consumer>();
         private readonly IEventFlowStage2Consumer _stage2Consumer = A.Fake<IEventFlowStage2Consumer>();
 
-        private readonly string ENV = $"Development";
-        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
+        private readonly string ENV = $"test";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
@@ -1347,7 +1347,7 @@ namespace EventSourcing.Backbone.Tests
             ISequenceOperationsProducer producer = producerBuilder.BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix = producerBuilder
                 .Specialize<ISequenceOperationsProducer>()
-                .Environment("dev")
+                .Environment("test-override")
                 .Uri("p0.")
                 .BuildSequenceOperationsProducer();
             ISequenceOperationsProducer producerPrefix1 = producerBuilder
@@ -1392,7 +1392,7 @@ namespace EventSourcing.Backbone.Tests
             await using IConsumerLifetime subscriptionPrefix = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
-                         .Environment("dev")
+                         .Environment("test-override")
                          .Uri($"p0.{URI}")
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")

@@ -37,8 +37,8 @@ namespace EventSourcing.Backbone.Tests
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
 
-        private readonly string ENV = $"Development";
-        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}:some-shard-{DateTime.UtcNow.Second}";
+        private readonly string ENV = $"test";
+        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private const int TIMEOUT = 1_000 * 50;

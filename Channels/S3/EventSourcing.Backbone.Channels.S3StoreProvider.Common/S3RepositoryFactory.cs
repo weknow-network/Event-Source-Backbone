@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
 using Amazon;
+using Amazon.Runtime;
 using Amazon.S3;
 
 using Microsoft.Extensions.Logging;
@@ -23,14 +24,77 @@ namespace EventSourcing.Backbone.Channels
         /// Creates the specified logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="envAccessKey">The environment variable of access key.</param>
-        /// <param name="envSecretKey">The environment variable of secret key.</param>
-        /// <param name="envRegion">The environment variable of region.</param>
+        /// <param name="accessKey">The access key or environment variable which hold it.</param>
+        /// <param name="secret">The secret or environment variable which hold it .</param>
+        /// <param name="region">The region environment variable which hold it.</param>
+        /// <param name="fromEnvironment">if set to <c>true</c> [will try to find the value from environment variable.</param>
         /// <returns></returns>
         public static IS3RepositoryFactory Create(ILogger logger,
-            string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
-            string envSecretKey = "S3_EVENT_SOURCE_SECRET",
-            string envRegion = "S3_EVENT_SOURCE_REGION") => new S3RepositoryFactory(logger, envAccessKey, envSecretKey, envRegion);
+            string accessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
+            string secret = "S3_EVENT_SOURCE_SECRET",
+            string region = "S3_EVENT_SOURCE_REGION",
+            bool fromEnvironment = true)
+        {
+            accessKey =
+                fromEnvironment 
+                ? Environment.GetEnvironmentVariable(accessKey) ?? accessKey
+                : accessKey;
+            secret =
+                fromEnvironment
+                ? Environment.GetEnvironmentVariable(secret) ?? secret
+                : secret;
+            string? regionKey =
+                fromEnvironment
+                ? Environment.GetEnvironmentVariable(region) ?? region
+                : region;
+
+            RegionEndpoint rgnKey = (!string.IsNullOrEmpty(regionKey))
+                                        ? RegionEndpoint.GetBySystemName(regionKey)
+                                        : RegionEndpoint.USEast2;
+            var client = new AmazonS3Client(accessKey, secret, rgnKey);
+            return new S3RepositoryFactory(logger, client);
+        }
+
+        /// <summary>
+        /// Creates the specified logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="credentials">The credentials.</param>
+        /// <returns></returns>
+        public static IS3RepositoryFactory Create(ILogger logger,
+            AWSCredentials credentials)
+        {
+            var client = new AmazonS3Client(credentials);
+            return new S3RepositoryFactory(logger, client);
+        }
+
+        /// <summary>
+        /// Creates the specified logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="credentials">The credentials.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns></returns>
+        public static IS3RepositoryFactory Create(ILogger logger,
+            AWSCredentials credentials,
+            AmazonS3Config configuration)
+        {
+            var client = new AmazonS3Client(credentials, configuration);
+            return new S3RepositoryFactory(logger, client);
+        }
+
+        /// <summary>
+        /// Creates the specified logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns></returns>
+        public static IS3RepositoryFactory Create(ILogger logger,
+            AmazonS3Config configuration)
+        {
+            var client = new AmazonS3Client(configuration);
+            return new S3RepositoryFactory(logger, client);
+        }
 
         #endregion // Create
 
@@ -40,40 +104,14 @@ namespace EventSourcing.Backbone.Channels
         /// Initializes a new instance.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public S3RepositoryFactory(
-            ILogger<S3Repository> logger) : this((ILogger)logger)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="envAccessKey">The environment variable of access key.</param>
-        /// <param name="envSecretKey">The environment variable of secret key.</param>
-        /// <param name="envRegion">The environment variable of region.</param>
+        /// <param name="client">The client.</param>
         public S3RepositoryFactory(
             ILogger logger,
-            string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
-            string envSecretKey = "S3_EVENT_SOURCE_SECRET",
-            string envRegion = "S3_EVENT_SOURCE_REGION")
+            AmazonS3Client client)
         {
             _logger = logger;
 
-            string accessKey =
-                Environment.GetEnvironmentVariable(envAccessKey) ?? "";
-            string secretKey =
-                Environment.GetEnvironmentVariable(envSecretKey) ?? "";
-            string? regionKey =
-                Environment.GetEnvironmentVariable(envRegion);
-            RegionEndpoint rgnKey = (!string.IsNullOrEmpty(regionKey))
-                                        ? RegionEndpoint.GetBySystemName(regionKey)
-                                        : RegionEndpoint.USEast2;
-
-            _client = new AmazonS3Client(
-                                accessKey,
-                                secretKey,
-                                rgnKey);
+            _client = client;
         }
 
         #endregion // Ctor

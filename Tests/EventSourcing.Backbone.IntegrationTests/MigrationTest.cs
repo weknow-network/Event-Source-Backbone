@@ -33,7 +33,6 @@ namespace EventSourcing.Backbone.Tests
         private readonly IConsumerStoreStrategyBuilder _consumerBuilder;
         private readonly string ENV = $"Development";
         private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-        private readonly string SHARD = $"some-shard-{DateTime.UtcNow.Second}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
