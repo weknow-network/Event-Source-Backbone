@@ -56,6 +56,7 @@ namespace EventSourcing.Backbone
         /// Can use for observability.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <param name="storageStrategyFactories">The storage strategy.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             Func<ILogger, IConsumerChannelProvider>? channelFactory = null,

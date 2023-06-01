@@ -15,7 +15,7 @@ namespace EventSourcing.Backbone.Channels
     /// <summary>
     /// Abstract S3 operations
     /// </summary>
-    public sealed class S3Repository : IS3Repository, IDisposable
+    internal sealed class S3Repository : IS3Repository, IDisposable
     {
         private static readonly string BUCKET =
             Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_BUCKET")
@@ -316,8 +316,11 @@ namespace EventSourcing.Backbone.Channels
             string key = GetKey(env, id);
             try
             {
-                var date = DateTime.UtcNow;
-                //tags = tags.Add("month", date.ToString("yyyy-MM"));
+
+#pragma warning disable S125 // Sections of code should not be commented out
+                // var date = DateTime.UtcNow;
+                // tags = tags.Add("month", date.ToString("yyyy-MM"));
+#pragma warning restore S125 // Sections of code should not be commented out
 
                 var s3Request = new PutObjectRequest
                 {
@@ -327,6 +330,7 @@ namespace EventSourcing.Backbone.Channels
                     ContentType = mediaType,
                     TagSet = tags?.Select(m => new Tag { Key = m.Key, Value = m.Value })?.ToList() ?? EMPTY_TAGS,
                 };
+
                 // s3Request.Headers.ExpiresUtc = DateTime.Now.AddHours(2); // cache expiration
 
                 if (metadata != null)
@@ -362,6 +366,8 @@ namespace EventSourcing.Backbone.Channels
             }
             #region Exception Handling
 
+#pragma warning disable S2486 // Generic exceptions should not be ignored
+#pragma warning disable S108 // Nested blocks of code should not be left empty
             catch (AmazonS3Exception e)
             {
                 string json = "";
@@ -373,7 +379,7 @@ namespace EventSourcing.Backbone.Channels
                 _logger.LogError(e.FormatLazy(),
                         "AWS-S3 Failed to write: {payload}, {env}, {id}, {bucket}, {key}", json, env, id, bucket, key);
                 string msg = $"AWS-S3 Failed to write: {env}, {id}, {bucket}, {key}";
-                throw new ApplicationException(msg, e);
+                throw new EventSourcingException(msg, e);
             }
             catch (Exception e)
             {
@@ -386,8 +392,10 @@ namespace EventSourcing.Backbone.Channels
                 _logger.LogError(e.FormatLazy(),
                         "S3 writing Failed: {payload}, {env}, {id}, {bucket}, {key}", json, env, id, bucket, key);
                 string msg = $"S3 writing Failed: {env}, {id}, {bucket}, {key}";
-                throw new ApplicationException(msg, e);
+                throw new EventSourcingException(msg, e);
             }
+#pragma warning restore S2486 
+#pragma warning restore S108
 
             #endregion // Exception Handling
         }

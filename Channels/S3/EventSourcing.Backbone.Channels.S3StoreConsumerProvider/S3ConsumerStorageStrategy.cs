@@ -70,8 +70,6 @@ namespace EventSourcing.Backbone
             Func<string, string> getProperty,
             CancellationToken cancellation)
         {
-            string id = meta.MessageId;
-            var lookup = ImmutableDictionary.CreateRange(prevBucket);
             string json = getProperty($"{Constants.PROVIDER_ID}~{type}");
             var keyPathPairs = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(
                                                             json, SerializerOptionsWithIndent) ??

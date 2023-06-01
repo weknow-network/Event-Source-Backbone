@@ -3,14 +3,16 @@
     /// <summary>
     /// Response structure
     /// </summary>
-    public class BlobResponse : IEquatable<BlobResponse?>
+    public sealed class BlobResponse : IEquatable<BlobResponse?>
     {
         #region Ctor
 
         /// <summary>
         /// Prevents a default instance of the <see cref="BlobResponse" /> class from being created.
         /// </summary>
+#pragma warning disable S1133 // Deprecated code should be removed
         [Obsolete("Use other constructors (this one exists to enable de-serialization)", true)]
+#pragma warning restore S1133 // Deprecated code should be removed
         private BlobResponse() { }
 
         /// <summary>
@@ -44,7 +46,9 @@
         public string Key
         {
             get => _key;
+#pragma warning disable S1133 // Deprecated code should be removed
             [Obsolete("Exposed for the serializer", true)]
+#pragma warning restore S1133 // Deprecated code should be removed
             set => _key = value;
         }
 
@@ -59,7 +63,9 @@
         public string? FileName
         {
             get => _fileName;
+#pragma warning disable S1133 // Deprecated code should be removed
             [Obsolete("Exposed for the serializer", true)]
+#pragma warning restore S1133 // Deprecated code should be removed
             set => _fileName = value;
         }
 
@@ -74,7 +80,9 @@
         public string ETag
         {
             get => _eTag;
+#pragma warning disable S1133 // Deprecated code should be removed
             [Obsolete("Exposed for the serializer", true)]
+#pragma warning restore S1133 // Deprecated code should be removed
             set => _eTag = value;
         }
 
@@ -89,7 +97,9 @@
         public string ContentVersion
         {
             get => _contentVersion;
+#pragma warning disable S1133 // Deprecated code should be removed
             [Obsolete("Exposed for the serializer", true)]
+#pragma warning restore S1133 // Deprecated code should be removed
             set => _contentVersion = value;
         }
 
@@ -131,6 +141,7 @@
         /// <returns>
         /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
         /// </returns>
+#pragma warning disable S2328 // "GetHashCode" should not reference mutable fields
         public override int GetHashCode()
         {
             return HashCode.Combine(
@@ -139,6 +150,7 @@
                 _eTag,
                 _contentVersion);
         }
+#pragma warning restore S2328 // "GetHashCode" should not reference mutable fields
 
 
         /// <summary>

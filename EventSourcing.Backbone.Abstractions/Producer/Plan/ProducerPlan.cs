@@ -42,6 +42,7 @@ namespace EventSourcing.Backbone
         /// <param name="forwards">Result of merging multiple channels.</param>
         /// <param name="forwardPlans">The forward channels.</param>
         /// <param name="storageStrategyFactories">The storage strategy.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         private ProducerPlan(
             ProducerPlan copyFrom,
             Func<ILogger, IProducerChannelProvider>? channelFactory = null,

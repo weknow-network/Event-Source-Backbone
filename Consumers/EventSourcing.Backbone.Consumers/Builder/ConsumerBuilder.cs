@@ -65,7 +65,6 @@ namespace EventSourcing.Backbone
         /// Choose the communication channel provider.
         /// </summary>
         /// <param name="channel">The channel provider.</param>
-        /// <param name="serviceProvider">Dependency injection provider.</param>
         /// <returns></returns>
         IConsumerStoreStrategyBuilder IConsumerBuilder.UseChannel(
                         Func<ILogger, IConsumerChannelProvider> channel)

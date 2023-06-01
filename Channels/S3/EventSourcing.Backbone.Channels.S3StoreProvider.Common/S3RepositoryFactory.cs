@@ -18,18 +18,17 @@ namespace EventSourcing.Backbone.Channels
         private readonly IAmazonS3 _client;
         private readonly ConcurrentDictionary<S3Options, S3Repository> _cache = new ConcurrentDictionary<S3Options, S3Repository>();
 
-        #region Create
+        #region CreateClient
 
         /// <summary>
-        /// Creates the specified logger.
+        /// Creates the S3 client.
         /// </summary>
-        /// <param name="logger">The logger.</param>
         /// <param name="accessKey">The access key or environment variable which hold it.</param>
         /// <param name="secret">The secret or environment variable which hold it .</param>
         /// <param name="region">The region environment variable which hold it.</param>
         /// <param name="fromEnvironment">if set to <c>true</c> [will try to find the value from environment variable.</param>
         /// <returns></returns>
-        public static IS3RepositoryFactory Create(ILogger logger,
+        public static IAmazonS3 CreateClient(
             string accessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
             string secret = "S3_EVENT_SOURCE_SECRET",
             string region = "S3_EVENT_SOURCE_REGION",
@@ -52,6 +51,29 @@ namespace EventSourcing.Backbone.Channels
                                         ? RegionEndpoint.GetBySystemName(regionKey)
                                         : RegionEndpoint.USEast2;
             var client = new AmazonS3Client(accessKey, secret, rgnKey);
+            return client;
+        }
+
+        #endregion // CreateClient
+
+        #region Create
+
+        /// <summary>
+        /// Creates the specified logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="accessKey">The access key or environment variable which hold it.</param>
+        /// <param name="secret">The secret or environment variable which hold it .</param>
+        /// <param name="region">The region environment variable which hold it.</param>
+        /// <param name="fromEnvironment">if set to <c>true</c> [will try to find the value from environment variable.</param>
+        /// <returns></returns>
+        public static IS3RepositoryFactory Create(ILogger logger,
+            string accessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
+            string secret = "S3_EVENT_SOURCE_SECRET",
+            string region = "S3_EVENT_SOURCE_REGION",
+            bool fromEnvironment = true)
+        {
+            var client = CreateClient(accessKey, secret, region, fromEnvironment);
             return new S3RepositoryFactory(logger, client);
         }
 
@@ -97,7 +119,7 @@ namespace EventSourcing.Backbone.Channels
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        S3Repository IS3RepositoryFactory.Get(S3Options options)
+        IS3Repository IS3RepositoryFactory.Get(S3Options options)
         {
 
             var repo = _cache.GetOrAdd(options, CreateInternal);
