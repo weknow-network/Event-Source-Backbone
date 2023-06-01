@@ -71,7 +71,8 @@ namespace EventSourcing.Backbone
             string? consumerGroup = null,
             string? consumerName = null,
             AsyncPolicy? resiliencePolicy = null,
-            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null)
+            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null,
+            IServiceProvider? serviceProvider = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -85,6 +86,7 @@ namespace EventSourcing.Backbone
             ConsumerGroup = consumerGroup ?? copyFrom.ConsumerGroup;
             ConsumerName = consumerName ?? copyFrom.ConsumerName;
             ResiliencePolicy = resiliencePolicy ?? copyFrom.ResiliencePolicy;
+            ServiceProvider = serviceProvider ?? copyFrom.ServiceProvider;
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
@@ -267,6 +269,15 @@ namespace EventSourcing.Backbone
 
         #endregion // ResiliencePolicy
 
+        #region ServiceProvider
+
+        /// <summary>
+        /// Gets the service provider.
+        /// </summary>
+        public IServiceProvider? ServiceProvider { get; }
+
+        #endregion // ServiceProvider
+
         //------------------------------------------
 
         #region GetParameterAsync
@@ -300,10 +311,11 @@ namespace EventSourcing.Backbone
         /// Attach the channel.
         /// </summary>
         /// <param name="channel">The channel.</param>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithChannelFactory(Func<ILogger, IConsumerChannelProvider> channel)
+        internal ConsumerPlan WithChannelFactory(Func<ILogger, IConsumerChannelProvider> channel, IServiceProvider? serviceProvider = null)
         {
-            return new ConsumerPlan(this, channelFactory: channel);
+            return new ConsumerPlan(this, channelFactory: channel, serviceProvider: serviceProvider);
         }
 
         #endregion // WithChannel

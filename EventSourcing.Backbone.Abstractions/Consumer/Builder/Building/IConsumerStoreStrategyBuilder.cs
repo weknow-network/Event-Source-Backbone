@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace EventSourcing.Backbone.Building
 {
     /// <summary>
-    /// Enable configuration.
+    /// storage configuration.
     /// </summary>
     public interface IConsumerStoreStrategyBuilder : IConsumerOptionsBuilder
     {

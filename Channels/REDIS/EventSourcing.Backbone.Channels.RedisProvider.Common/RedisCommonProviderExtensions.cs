@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -25,7 +26,7 @@ namespace EventSourcing.Backbone.Private
         /// <param name="logger">The logger.</param>
         /// <returns></returns>
         public static async Task CreateConsumerGroupIfNotExistsAsync(
-                        this IEventSourceRedisConnectionFacroty connFactory,
+                        this IEventSourceRedisConnectionFactory connFactory,
                         string eventSourceKey,
                         string consumerGroup,
                         ILogger logger)

@@ -12,7 +12,7 @@ namespace EventSourcing.Backbone
     public class ProducerBuilder :
         IProducerBuilder,
         IProducerHooksBuilder,
-        IProducerStoreStrategyBuilder
+        IProducerIocStoreStrategyBuilder
     {
 
         /// <summary>
@@ -98,7 +98,31 @@ namespace EventSourcing.Backbone
             return new ProducerBuilder(prms);
         }
 
+        /// <summary>
+        /// Choose the communication channel provider.
+        /// </summary>
+        /// <param name="channel">The channel provider.</param>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
+        /// <returns></returns>
+        IProducerIocStoreStrategyBuilder IProducerBuilder.UseChannel(
+                                    IServiceProvider serviceProvider,
+                                    Func<ILogger, IProducerChannelProvider> channel)
+        {
+            var prms = Plan.UseChannel(channel, serviceProvider);
+            return new ProducerBuilder(prms);
+        }
+
         #endregion // UseChannel
+
+        #region ServiceProvider
+
+        /// <summary>
+        /// Gets the service provider.
+        /// </summary>
+        IServiceProvider IProducerIocStoreStrategyBuilder.ServiceProvider => 
+                            Plan?.ServiceProvider ?? throw new EventSourcingException("ServiceProvider is null");
+
+        #endregion // ServiceProvider
 
         #region AddStorageStrategy
 

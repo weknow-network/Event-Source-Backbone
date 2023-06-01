@@ -28,7 +28,6 @@ namespace EventSourcing.Backbone.Channels
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
         private readonly S3EnvironmentConvention _environmentConvension;
-        private const StringComparison STRING_COMPARISON = StringComparison.OrdinalIgnoreCase;
         private readonly bool _dryRun;
 
         #region Ctor
@@ -36,7 +35,10 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        /// <param name="client">S3 client.</param>
+        /// <param name="client">
+        /// S3 client.
+        /// Learn how to setup an AWS client: https://codewithmukesh.com/blog/aws-credentials-for-dotnet-applications/
+        /// </param>
         /// <param name="logger">The logger.</param>
         /// <param name="options">The s3 options.</param>
         public S3Repository(

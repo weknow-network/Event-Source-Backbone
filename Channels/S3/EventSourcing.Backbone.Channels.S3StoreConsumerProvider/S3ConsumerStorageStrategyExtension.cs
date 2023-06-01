@@ -6,6 +6,7 @@ using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace EventSourcing.Backbone
@@ -51,13 +52,16 @@ namespace EventSourcing.Backbone
         /// Adds the S3 storage strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="client">
+        /// S3 client.
+        /// Learn how to setup an AWS client: https://codewithmukesh.com/blog/aws-credentials-for-dotnet-applications/
+        /// </param>
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder AddS3Strategy(
             this IConsumerStoreStrategyBuilder builder,
-            AWSCredentials credentials,
+            IAmazonS3 client,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All)
         {
@@ -65,7 +69,7 @@ namespace EventSourcing.Backbone
 
             ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
             {
-                var factory = S3RepositoryFactory.Create(logger, credentials);
+                var factory = S3RepositoryFactory.Create(logger, client);
                 var repo = factory.Get(options);
                 var strategy = new S3ConsumerStorageStrategy(repo);
                 return strategy.ToValueTask<IConsumerStorageStrategy>();
@@ -77,56 +81,17 @@ namespace EventSourcing.Backbone
         /// Adds the S3 storage strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="credentials">The credentials.</param>
-        /// <param name="configuration">The configuration.</param>
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder AddS3Strategy(
-            this IConsumerStoreStrategyBuilder builder,
-            AWSCredentials credentials,
-            AmazonS3Config configuration,
+        public static IConsumerStoreStrategyBuilder ResolveS3Strategy(
+            this IConsumerIocStoreStrategyBuilder builder,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All)
         {
-            var result = builder.AddStorageStrategyFactory(Local, targetType);
-
-            ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
-            {
-                var factory = S3RepositoryFactory.Create(logger, credentials, configuration);
-                var repo = factory.Get(options);
-                var strategy = new S3ConsumerStorageStrategy(repo);
-                return strategy.ToValueTask<IConsumerStorageStrategy>();
-            }
+            IAmazonS3 s3Client = builder.ServiceProvider.GetService<IAmazonS3>() ?? throw new EventSourcingException("IAmazonS3 is not registered");
+            var result = builder.AddS3Strategy(s3Client, options, targetType);
             return result;
         }
-
-        /// <summary>
-        /// Adds the S3 storage strategy.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder AddS3Strategy(
-            this IConsumerStoreStrategyBuilder builder,
-            AmazonS3Config configuration,
-            S3Options options = default,
-            EventBucketCategories targetType = EventBucketCategories.All)
-        {
-            var result = builder.AddStorageStrategyFactory(Local, targetType);
-
-            ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
-            {
-                var factory = S3RepositoryFactory.Create(logger, configuration);
-                var repo = factory.Get(options);
-                var strategy = new S3ConsumerStorageStrategy(repo);
-                return strategy.ToValueTask<IConsumerStorageStrategy>();
-            }
-            return result;
-        }
-
-
     }
 }

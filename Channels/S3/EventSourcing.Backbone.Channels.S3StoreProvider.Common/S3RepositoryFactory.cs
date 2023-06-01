@@ -59,40 +59,14 @@ namespace EventSourcing.Backbone.Channels
         /// Creates the specified logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="client">
+        /// S3 client.
+        /// Learn how to setup an AWS client: https://codewithmukesh.com/blog/aws-credentials-for-dotnet-applications/
+        /// </param>
         /// <returns></returns>
         public static IS3RepositoryFactory Create(ILogger logger,
-            AWSCredentials credentials)
+            IAmazonS3 client)
         {
-            var client = new AmazonS3Client(credentials);
-            return new S3RepositoryFactory(logger, client);
-        }
-
-        /// <summary>
-        /// Creates the specified logger.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="credentials">The credentials.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <returns></returns>
-        public static IS3RepositoryFactory Create(ILogger logger,
-            AWSCredentials credentials,
-            AmazonS3Config configuration)
-        {
-            var client = new AmazonS3Client(credentials, configuration);
-            return new S3RepositoryFactory(logger, client);
-        }
-
-        /// <summary>
-        /// Creates the specified logger.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <returns></returns>
-        public static IS3RepositoryFactory Create(ILogger logger,
-            AmazonS3Config configuration)
-        {
-            var client = new AmazonS3Client(configuration);
             return new S3RepositoryFactory(logger, client);
         }
 
@@ -107,7 +81,7 @@ namespace EventSourcing.Backbone.Channels
         /// <param name="client">The client.</param>
         public S3RepositoryFactory(
             ILogger logger,
-            AmazonS3Client client)
+            IAmazonS3 client)
         {
             _logger = logger;
 

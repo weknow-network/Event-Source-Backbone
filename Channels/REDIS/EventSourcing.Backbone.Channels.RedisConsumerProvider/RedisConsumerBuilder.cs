@@ -172,7 +172,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         internal static IConsumerStoreStrategyBuilder UseRedisChannel(
                             this IConsumerBuilder builder,
-                            IEventSourceRedisConnectionFacroty redisClientFactory,
+                            IEventSourceRedisConnectionFactory redisClientFactory,
                             RedisConsumerChannelSetting? setting = null)
         {
             var channelBuilder = builder.UseChannel(LocalCreate);
@@ -196,15 +196,25 @@ namespace EventSourcing.Backbone
         /// <param name="setting">The setting.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">redisClient</exception>
-        public static IConsumerStoreStrategyBuilder UseRedisChannelInjection(
+        public static IConsumerIocStoreStrategyBuilder ResolveRedisConsumerChannel(
                             this IConsumerBuilder builder,
                             IServiceProvider serviceProvider,
                             RedisConsumerChannelSetting? setting = null)
         {
-            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
-            if (connFactory == null)
-                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
-            return builder.UseRedisChannel(connFactory, setting);
+            var channelBuilder = builder.UseChannel(serviceProvider, LocalCreate);
+            return channelBuilder;
+
+            IConsumerChannelProvider LocalCreate(ILogger logger)
+            {
+                var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFactory>();
+                if (connFactory == null)
+                    throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFactory)} is not registered, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+                var channel = new RedisConsumerChannel(
+                                        connFactory,
+                                        logger,
+                                        setting);
+                return channel;
+            }
         }
 
         /// <summary>
@@ -214,17 +224,12 @@ namespace EventSourcing.Backbone
         /// <param name="setting">The setting.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">redisClient</exception>
-        public static IConsumerStoreStrategyBuilder UseRedisChannelInjection(
+        public static IConsumerIocStoreStrategyBuilder ResolveRedisConsumerChannel(
                             this IServiceProvider serviceProvider,
                             RedisConsumerChannelSetting? setting = null)
         {
-            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
-            if (connFactory == null)
-                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
-
-            var builder = ConsumerBuilder.Empty;
-            return builder.UseRedisChannel(connFactory, setting);
+            var result = ConsumerBuilder.Empty.ResolveRedisConsumerChannel(serviceProvider, setting);
+            return result;
         }
-
     }
 }

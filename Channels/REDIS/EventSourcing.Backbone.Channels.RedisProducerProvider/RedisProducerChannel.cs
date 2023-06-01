@@ -19,7 +19,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
     private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
     private readonly ILogger _logger;
     private readonly AsyncPolicy _resiliencePolicy;
-    private readonly IEventSourceRedisConnectionFacroty _connFactory;
+    private readonly IEventSourceRedisConnectionFactory _connFactory;
     private readonly IProducerStorageStrategy _defaultStorageStrategy;
     private const string META_SLOT = "__<META>__";
 
@@ -32,7 +32,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
     /// <param name="logger">The logger.</param>
     /// <param name="resiliencePolicy">The resilience policy for retry.</param>
     public RedisProducerChannel(
-                    IEventSourceRedisConnectionFacroty redisFactory,
+                    IEventSourceRedisConnectionFactory redisFactory,
                     ILogger logger,
                     AsyncPolicy? resiliencePolicy)
     {

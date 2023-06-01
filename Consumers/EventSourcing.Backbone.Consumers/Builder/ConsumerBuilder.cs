@@ -20,7 +20,7 @@ namespace EventSourcing.Backbone
     public partial class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerReadyBuilder,
-        IConsumerStoreStrategyBuilder
+        IConsumerIocStoreStrategyBuilder
     {
         private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
 
@@ -65,11 +65,27 @@ namespace EventSourcing.Backbone
         /// Choose the communication channel provider.
         /// </summary>
         /// <param name="channel">The channel provider.</param>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
         /// <returns></returns>
         IConsumerStoreStrategyBuilder IConsumerBuilder.UseChannel(
                         Func<ILogger, IConsumerChannelProvider> channel)
         {
             var prms = _plan.WithChannelFactory(channel);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Choose the communication channel provider.
+        /// </summary>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
+        /// <param name="channel">The channel provider.</param>
+        /// <returns></returns>
+        IConsumerIocStoreStrategyBuilder IConsumerBuilder.UseChannel(
+                        IServiceProvider serviceProvider,
+                        Func<ILogger, IConsumerChannelProvider> channel)
+        {
+            var prms = _plan.WithChannelFactory(channel, serviceProvider);
             var result = new ConsumerBuilder(prms);
             return result;
         }
@@ -176,6 +192,16 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Environment
+
+        #region ServiceProvider
+
+        /// <summary>
+        /// Gets the service provider.
+        /// </summary>
+        /// <exception cref="EventSourcing.Backbone.EventSourcingException">ServiceProvider is null</exception>
+        IServiceProvider IConsumerIocStoreStrategyBuilder.ServiceProvider => _plan.ServiceProvider ?? throw new EventSourcingException("ServiceProvider is null");
+
+        #endregion // ServiceProvider
 
         #region Uri
 

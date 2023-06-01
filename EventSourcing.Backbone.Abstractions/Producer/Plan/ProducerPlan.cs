@@ -55,7 +55,8 @@ namespace EventSourcing.Backbone
             IImmutableList<IProducerHooksBuilder>? routes = null,
             IImmutableList<IProducerHooksBuilder>? forwards = null,
             IImmutableList<IProducerPlan>? forwardPlans = null,
-            Func<ILogger, Task<IProducerStorageStrategyWithFilter>>? storageStrategyFactories = null)
+            Func<ILogger, Task<IProducerStorageStrategyWithFilter>>? storageStrategyFactories = null,
+            IServiceProvider? serviceProvider = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -67,6 +68,7 @@ namespace EventSourcing.Backbone
             Routes = routes ?? copyFrom.Routes;
             Forwards = forwards ?? copyFrom.Forwards;
             _forwardPlans = forwardPlans ?? copyFrom._forwardPlans;
+            ServiceProvider = serviceProvider ?? copyFrom.ServiceProvider;
             Logger = logger ?? copyFrom.Logger;
             StorageStrategyFactories = storageStrategyFactories == null
                 ? copyFrom.StorageStrategyFactories
@@ -207,6 +209,15 @@ namespace EventSourcing.Backbone
 
         #endregion // Forwards
 
+        #region ServiceProvider
+
+        /// <summary>
+        /// Gets the service provider.
+        /// </summary>
+        public IServiceProvider? ServiceProvider { get; }
+
+        #endregion // ServiceProvider
+
         #region ForwardChannels
 
         private readonly IImmutableList<IProducerPlan> _forwardPlans = ImmutableList<IProducerPlan>.Empty;
@@ -237,10 +248,11 @@ namespace EventSourcing.Backbone
         /// Assign channel.
         /// </summary>
         /// <param name="channelFactory">The channel factory.</param>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
         /// <returns></returns>
-        public ProducerPlan UseChannel(Func<ILogger, IProducerChannelProvider> channelFactory)
+        public ProducerPlan UseChannel(Func<ILogger, IProducerChannelProvider> channelFactory, IServiceProvider? serviceProvider = null)
         {
-            return new ProducerPlan(this, channelFactory: channelFactory);
+            return new ProducerPlan(this, channelFactory: channelFactory, serviceProvider: serviceProvider);
         }
 
         #endregion // WithOptions

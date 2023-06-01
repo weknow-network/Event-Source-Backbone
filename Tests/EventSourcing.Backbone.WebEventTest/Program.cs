@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Amazon.S3;
+
 using EventSourcing.Backbone.WebEventTest;
 using EventSourcing.Backbone.WebEventTest.Jobs;
 
@@ -13,11 +15,13 @@ const string ENV = $"test";
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+
 IWebHostEnvironment environment = builder.Environment;
 string env = environment.EnvironmentName;
 string appName = environment.ApplicationName;
-string shortAppName = appName.Replace("", string.Empty)
-                             .Replace("Backend.", string.Empty);
+string shortAppName = appName.Replace("EventSourcing.Backbone.", string.Empty);
 
 
 var services = builder.Services;
@@ -29,15 +33,10 @@ services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(
     opt =>
     {
-        //opt.UseInlineDefinitionsForEnums();
-        //opt.UseOneOfForPolymorphism();
-        //opt.UseAllOfToExtendReferenceSchemas();
-        //opt.UseAllOfForInheritance();
         opt.SupportNonNullableReferenceTypes();
         opt.IgnoreObsoleteProperties();
         opt.IgnoreObsoleteActions();
         opt.DescribeAllParametersInCamelCase();
-
 
         opt.SwaggerDoc("v1", new OpenApiInfo
         {
@@ -47,24 +46,7 @@ services.AddSwaggerGen(
 <p>docker run -p 6379:6379 -it --rm --name redis-Json redislabs/rejson:latest</p>
 <p>docker run --rm -it --name jaeger -p 13133:13133 -p 16686:16686 -p 4317:55680 jaegertracing/opentelemetry-all-in-one</p>
 ",
-
-            //TermsOfService = new Uri("https://example.com/terms"),
-            //Contact = new OpenApiContact
-            //{
-            //    Name = "Example Contact",
-            //    Url = new Uri("https://example.com/contact")
-            //},
-            //License = new OpenApiLicense
-            //{
-            //    Name = "Example License",
-            //    Url = new Uri("https://example.com/license")
-            //}
         });
-
-        //opt.SwaggerDoc("Event Source", new Microsoft.OpenApi.Models.OpenApiInfo { Description = "Bla" });
-        //opt.SelectSubTypesUsing();
-        //opt.SelectDiscriminatorValueUsing();
-        //opt.SelectDiscriminatorNameUsing();
     });
 services.AddHostedService<MicroDemoJob>();
 services.AddHostedService<MigrationJob>();

@@ -9,11 +9,11 @@ namespace EventSourcing.Backbone.WebEventTest.Controllers
     public class TestController : ControllerBase
     {
         private readonly ILogger _logger;
-        private readonly IEventSourceRedisConnectionFacroty _connFacroty;
+        private readonly IEventSourceRedisConnectionFactory _connFacroty;
 
         public TestController(
             ILogger<EventSourceApiController> logger,
-            IEventSourceRedisConnectionFacroty connFacroty)
+            IEventSourceRedisConnectionFactory connFacroty)
         {
             _logger = logger;
             _connFacroty = connFacroty;

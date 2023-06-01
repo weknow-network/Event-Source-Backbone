@@ -6,6 +6,7 @@ using EventSourcing.Backbone.Channels;
 
 using Microsoft.Extensions.Logging;
 
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventSourcing.Backbone
 {
@@ -53,16 +54,17 @@ namespace EventSourcing.Backbone
         /// Adds the S3 storage strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="credentials">The credentials.</param>
-        /// <param name="configuration">The configuration.</param>
+        /// <param name="client">
+        /// S3 client.
+        /// Learn how to setup an AWS client: https://codewithmukesh.com/blog/aws-credentials-for-dotnet-applications/
+        /// </param>
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder AddS3Strategy(
             this IProducerStoreStrategyBuilder builder,
-            AWSCredentials credentials,
-            AmazonS3Config configuration,
+            IAmazonS3 client,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
@@ -71,7 +73,7 @@ namespace EventSourcing.Backbone
 
             ValueTask<IProducerStorageStrategy> Local(ILogger logger)
             {
-                var factory = S3RepositoryFactory.Create(logger, credentials, configuration);
+                var factory = S3RepositoryFactory.Create(logger, client);
                 var repo = factory.Get(options);
                 var strategy = new S3ProducerStorageStrategy(repo);
                 return strategy.ToValueTask<IProducerStorageStrategy>();
@@ -84,57 +86,18 @@ namespace EventSourcing.Backbone
         /// Adds the S3 storage strategy.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="configuration">The configuration.</param>
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder AddS3Strategy(
-            this IProducerStoreStrategyBuilder builder,
-            AmazonS3Config configuration,
+        public static IProducerStoreStrategyBuilder Resolve3Strategy(
+            this IProducerIocStoreStrategyBuilder builder,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
         {
-            var result = builder.AddStorageStrategy(Local, targetType, filter);
-
-            ValueTask<IProducerStorageStrategy> Local(ILogger logger)
-            {
-                var factory = S3RepositoryFactory.Create(logger, configuration);
-                var repo = factory.Get(options);
-                var strategy = new S3ProducerStorageStrategy(repo);
-                return strategy.ToValueTask<IProducerStorageStrategy>();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Adds the S3 storage strategy.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="credentials">The credentials.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
-        /// <returns></returns>
-        public static IProducerStoreStrategyBuilder AddS3Strategy(
-            this IProducerStoreStrategyBuilder builder,
-            AWSCredentials credentials,
-            S3Options options = default,
-            EventBucketCategories targetType = EventBucketCategories.All,
-            Predicate<string>? filter = null)
-        {
-            var result = builder.AddStorageStrategy(Local, targetType, filter);
-
-            ValueTask<IProducerStorageStrategy> Local(ILogger logger)
-            {
-                var factory = S3RepositoryFactory.Create(logger, credentials);
-                var repo = factory.Get(options);
-                var strategy = new S3ProducerStorageStrategy(repo);
-                return strategy.ToValueTask<IProducerStorageStrategy>();
-            }
-
+            IAmazonS3 s3Client = builder.ServiceProvider.GetService<IAmazonS3>() ?? throw new EventSourcingException("IAmazonS3 is not registered");
+            IProducerStoreStrategyBuilder result = builder.AddS3Strategy(s3Client, options, targetType, filter);
             return result;
         }
     }

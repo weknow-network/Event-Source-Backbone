@@ -109,7 +109,7 @@ namespace EventSourcing.Backbone
 
             IProducerChannelProvider LocalCreate(ILogger logger)
             {
-                var connFactory = new EventSourceRedisConnectionFacroty(logger, configuration);
+                var connFactory = EventSourceRedisConnectionFactory.Create(logger, configuration);
                 var channel = new RedisProducerChannel(
                                     connFactory,
                                     logger ?? EventSourceFallbakLogger.Default,
@@ -129,7 +129,7 @@ namespace EventSourcing.Backbone
         /// <exception cref="NotImplementedException"></exception>
         internal static IProducerStoreStrategyBuilder UseRedisChannel(
                             this IProducerBuilder builder,
-                            IEventSourceRedisConnectionFacroty redisConnectionFactory,
+                            IEventSourceRedisConnectionFactory redisConnectionFactory,
                             AsyncPolicy? resiliencePolicy = null)
         {
             var result = builder.UseChannel(LocalCreate);
@@ -152,15 +152,25 @@ namespace EventSourcing.Backbone
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder GetRedisChannelService(
+        public static IProducerIocStoreStrategyBuilder ResolveRedisProducerChannel(
                             this IProducerBuilder builder,
                             IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
-            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
-            if (connFactory == null)
-                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
-            return builder.UseRedisChannel(connFactory, resiliencePolicy);
+            var result = builder.UseChannel(serviceProvider, LocalCreate);
+            return result;
+
+            IProducerChannelProvider LocalCreate(ILogger logger)
+            {
+                var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFactory>();
+                if (connFactory == null)
+                    throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFactory)} is not registered, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+                var channel = new RedisProducerChannel(
+                                 connFactory,
+                                 logger ?? EventSourceFallbakLogger.Default,
+                                 resiliencePolicy);
+                return channel;
+            }
         }
 
         /// <summary>
@@ -169,15 +179,12 @@ namespace EventSourcing.Backbone
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder GetRedisChannelService(
+        public static IProducerIocStoreStrategyBuilder ResolveRedisProducerChannel(
                             this IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
-            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFacroty>();
-            if (connFactory == null)
-                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFacroty)} is not registerd, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
-            var builder = ProducerBuilder.Empty;
-            return builder.UseRedisChannel(connFactory, resiliencePolicy);
+            var result = ProducerBuilder.Empty.ResolveRedisProducerChannel(serviceProvider, resiliencePolicy);
+            return result;
         }
     }
 }

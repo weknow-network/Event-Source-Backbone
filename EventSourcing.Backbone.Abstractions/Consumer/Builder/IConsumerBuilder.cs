@@ -1,4 +1,6 @@
-﻿using EventSourcing.Backbone.Building;
+﻿using System;
+
+using EventSourcing.Backbone.Building;
 
 using Microsoft.Extensions.Logging;
 
@@ -15,5 +17,13 @@ namespace EventSourcing.Backbone
         /// <param name="channel">The channel provider.</param>
         /// <returns></returns>
         IConsumerStoreStrategyBuilder UseChannel(Func<ILogger, IConsumerChannelProvider> channel);
+
+        /// <summary>
+        /// Choose the communication channel provider.
+        /// </summary>
+        /// <param name="serviceProvider">Dependency injection provider.</param>
+        /// <param name="channel">The channel provider.</param>
+        /// <returns></returns>
+        IConsumerIocStoreStrategyBuilder UseChannel(IServiceProvider serviceProvider, Func<ILogger, IConsumerChannelProvider> channel);
     }
 }

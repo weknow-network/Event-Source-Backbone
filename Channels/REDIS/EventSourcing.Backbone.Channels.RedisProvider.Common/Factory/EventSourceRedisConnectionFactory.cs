@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
+
+using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 #pragma warning disable S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
@@ -15,10 +19,9 @@ namespace EventSourcing.Backbone
     /// This factory is also responsible of the connection health.
     /// It will return same connection as long as it healthy.
     /// </summary>
-    public abstract class RedisConnectionFacrotyBase : IEventSourceRedisConnectionFacroty, IDisposable, IAsyncDisposable
+    public class EventSourceRedisConnectionFactory : IEventSourceRedisConnectionFactory, IDisposable, IAsyncDisposable
     {
         private const int CLOSE_DELEY_MILLISECONDS = 5000;
-        private static readonly IRedisCredentials _redisCredentials = new RedisCredentialsEnvKeys();
         private Task<IConnectionMultiplexer> _redisTask;
         private readonly ILogger _logger;
         private readonly ConfigurationOptions _configuration;
@@ -28,87 +31,117 @@ namespace EventSourcing.Backbone
 
         #region Ctor
 
-        #region Overloads
-
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <summary>
-        /// Create REDIS configuration options.
-        /// </summary>
-        /// <param name="configurationHook">The configuration hook.</param>
-        protected RedisConnectionFacrotyBase(
-                    ILogger logger,
-                    Action<ConfigurationOptions>? configurationHook = null)
-                        : this(new RedisCredentialsEnvKeys(), logger, configurationHook)
+        /// <param name="configuration">The configuration.</param>
+        public EventSourceRedisConnectionFactory(
+                    ILogger<IEventSourceRedisConnectionFactory> logger,
+                    ConfigurationOptions? configuration = null)
+            : this ((ILogger)logger, configuration)
         {
         }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <summary>
-        /// Create REDIS configuration options.
-        /// </summary>
-        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
-        /// <param name="password">The password (not an environment variable).</param>
-        /// <param name="configurationHook">The configuration hook.</param>
-        protected RedisConnectionFacrotyBase(
-                    ILogger logger,
-                    string endpoint,
-                    string? password = null,
-                    Action<ConfigurationOptions>? configurationHook = null)
-                                    : this(new RedisCredentialsRaw(endpoint, password), logger, configurationHook)
-
-        {
-        }
-
-
-        #endregion // Overloads
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="credential">The credential.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configurationHook">The configuration hook.</param>
-        protected RedisConnectionFacrotyBase(
-                    IRedisCredentials credential,
-                    ILogger logger,
-                    Action<ConfigurationOptions>? configurationHook = null)
-
-        {
-            _logger = logger;
-            _configuration = credential.CreateConfigurationOptions(configurationHook);
-            _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
-        }
-
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="configuration">The configuration.</param>
-        protected RedisConnectionFacrotyBase(
-            ILogger logger,
-            ConfigurationOptions? configuration)
+        private EventSourceRedisConnectionFactory(
+                    ILogger logger,
+                    ConfigurationOptions? configuration = null)
         {
             _logger = logger;
-            _configuration = configuration ?? _redisCredentials.CreateConfigurationOptions();
+            if (configuration == null)
+            {
+                var cred = new RedisCredentialsEnvKeys();
+                _configuration = cred.CreateConfigurationOptions();
+            }
+            else
+            {
+                _configuration = configuration;
+            }
             _redisTask = RedisClientFactory.CreateProviderAsync(_configuration, logger);
         }
 
-
         #endregion // Ctor
+
+        #region Create
+
+        /// <summary>
+        /// Create instance
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns></returns>
+        public static IEventSourceRedisConnectionFactory Create(
+                    ILogger logger,
+                    ConfigurationOptions? configuration = null)
+        {
+            return new EventSourceRedisConnectionFactory(logger, configuration);
+        }
+
+        /// <summary>
+        /// Create instance
+        /// </summary>
+        /// <param name="credential">The credential.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IEventSourceRedisConnectionFactory Create(
+                    IRedisCredentials credential,
+                    ILogger logger,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var configuration = credential.CreateConfigurationOptions();
+            return new EventSourceRedisConnectionFactory(logger, configuration);
+        }
+
+        /// <summary>
+        /// Create instance
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+        /// <param name="password">The password (not an environment variable).</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IEventSourceRedisConnectionFactory Create(
+                    ILogger logger,
+                    string endpoint,
+                    string? password = null,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var credential = new RedisCredentialsRaw(endpoint, password);
+            return Create(credential, logger, configurationHook);
+        }
+
+        /// <summary>
+        /// Create instance from environment variable
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="endpointEnvKey">The endpoint.</param>
+        /// <param name="passwordEnvKey">The password.</param>
+        /// <param name="configurationHook">The configuration hook.</param>
+        /// <returns></returns>
+        public static IEventSourceRedisConnectionFactory CreateFromEnv(
+                    ILogger logger,
+                    string endpointEnvKey,
+                    string passwordEnvKey = PASSWORD_KEY,
+                    Action<ConfigurationOptions>? configurationHook = null)
+        {
+            var credential = new RedisCredentialsEnvKeys(endpointEnvKey, passwordEnvKey);
+            return Create(credential, logger, configurationHook);
+        }
+
+        #endregion // Create
 
         #region Kind
 
         /// <summary>
         /// Gets the kind.
         /// </summary>
-        protected abstract string Kind { get; }
+        protected virtual string Kind { get; } = "Event-Sourcing";
 
         #endregion // Kind
 
@@ -117,7 +150,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Get a valid connection 
         /// </summary>
-        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFacroty.GetAsync()
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync()
         {
             var conn = await _redisTask;
             if (conn.IsConnected)
@@ -158,9 +191,9 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Get database 
         /// </summary>
-        async Task<IDatabaseAsync> IEventSourceRedisConnectionFacroty.GetDatabaseAsync()
+        async Task<IDatabaseAsync> IEventSourceRedisConnectionFactory.GetDatabaseAsync()
         {
-            IEventSourceRedisConnectionFacroty self = this;
+            IEventSourceRedisConnectionFactory self = this;
             IConnectionMultiplexer conn = await self.GetAsync();
             IDatabaseAsync db = conn.GetDatabase();
             return db;
@@ -222,7 +255,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Finalizer
         /// </summary>
-        ~RedisConnectionFacrotyBase()
+        ~EventSourceRedisConnectionFactory()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: false);

@@ -15,7 +15,7 @@ namespace EventSourcing.Backbone.Channels
     /// </summary>
     internal class RedisHashStorageStrategy : IProducerStorageStrategy
     {
-        private readonly IEventSourceRedisConnectionFacroty _connFactory;
+        private readonly IEventSourceRedisConnectionFactory _connFactory;
         private readonly ILogger _logger;
 
         #region Ctor
@@ -26,7 +26,7 @@ namespace EventSourcing.Backbone.Channels
         /// <param name="connFactory">The connection factory.</param>
         /// <param name="logger">The logger.</param>
         public RedisHashStorageStrategy(
-                        IEventSourceRedisConnectionFacroty connFactory,
+                        IEventSourceRedisConnectionFactory connFactory,
                         ILogger logger)
         {
             _connFactory = connFactory;

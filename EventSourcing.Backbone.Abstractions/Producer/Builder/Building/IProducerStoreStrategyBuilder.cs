@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace EventSourcing.Backbone
 {
     /// <summary>
-    /// Enable configuration.
+    /// storage configuration.
     /// </summary>
     /// <seealso cref="EventSourcing.Backbone.Building.IProducerOptionsBuilder" />
     public interface IProducerStoreStrategyBuilder : IProducerOptionsBuilder

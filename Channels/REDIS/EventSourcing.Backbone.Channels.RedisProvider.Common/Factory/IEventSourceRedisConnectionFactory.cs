@@ -5,7 +5,7 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// Connection factory
     /// </summary>
-    public interface IEventSourceRedisConnectionFacroty
+    public interface IEventSourceRedisConnectionFactory
     {
         /// <summary>
         /// Get a valid connection 

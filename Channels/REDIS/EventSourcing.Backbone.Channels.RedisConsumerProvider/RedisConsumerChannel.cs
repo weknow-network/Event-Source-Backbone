@@ -38,7 +38,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
         private readonly ILogger _logger;
         private readonly RedisConsumerChannelSetting _setting;
-        private readonly IEventSourceRedisConnectionFacroty _connFactory;
+        private readonly IEventSourceRedisConnectionFactory _connFactory;
         private readonly IConsumerStorageStrategy _defaultStorageStrategy;
         private const string META_SLOT = "__<META>__";
         private const int INIT_RELEASE_DELAY = 100;
@@ -53,7 +53,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
         /// <param name="logger">The logger.</param>
         /// <param name="setting">The setting.</param>
         public RedisConsumerChannel(
-                        IEventSourceRedisConnectionFacroty redisConnFactory,
+                        IEventSourceRedisConnectionFactory redisConnFactory,
                         ILogger logger,
                         RedisConsumerChannelSetting? setting = null)
         {
@@ -73,7 +73,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         ILogger logger,
                         ConfigurationOptions? configuration = null,
                         RedisConsumerChannelSetting? setting = null) : this(
-                            new EventSourceRedisConnectionFacroty(
+                             EventSourceRedisConnectionFactory.Create(
                                                     logger,
                                                     configuration),
                             logger,
@@ -93,7 +93,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         IRedisCredentials credentialsKeys,
                         RedisConsumerChannelSetting? setting = null,
                         Action<ConfigurationOptions>? configurationHook = null) : this(
-                            new EventSourceRedisConnectionFacroty(
+                            EventSourceRedisConnectionFactory.Create(
                                                     credentialsKeys,
                                                     logger,
                                                     configurationHook),
@@ -116,7 +116,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         string? password = null,
                         RedisConsumerChannelSetting? setting = null,
                         Action<ConfigurationOptions>? configurationHook = null) : this(
-                            new EventSourceRedisConnectionFacroty(
+                            EventSourceRedisConnectionFactory.Create(
                                                     logger,
                                                     endpoint,
                                                     password,

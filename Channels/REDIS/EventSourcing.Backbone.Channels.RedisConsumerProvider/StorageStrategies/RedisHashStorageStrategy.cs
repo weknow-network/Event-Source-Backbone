@@ -11,13 +11,13 @@ namespace EventSourcing.Backbone.Channels
     /// </summary>
     internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     {
-        private readonly IEventSourceRedisConnectionFacroty _connFactory;
+        private readonly IEventSourceRedisConnectionFactory _connFactory;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
         /// <param name="connFactory">The database task.</param>
-        public RedisHashStorageStrategy(IEventSourceRedisConnectionFacroty connFactory)
+        public RedisHashStorageStrategy(IEventSourceRedisConnectionFactory connFactory)
         {
             _connFactory = connFactory;
         }
