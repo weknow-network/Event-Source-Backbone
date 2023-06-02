@@ -49,6 +49,24 @@ namespace EventSourcing.Backbone
 
             #endregion // Environment
 
+            #region Environment
+
+            /// <summary>
+            /// Fetch the origin environment of the message from an environment variable.
+            /// </summary>
+            /// <param name="environmentVariableKey">The environment variable key.</param>
+            /// <returns></returns>
+            IConsumerIterator IConsumerEnvironmentOfBuilder<IConsumerIterator>.EnvironmentFromVariable(string environmentVariableKey)
+            {
+                string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+
+                IConsumerPlan plan = _plan.ChangeEnvironment(environment);
+                var result = new Iterator(plan);
+                return result;
+            }
+
+            #endregion // Environment
+
             #region Uri
 
             /// <summary>

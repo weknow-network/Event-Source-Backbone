@@ -32,6 +32,26 @@ namespace EventSourcing.Backbone
             #region Environment
 
             /// <summary>
+            /// Environments from variable.
+            /// </summary>
+            /// <param name="environmentVariableKey">The environment variable key.</param>
+            /// <returns></returns>
+            /// <exception cref="EventSourcing.Backbone.EventSourcingException">EnvironmentFromVariable failed, [{environmentVariableKey}] not found!</exception>
+            IConsumerReceiver IConsumerEnvironmentOfBuilder<IConsumerReceiver>.EnvironmentFromVariable(string environmentVariableKey)
+            {
+                string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+
+
+                IConsumerPlan plan = _plan.ChangeEnvironment(environment);
+                var result = new Receiver(plan);
+                return result;
+            }
+
+            #endregion // Environment
+
+            #region Environment
+
+            /// <summary>
             /// Include the environment as prefix of the stream key.
             /// for example: env:URI
             /// </summary>

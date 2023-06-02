@@ -21,17 +21,16 @@ namespace Microsoft.Extensions.Configuration
             var s3Options = new S3Options { Bucket = "event-sourcing-web" };
             services.AddSingleton(ioc =>
             {
-                ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
                 IRawProducer producer = ioc.ResolveRedisProducerChannel()
-                                       .Resolve3Strategy(s3Options)
+                                       .ResolveS3Strategy(s3Options)
                                      .BuildRaw();
                 return producer;
             });
             services.AddSingleton(ioc =>
             {
-                ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new ArgumentNullException();
+                ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new EventSourcingException("Logger is missing");
                 IEventFlowProducer producer = ioc.ResolveRedisProducerChannel()
-                                       .Resolve3Strategy(s3Options)
+                                       .ResolveS3Strategy(s3Options)
                                      .Environment(env)
                                      .Uri(URI)
                                      .WithLogger(logger)

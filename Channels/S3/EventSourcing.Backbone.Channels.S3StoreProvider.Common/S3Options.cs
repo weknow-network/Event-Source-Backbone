@@ -11,7 +11,7 @@ namespace EventSourcing.Backbone
         {
             Bucket = null;
             BasePath = null;
-            EnvironmentConvension = S3EnvironmentConvention.None;
+            EnvironmentConvension = S3EnvironmentConvention.BucketPrefix;
         }
 
         /// <summary>

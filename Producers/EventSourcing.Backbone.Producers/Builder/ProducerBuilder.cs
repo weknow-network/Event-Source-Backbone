@@ -186,6 +186,37 @@ namespace EventSourcing.Backbone
 
         #endregion // Environment
 
+        #region EnvironmentFromVariable
+
+        /// <summary>
+        /// Fetch the origin environment of the message from an environment variable.
+        /// </summary>
+        /// <param name="environmentVariableKey">The environment variable key.</param>
+        /// <returns></returns>
+        /// <exception cref="EventSourcing.Backbone.EventSourcingException">EnvironmentFromVariable failed, [{environmentVariableKey}] not found!</exception>
+        IProducerUriBuilder IProducerBuilderEnvironment<IProducerUriBuilder>.EnvironmentFromVariable(string environmentVariableKey)
+        {
+            string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+            var prms = Plan.WithEnvironment(environment);
+            return new ProducerBuilder(prms);
+        }
+
+
+        /// <summary>
+        /// Fetch the origin environment of the message from an environment variable.
+        /// </summary>
+        /// <param name="environmentVariableKey">The environment variable key.</param>
+        /// <returns></returns>
+        /// <exception cref="EventSourcing.Backbone.EventSourcingException">EnvironmentFromVariable failed, [{environmentVariableKey}] not found!</exception>
+        IProducerSpecializeBuilder IProducerBuilderEnvironment<IProducerSpecializeBuilder>.EnvironmentFromVariable(string environmentVariableKey)
+        {
+            string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+            var prms = Plan.WithEnvironment(environment);
+            return new ProducerBuilder(prms);
+        }
+
+        #endregion // EnvironmentFromVariable
+
         #region Key
 
         /// <summary>
@@ -309,16 +340,6 @@ namespace EventSourcing.Backbone
         {
             var prms = Plan.WithLogger(logger);
             return new ProducerBuilder(prms);
-        }
-
-        /// <summary>
-        /// Attach logger.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <returns></returns>
-        IProducerOptionsBuilder IProducerLoggerBuilder<IProducerOptionsBuilder>.WithLogger(ILogger logger)
-        {
-            return WithLogger(logger);
         }
 
         /// <summary>

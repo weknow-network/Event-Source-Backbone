@@ -411,6 +411,8 @@ namespace EventSourcing.Backbone.Channels
         /// <returns></returns>
         private string GetBucket(Env env)
         {
+            if (string.IsNullOrEmpty(env))
+                return _bucket;
             var bucket = _environmentConvension switch
             {
                 S3EnvironmentConvention.BucketPrefix => $"{env.Format()}.{_bucket}",

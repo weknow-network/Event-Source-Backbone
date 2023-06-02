@@ -192,6 +192,40 @@ namespace EventSourcing.Backbone
 
         #endregion // Environment
 
+        #region EnvironmentFromVariable
+
+        /// <summary>
+        /// Fetch the origin environment of the message from an environment variable.
+        /// </summary>
+        /// <param name="environmentVariableKey">The environment variable key.</param>
+        /// <returns></returns>
+        /// <exception cref="EventSourcing.Backbone.EventSourcingException">EnvironmentFromVariable failed, [{environmentVariableKey}] not found!</exception>
+        IConsumerUriBuilder<IConsumerReadyBuilder> IConsumerEnvironmentOfBuilder<IConsumerUriBuilder<IConsumerReadyBuilder>>.EnvironmentFromVariable(string environmentVariableKey)
+        {
+            string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+
+            var prms = _plan.WithEnvironment(environment);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        /// <summary>
+        /// Fetch the origin environment of the message from an environment variable.
+        /// </summary>
+        /// <param name="environmentVariableKey">The environment variable key.</param>
+        /// <returns></returns>
+        /// <exception cref="EventSourcing.Backbone.EventSourcingException">EnvironmentFromVariable failed, [{environmentVariableKey}] not found!</exception>
+        IConsumerSubscribeBuilder IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>.EnvironmentFromVariable(string environmentVariableKey)
+        {
+            string environment = Environment.GetEnvironmentVariable(environmentVariableKey) ?? throw new EventSourcingException($"EnvironmentFromVariable failed, [{environmentVariableKey}] not found!");
+
+            var prms = _plan.WithEnvironment(environment);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // EnvironmentFromVariable
+
         #region ServiceProvider
 
         /// <summary>

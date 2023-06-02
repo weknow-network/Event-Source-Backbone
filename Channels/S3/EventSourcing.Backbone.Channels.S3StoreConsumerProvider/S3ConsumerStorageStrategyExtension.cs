@@ -79,6 +79,9 @@ namespace EventSourcing.Backbone
 
         /// <summary>
         /// Adds the S3 storage strategy.
+        /// Will resolve IAmazonS3
+        /// See the following article for more details on how can you register Amazon credentials:
+        /// https://codewithmukesh.com/blog/aws-credentials-for-dotnet-applications/
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="options">The options.</param>
