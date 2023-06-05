@@ -1,8 +1,8 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.2.90</Version>
+		<Version>1.2.92</Version>
 		<PackageReleaseNotes>
-			1.2.88: 
+			1.2.89: 
 			Breaking changes: S3Strategy was renamed to S3Storage
 		</PackageReleaseNotes>
 	</PropertyGroup>
@@ -46,7 +46,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.122" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.123" PrivateAssets="All" />
 	</ItemGroup>
 	
 	<ItemGroup>
