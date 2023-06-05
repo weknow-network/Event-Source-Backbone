@@ -6,12 +6,12 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 EXPOSE 80
 
 WORKDIR /src
-COPY ["Tests/Weknow.EventSourcing.Backbone.WebEventTest/Weknow.EventSourcing.Backbone.WebEventTest.csproj", "Tests/Weknow.EventSourcing.Backbone.WebEventTest/"]
+COPY ["Tests/.EventSourcing.Backbone.WebEventTest/.EventSourcing.Backbone.WebEventTest.csproj", "Tests/.EventSourcing.Backbone.WebEventTest/"]
 
-RUN dotnet restore "Tests/Weknow.EventSourcing.Backbone.WebEventTest/Weknow.EventSourcing.Backbone.WebEventTest.csproj"
+RUN dotnet restore "Tests/.EventSourcing.Backbone.WebEventTest/.EventSourcing.Backbone.WebEventTest.csproj"
 COPY . .
-WORKDIR "/src/Tests/Weknow.EventSourcing.Backbone.WebEventTest"
-RUN dotnet build --no-restore "Weknow.EventSourcing.Backbone.WebEventTest.csproj" -c $BUILD_CONFIGURATION
+WORKDIR "/src/Tests/.EventSourcing.Backbone.WebEventTest"
+RUN dotnet build --no-restore ".EventSourcing.Backbone.WebEventTest.csproj" -c $BUILD_CONFIGURATION
 
 RUN echo "exec dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --" > /entrypoint.sh
 

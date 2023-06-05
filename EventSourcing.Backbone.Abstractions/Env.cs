@@ -47,13 +47,13 @@ namespace EventSourcing.Backbone
         #region Format
 
         /// <summary>
-        /// Formats the specified environment into WeKnow convention.
+        /// Formats the specified environment into  convention.
         /// </summary>
         /// <returns></returns>
         public string Format() => Env.Format(_value);
 
         /// <summary>
-        /// Formats the specified environment into WeKnow convention.
+        /// Formats the specified environment into  convention.
         /// </summary>
         /// <returns></returns>
         private static string Format(string e)

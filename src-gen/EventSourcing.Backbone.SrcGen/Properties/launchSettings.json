@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Weknow.EventSourcing.Backbone.SrcGen": {
+    ".EventSourcing.Backbone.SrcGen": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\PlayGroundAbstraction\\PlayGroundAbstraction.csproj"
     }

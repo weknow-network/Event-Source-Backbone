@@ -69,15 +69,12 @@ services.AddHttpClient("migration", c =>
  });
 
 IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-services.AddOpenTelemetryWeknow(environment, shortAppName, redisConnection);
+services.AddOpenTelemetry(environment, shortAppName, redisConnection);
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
-
 services.AddEventSourceRedisConnection();
-
 services.AddEventSource(env);
-
 
 void RedisConfigEnrichment(ConfigurationOptions configuration)
 {

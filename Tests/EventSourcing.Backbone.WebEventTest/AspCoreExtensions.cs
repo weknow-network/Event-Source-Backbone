@@ -17,14 +17,14 @@ using StackExchange.Redis;
 namespace Microsoft.Extensions.Configuration
 {
     /// <summary>
-    /// Weknow core extensions for ASP.NET Core
+    ///  core extensions for ASP.NET Core
     /// </summary>
     public static class AspCoreExtensions
     {
         #region AddRedis
 
         /// <summary>
-        /// Adds the weknow standard configuration.
+        /// Adds the  standard configuration.
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="hostEnv">The host env.</param>
@@ -43,17 +43,17 @@ namespace Microsoft.Extensions.Configuration
 
         #endregion // AddRedis
 
-        #region AddOpenTelemetryWeknow
+        #region AddOpenTelemetry
 
         /// <summary>
-        /// Adds the weknow open-telemetry binding.
+        /// Adds the  open-telemetry binding.
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="hostEnv">The host env.</param>
         /// <param name="shortAppName">Short name of the application.</param>
         /// <param name="redisConnection">The redis connection.</param>
         /// <returns></returns>
-        public static IServiceCollection AddOpenTelemetryWeknow(
+        public static IServiceCollection AddOpenTelemetry(
             this IServiceCollection services,
             IHostEnvironment hostEnv,
             string shortAppName,
@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.Configuration
             #endregion // OpenTelemetryFilter
         }
 
-        #endregion // AddOpenTelemetryWeknow
+        #endregion // AddOpenTelemetry
 
         #region WithJsonOptions
 
@@ -157,7 +157,7 @@ namespace Microsoft.Extensions.Configuration
             return options;
         }
 
-        #region UseRestDefaultsWeknow
+        #region UseRestDefaults
 
         /// <summary>
         /// Pre-configured host defaults for rest API.
@@ -200,6 +200,6 @@ namespace Microsoft.Extensions.Configuration
             return builder;
         }
 
-        #endregion // UseRestDefaultsWeknow
+        #endregion // UseRestDefaults
     }
 }

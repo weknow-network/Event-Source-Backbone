@@ -12,8 +12,8 @@ namespace EventSourcing.Backbone.Tests
 
         public S3StoreStrategyStressTests(ITestOutputHelper outputHelper) :
                 base(outputHelper,
-                    (b, logger) => b.AddS3Strategy(OPTIONS),
-                    (b, logger) => b.AddS3Strategy(OPTIONS))
+                    (b, logger) => b.AddS3Storage(OPTIONS),
+                    (b, logger) => b.AddS3Storage(OPTIONS))
         {
         }
     }

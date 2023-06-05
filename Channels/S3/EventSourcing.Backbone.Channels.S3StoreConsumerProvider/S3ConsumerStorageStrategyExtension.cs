@@ -27,7 +27,7 @@ namespace EventSourcing.Backbone
         /// <param name="envRegion">Either the region or environment variable hold it (depend on the fromEnvironment parameters)</param>
         /// <param name="fromEnvironment">if set to <c>true</c>looks for the access key, secret and region in the environment variables.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder AddS3Strategy(
+        public static IConsumerStoreStrategyBuilder AddS3Storage(
             this IConsumerStoreStrategyBuilder builder,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All,
@@ -59,7 +59,7 @@ namespace EventSourcing.Backbone
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder AddS3Strategy(
+        public static IConsumerStoreStrategyBuilder AddS3Storage(
             this IConsumerStoreStrategyBuilder builder,
             IAmazonS3 client,
             S3Options options = default,
@@ -93,7 +93,7 @@ namespace EventSourcing.Backbone
             EventBucketCategories targetType = EventBucketCategories.All)
         {
             IAmazonS3 s3Client = builder.ServiceProvider.GetService<IAmazonS3>() ?? throw new EventSourcingException("IAmazonS3 is not registered");
-            var result = builder.AddS3Strategy(s3Client, options, targetType);
+            var result = builder.AddS3Storage(s3Client, options, targetType);
             return result;
         }
     }

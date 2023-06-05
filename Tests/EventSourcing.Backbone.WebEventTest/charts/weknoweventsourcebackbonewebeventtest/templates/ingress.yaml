@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "weknoweventsourcebackbonewebeventtest.fullname" . -}}
+{{- $fullName := include "eventsourcebackbonewebeventtest.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
 {{- $ingressPath := .Values.ingress.path -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -11,8 +11,8 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
-    chart: {{ template "weknoweventsourcebackbonewebeventtest.chart" . }}
+    app: {{ template "eventsourcebackbonewebeventtest.name" . }}
+    chart: {{ template "eventsourcebackbonewebeventtest.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- with .Values.ingress.annotations }}

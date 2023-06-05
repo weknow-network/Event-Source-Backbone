@@ -8,7 +8,7 @@ using EventSourcing.Backbone.WebEventTest;
 namespace Microsoft.Extensions.Configuration
 {
     /// <summary>
-    /// Weknow core extensions for ASP.NET Core
+    ///  core extensions for ASP.NET Core
     /// </summary>
     public static class RegisterEventSourceExtensions
     {
@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.Configuration
                 IConsumerReadyBuilder consumer =
                            ioc.ResolveRedisConsumerChannel()
                               .ResolveS3Strategy(s3Options)
-                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
                                          TraceAsParent = TimeSpan.FromMinutes(10),
@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.Configuration
                 IConsumerHooksBuilder consumer =
                             ioc.ResolveRedisConsumerChannel()
                               .ResolveS3Strategy(s3Options)
-                                     // .AddS3Strategy(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
+                                     // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
                                          TraceAsParent = TimeSpan.FromMinutes(10),

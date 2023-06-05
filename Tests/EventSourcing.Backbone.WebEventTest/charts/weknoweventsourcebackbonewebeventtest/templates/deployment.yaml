@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "weknoweventsourcebackbonewebeventtest.fullname" . }}
+  name: {{ template "eventsourcebackbonewebeventtest.fullname" . }}
   labels:
-    app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
-    chart: {{ template "weknoweventsourcebackbonewebeventtest.chart" . }}
+    app: {{ template "eventsourcebackbonewebeventtest.name" . }}
+    chart: {{ template "eventsourcebackbonewebeventtest.chart" . }}
     draft: {{ .Values.draft | default "draft-app" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -13,12 +13,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
+      app: {{ template "eventsourcebackbonewebeventtest.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "weknoweventsourcebackbonewebeventtest.name" . }}
+        app: {{ template "eventsourcebackbonewebeventtest.name" . }}
         draft: {{ .Values.draft | default "draft-app" }}
         release: {{ .Release.Name }}
       annotations:
@@ -49,7 +49,7 @@ spec:
             - name: {{ $ref }}_{{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "weknoweventsourcebackbonewebeventtest.fullname" $root }}-{{ $ref | lower }}
+                  name: {{ template "eventsourcebackbonewebeventtest.fullname" $root }}-{{ $ref | lower }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}

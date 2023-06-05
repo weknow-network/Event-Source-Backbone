@@ -7,8 +7,8 @@ namespace EventSourcing.Backbone.Tests
 
         public S3StoreStrategyExplicitTests(ITestOutputHelper outputHelper) :
             base(outputHelper,
-                (b, logger) => b.AddS3Strategy(),
-                (b, logger) => b.AddS3Strategy())
+                (b, logger) => b.AddS3Storage(),
+                (b, logger) => b.AddS3Storage())
         {
         }
 
