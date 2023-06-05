@@ -1,12 +1,9 @@
-﻿
-using Amazon.Runtime;
-using Amazon.S3;
+﻿using Amazon.S3;
 
 using EventSourcing.Backbone.Channels;
 
-using Microsoft.Extensions.Logging;
-
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EventSourcing.Backbone
 {

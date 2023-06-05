@@ -1,6 +1,4 @@
-﻿using System;
-
-using EventSourcing.Backbone.Building;
+﻿using EventSourcing.Backbone.Building;
 
 using Microsoft.Extensions.Logging;
 

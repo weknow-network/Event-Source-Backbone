@@ -119,7 +119,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the service provider.
         /// </summary>
-        IServiceProvider IProducerIocStoreStrategyBuilder.ServiceProvider => 
+        IServiceProvider IProducerIocStoreStrategyBuilder.ServiceProvider =>
                             Plan?.ServiceProvider ?? throw new EventSourcingException("ServiceProvider is null");
 
         #endregion // ServiceProvider

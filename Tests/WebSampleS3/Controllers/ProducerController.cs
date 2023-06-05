@@ -1,12 +1,10 @@
 using EventSourcing.Backbone;
-using WebSampleS3;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebSampleS3.Controllers;
 
-public record Ord (User user, Product Product);
+public record Ord(User user, Product Product);
 
 [ApiController]
 [Route("[controller]")]
@@ -26,11 +24,11 @@ public class ProducerController : ControllerBase
     /// <summary>
     /// Post order state.
     /// </summary>
-    /// <param name="eventKey">The event key.</param>
+    /// <param name="payload">The payload.</param>
     /// <returns></returns>
     [HttpPost("order-placed")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [AllowAnonymous]
+    //[AllowAnonymous]
     public async Task<string> PostOrderPlacedAsync(Ord payload)
     {
         var (user, product) = payload;
@@ -42,11 +40,11 @@ public class ProducerController : ControllerBase
     /// <summary>
     /// Post packing state.
     /// </summary>
-    /// <param name="eventKey">The event key.</param>
+    /// <param name="payload">The payload.</param>
     /// <returns></returns>
     [HttpPost("packing")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<string> PostPackingAsync([FromBody](string email, int productId) payload)
+    public async Task<string> PostPackingAsync([FromBody] (string email, int productId) payload)
     {
         var (email, productId) = payload;
         _logger.LogDebug("Sending packing event");
@@ -57,11 +55,11 @@ public class ProducerController : ControllerBase
     /// <summary>
     /// Post on-delivery state.
     /// </summary>
-    /// <param name="eventKey">The event key.</param>
+    /// <param name="payload">The payload.</param>
     /// <returns></returns>
     [HttpPost("on-delivery")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<string> PostOnDeliveryAsync([FromBody](string email, int productId) payload)
+    public async Task<string> PostOnDeliveryAsync([FromBody] (string email, int productId) payload)
     {
         var (email, productId) = payload;
         _logger.LogDebug("Sending on-delivery event");
@@ -72,11 +70,11 @@ public class ProducerController : ControllerBase
     /// <summary>
     /// Post on-received state.
     /// </summary>
-    /// <param name="eventKey">The event key.</param>
+    /// <param name="payload">The payload.</param>
     /// <returns></returns>
     [HttpPost("on-received")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<string> PostOnReceivedAsync([FromBody](string email, int productId) payload)
+    public async Task<string> PostOnReceivedAsync([FromBody] (string email, int productId) payload)
     {
         var (email, productId) = payload;
         _logger.LogDebug("Sending on-received event");

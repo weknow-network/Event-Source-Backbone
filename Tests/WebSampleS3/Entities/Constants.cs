@@ -1,22 +1,17 @@
-﻿using Amazon.Runtime.CredentialManagement;
+﻿using Amazon;
 using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 
 using EventSourcing.Backbone;
-using Amazon;
-using System.Net.Sockets;
 
 namespace WebSampleS3;
 
-public class Constants
+public static class Constants
 {
     public const string URI = "hello-event-sourcing";
     public const string S3_BUCKET = "event-sourcing-demo";
-    //public const string S3_ACCESS_KEY_ENV = "S3_EVENT_DEMO_ACCESS_KEY";
-    //public const string S3_SECRET_ENV = "S3_EVENT_DEMO_SECRET";
-    //public const string S3_REGION_ENV = "S3_EVENT_DEMO_REGION";
 
-    //public static IAmazonS3 CreateS3Client(RegionEndpoint region, string profile = "playground")
     public static IAmazonS3 CreateS3Client(RegionEndpoint region, string profile = "playground")
     {
         var chain = new CredentialProfileStoreChain();

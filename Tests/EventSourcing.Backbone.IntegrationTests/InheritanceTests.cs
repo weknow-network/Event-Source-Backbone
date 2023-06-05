@@ -7,11 +7,11 @@ using System.Threading.Tasks.Dataflow;
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Enums;
+using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
-using EventSourcing.Backbone.UnitTests.Entities;
 
 using StackExchange.Redis;
 

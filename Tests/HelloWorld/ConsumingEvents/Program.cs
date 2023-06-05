@@ -1,10 +1,6 @@
 ﻿using EventsAbstractions;
 
 using EventSourcing.Backbone;
-using StackExchange.Redis;
-using System;
-using System.Collections.Concurrent;
-using System.Drawing;
 
 Console.WriteLine("Consuming Events");
 

@@ -21,7 +21,7 @@ namespace Microsoft.Extensions.Configuration
             this IServiceCollection services)
         {
             services.AddSingleton<IEventSourceRedisConnectionFactory, EventSourceRedisConnectionFactory>();
-                                  
+
             return services;
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton<IEventSourceRedisConnectionFactory>(
                 sp =>
                 {
-                    ILogger logger = sp.GetService<ILogger<EventSourceRedisConnectionFactory>>() ?? 
+                    ILogger logger = sp.GetService<ILogger<EventSourceRedisConnectionFactory>>() ??
                                             throw new EventSourcingException(
                                                 $"{nameof(AddEventSourceRedisConnectionFromEnv)}: Cannot resolve a logger");
 

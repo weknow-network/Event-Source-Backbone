@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -39,7 +37,7 @@ namespace EventSourcing.Backbone
         public EventSourceRedisConnectionFactory(
                     ILogger<IEventSourceRedisConnectionFactory> logger,
                     ConfigurationOptions? configuration = null)
-            : this ((ILogger)logger, configuration)
+            : this((ILogger)logger, configuration)
         {
         }
 

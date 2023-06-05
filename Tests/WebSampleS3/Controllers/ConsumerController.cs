@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using EventSourcing.Backbone;
-using WebSampleS3;
 
 using Microsoft.AspNetCore.Mvc;
 

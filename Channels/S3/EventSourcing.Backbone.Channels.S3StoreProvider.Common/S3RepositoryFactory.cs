@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
 using Amazon;
-using Amazon.Runtime;
 using Amazon.S3;
 
 using Microsoft.Extensions.Logging;
@@ -35,7 +34,7 @@ namespace EventSourcing.Backbone.Channels
             bool fromEnvironment = true)
         {
             accessKey =
-                fromEnvironment 
+                fromEnvironment
                 ? Environment.GetEnvironmentVariable(accessKey) ?? accessKey
                 : accessKey;
             secret =

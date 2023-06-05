@@ -1,6 +1,4 @@
-﻿using Amazon.S3;
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
     /// <summary>
     /// S3 provider options

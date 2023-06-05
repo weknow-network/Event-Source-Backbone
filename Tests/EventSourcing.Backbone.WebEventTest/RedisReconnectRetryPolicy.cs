@@ -1,8 +1,11 @@
 ﻿using StackExchange.Redis;
+
+namespace EventSourcing.Backbone.WebEventTest;
+
 /// <summary>
 /// Redis reconnect retry policy
 /// </summary>
-/// <seealso cref="StackExchange.Redis.IReconnectRetryPolicy" />
+/// <seealso cref="IReconnectRetryPolicy" />
 public class RedisReconnectRetryPolicy : IReconnectRetryPolicy
 {
     /// <summary>

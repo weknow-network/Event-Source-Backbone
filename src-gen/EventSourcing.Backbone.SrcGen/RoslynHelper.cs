@@ -87,11 +87,11 @@ internal static class RoslynHelper
             }
         }
 
-        if(syntaxNode.Parent == null)
-            yield break;    
-            
+        if (syntaxNode.Parent == null)
+            yield break;
+
         foreach (var u in GetUsing(syntaxNode.Parent))
-        { 
+        {
             yield return u;
         }
     }

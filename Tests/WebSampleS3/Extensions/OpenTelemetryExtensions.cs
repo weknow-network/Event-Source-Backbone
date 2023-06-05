@@ -3,13 +3,9 @@ using System.Text.Json.Serialization;
 
 using EventSourcing.Backbone;
 
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-
-using StackExchange.Redis;
 
 using WebSample.Extensions;
 

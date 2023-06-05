@@ -1,16 +1,16 @@
-using Xunit.Abstractions;
-using Microsoft.Extensions.Hosting;
+using Amazon.S3;
+
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.UnitTests.Entities;
+
+using FakeItEasy;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Amazon.S3;
-using EventSourcing.Backbone.Building;
-using Amazon.Runtime.Internal.Util;
-using FakeItEasy;
-using StackExchange.Redis;
-using System.Threading;
-using System;
+using Microsoft.Extensions.Hosting;
+
 using Xunit;
-using EventSourcing.Backbone.UnitTests.Entities;
+using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
 {
@@ -47,7 +47,7 @@ namespace EventSourcing.Backbone.Tests
                                  services.AddSingleton(ioc =>
                                  {
                                      var logger = ioc.GetService<Microsoft.Extensions.Logging.ILogger<S3StoreCredentialsTests>>();
-                                     IProducerHooksBuilder producer = ioc.ResolveRedisProducerChannel()                                        
+                                     IProducerHooksBuilder producer = ioc.ResolveRedisProducerChannel()
                                         .ResolveS3Strategy(s3Options)
                                         .WithLogger(logger!)
                                         .Uri(TEST_URI);

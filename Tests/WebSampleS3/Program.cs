@@ -1,8 +1,5 @@
 using Amazon.S3;
 
-using StackExchange.Redis;
-
-using WebSample;
 using WebSample.Extensions;
 
 using WebSampleS3;
@@ -20,7 +17,6 @@ string env = environment.EnvironmentName;
 string appName = environment.ApplicationName;
 
 builder.Services.AddOpenTelemetry(environment, appName);
-builder.Services.AddEventSourceRedisConnection();
 
 string URI = "shipment-tracking";
 // make sure to create the bucket on AWS S3 with both prefix 'dev.' and 'prod.' and any other environment you're using (like staging,etc.) 

@@ -1,10 +1,5 @@
-﻿using System.Text.Json;
-using System.Threading;
-
-using EventSourcing.Backbone;
+﻿using EventSourcing.Backbone;
 using EventSourcing.Backbone.Building;
-
-using Microsoft.Extensions.Hosting;
 
 namespace WebSampleS3;
 
@@ -31,7 +26,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
     /// <param name="producer">The producer.</param>
     public ConsumerJob(
         ILogger<ConsumerJob> logger,
-        IConsumerReadyBuilder consumerBuilder)        
+        IConsumerReadyBuilder consumerBuilder)
     {
         _builder = consumerBuilder.WithLogger(logger);
         _subscriber = new Subscriber(logger);
@@ -48,7 +43,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
     Task IHostedService.StartAsync(CancellationToken cancellationToken)
     {
         _cancellationTokenSource = new CancellationTokenSource();
-        var canellation =  CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
+        var canellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
         _subscription = _builder
                                 // .Group(CONSUMER_GROUP)
                                 .WithCancellation(canellation.Token)
@@ -122,7 +117,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         {
             // get the current event metadata
             Metadata? meta = ConsumerMetadata.Context;
-           
+
             _logger.LogInformation("handling OrderPlaced [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, user.email, product.id, time);
             return ValueTask.CompletedTask;
         }
@@ -170,7 +165,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         {
             // get the current event metadata
             Metadata? meta = ConsumerMetadata.Context;
-           
+
             _logger.LogInformation("handling OnReceived [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, email, productId, time);
             return ValueTask.CompletedTask;
         }

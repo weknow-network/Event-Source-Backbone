@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.Json;
-
-namespace EventSourcing.Backbone.WebEventTest
+﻿namespace EventSourcing.Backbone.WebEventTest
 {
     [EventsContract(EventsContractType.Consumer)]
     [EventsContract(EventsContractType.Producer)]
