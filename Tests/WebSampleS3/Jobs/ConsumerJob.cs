@@ -6,7 +6,8 @@ namespace WebSampleS3;
 /// <summary>
 /// Consumer job
 /// </summary>
-/// <seealso cref="Microsoft.Extensions.Hosting.HostedServiceBase" />
+/// <seealso cref="Microsoft.Extensions.Hosting.IHostedService" />
+/// <seealso cref="System.IAsyncDisposable" />
 /// <seealso cref="System.IDisposable" />
 public sealed class ConsumerJob : IHostedService, IAsyncDisposable
 {
@@ -23,7 +24,6 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="consumerBuilder">The builder.</param>
-    /// <param name="producer">The producer.</param>
     public ConsumerJob(
         ILogger<ConsumerJob> logger,
         IConsumerReadyBuilder consumerBuilder)
@@ -90,6 +90,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
     /// <summary>
     /// The subscriber implementation
     /// </summary>
+    /// <seealso cref="WebSampleS3.IShipmentTrackingConsumer" />
     /// <seealso cref="EventSourcing.Demo.IShipmentTrackingConsumer" />
     private sealed class Subscriber : IShipmentTrackingConsumer
     {
