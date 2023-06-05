@@ -1,3 +1,8 @@
+[![Deploy](https://github.com/bnayae/Event-Sourcing-Backbone/actions/workflows/build-publish-v2.yml/badge.svg)](https://github.com/bnayae/Event-Sourcing-Backbone/actions/workflows/build-publish-v2.yml)  
+
+[![NuGet](https://img.shields.io/nuget/v/EventSourcing.Backbone.SrcGen.svg)](https://www.nuget.org/packages/EventSourcing.Backbone.SrcGen/) 
+[![NuGet](https://img.shields.io/nuget/v/EventSourcing.Backbone.Abstractions.svg)](https://www.nuget.org/packages/EventSourcing.Backbone.Abstractions/)  
+
 # Event-Source-Backbone 
 
 ## Understanding Event Sourcing
