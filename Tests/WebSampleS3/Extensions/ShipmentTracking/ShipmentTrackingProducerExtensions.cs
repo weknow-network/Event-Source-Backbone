@@ -30,7 +30,7 @@ public static class ShipmentTrackingProducerExtensions
         {
             ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new EventSourcingException("Logger is missing");
             IShipmentTrackingProducer producer = ioc.ResolveRedisProducerChannel()
-                                   .ResolveS3Strategy(s3Options)
+                                   .ResolveS3Storage(s3Options)
                                  .Environment(env)
                                  .Uri(uri)
                                  .WithLogger(logger)

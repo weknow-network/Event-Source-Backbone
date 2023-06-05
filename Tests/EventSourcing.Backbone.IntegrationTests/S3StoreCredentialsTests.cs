@@ -48,7 +48,7 @@ namespace EventSourcing.Backbone.Tests
                                  {
                                      var logger = ioc.GetService<Microsoft.Extensions.Logging.ILogger<S3StoreCredentialsTests>>();
                                      IProducerHooksBuilder producer = ioc.ResolveRedisProducerChannel()
-                                        .ResolveS3Strategy(s3Options)
+                                        .ResolveS3Storage(s3Options)
                                         .WithLogger(logger!)
                                         .Uri(TEST_URI);
 
@@ -58,7 +58,7 @@ namespace EventSourcing.Backbone.Tests
                                  {
                                      //var logger = ioc.GetService<Microsoft.Extensions.Logging.ILogger<S3StoreCredentialsTests>>();
                                      IConsumerReadyBuilder consumer = ioc.ResolveRedisConsumerChannel()
-                                        .ResolveS3Strategy(s3Options)
+                                        .ResolveS3Storage(s3Options)
                                         .Uri(TEST_URI);
 
                                      return consumer;

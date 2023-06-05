@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddSingleton(ioc =>
             {
                 IRawProducer producer = ioc.ResolveRedisProducerChannel()
-                                       .ResolveS3Strategy(s3Options)
+                                       .ResolveS3Storage(s3Options)
                                      .BuildRaw();
                 return producer;
             });
@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.Configuration
             {
                 ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new EventSourcingException("Logger is missing");
                 IEventFlowProducer producer = ioc.ResolveRedisProducerChannel()
-                                       .ResolveS3Strategy(s3Options)
+                                       .ResolveS3Storage(s3Options)
                                      .Environment(env)
                                      .Uri(URI)
                                      .WithLogger(logger)
@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.Configuration
             {
                 IConsumerReadyBuilder consumer =
                            ioc.ResolveRedisConsumerChannel()
-                              .ResolveS3Strategy(s3Options)
+                              .ResolveS3Storage(s3Options)
                                      // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.Configuration
             {
                 IConsumerHooksBuilder consumer =
                             ioc.ResolveRedisConsumerChannel()
-                              .ResolveS3Strategy(s3Options)
+                              .ResolveS3Storage(s3Options)
                                      // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {

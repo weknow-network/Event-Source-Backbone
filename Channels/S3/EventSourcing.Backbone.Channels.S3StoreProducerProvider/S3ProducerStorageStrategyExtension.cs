@@ -87,7 +87,7 @@ namespace EventSourcing.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder ResolveS3Strategy(
+        public static IProducerStoreStrategyBuilder ResolveS3Storage(
             this IProducerIocStoreStrategyBuilder builder,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All,

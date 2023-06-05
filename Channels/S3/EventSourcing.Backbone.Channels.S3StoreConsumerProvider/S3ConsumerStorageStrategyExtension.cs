@@ -85,7 +85,7 @@ namespace EventSourcing.Backbone
         /// <param name="options">The options.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        public static IConsumerStoreStrategyBuilder ResolveS3Strategy(
+        public static IConsumerStoreStrategyBuilder ResolveS3Storage(
             this IConsumerIocStoreStrategyBuilder builder,
             S3Options options = default,
             EventBucketCategories targetType = EventBucketCategories.All)

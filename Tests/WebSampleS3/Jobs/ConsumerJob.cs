@@ -90,8 +90,6 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
     /// <summary>
     /// The subscriber implementation
     /// </summary>
-    /// <seealso cref="WebSampleS3.IShipmentTrackingConsumer" />
-    /// <seealso cref="EventSourcing.Demo.IShipmentTrackingConsumer" />
     private sealed class Subscriber : IShipmentTrackingConsumer
     {
         private readonly ILogger _logger;

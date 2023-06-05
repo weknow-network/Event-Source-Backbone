@@ -30,7 +30,7 @@ namespace WebSample.Extensions
             {
                 IConsumerReadyBuilder consumer =
                            ioc.ResolveRedisConsumerChannel()
-                                .ResolveS3Strategy(s3Options)
+                                .ResolveS3Storage(s3Options)
                                 .WithOptions(o => o with
                                 {
                                     TraceAsParent = TimeSpan.FromMinutes(10),
