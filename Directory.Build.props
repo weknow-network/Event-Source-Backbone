@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.2.90</Version>
+		<Version>1.2.91</Version>
 		<PackageReleaseNotes>
 			1.2.88: 
 			Breaking changes: S3Strategy was renamed to S3Storage
