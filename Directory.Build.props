@@ -1,10 +1,10 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.2.97</Version>
+		<Version>1.2.98</Version>
 		<PackageReleaseNotes>
-			#1.2.85: 
+			#1.2.86: 
 			Breaking changes: S3Strategy was renamed to S3Storage
-			#1.2.96
+			#1.2.97
 			Breaking changes: Method on the consumer interface generated with first parameter of type ConsumerMetadata
 		</PackageReleaseNotes>
 	</PropertyGroup>
@@ -48,7 +48,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.125" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.126" PrivateAssets="All" />
 	</ItemGroup>
 	
 	<ItemGroup>
