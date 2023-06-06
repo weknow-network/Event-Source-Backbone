@@ -8,14 +8,18 @@ namespace EventSourcing.Backbone
     /// It represent the operation's intent or represent event.
     /// </summary>
     [DebuggerDisplay("{Metadata.Uri} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
-    public sealed class ConsumerMetadata
+    public sealed class ConsumerMetadata: IAckOperations
     {
         internal static readonly AsyncLocal<ConsumerMetadata> _metaContext = new AsyncLocal<ConsumerMetadata>();
 
         /// <summary>
         /// Get the metadata context
         /// </summary>
-        public static ConsumerMetadata? Context => _metaContext.Value;
+        public static ConsumerMetadata Context => _metaContext.Value ?? throw new EventSourcingException(
+                        """
+                        Consumer metadata doesn't available on the current context 
+                        (make sure you try to consume it within a scope of a consuming method call)");
+                        """);
 
         #region Ctor
 
@@ -68,5 +72,28 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Cast overloads
+
+        #region AckAsync
+
+        /// <summary>
+        /// Preform acknowledge (which should prevent the 
+        /// message from process again by the consumer)
+        /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing).
+        /// </summary>
+        public ValueTask AckAsync() => Ack.Current.AckAsync();
+
+        #endregion // AckAsync
+
+        #region AckAsync
+
+        /// <summary>
+        /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
+        /// </summary>
+        /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing).
+        /// <returns></returns>
+        public ValueTask CancelAsync() => Ack.Current.AckAsync();
+
+        #endregion // AckAsync
+
     }
 }
