@@ -2,9 +2,9 @@
 	<PropertyGroup>
 		<Version>1.2.102</Version>
 		<PackageReleaseNotes>
-			#1.2.86:
+			# 1.2.85:
 			Breaking changes: S3Strategy was renamed to S3Storage
-			#1.2.97
+			# 1.2.96
 			Breaking changes: Method on the consumer interface generated with first parameter of type ConsumerMetadata
 		</PackageReleaseNotes>
 	</PropertyGroup>
