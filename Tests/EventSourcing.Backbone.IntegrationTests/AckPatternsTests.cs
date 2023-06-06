@@ -70,7 +70,7 @@ namespace EventSourcing.Backbone.Tests
             var consumerBuilder = stg.CreateRedisConsumerBuilder();
             _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() =>
                     {
                         Metadata meta = ConsumerMetadata.Context;
@@ -78,9 +78,9 @@ namespace EventSourcing.Backbone.Tests
                             return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
                         return ValueTask.CompletedTask;
                     });
-            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
-            A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Delay());
 
             #region  A.CallTo(() => _fakeLogger...)
@@ -144,7 +144,7 @@ namespace EventSourcing.Backbone.Tests
             #region A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
 
             int tryNumber = 0;
-            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(() =>
                 {
                     // 3 error will be catch by Polly, the 4th one will catch outside of Polly
@@ -179,13 +179,13 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                         .MustHaveHappened(
                                     3 /* Polly retry */ + 1 /* error */ + 1 /* succeed */,
                                     Times.Exactly);
-            A.CallTo(() => _subscriber.EarseAsync(4335))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -211,7 +211,7 @@ namespace EventSourcing.Backbone.Tests
             #region A.CallTo(() => _subscriber.LoginAsync(throw 1 time))
 
             int tryNumber = 0;
-            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(() =>
                 {
                     // 3 error will be catch by Polly, the 4th one will catch outside of Polly
@@ -247,13 +247,13 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                         .MustHaveHappened(
                                     3 /* Polly retry */ + 1 /* error */ ,
                                     Times.Exactly);
-            A.CallTo(() => _subscriber.EarseAsync(4335))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -279,19 +279,19 @@ namespace EventSourcing.Backbone.Tests
             #region A.CallTo(...).ReturnsLazily(...)
 
             int tryNumber = 0;
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
-            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
-                .ReturnsLazily<ValueTask>(async () =>
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+                .ReturnsLazily<ValueTask, ConsumerMetadata, string, string>(async (meta, email, pass) =>
                 {
                     // 3 error will be catch by Polly, the 4th one will catch outside of Polly
                     if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
-                    ConsumerMetadata meta = ConsumerMetadata.Context;
                     await meta.AckAsync();
+                    //ConsumerMetadata meta = ConsumerMetadata.Context;
                     //await Ack.Current.AckAsync();
                 });
-            A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
 
             #endregion // A.CallTo(...).ReturnsLazily(...)
@@ -319,13 +319,13 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync("admin", "1234"))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                         .MustHaveHappened(
                                     3 /* Polly retry */ + 1 /* error */ + 1 /* succeed */,
                                     Times.Exactly);
-            A.CallTo(() => _subscriber.EarseAsync(4335))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                         .MustHaveHappenedOnceExactly();
 
             #endregion // Validation

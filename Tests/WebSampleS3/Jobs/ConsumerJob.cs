@@ -108,14 +108,15 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <summary>
         /// Handle [OrderPlaced] event.
         /// </summary>
+        /// <param name="consumerMeta">The consumer meta.</param>
         /// <param name="user">The user.</param>
         /// <param name="product">The product.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OrderPlacedAsync(User user, Product product, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OrderPlacedAsync(ConsumerMetadata consumerMeta, User user, Product product, DateTimeOffset time)
         {
             // get the current event metadata
-            Metadata? meta = ConsumerMetadata.Context;
+            Metadata meta = consumerMeta;
 
             _logger.LogInformation("handling OrderPlaced [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, user.email, product.id, time);
             return ValueTask.CompletedTask;
@@ -124,14 +125,15 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <summary>
         /// Handle [Packings] event.
         /// </summary>
+        /// <param name="consumerMeta">The consumer meta.</param>
         /// <param name="email">The email.</param>
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.PackingAsync(string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.PackingAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
-            Metadata? meta = ConsumerMetadata.Context;
+            Metadata meta = consumerMeta;
 
             _logger.LogInformation("handling Packing [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, email, productId, time);
             return ValueTask.CompletedTask;
@@ -140,14 +142,15 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <summary>
         /// Handle [on-delivery] event.
         /// </summary>
+        /// <param name="consumerMeta">The consumer meta.</param>
         /// <param name="email">The email.</param>
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OnDeliveryAsync(string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OnDeliveryAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
-            Metadata? meta = ConsumerMetadata.Context;
+            Metadata meta = consumerMeta;
 
             _logger.LogInformation("handling OnDelivery [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, email, productId, time);
             return ValueTask.CompletedTask;
@@ -156,14 +159,15 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <summary>
         /// Handle [on-received] event.
         /// </summary>
+        /// <param name="consumerMeta">The consumer metadata.</param>
         /// <param name="email">The email.</param>
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OnReceivedAsync(string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OnReceivedAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
-            Metadata? meta = ConsumerMetadata.Context;
+            Metadata meta = consumerMeta;
 
             _logger.LogInformation("handling OnReceived [{message-id}]: email: {email}, product: {productId}, which produce at {time}", meta.MessageId, email, productId, time);
             return ValueTask.CompletedTask;

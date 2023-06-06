@@ -59,16 +59,28 @@ namespace EventSourcing.Backbone
                 if (method is MethodDeclarationSyntax mds)
                 {
                     CopyDocumentation(builder, kind, mds);
+                    var ps = mds.ParameterList.Parameters.Select(GetParameter);
+                    if (ps.Any())
+                        builder.AppendLine("\t\t/// <param name=\"consumerMeta\">The consumer metadata.</param>");
 
 
                     builder.Append("\t\tValueTask");
                     if (isProducer)
                         builder.Append("<EventKeys>");
-                    builder.Append($" {mds.ToNameConvention()}(");
+                    builder.AppendLine($" {mds.ToNameConvention()}(");
 
-                    var ps = mds.ParameterList.Parameters.Select(GetParameter);
+                    if (!isProducer)
+                    {
+                        builder.Append("\t\t\t");
+                        builder.Append("ConsumerMetadata meta");
+                        if (ps.Any())
+                            builder.Append(',');
+                        builder.AppendLine();
+                    }
                     builder.Append("\t\t\t");
-                    builder.Append(string.Join(", ", ps));
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
+                    builder.Append(string.Join(",", ps));
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
                     builder.AppendLine(");");
                     builder.AppendLine();
                 }
