@@ -36,16 +36,15 @@ namespace EventSourcing.Backbone
                             SyntaxReceiverResult info,
                             string[] usingStatements)
         {
-
+#pragma warning disable S1481 // Unused local variables should be removed
             var (type, att, symbol, kind, ns, isProducer, @using) = info;
+#pragma warning restore S1481 // Unused local variables should be removed
             string interfaceName = info.FormatName();
             var builder = new StringBuilder();
             CopyDocumentation(builder, kind, type, "\t");
             var asm = GetType().Assembly.GetName();
             builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
             builder.Append($"\tpublic interface {interfaceName}");
-            // TODO: [bnaya 2023-05-23] make sure to generate the base interfaces
-            // TODO: [bnaya 2023-05-23] SellectMany into interface hierarchic
             var baseTypes = symbol.Interfaces.Select(m => info.FormatName(m.Name));
             string inheritance = string.Join(", ", baseTypes);
             if (string.IsNullOrEmpty(inheritance))
@@ -58,12 +57,18 @@ namespace EventSourcing.Backbone
             {
                 if (method is MethodDeclarationSyntax mds)
                 {
-                    CopyDocumentation(builder, kind, mds);
+                    var sb = new StringBuilder();
+                    CopyDocumentation(sb, kind, mds);
                     var ps = mds.ParameterList.Parameters.Select(GetParameter);
-                    if (ps.Any())
-                        builder.AppendLine("\t\t/// <param name=\"consumerMeta\">The consumer metadata.</param>");
-
-
+                    if (sb.Length != 0 && !isProducer && ps.Any())
+                    {
+                        string summaryEnds = "/// </summary>";
+                        int idxRet = sb.ToString().IndexOf(summaryEnds);
+                        if(idxRet != -1)
+                            sb.Insert(idxRet + summaryEnds.Length, "\r\n\t\t/// <param name=\"consumerMetadata\">The consumer metadata.</param>");
+                    }
+                    builder.Append(sb);
+                    
                     builder.Append("\t\tValueTask");
                     if (isProducer)
                         builder.Append("<EventKeys>");
@@ -72,10 +77,9 @@ namespace EventSourcing.Backbone
                     if (!isProducer)
                     {
                         builder.Append("\t\t\t");
-                        builder.Append("ConsumerMetadata meta");
+                        builder.Append("ConsumerMetadata consumerMetadata");
                         if (ps.Any())
                             builder.Append(',');
-                        builder.AppendLine();
                     }
                     builder.Append("\t\t\t");
 #pragma warning disable RS1035 // Do not use APIs banned for analyzers
