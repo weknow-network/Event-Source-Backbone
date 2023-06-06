@@ -45,7 +45,7 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
                          .Uri(URI)
                          .SubscribeHelloConsumer(_subscriber);
 
-            A.CallTo(() => _subscriber.WorldAsync(5))
+            A.CallTo(() => _subscriber.WorldAsync(A<ConsumerMetadata>.Ignored, 5))
                 .Invokes(() => subscription.DisposeAsync());
 
             await producer.HelloAsync("Hi");
@@ -56,9 +56,9 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
 
             #region Validation
 
-            A.CallTo(() => _subscriber.HelloAsync("Hi"))
+            A.CallTo(() => _subscriber.HelloAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.WorldAsync(5))
+            A.CallTo(() => _subscriber.WorldAsync(A<ConsumerMetadata>.Ignored, 5))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -100,9 +100,9 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
 
             #region Validation
 
-            A.CallTo(() => _subscriber.HelloAsync("Hi"))
+            A.CallTo(() => _subscriber.HelloAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.WorldAsync(5))
+            A.CallTo(() => _subscriber.WorldAsync(A<ConsumerMetadata>.Ignored, 5))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -144,9 +144,9 @@ namespace EventSourcing.Backbone.IntegrationTests.HelloWorld
 
             #region Validation
 
-            A.CallTo(() => _subscriber.HelloAsync("Hi"))
+            A.CallTo(() => _subscriber.HelloAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.WorldAsync(5))
+            A.CallTo(() => _subscriber.WorldAsync(A<ConsumerMetadata>.Ignored, 5))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation

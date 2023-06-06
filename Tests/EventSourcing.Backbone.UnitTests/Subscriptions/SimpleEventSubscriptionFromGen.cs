@@ -21,8 +21,8 @@ namespace EventSourcing.Backbone
 
         #endregion // Ctor
 
-        protected override ValueTask ExecuteAsync(string key, int value) => _target.ExecuteAsync(key, value);
+        protected override ValueTask ExecuteAsync(ConsumerMetadata consumerMetadata, string key, int value) => _target.ExecuteAsync(consumerMetadata, key, value);
 
-        protected override ValueTask RunAsync(int id, DateTime date) => _target.RunAsync(id, date);
+        protected override ValueTask RunAsync(ConsumerMetadata consumerMetadata, int id, DateTime date) => _target.RunAsync(consumerMetadata, id, date);
     }
 }

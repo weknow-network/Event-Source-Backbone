@@ -59,11 +59,11 @@ namespace EventSourcing.Backbone.Tests
             var claimTrigger = new ClaimingTrigger { EmptyBatchCount = 5, MinIdleTime = TimeSpan.FromSeconds(3) };
             _consumerBuilder = consumerBuilder.WithOptions(o => o with { ClaimingTrigger = claimTrigger });
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() => ValueTask.CompletedTask);
-            A.CallTo(() => _subscriber.LoginAsync(A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
-            A.CallTo(() => _subscriber.EarseAsync(A<int>.Ignored))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Delay());
 
             #region  A.CallTo(() => _fakeLogger...)

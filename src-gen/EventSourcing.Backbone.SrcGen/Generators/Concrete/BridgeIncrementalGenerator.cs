@@ -189,6 +189,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t{");
             if (allMethods.Length != 0)
             {
+                builder.AppendLine("\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
                 builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
                 builder.AppendLine("\t\t\t{");
                 foreach (var method in allMethods)
@@ -207,8 +208,8 @@ namespace EventSourcing.Backbone
                         i++;
                     }
                     IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
-
-                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({string.Join(", ", ps)}));");
+                    string metaParam = ps.Any() ? "consumerMetadata, " : "consumerMetadata";
+                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({metaParam}{string.Join(", ", ps)}));");
                     builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
                     builder.AppendLine("\t\t\t\t\treturn true;");
                     builder.AppendLine("\t\t\t\t}");
@@ -257,6 +258,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t\t{");
             if (allMethods.Length != 0)
             {
+                builder.AppendLine("\t\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
                 builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
                 builder.AppendLine("\t\t\t\t{");
                 foreach (var method in allMethods)
@@ -274,8 +276,9 @@ namespace EventSourcing.Backbone
                         builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                         i++;
                     }
+                    string metaParam = prms.Any() ? "consumerMetadata, " : "consumerMetadata";
                     IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
-                    builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({string.Join(", ", ps)});");
+                    builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({metaParam}{string.Join(", ", ps)});");
                     builder.AppendLine("\t\t\t\t\t\treturn true;");
                     builder.AppendLine("\t\t\t\t\t}");
                 }
@@ -293,7 +296,8 @@ namespace EventSourcing.Backbone
 
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
-                builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({string.Join(", ", ps)});");
+                string metaParam = ps.Any() ? "ConsumerMetadata consumerMetadata, " : "ConsumerMetadata consumerMetadata";
+                builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({metaParam}{string.Join(", ", ps)});");
                 builder.AppendLine();
             }
             builder.AppendLine("\t\t}");

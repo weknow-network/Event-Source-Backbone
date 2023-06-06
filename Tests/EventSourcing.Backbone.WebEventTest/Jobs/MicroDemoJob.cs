@@ -79,9 +79,9 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
                 _producer = producer;
             }
 
-            async ValueTask IEventFlowConsumer.Stage1Async(Person PII, string payload)
+            async ValueTask IEventFlowConsumer.Stage1Async(ConsumerMetadata consumerMeta, Person PII, string payload)
             {
-                Metadata? meta = ConsumerMetadata.Context;
+                Metadata meta = consumerMeta.Metadata;
 
                 _logger.LogInformation("Consume First Stage {uri} {PII} {data}",
                     meta?.Uri, PII, payload);
@@ -91,11 +91,11 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
                     JsonDocument.Parse("{\"data\":10}").RootElement);
             }
 
-            ValueTask IEventFlowConsumer.Stage2Async(JsonElement PII, JsonElement data)
+            ValueTask IEventFlowConsumer.Stage2Async(ConsumerMetadata consumerMeta, JsonElement PII, JsonElement data)
             {
-                var meta = ConsumerMetadata.Context;
+                Metadata meta = consumerMeta.Metadata;
                 _logger.LogInformation("Consume 2 Stage {uri} {PII} {data}",
-                    meta?.Metadata?.Uri, PII, data);
+                    meta?.Uri, PII, data);
                 return ValueTask.CompletedTask;
             }
 

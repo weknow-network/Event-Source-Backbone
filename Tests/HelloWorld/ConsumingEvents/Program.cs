@@ -13,7 +13,7 @@ Console.ReadKey(false);
 class Subscription : IHelloEventsConsumer
 {
     public static readonly Subscription Instance = new Subscription();
-    public ValueTask NameAsync(string name)
+    public ValueTask NameAsync(ConsumerMetadata meta,string name)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine();
@@ -21,13 +21,13 @@ class Subscription : IHelloEventsConsumer
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask ColorAsync(ConsoleColor color)
+    public ValueTask ColorAsync(ConsumerMetadata meta, ConsoleColor color)
     {
         Console.ForegroundColor = color;
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask StarAsync()
+    public ValueTask StarAsync(ConsumerMetadata meta)
     {
         Console.Write("✱");
         return ValueTask.CompletedTask;

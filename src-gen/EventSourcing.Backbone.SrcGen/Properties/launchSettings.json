@@ -2,7 +2,7 @@
   "profiles": {
     ".EventSourcing.Backbone.SrcGen": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\PlayGroundAbstraction\\PlayGroundAbstraction.csproj"
+      "targetProject": "..\\EventSourcing.Backbone.SrcGen.Playground\\EventSourcing.Backbone.SrcGen.Playground.csproj"
     }
   }
 }

@@ -119,15 +119,15 @@ namespace EventSourcing.Backbone.Tests
             #region Prepare
 
             var hash = new ConcurrentDictionary<string, int>();
-            A.CallTo(() => _subscriberA.AAsync(1))
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberB.BAsync(A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
             .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.DerivedAsync("Hi"))
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.AAsync(1))
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.BAsync(A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
 
             #endregion // Prepare
@@ -159,15 +159,15 @@ namespace EventSourcing.Backbone.Tests
             if (multiConsumerBehavior == MultiConsumerBehavior.All)
             {
                 Assert.True(hash.All(m => m.Value >= 1));
-                A.CallTo(() => _subscriberA.AAsync(1))
+                A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberB.BAsync(A<DateTimeOffset>.Ignored))
+                A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.DerivedAsync("Hi"))
+                A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.AAsync(1))
+                A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.BAsync(A<DateTimeOffset>.Ignored))
+                A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
                    .MustHaveHappenedOnceExactly();
             }
             else
@@ -205,35 +205,35 @@ namespace EventSourcing.Backbone.Tests
             #region Prepare
 
             var hash = new ConcurrentDictionary<string, int>();
-            A.CallTo(() => _subscriberA.AAsync(1))
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberB.BAsync(A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.DerivedAsync("Hi"))
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.AAsync(1))
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.BAsync(A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
