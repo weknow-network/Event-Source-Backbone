@@ -59,7 +59,9 @@ namespace Microsoft.Extensions.Configuration
             string shortAppName,
             IConnectionMultiplexer redisConnection)
         {
-            // see: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
+            // see:
+            //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
+            //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
 
             Console.WriteLine($"JAEGER endpoint: key='OTEL_EXPORTER_JAEGER_ENDPOINT', env='{hostEnv.EnvironmentName}'"); // will be visible in the pods logs
 
