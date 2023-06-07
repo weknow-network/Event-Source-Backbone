@@ -59,7 +59,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the origin environment of the message.
         /// </summary>
-        public string Environment { get; init; } = string.Empty;
+        public Env Environment { get; init; } = string.Empty;
 
         #endregion  Environment
 
