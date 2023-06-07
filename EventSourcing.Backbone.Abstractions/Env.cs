@@ -1,11 +1,16 @@
-﻿using static System.StringComparison;
+﻿using System.Globalization;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+
+using static System.StringComparison;
 
 namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Common Constants
     /// </summary>
-    public class Env
+    [JsonConverter(typeof(EnvJsonConverter))]
+    public class Env : IEquatable<Env?>
     {
         private readonly string _value;
 
@@ -41,6 +46,16 @@ namespace EventSourcing.Backbone
         /// The result of the conversion.
         /// </returns>
         public static implicit operator string(Env env) => env._value;
+
+        public static bool operator ==(Env? left, Env? right)
+        {
+            return EqualityComparer<Env>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(Env? left, Env? right)
+        {
+            return !(left == right);
+        }
 
         #endregion // Cast overloads
 
@@ -78,5 +93,68 @@ namespace EventSourcing.Backbone
         public override string ToString() => _value;
 
         #endregion // ToString
+
+        #region EnvJsonConverter
+
+        /// <summary>
+        /// Env Json Converter
+        /// </summary>
+        /// <seealso cref="System.Text.Json.Serialization.JsonConverter&lt;EventSourcing.Backbone.Env&gt;" />
+        private sealed class EnvJsonConverter : JsonConverter<Env>
+        {
+            public override Env Read(
+                ref Utf8JsonReader reader,
+                Type typeToConvert,
+                JsonSerializerOptions options) =>
+                    new Env(reader.GetString()!);
+
+            public override void Write(
+                Utf8JsonWriter writer,
+                Env env,
+                JsonSerializerOptions options) =>
+                    writer.WriteStringValue(env.ToString());
+        }
+
+        #endregion // EnvJsonConverter
+
+        #region IEquatable<Env?> members
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+        /// </returns>
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as Env);
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(Env? other)
+        {
+            return other is not null &&
+                   _value == other._value;
+        }
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
+        #endregion // IEquatable<Env?> members
     }
 }
