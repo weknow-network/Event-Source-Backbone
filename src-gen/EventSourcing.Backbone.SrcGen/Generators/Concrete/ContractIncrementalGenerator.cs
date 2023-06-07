@@ -99,7 +99,13 @@ namespace EventSourcing.Backbone
 
             return new[] { new GenInstruction(interfaceName, builder.ToString()) };
 
-            string GetParameter(ParameterSyntax p) => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}";
+            string GetParameter(ParameterSyntax p)
+            {
+                var mod = p.Modifiers.FirstOrDefault();
+                string modifier = mod == null ? string.Empty : $" {mod} ";
+                var result = $"\r\n\t\t\t{modifier}{p.Type} {p.Identifier.ValueText}";
+                return result;
+            }
         }
     }
 }
