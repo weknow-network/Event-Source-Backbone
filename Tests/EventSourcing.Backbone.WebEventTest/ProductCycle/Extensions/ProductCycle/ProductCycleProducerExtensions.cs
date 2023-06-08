@@ -15,6 +15,7 @@ public static class ProductCycleProducerExtensions
     /// </summary>
     /// <param name="services">The services.</param>
     /// <param name="uri">The URI.</param>
+    /// <param name="s3Bucket">The s3 bucket.</param>
     /// <param name="env">The environment.</param>
     /// <returns></returns>
     public static IServiceCollection AddProductCycleProducer
