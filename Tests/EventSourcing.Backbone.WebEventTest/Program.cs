@@ -42,7 +42,7 @@ services.AddSwaggerGen(
             Title = "Environment setup",
             Description = @"<p><b>Use the following docker in order to setup the environment</b></p>
 <p>docker run -p 6379:6379 -it --rm --name redis-Json redislabs/rejson:latest</p>
-<p>docker run --rm -it --name jaeger -p 13133:13133 -p 16686:16686 -p 4317:55680 jaegertracing/opentelemetry-all-in-one</p>
+<p>docker run --name jaeger-otel  --rm -it -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 -p 4317:4317 -p 4318:4318  jaegertracing/all-in-one:latest</p>
 ",
         });
     });
@@ -69,7 +69,7 @@ services.AddHttpClient("migration", c =>
  });
 
 IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-services.AddOpenTelemetry(environment, shortAppName, redisConnection);
+services.AddOpenTelemetryForEventSourcing(environment);
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection

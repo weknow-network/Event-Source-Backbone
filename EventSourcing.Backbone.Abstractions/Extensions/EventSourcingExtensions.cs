@@ -14,10 +14,11 @@ public static class EventSourcingExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <returns></returns>
-    public static TracerProviderBuilder ListenToEventSourceRedisChannel(this TracerProviderBuilder builder) =>
-                                                            builder.AddSource(
-                                                                EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE,
-                                                                EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
+    public static TracerProviderBuilder ListenToEventSourceRedisChannel(
+                                                this TracerProviderBuilder builder) =>
+                                                        builder.AddSource(
+                                                            EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE,
+                                                            EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
 
     #region ExtractSpan
 
