@@ -11,9 +11,9 @@
         /// Execute.
         /// </summary>
         /// <param name="i">The i.</param>
-        /// <param name="s">The s.</param>
+        /// <param name="operation">The operation.</param>
         /// <param name="notes">The notes.</param>
         /// <returns></returns>
-        ValueTask ExecAsync(int i, string s, params string[] notes);
+        ValueTask ExecAsync(int i, string operation, params string[] notes);
     }
 }

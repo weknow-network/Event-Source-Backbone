@@ -46,6 +46,11 @@ services.AddSwaggerGen(
 ",
         });
     });
+
+services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
+services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
+
+services.AddHostedService<ConsumerJob>();
 services.AddHostedService<MicroDemoJob>();
 services.AddHostedService<MigrationJob>();
 string fwPort = Environment.GetEnvironmentVariable("FW") ?? "MISSING-PORT";
@@ -69,11 +74,14 @@ services.AddHttpClient("migration", c =>
  });
 
 IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-services.AddOpenTelemetryForEventSourcing(environment);
+//services.AddOpenTelemetryForEventSourcing(environment);
+services.AddOpenTelemetry(environment, shortAppName, redisConnection);
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
 services.AddEventSourceRedisConnection();
+services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
+services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 services.AddEventSource(env);
 
 void RedisConfigEnrichment(ConfigurationOptions configuration)

@@ -47,8 +47,7 @@ public static class EventSourcingOtel
                 {
                     tracerProviderBuilder
                         .AddSource(appName)
-                        .ConfigureResource(resource => resource
-                            .AddService(appName))
+                        .ConfigureResource(resource => resource.AddService(appName))
                         .AddAspNetCoreInstrumentation(m =>
                         {
                             m.Filter = filtering;
@@ -69,14 +68,11 @@ public static class EventSourcingOtel
                         tracerProviderBuilder.AddConsoleExporter(options =>
                                                     options.Targets = ConsoleExporterOutputTargets.Console);
                     }
-                    if (Debugger.IsAttached)
-                        tracerProviderBuilder.AddConsoleExporter();
                 })
                 .WithMetrics(metricsProviderBuilder =>
                 {
                     metricsProviderBuilder
-                        .ConfigureResource(resource => resource
-                            .AddService(appName))
+                        .ConfigureResource(resource => resource.AddService(appName))
                         .AddMeter(appName)
                         .AddAspNetCoreInstrumentation(
                         //m => {
@@ -84,7 +80,7 @@ public static class EventSourcingOtel
                         //}
                         )
                         .AddOtlpExporter();
-                    if (Debugger.IsAttached)
+                    if (hostEnv.IsDevelopment())
                         metricsProviderBuilder.AddConsoleExporter();
                 });
 

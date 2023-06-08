@@ -23,6 +23,7 @@
 		<PackageReference Include="OpenTelemetry.Api" Version="1.5.0" />
 		<PackageReference Include="Polly" Version="7.2.3" />
 		<PackageReference Include="Bnaya.Extensions.Json" Version="5.1.159" />
+		<PackageReference Include="Bnaya.Extensions.DependencyInjection" Version="1.1.54" />
 	</ItemGroup>
 
 	<ItemGroup>
