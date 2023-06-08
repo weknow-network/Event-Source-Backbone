@@ -11,12 +11,12 @@ using static EventSourcing.Backbone.Helper;
 namespace EventSourcing.Backbone
 {
     [Generator]
-    internal class ContractncrementalGenerator : GeneratorIncrementalBase
+    internal class ContractIncrementalGenerator : GeneratorIncrementalBase
     {
         private const string TARGET_ATTRIBUTE = "EventsContract";
         private readonly BridgeIncrementalGenerator _bridge = new();
 
-        public ContractncrementalGenerator() : base(TARGET_ATTRIBUTE)
+        public ContractIncrementalGenerator() : base(TARGET_ATTRIBUTE)
         {
 
         }

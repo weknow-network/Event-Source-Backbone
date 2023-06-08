@@ -53,7 +53,6 @@ namespace EventSourcing.Backbone
                 char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
-            string ns = info.Symbol.ContainingNamespace.ToDisplayString();
 
             var dtos = EntityGenerator.GenerateEntities(prefix, info, interfaceName, generateFrom, assemblyName);
             GenInstruction[] gens =
@@ -400,20 +399,20 @@ namespace EventSourcing.Backbone
             builder.Append(string.Join(", ", ps));
             builder.AppendLine(")");
             builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\tvar operation = nameof({interfaceName}.{mtdName});");
+            builder.AppendLine($"\t\t\tvar operation_ = nameof({interfaceName}.{mtdName});");
             int i = 0;
             var prms = mds.Parameters;
             foreach (var pName in from p in prms
                                   let pName = p.Name
                                   select pName)
             {
-                builder.AppendLine($"\t\t\tvar classification{i} = CreateClassificationAdaptor(operation, nameof({pName}), {pName});");
+                builder.AppendLine($"\t\t\tvar classification_{i}_ = CreateClassificationAdaptor(operation_, nameof({pName}), {pName});");
                 i++;
             }
 
-            var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification{m}");
+            var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification_{m}_");
 
-            builder.Append($"\t\t\treturn await SendAsync(operation");
+            builder.Append($"\t\t\treturn await SendAsync(operation_");
             if (classifications.Any())
                 builder.AppendLine($", {string.Join(", ", classifications)});");
             else

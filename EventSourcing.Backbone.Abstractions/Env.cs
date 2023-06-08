@@ -10,7 +10,7 @@ namespace EventSourcing.Backbone
     /// Common Constants
     /// </summary>
     [JsonConverter(typeof(EnvJsonConverter))]
-    public class Env : IEquatable<Env?>
+    public sealed class Env : IEquatable<Env?>
     {
         private readonly string _value;
 
@@ -99,7 +99,6 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Env Json Converter
         /// </summary>
-        /// <seealso cref="System.Text.Json.Serialization.JsonConverter&lt;EventSourcing.Backbone.Env&gt;" />
         private sealed class EnvJsonConverter : JsonConverter<Env>
         {
             public override Env Read(
