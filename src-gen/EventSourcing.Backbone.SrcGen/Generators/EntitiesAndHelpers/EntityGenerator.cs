@@ -152,7 +152,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {interfaceName}_EntityFamily");
             builder.AppendLine("\t\t\t{");
-            builder.AppendLine("\t\t\t\tvar operation = announcement.Metadata.Operation;");
+            builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
 
             int j = 0;
             foreach (var method in item.Members)
@@ -165,7 +165,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
                 string nameOfOperetion = $"{info.Name ?? interfaceName}.{mtdName}";
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";
-                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation == nameof({nameOfOperetion}))");
+                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation_ == nameof({nameOfOperetion}))");
                 builder.AppendLine("\t\t\t\t{");
                 builder.AppendLine($"\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
                 builder.AppendLine("\t\t\t\t\t{");
