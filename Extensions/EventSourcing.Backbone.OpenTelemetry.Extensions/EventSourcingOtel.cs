@@ -20,18 +20,40 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class EventSourcingOtel
 {
     /// <summary>
+    /// The name of redis consumer channel source
+    /// </summary>
+    public const string REDIS_CONSUMER_CHANNEL_SOURCE = "redis-consumer-channel";
+    /// <summary>
+    /// The name of redis producer channel source
+    /// </summary>
+    public const string REDIS_PRODUCER_CHANNEL_SOURCE = "redis-producer-channel";
+
+    /// <summary>
+    /// Adds the event consumer telemetry source (will result in tracing the consumer).
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    private static TracerProviderBuilder ListenToEventSourceRedisChannel(
+                                                this TracerProviderBuilder builder) =>
+                                                        builder.AddSource(
+                                                            REDIS_CONSUMER_CHANNEL_SOURCE,
+                                                            REDIS_PRODUCER_CHANNEL_SOURCE);
+
+    /// <summary>
     /// Adds the  open-telemetry binding.
     /// </summary>
     /// <param name="services">The services.</param>
     /// <param name="hostEnv">The host env.</param>
     /// <param name="filter">The filter.</param>
     /// <param name="sampler">The sampler.</param>
+    /// <param name="additionalSources">The additional list of subscribe sources for the telemetry.</param>
     /// <returns></returns>
     public static IServiceCollection AddOpenTelemetryForEventSourcing(
         this IServiceCollection services,
         IHostEnvironment hostEnv,
         Func<HttpContext, bool>? filter = null,
-        Sampler? sampler = null)
+        Sampler? sampler = null,
+        params string[] additionalSources)
     {
         // see:
         //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
@@ -45,8 +67,16 @@ public static class EventSourcingOtel
         services.AddOpenTelemetry()
                 .WithTracing(tracerProviderBuilder =>
                 {
+                    var sources = new[] { appName,
+                                           REDIS_CONSUMER_CHANNEL_SOURCE,
+                                           REDIS_PRODUCER_CHANNEL_SOURCE};
+                    if(additionalSources != null && additionalSources.Length != 0) 
+                    {
+                        sources = sources.Concat(additionalSources).ToArray();
+                    }
+
                     tracerProviderBuilder
-                        .AddSource(appName)
+                        .AddSource(sources)
                         .ConfigureResource(resource => resource.AddService(appName))
                         .AddAspNetCoreInstrumentation(m =>
                         {

@@ -73,9 +73,9 @@ services.AddHttpClient("migration", c =>
      c.DefaultRequestHeaders.Add("wk-pattern", "migration");
  });
 
-IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-//services.AddOpenTelemetryForEventSourcing(environment);
-services.AddOpenTelemetry(environment, shortAppName, redisConnection);
+//IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
+services.AddOpenTelemetryForEventSourcing(environment);
+//services.AddOpenTelemetry(environment, shortAppName, redisConnection);
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
@@ -84,12 +84,12 @@ services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKE
 services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 services.AddEventSource(env);
 
-void RedisConfigEnrichment(ConfigurationOptions configuration)
-{
-    configuration.ReconnectRetryPolicy = new RedisReconnectRetryPolicy();
-    configuration.ClientName = "Web Test";
-}
-services.AddSingleton<Action<ConfigurationOptions>>(RedisConfigEnrichment);
+//void RedisConfigEnrichment(ConfigurationOptions configuration)
+//{
+//    configuration.ReconnectRetryPolicy = new RedisReconnectRetryPolicy();
+//    configuration.ClientName = "Web Test";
+//}
+//services.AddSingleton<Action<ConfigurationOptions>>(RedisConfigEnrichment);
 
 services.AddControllers()
                 .WithJsonOptions();
