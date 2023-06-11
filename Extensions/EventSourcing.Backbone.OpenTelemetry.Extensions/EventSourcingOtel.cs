@@ -110,8 +110,8 @@ public static class EventSourcingOtel
                         //}
                         )
                         .AddOtlpExporter();
-                    if (hostEnv.IsDevelopment())
-                        metricsProviderBuilder.AddConsoleExporter();
+                    //if (hostEnv.IsDevelopment())
+                    //    metricsProviderBuilder.AddConsoleExporter();
                 });
 
         return services;
@@ -132,7 +132,9 @@ public static class EventSourcingOtel
                 path == "/api/v2/write" || // influx metrics
                 path == "/_bulk" ||
                 path.StartsWith("/swagger") ||
-                path.IndexOf("health-check") != -1)
+                path.IndexOf("health-check") != -1 ||
+                path == "/_framework/aspnetcore-browser-refresh.js" ||
+                path.StartsWith("/_vs/"))
             {
                 return false;
             }
