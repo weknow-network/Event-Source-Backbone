@@ -93,9 +93,18 @@ namespace EventSourcing.Backbone
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
         {
-            IAmazonS3 s3Client = builder.ServiceProvider.GetService<IAmazonS3>() ?? throw new EventSourcingException("IAmazonS3 is not registered");
-            IProducerStoreStrategyBuilder result = builder.AddS3Storage(s3Client, options, targetType, filter);
-            return result;
+            ILogger? logger = builder.ServiceProvider.GetService<ILogger<S3Options>>();
+            IAmazonS3? s3Client = builder.ServiceProvider.GetService<IAmazonS3>();
+
+            if (s3Client != null)
+            {
+                IProducerStoreStrategyBuilder injectionResult = builder.AddS3Storage(s3Client, options, targetType, filter);
+                logger?.LogInformation("Producer, Resolving AWS S3 via IAmazonS3 injection (might be via profile)");
+                return injectionResult;
+            }
+            logger?.LogInformation("Producer, Resolving AWS S3 via environment variable");
+            IProducerStoreStrategyBuilder envVarResult = builder.AddS3Storage(options, targetType, filter);
+            return envVarResult;
         }
     }
 }

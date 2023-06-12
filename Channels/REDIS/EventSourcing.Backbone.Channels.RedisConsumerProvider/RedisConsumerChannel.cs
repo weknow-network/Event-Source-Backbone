@@ -478,6 +478,22 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                         plan.ConsumerGroup,
                                         logger);
                             }
+                            catch (RedisServerException ex) 
+                            {
+                                logger?.LogWarning(ex, ex.Message);
+                                //await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                                //        key,
+                                //        plan.ConsumerGroup,
+                                //        logger);
+                            }
+                            catch (Exception ex) 
+                            {
+                                logger?.LogWarning(ex, ex.Message);
+                                //await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                                //        key,
+                                //        plan.ConsumerGroup,
+                                //        logger);
+                            }
 
                             #endregion // Exception Handling
                         }

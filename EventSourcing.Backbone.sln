@@ -73,6 +73,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventSourcing.Backbone.OpenTelemetry.Extensions", "Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions.csproj", "{74F90FB5-198F-4B90-ACBD-F89E4F81FA1B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specialized", "Specialized", "{DB106708-EA65-4FD3-9362-950CA07DB2E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Events.WebTest.Abstractions", "Tests\Specialized\Tests.Events.WebTest.Abstractions\Tests.Events.WebTest.Abstractions.csproj", "{8E90962C-870D-49C6-A260-585D16F13614}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Events.ProducerWebTest.Service", "Tests\Specialized\Tests.Events.ProducerWebTest.Service\Tests.Events.ProducerWebTest.Service.csproj", "{ED906FBD-F8BB-40D5-8629-00CE0F963681}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Events.ConsumerWebTest.Service", "Tests\Specialized\Tests.Events.ConsumerWebTest.Service\Tests.Events.ConsumerWebTest.Service.csproj", "{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +195,24 @@ Global
 		{74F90FB5-198F-4B90-ACBD-F89E4F81FA1B}.Gen|Any CPU.Build.0 = Gen|Any CPU
 		{74F90FB5-198F-4B90-ACBD-F89E4F81FA1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74F90FB5-198F-4B90-ACBD-F89E4F81FA1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Gen|Any CPU.ActiveCfg = Gen|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Gen|Any CPU.Build.0 = Gen|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E90962C-870D-49C6-A260-585D16F13614}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Gen|Any CPU.ActiveCfg = Gen|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Gen|Any CPU.Build.0 = Gen|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Gen|Any CPU.ActiveCfg = Gen|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Gen|Any CPU.Build.0 = Gen|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -214,6 +240,10 @@ Global
 		{B528D83E-1AB9-4461-BA5E-993FF882F85B} = {9A1275C5-2299-4560-ABB6-CE56B9175CF7}
 		{7A749C43-60F4-4DDC-894C-5E407B08A3A9} = {4DE45B98-D18F-4E1D-9D2F-A4E40C11BC1F}
 		{74F90FB5-198F-4B90-ACBD-F89E4F81FA1B} = {2C4E653D-8B7A-48BA-A9DB-F9707BC04380}
+		{DB106708-EA65-4FD3-9362-950CA07DB2E6} = {4DE45B98-D18F-4E1D-9D2F-A4E40C11BC1F}
+		{8E90962C-870D-49C6-A260-585D16F13614} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
+		{ED906FBD-F8BB-40D5-8629-00CE0F963681} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
+		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {103E4CA1-859C-4E6A-9F2D-7FD54A8E687C}

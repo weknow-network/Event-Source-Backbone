@@ -377,8 +377,14 @@ namespace EventSourcing.Backbone.Channels
                 }
                 catch { }
                 _logger.LogError(e.FormatLazy(),
-                        "AWS-S3 Failed to write: {payload}, {env}, {id}, {bucket}, {key}", json, env, id, bucket, key);
-                string msg = $"AWS-S3 Failed to write: {env}, {id}, {bucket}, {key}";
+                        """
+                                AWS-S3 Failed to write: {payload}, {env}, {id}, {bucket}, {key}
+                                Make sure to that the bucket exists & credentials sets right.
+                                """, json, env, id, bucket, key);
+                string msg = $"""
+                            AWS-S3 Failed to write: {env}, {id}, {bucket}, {key}
+                            Make sure to that the bucket exists & credentials sets right.
+                            """;
                 throw new EventSourcingException(msg, e);
             }
             catch (Exception e)
