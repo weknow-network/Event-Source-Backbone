@@ -1,7 +1,10 @@
-using Tests.Events.WebTest.Abstractions;
 using System.Text.Json;
+
 using EventSourcing.Backbone;
+
 using Microsoft.AspNetCore.Mvc;
+
+using Tests.Events.WebTest.Abstractions;
 
 namespace Tests.Events.ConsumerWebTest.Controllers;
 
@@ -17,7 +20,7 @@ public class ProductCycleConsumerController : ControllerBase
         IKeyed<IConsumerReadyBuilder> consumerBuilderKeyed)
     {
         _logger = logger;
-        if (!consumerBuilderKeyed.TryGet(ProductCycleConstants.URI, out var consumerBuilder)) 
+        if (!consumerBuilderKeyed.TryGet(ProductCycleConstants.URI, out var consumerBuilder))
             throw new EventSourcingException($"The Consumer's registration found under the [{ProductCycleConstants.URI}] key.");
         _receiver = consumerBuilder.BuildReceiver();
     }

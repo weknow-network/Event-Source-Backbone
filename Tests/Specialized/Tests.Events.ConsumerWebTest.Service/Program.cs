@@ -1,7 +1,8 @@
-using Tests.Events.ConsumerWebTest;
-using Tests.Events.WebTest.Abstractions;
-using Tests.Events.ConsumerWebTest.Controllers;
 using Microsoft.OpenApi.Models;
+
+using Tests.Events.ConsumerWebTest;
+using Tests.Events.ConsumerWebTest.Controllers;
+using Tests.Events.WebTest.Abstractions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,7 @@ builder.Services.AddSwaggerGen(
 <p>docker run --name jaeger-otel  --rm -it -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 -p 4317:4317 -p 4318:4318  jaegertracing/all-in-one:latest</p>
 ",
         });
-    }); 
+    });
 
 var app = builder.Build();
 
@@ -66,5 +67,5 @@ var logger = app.Services.GetService<ILogger<Program>>();
 List<string> switches = new();
 switches.Add("Consumer");
 logger.LogInformation("Service Configuration Event Sourcing `{event-bundle}` on URI: `{URI}`, Features: [{features}]", "ProductCycle", ProductCycleConstants.URI, string.Join(", ", switches));
-    
+
 app.Run();

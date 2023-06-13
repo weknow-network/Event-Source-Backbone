@@ -13,7 +13,7 @@ Console.ReadKey(false);
 class Subscription : IHelloEventsConsumer
 {
     public static readonly Subscription Instance = new Subscription();
-    public ValueTask NameAsync(ConsumerMetadata meta,string name)
+    public ValueTask NameAsync(ConsumerMetadata meta, string name)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine();

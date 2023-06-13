@@ -31,7 +31,7 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// When completed
         /// </returns>
-        public async ValueTask SubsribeAsync(
+        public async ValueTask SubscribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken)

@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Headers;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -137,9 +135,9 @@ namespace EventSourcing.Backbone.Private
                                                 {CurrentInfo()}
                                                 """);
                     }
-                    catch (ObjectDisposedException ex)
+                    catch (ObjectDisposedException)
                     {
-                        logger.LogWarning( $"""
+                        logger.LogWarning($"""
                                                 {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
                                                 Connection might not being available 
                                                 {CurrentInfo()}
@@ -148,7 +146,7 @@ namespace EventSourcing.Backbone.Private
 
                     catch (Exception ex)
                     {
-                        logger.LogWarning( ex, $"""
+                        logger.LogWarning(ex, $"""
                                                 {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
                                                 unexpected failure 
                                                 {CurrentInfo()}

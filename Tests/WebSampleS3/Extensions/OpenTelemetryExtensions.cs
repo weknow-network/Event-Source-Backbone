@@ -72,9 +72,9 @@ internal static class OpenTelemetryExtensions
         "/health" => false,
         "/readiness" => false,
         "/metrics" => false,
-        string x when x.StartsWith("/swagger")  => false,
-        string x when x.StartsWith("/_framework/")  => false,
-        string x when x.StartsWith("/_vs/")  => false,
+        string x when x.StartsWith("/swagger") => false,
+        string x when x.StartsWith("/_framework/") => false,
+        string x when x.StartsWith("/_vs/") => false,
         _ => true
     };
 

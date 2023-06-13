@@ -69,7 +69,7 @@ namespace Microsoft.Extensions.Configuration
             services.AddOpenTelemetry()
                 .WithTracing(builder =>
                 {
-                    var tracerProviderBuilder = builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
                         .AddService(shortAppName))
                         .ListenToEventSourceRedisChannel()
                         // .SetSampler<AlwaysOnSampler>()

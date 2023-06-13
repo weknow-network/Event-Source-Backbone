@@ -15,7 +15,7 @@ public static class ConsumerExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI.</param>
     /// <returns></returns>
-    public static WebApplicationBuilder AddConsumer (
+    public static WebApplicationBuilder AddConsumer(
         this WebApplicationBuilder builder,
         string uri)
     {
@@ -25,7 +25,7 @@ public static class ConsumerExtensions
 
         services.AddSingleton(ioc =>
         {
-            return BuildConsumer(uri, env, ioc 
+            return BuildConsumer(uri, env, ioc
             );
         });
 
@@ -39,7 +39,7 @@ public static class ConsumerExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI of the stream (which is also used as the DI key).</param>
     /// <returns></returns>
-    public static WebApplicationBuilder AddKeyedConsumer (
+    public static WebApplicationBuilder AddKeyedConsumer(
         this WebApplicationBuilder builder,
         string uri)
     {

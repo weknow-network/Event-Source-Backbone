@@ -1,7 +1,4 @@
-﻿using EventSourcing.Backbone;
-
-// Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
-
+﻿// Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 
 namespace EventSourcing.Backbone.WebEventTest;
 
@@ -26,7 +23,7 @@ public static class ConsumerExtensions
         Env env)
     {
         var s3Options = new S3Options { Bucket = s3Bucket };
-        services.AddKeyedSingleton( ioc =>
+        services.AddKeyedSingleton(ioc =>
         {
             IConsumerReadyBuilder consumer =
                         ioc.ResolveRedisConsumerChannel()

@@ -1,7 +1,4 @@
-﻿using EventSourcing.Backbone;
-
-// Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
-
+﻿// Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 
 namespace EventSourcing.Backbone.WebEventTest;
 

@@ -8,7 +8,7 @@ namespace EventSourcing.Backbone
     /// It represent the operation's intent or represent event.
     /// </summary>
     [DebuggerDisplay("{Metadata.Uri} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
-    public sealed class ConsumerMetadata: IAckOperations
+    public sealed class ConsumerMetadata : IAckOperations
     {
         internal static readonly AsyncLocal<ConsumerMetadata> _metaContext = new AsyncLocal<ConsumerMetadata>();
 

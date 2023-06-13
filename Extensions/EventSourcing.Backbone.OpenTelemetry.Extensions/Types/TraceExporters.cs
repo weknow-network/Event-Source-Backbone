@@ -7,7 +7,7 @@
 public enum TraceExporters
 {
     None = 0,
-    Otlp =  1,
+    Otlp = 1,
     DevConsole = Otlp * 2,
     Default = Otlp | DevConsole
 }

@@ -125,7 +125,7 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored,"Id", 1))
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored, "Id", 1))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 1, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();

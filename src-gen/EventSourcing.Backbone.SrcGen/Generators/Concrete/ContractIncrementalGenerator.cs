@@ -64,11 +64,11 @@ namespace EventSourcing.Backbone
                     {
                         string summaryEnds = "/// </summary>";
                         int idxRet = sb.ToString().IndexOf(summaryEnds);
-                        if(idxRet != -1)
+                        if (idxRet != -1)
                             sb.Insert(idxRet + summaryEnds.Length, "\r\n\t\t/// <param name=\"consumerMetadata\">The consumer metadata.</param>");
                     }
                     builder.Append(sb);
-                    
+
                     builder.Append("\t\tValueTask");
                     if (isProducer)
                         builder.Append("<EventKeys>");

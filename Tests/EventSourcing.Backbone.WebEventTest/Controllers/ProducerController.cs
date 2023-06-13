@@ -1,8 +1,4 @@
-using EventSourcing.Backbone;
-
 using Microsoft.AspNetCore.Mvc;
-
-using EventSourcing.Backbone.WebEventTest;
 
 namespace EventSourcing.Backbone.WebEventTest.Controllers;
 

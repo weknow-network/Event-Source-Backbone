@@ -1,5 +1,4 @@
-﻿using EventSourcing.Backbone;
-using EventSourcing.Backbone.Building;
+﻿using EventSourcing.Backbone.Building;
 
 namespace EventSourcing.Backbone.WebEventTest;
 
@@ -24,8 +23,9 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
     /// Initializes a new instance.
     /// </summary>
     /// <param name="logger">The logger.</param>
-    /// <param name="consumerBuilder">The builder.</param>
+    /// <param name="consumerBuilderKeyed">The consumer builder keyed.</param>
     /// <param name="producer">The producer.</param>
+    /// <exception cref="EventSourcing.Backbone.EventSourcingException">consumer is missing DI</exception>
     public ConsumerJob(
         ILogger<ConsumerJob> logger,
         IKeyed<IConsumerReadyBuilder> consumerBuilderKeyed,

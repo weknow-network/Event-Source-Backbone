@@ -9,8 +9,6 @@ using Microsoft.OpenApi.Models;
 
 using Refit;
 
-using StackExchange.Redis;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());

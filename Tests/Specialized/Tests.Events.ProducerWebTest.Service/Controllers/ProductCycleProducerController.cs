@@ -1,7 +1,9 @@
-using Tests.Events.WebTest.Abstractions;
-using Tests.Events.ProducerWebTest.Service.Entities;
 using EventSourcing.Backbone;
+
 using Microsoft.AspNetCore.Mvc;
+
+using Tests.Events.ProducerWebTest.Service.Entities;
+using Tests.Events.WebTest.Abstractions;
 
 namespace Tests.Events.ProducerWebTest.Controllers;
 
@@ -17,7 +19,7 @@ public class ProductCycleProducerController : ControllerBase
         IKeyed<IProductCycleProducer> producerKeyed)
     {
         _logger = logger;
-        if (!producerKeyed.TryGet(ProductCycleConstants.URI, out var producer)) 
+        if (!producerKeyed.TryGet(ProductCycleConstants.URI, out var producer))
             throw new EventSourcingException($"Producer's registration found under the [{ProductCycleConstants.URI}] key.");
         _producer = producer;
     }

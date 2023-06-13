@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Backbone;
+
 using Tests.Events.WebTest.Abstractions;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732

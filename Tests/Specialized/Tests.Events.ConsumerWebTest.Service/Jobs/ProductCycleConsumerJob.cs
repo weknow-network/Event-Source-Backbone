@@ -1,7 +1,7 @@
-﻿using Tests.Events.WebTest.Abstractions;
-
-using EventSourcing.Backbone;
+﻿using EventSourcing.Backbone;
 using EventSourcing.Backbone.Building;
+
+using Tests.Events.WebTest.Abstractions;
 
 namespace Tests.Events.ConsumerWebTest.Controllers;
 
@@ -30,7 +30,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         ILogger<ConsumerJob> logger,
         IKeyed<IConsumerReadyBuilder> consumerBuilderKeyed)
     {
-        if (!consumerBuilderKeyed.TryGet(ProductCycleConstants.URI, out var consumerBuilder)) 
+        if (!consumerBuilderKeyed.TryGet(ProductCycleConstants.URI, out var consumerBuilder))
             throw new EventSourcingException($"Consumer's registration found under the [{ProductCycleConstants.URI}] key.");
         _builder = consumerBuilder.WithLogger(logger);
         _logger = logger;

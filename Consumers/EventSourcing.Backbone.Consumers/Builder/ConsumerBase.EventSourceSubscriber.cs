@@ -55,7 +55,7 @@ namespace EventSourcing.Backbone
                 _maxMessages = _options.MaxMessages;
                 _handlers = new ConcurrentQueue<Handler>(handlers);
 
-                _subscriptionLifetime = channel.SubsribeAsync(
+                _subscriptionLifetime = channel.SubscribeAsync(
                                                     plan,
                                                     ConsumingAsync,
                                                     _disposeCancellation.Token);

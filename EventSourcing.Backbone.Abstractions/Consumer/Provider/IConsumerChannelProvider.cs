@@ -15,7 +15,7 @@
         /// <returns>
         /// When completed
         /// </returns>
-        ValueTask SubsribeAsync(
+        ValueTask SubscribeAsync(
                     IConsumerPlan plan,
                     Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken);

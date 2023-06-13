@@ -1,8 +1,5 @@
 using Amazon.S3;
 
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
-
 using WebSample.Extensions;
 
 using WebSampleS3;
