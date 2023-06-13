@@ -13,18 +13,20 @@ public static class ShipmentTrackingProducerExtensions
     /// <summary>
     /// Adds the shipment tracking producer.
     /// </summary>
-    /// <param name="services">The services.</param>
+    /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI.</param>
     /// <param name="s3Bucket">The s3 bucket.</param>
-    /// <param name="env">The environment.</param>
     /// <returns></returns>
-    public static IServiceCollection AddShipmentTrackingProducer
+    public static WebApplicationBuilder AddShipmentTrackingProducer
         (
-        this IServiceCollection services,
+        this WebApplicationBuilder builder,
         string uri,
-        string s3Bucket,
-        Env env)
+        string s3Bucket)
     {
+        IWebHostEnvironment environment = builder.Environment;
+        string env = environment.EnvironmentName;
+        IServiceCollection services = builder.Services;
+
         var s3Options = new S3Options { Bucket = s3Bucket };
         services.AddSingleton(ioc =>
         {
@@ -38,6 +40,6 @@ public static class ShipmentTrackingProducerExtensions
             return producer;
         });
 
-        return services;
+        return builder;
     }
 }

@@ -12,37 +12,41 @@ public static class ConsumerExtensions
     /// <summary>
     /// Register a consumer.
     /// </summary>
-    /// <param name="services">The services.</param>
+    /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI.</param>
-    /// <param name="env">The environment.</param>
     /// <returns></returns>
-    public static IServiceCollection AddConsumer (
-        this IServiceCollection services,
-        string uri,
-        Env env)
+    public static WebApplicationBuilder AddConsumer (
+        this WebApplicationBuilder builder,
+        string uri)
     {
+        IServiceCollection services = builder.Services;
+        IWebHostEnvironment environment = builder.Environment;
+        string env = environment.EnvironmentName;
+
         services.AddSingleton(ioc =>
         {
             return BuildConsumer(uri, env, ioc 
             );
         });
 
-        return services;
+        return builder;
     }
 
     /// <summary>
     /// Register a consumer when the URI of the service used as the registration's key.
     /// See: https://medium.com/weknow-network/keyed-dependency-injection-using-net-630bd73d3672
     /// </summary>
-    /// <param name="services">The services.</param>
+    /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI of the stream (which is also used as the DI key).</param>
-    /// <param name="env">The environment.</param>
     /// <returns></returns>
-    public static IServiceCollection AddKeyedConsumer (
-        this IServiceCollection services,
-        string uri,
-        Env env)
+    public static WebApplicationBuilder AddKeyedConsumer (
+        this WebApplicationBuilder builder,
+        string uri)
     {
+        IServiceCollection services = builder.Services;
+        IWebHostEnvironment environment = builder.Environment;
+        string env = environment.EnvironmentName;
+
         services.AddKeyedSingleton(ioc =>
         {
             return BuildConsumer(uri
@@ -51,7 +55,7 @@ public static class ConsumerExtensions
                                 );
         }, uri);
 
-        return services;
+        return builder;
     }
 
     /// <summary>

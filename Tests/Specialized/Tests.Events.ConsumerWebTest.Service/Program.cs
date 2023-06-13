@@ -13,10 +13,12 @@ var services = builder.Services;
 IWebHostEnvironment environment = builder.Environment;
 string env = environment.EnvironmentName;
 
-services.AddOpenTelemetryForEventSourcing(environment);
+services.AddOpenTelemetry()
+        .WithEventSourcingTracing(environment)
+        .WithEventSourcingMetrics(environment);
 
 services.AddEventSourceRedisConnection();
-services.AddKeyedConsumer(ProductCycleConstants.URI, env);
+builder.AddKeyedConsumer(ProductCycleConstants.URI);
 
 services.AddHostedService<ConsumerJob>();
 

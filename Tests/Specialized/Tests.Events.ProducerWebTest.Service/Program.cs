@@ -1,7 +1,7 @@
+using Microsoft.OpenApi.Models;
+
 using Tests.Events.ProducerWebTest;
 using Tests.Events.WebTest.Abstractions;
-using Tests.Events.ProducerWebTest.Controllers;
-using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +13,12 @@ var services = builder.Services;
 IWebHostEnvironment environment = builder.Environment;
 string env = environment.EnvironmentName;
 
-services.AddOpenTelemetryForEventSourcing(environment);
+services.AddOpenTelemetry()
+        .WithEventSourcingTracing(environment)
+        .WithEventSourcingMetrics(environment);
 
 services.AddEventSourceRedisConnection();
-services.AddKeyedProductCycleProducer(ProductCycleConstants.URI, env);
+builder.AddKeyedProductCycleProducer(ProductCycleConstants.URI);
 
 
 
@@ -42,7 +44,7 @@ builder.Services.AddSwaggerGen(
 <p>docker run --name jaeger-otel  --rm -it -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686 -p 4317:4317 -p 4318:4318  jaegertracing/all-in-one:latest</p>
 ",
         });
-    }); 
+    });
 
 var app = builder.Build();
 
@@ -63,5 +65,5 @@ var logger = app.Services.GetService<ILogger<Program>>();
 List<string> switches = new();
 switches.Add("Producer");
 logger.LogInformation("Service Configuration Event Sourcing `{event-bundle}` on URI: `{URI}`, Features: [{features}]", "ProductCycle", ProductCycleConstants.URI, string.Join(", ", switches));
-    
+
 app.Run();

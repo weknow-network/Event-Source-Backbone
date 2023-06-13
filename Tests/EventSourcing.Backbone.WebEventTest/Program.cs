@@ -74,7 +74,9 @@ services.AddHttpClient("migration", c =>
  });
 
 //IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-services.AddOpenTelemetryForEventSourcing(environment);
+services.AddOpenTelemetry()
+        .WithEventSourcingTracing(environment)
+        .WithEventSourcingMetrics(environment);
 //services.AddOpenTelemetry(environment, shortAppName, redisConnection);
 
 

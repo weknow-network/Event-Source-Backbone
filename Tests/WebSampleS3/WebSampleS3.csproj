@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AWSSDK.S3" Version="3.7.104.30" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.104.31" />
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
 	</ItemGroup>
 
@@ -40,6 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions.csproj" />
 		<ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 

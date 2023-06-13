@@ -6,6 +6,8 @@
 			Breaking changes: S3Strategy was renamed to S3Storage
 			# 1.2.96
 			Breaking changes: Method on the consumer interface generated with first parameter of type ConsumerMetadata
+			# 1.2.115
+			Breaking changes: registration extensions was re-module
 		</PackageReleaseNotes>
 	</PropertyGroup>
 	

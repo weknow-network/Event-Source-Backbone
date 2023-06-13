@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<PackageReference Include="EventSourcing.Backbone.Abstractions" Version="1.2.114" />
-		<PackageReference Include="EventSourcing.Backbone.SrcGen" Version="1.2.114" />
+	  <ProjectReference Include="..\..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+	  <ProjectReference Include="..\..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>
 
 	<ItemGroup>

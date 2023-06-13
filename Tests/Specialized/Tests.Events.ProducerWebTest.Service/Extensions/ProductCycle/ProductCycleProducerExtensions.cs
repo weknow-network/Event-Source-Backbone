@@ -14,46 +14,48 @@ public static class ProductCycleProducerExtensions
     /// <summary>
     /// Register a producer.
     /// </summary>
-    /// <param name="services">The services.</param>
+    /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI.</param>
-    /// <param name="env">The environment.</param>
     /// <returns></returns>
-    public static IServiceCollection AddProductCycleProducer
-        (
-        this IServiceCollection services,
-        string uri,
-        Env env)
+    public static WebApplicationBuilder AddProductCycleProducer(
+        this WebApplicationBuilder builder,
+        string uri)
     {
+        IServiceCollection services = builder.Services;
+        IWebHostEnvironment environment = builder.Environment;
+        string env = environment.EnvironmentName;
+
         services.AddSingleton(ioc =>
         {
             return BuildProducer(uri, env, ioc
                                 );
         });
 
-        return services;
+        return builder;
     }
 
     /// <summary>
     /// Register a producer when the URI of the service used as the registration's key.
     /// See: https://medium.com/weknow-network/keyed-dependency-injection-using-net-630bd73d3672.
     /// </summary>
-    /// <param name="services">The services.</param>
+    /// <param name="builder">The builder.</param>
     /// <param name="uri">The URI.</param>
-    /// <param name="env">The environment.</param>
     /// <returns></returns>
-    public static IServiceCollection AddKeyedProductCycleProducer
-        (
-        this IServiceCollection services,
-        string uri,
-        Env env)
+    public static WebApplicationBuilder AddKeyedProductCycleProducer(
+        this WebApplicationBuilder builder,
+        string uri)
     {
+        IServiceCollection services = builder.Services;
+        IWebHostEnvironment environment = builder.Environment;
+        string env = environment.EnvironmentName;
+
         services.AddKeyedSingleton(ioc =>
         {
             return BuildProducer(uri, env, ioc
             );
         }, uri);
 
-        return services;
+        return builder;
     }
 
     private static IProductCycleProducer BuildProducer(string uri, Env env, IServiceProvider ioc

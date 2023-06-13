@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net.Http.Headers;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -121,15 +123,36 @@ namespace EventSourcing.Backbone.Private
 
                     catch (RedisServerException ex)
                     {
-                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: failed & still waiting {CurrentInfo()}");
+                        logger.LogWarning(ex.FormatLazy(), $"""
+                                                {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
+                                                failed & still waiting 
+                                                {CurrentInfo()}
+                                                """);
                     }
                     catch (RedisConnectionException ex)
                     {
-                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: connection failure {CurrentInfo()}");
+                        logger.LogWarning(ex.FormatLazy(), $"""
+                                                {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
+                                                Connection failure 
+                                                {CurrentInfo()}
+                                                """);
                     }
+                    catch (ObjectDisposedException ex)
+                    {
+                        logger.LogWarning( $"""
+                                                {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
+                                                Connection might not being available 
+                                                {CurrentInfo()}
+                                                """);
+                    }
+
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex.FormatLazy(), $"{nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: unexpected failure {CurrentInfo()}");
+                        logger.LogWarning( ex, $"""
+                                                {nameof(CreateConsumerGroupIfNotExistsAsync)}.StreamCreateConsumerGroupAsync: 
+                                                unexpected failure 
+                                                {CurrentInfo()}
+                                                """);
                     }
 
                     #endregion // Exception Handling
