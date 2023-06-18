@@ -473,6 +473,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
                             catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
                             {
+                                logger.LogWarning(ex, ex.Message);
                                 await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                                         key,
                                         plan.ConsumerGroup,
@@ -480,20 +481,12 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                             }
                             catch (RedisServerException ex)
                             {
-                                logger?.LogWarning(ex, ex.Message);
+                                logger.LogWarning(ex, ex.Message);
                                 await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                                         key,
                                         plan.ConsumerGroup,
                                         logger);
                             }
-                            //catch (Exception ex) 
-                            //{
-                            //    logger?.LogWarning(ex, ex.Message);
-                            //    //await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                            //    //        key,
-                            //    //        plan.ConsumerGroup,
-                            //    //        logger);
-                            //}
 
                             #endregion // Exception Handling
                         }

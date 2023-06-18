@@ -12,8 +12,6 @@ var services = builder.Services;
 
 
 IWebHostEnvironment environment = builder.Environment;
-string env = environment.EnvironmentName;
-
 services.AddOpenTelemetry()
         .WithEventSourcingTracing(environment)
         .WithEventSourcingMetrics(environment);
@@ -66,6 +64,6 @@ app.MapControllers();
 var logger = app.Services.GetService<ILogger<Program>>();
 List<string> switches = new();
 switches.Add("Consumer");
-logger.LogInformation("Service Configuration Event Sourcing `{event-bundle}` on URI: `{URI}`, Features: [{features}]", "ProductCycle", ProductCycleConstants.URI, string.Join(", ", switches));
+logger?.LogInformation("Service Configuration Event Sourcing `{event-bundle}` on URI: `{URI}`, Features: [{features}]", "ProductCycle", ProductCycleConstants.URI, string.Join(", ", switches));
 
 app.Run();
