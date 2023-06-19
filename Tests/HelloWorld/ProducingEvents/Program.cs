@@ -10,7 +10,6 @@ IHelloEventsProducer producer = RedisProducerBuilder.Create()
                                 .BuildHelloEventsProducer();
 
 
-
 Console.Write("What is your name? ");
 string name = Console.ReadLine();
 await producer.NameAsync(name ?? "Unknown");
