@@ -16,119 +16,56 @@ using System.Threading.Tasks.Dataflow;
 using EventSourcing.Backbone.Enums;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using static ConsoleTest.Constants;
 
-const int MAX = 1_000;
 CancellationTokenSource cancellation = new CancellationTokenSource(
                                             Debugger.IsAttached
                                             ? TimeSpan.FromMinutes(10)
                                             : TimeSpan.FromSeconds(400));
-
-string END_POINT_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
-
 string URI = $"console-{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}";
+IHostBuilder host = Host.CreateDefaultBuilder(args)
+         .ConfigureServices(services =>
+         {
+             services.AddLogging(b => b.AddConsole());
+             services.AddEventSourceRedisConnection();
+             services.AddSingleton(cancellation);
+             services.AddSingleton(ioc =>
+             {
+                 IFooProducer producer = ioc.ResolveRedisProducerChannel()
+                                     .Environment(ENV)
+                                     .Uri(URI)
+                                     .BuildFooProducer();
+                 return producer;
+             });
+             services.AddSingleton(ioc =>
+             {
+                 var consumerOptions = new ConsumerOptions
+                 {
+                     AckBehavior = AckBehavior.OnSucceed,
+                     PartialBehavior = PartialConsumerBehavior.Loose,
+                     MaxMessages = MAX * 3 /* detach consumer after 2 messages*/
+                 };
+                 IConsumerLifetime subscription =
+                            ioc.ResolveRedisConsumerChannel()
+                          .WithOptions(o => consumerOptions)
+                              .WithCancellation(cancellation.Token)
+                              .Environment(ENV)
+                              .Uri(URI)
+                              .Group("CONSUMER_GROUP_1")
+                              .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                               .SubscribeFooConsumer(Subscriber);
+                 return subscription;
+             });
+             services.AddOpenTelemetryEventSourcing(ENV);
 
-string ENV = $"console-test";
+             services.AddHostedService<Worker>();
+         });
 
-IFooConsumer subscriber = A.Fake<IFooConsumer>();
+IHost hosing = host.Build();
+ILogger _logger = hosing.Services.GetService<ILogger<Program>>() ?? throw new NullReferenceException();
+await Cleanup(END_POINT_KEY, URI, _logger);
 
-var services = new ServiceCollection();
-services.AddLogging(b => b.AddConsole());
-services.AddEventSourceRedisConnection();
-services.AddSingleton(ioc =>
-{
-    IFooProducer producer = ioc.ResolveRedisProducerChannel()
-                        .Environment(ENV)
-                        .Uri(URI)
-                        .BuildFooProducer();
-    return producer;
-});
-services.AddSingleton(ioc =>
-{
-    var consumerOptions = new ConsumerOptions
-    {
-        AckBehavior = AckBehavior.OnSucceed,
-        PartialBehavior = PartialConsumerBehavior.Loose,
-        MaxMessages = MAX * 3 /* detach consumer after 2 messages*/
-    };
-    IConsumerLifetime subscription =
-               ioc.ResolveRedisConsumerChannel()
-             .WithOptions(o => consumerOptions)
-                 .WithCancellation(cancellation.Token)
-                 .Environment(ENV)
-                 .Uri(URI)
-                 .Group("CONSUMER_GROUP_1")
-                 .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                  .SubscribeFooConsumer(subscriber);
-    return subscription;
-});
-services.AddOpenTelemetryEventSourcing(ENV);
-
-services.AddHostedService<Worker>();
-
-
-var sp = services.BuildServiceProvider();
-ILogger logger = sp.GetService<ILogger<Program>>() ?? throw new NullReferenceException();
-
-logger.LogInformation("Console Test");
-
-await Cleanup(END_POINT_KEY, URI, logger);
-
-Prepare(subscriber);
-
-
-IFooProducer producer = sp.GetService<IFooProducer>() ?? throw new NullReferenceException();
-IConsumerLifetime subscription = sp.GetService<IConsumerLifetime>() ?? throw new NullReferenceException();
-
-
-var sw = Stopwatch.StartNew();
-
-var snapshot = sw.Elapsed;
-logger.LogInformation($"Build producer = {snapshot:mm\\:ss\\.ff}");
-snapshot = sw.Elapsed;
-
-var ab = new ActionBlock<int>(async i =>
-{
-    await producer.Event1Async();
-    await producer.Event2Async(i);
-    await producer.Event3Async($"e-{1}");
-}, new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 100 });
-for (int i = 0; i < MAX; i++)
-{
-    ab.Post(i);
-    //await producer.Event1Async();
-    //await producer.Event2Async(i);
-    //await producer.Event3Async($"e-{1}");
-}
-ab.Complete();
-await ab.Completion;
-
-snapshot = sw.Elapsed - snapshot;
-logger.LogInformation($"Produce = {snapshot:mm\\:ss\\.ff}");
-snapshot = sw.Elapsed;
-
-await subscription.Completion;
-
-snapshot = sw.Elapsed - snapshot;
-logger.LogInformation($"Consumed = {snapshot:mm\\:ss\\.ff}");
-snapshot = sw.Elapsed;
-
-try
-{
-    A.CallTo(() => subscriber.Event1Async(A<ConsumerMetadata>.Ignored))
-                .MustHaveHappened(MAX, Times.Exactly);
-    A.CallTo(() => subscriber.Event2Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
-                .MustHaveHappened(MAX, Times.Exactly);
-    A.CallTo(() => subscriber.Event3Async(A<ConsumerMetadata>.Ignored, A<string>.Ignored))
-                .MustHaveHappened(MAX, Times.Exactly);
-}
-catch (Exception ex)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    logger.LogInformation(ex.FormatLazy());
-    Console.ResetColor();
-}
-
-logger.LogInformation("Done");
+await hosing.RunAsync(cancellation.Token);
 
 static async Task Cleanup(string END_POINT_KEY, string URI, ILogger fakeLogger)
 {
@@ -153,14 +90,4 @@ static async Task Cleanup(string END_POINT_KEY, string URI, ILogger fakeLogger)
         ab.Complete();
         await ab.Completion;
     }
-}
-
-static void Prepare(IFooConsumer subscriber)
-{
-    A.CallTo(() => subscriber.Event1Async(A<ConsumerMetadata>.Ignored))
-            .ReturnsLazily(() => ValueTask.CompletedTask);
-    A.CallTo(() => subscriber.Event2Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
-            .ReturnsLazily(() => ValueTask.CompletedTask);
-    A.CallTo(() => subscriber.Event3Async(A<ConsumerMetadata>.Ignored, A<string>.Ignored))
-            .ReturnsLazily(() => ValueTask.CompletedTask);
 }

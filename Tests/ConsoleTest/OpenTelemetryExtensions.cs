@@ -36,8 +36,8 @@ internal static class OpenTelemetryExtensions
                         {
                             cfg.SetResourceBuilder(ResourceBuilder.CreateDefault()
                                 .AddService("ConsoleTest"))
-                            .AddOtlpExporter()
-                                .AddConsoleExporter();
+                            .AddOtlpExporter();
+                            // .AddConsoleExporter();
                         })
                 .WithEventSourcingMetrics(environment, cfg =>
                 {
