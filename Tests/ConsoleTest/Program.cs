@@ -61,6 +61,10 @@ services.AddSingleton(ioc =>
                   .SubscribeFooConsumer(subscriber);
     return subscription;
 });
+services.AddOpenTelemetryEventSourcing(ENV);
+
+services.AddHostedService<Worker>();
+
 
 var sp = services.BuildServiceProvider();
 ILogger logger = sp.GetService<ILogger<Program>>() ?? throw new NullReferenceException();
