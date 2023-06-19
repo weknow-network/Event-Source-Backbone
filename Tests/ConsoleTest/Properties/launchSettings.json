@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "ConsoleTest": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "REDIS_EVENT_SOURCE_ENDPOINT": "localhost:6379"
+      }
+    },
+    "WSL": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "REDIS_EVENT_SOURCE_ENDPOINT": "localhost:6379"
+      }
+    }
+  }
+}
