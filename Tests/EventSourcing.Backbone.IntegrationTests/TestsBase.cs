@@ -57,43 +57,48 @@ namespace EventSourcing.Backbone.Tests
                 IConnectionMultiplexer conn = RedisClientFactory.CreateProviderAsync(
                                                     logger: _fakeLogger,
                                                     configurationHook: cfg => cfg.AllowAdmin = true).Result;
-                string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
-                var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
-                IDatabaseAsync db = conn.GetDatabase();
+                string serverNames = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
+                foreach (var serverName in serverNames.Split(','))
+                {
+                    var server = conn.GetServer(serverName);
+                    if (!server.IsConnected)
+                        continue;
+                    IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
+                    IDatabaseAsync db = conn.GetDatabase();
 
-                var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
+                    var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
-                foreach (string key in keys)
-                {
-                    ab.Post(key);
-                }
+                    foreach (string key in keys)
+                    {
+                        ab.Post(key);
+                    }
 #pragma warning restore CS8604 // Possible null reference argument.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 
-                ab.Complete();
-                ab.Completion.Wait();
+                    ab.Complete();
+                    ab.Completion.Wait();
 
-                async Task LocalAsync(string k)
-                {
-                    try
+                    async Task LocalAsync(string k)
                     {
-                        await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
-                        _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
-                    }
-                    #region Exception Handling
+                        try
+                        {
+                            await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
+                            _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
+                        }
+                        #region Exception Handling
 
-                    catch (RedisTimeoutException ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
+                        catch (RedisTimeoutException ex)
+                        {
+                            _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                        }
 
-                    #endregion // Exception Handling
+                        #endregion // Exception Handling
+                    }
                 }
             }
             #region Exception Handling

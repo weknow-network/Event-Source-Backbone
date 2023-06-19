@@ -22,15 +22,14 @@ using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelCo
 
 namespace EventSourcing.Backbone.Tests
 {
-    public class EndToEndStressTests : IDisposable
+    public class EndToEndStressTests : TestsBase
     {
-        private readonly ITestOutputHelper _outputHelper;
         private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly IProducerStoreStrategyBuilder _producerBuilder;
         private readonly IConsumerHooksBuilder _consumerBuilder;
 
         private readonly string ENV = $"test";
-        private readonly string URI = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
+        protected override string URI { get; } = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
 
         private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private const int TIMEOUT = 1000 * 30;
@@ -41,8 +40,8 @@ namespace EventSourcing.Backbone.Tests
             ITestOutputHelper outputHelper,
             Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
+            : base(outputHelper)
         {
-            _outputHelper = outputHelper;
             _producerBuilder = ProducerBuilder.Empty.UseRedisChannel( /*,
                                         configuration: (cfg) => cfg.ServiceName = "mymaster" */);
             _producerBuilder = producerChannelBuilder?.Invoke(_producerBuilder, _fakeLogger) ?? _producerBuilder;
@@ -207,76 +206,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // GetCancellationToken
-
-        #region Dispose pattern
-
-
-        ~EndToEndStressTests()
-        {
-            Dispose();
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            try
-            {
-                IConnectionMultiplexer conn = RedisClientFactory.CreateProviderAsync(
-                                                    logger: _fakeLogger,
-                                                    configurationHook: cfg => cfg.AllowAdmin = true)
-                                                                .Result;
-                string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
-                var server = conn.GetServer(serverName);
-                IEnumerable<RedisKey> keys = server.Keys(pattern: $"*{URI}*");
-                IDatabaseAsync db = conn.GetDatabase();
-
-                var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
-                foreach (string? key in keys)
-                {
-                    if (string.IsNullOrEmpty(key)) continue;
-                    ab.Post(key);
-                }
-
-                ab.Complete();
-                ab.Completion.Wait();
-
-                async Task LocalAsync(string k)
-                {
-                    try
-                    {
-                        await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
-                        _outputHelper.WriteLine($"Cleanup: delete key [{k}]");
-                    }
-                    #region Exception Handling
-
-                    catch (RedisTimeoutException ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                    }
-
-                    #endregion // Exception Handling
-                }
-
-
-            }
-            #region Exception Handling
-
-            catch (RedisTimeoutException ex)
-            {
-                _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-            }
-            catch (Exception ex)
-            {
-                _outputHelper.WriteLine($"Test dispose error (delete keys) {ex.FormatLazy()}");
-            }
-
-            #endregion // Exception Handling
-        }
-
-        #endregion // Dispose pattern
     }
 }
