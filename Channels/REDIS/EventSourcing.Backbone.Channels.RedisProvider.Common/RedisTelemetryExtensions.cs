@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Backbone;
 
-public static class RedisTelemetryrExtensions
+public static class RedisTelemetryExtensions
 {
     #region InjectTelemetryTags
 

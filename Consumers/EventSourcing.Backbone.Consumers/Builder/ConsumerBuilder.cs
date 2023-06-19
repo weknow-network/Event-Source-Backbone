@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -410,6 +411,19 @@ namespace EventSourcing.Backbone
         #endregion // Name
 
         #region Subscribe
+
+        /// <summary>
+        /// Subscribe consumer.
+        /// </summary>
+        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
+        /// <returns>
+        /// The subscription lifetime (dispose to remove the subscription)
+        /// </returns>
+        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge handler)
+
+        {
+            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handler.ToEnumerable());
+        }
 
         /// <summary>
         /// Subscribe consumer.

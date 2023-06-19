@@ -112,10 +112,13 @@ namespace EventSourcing.Backbone.Private
                     try
                     {
                         using var lk = await _lock.AcquireAsync();
-                        await db.StreamCreateConsumerGroupAsync(eventSourceKey,
+                        if (await db.StreamCreateConsumerGroupAsync(eventSourceKey,
                                                                 consumerGroup,
                                                                 StreamPosition.Beginning,
-                                                                flags: CommandFlags.DemandMaster);
+                                                                flags: CommandFlags.DemandMaster))
+                        {
+                            break;
+                        }
                     }
                     #region Exception Handling
 

@@ -249,6 +249,10 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
             }
 
+            #endregion // HandleBatchAsync
+
+
+            #region HandleBatchBreakerAsync
 
             async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
             {
@@ -266,16 +270,18 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 }
 
                 ct.ThrowIfCancellationRequested();
-
+                
                 try
                 {
                     var batchCancellation = new CancellationTokenSource();
                     int i = 0;
                     batchCancellation.Token.Register(async () =>
                     {
+                        // TODO: [bnaya 2023-06-19 #RELEASE] committed id should be captured
                         RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
                         await ReleaseAsync(freeTargets);
                     });
+                    // TODO: [bnaya 2023-06-19] enable parallel consuming (when order doesn't matters) See #RELEASE
                     for (; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                     {
                         StreamEntry result = results[i];
@@ -419,11 +425,12 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         }
                         else
                         {
+                            // TODO: [bnaya 2023-06-19 #RELEASE] committed id should be captured
                             if (options.PartialBehavior == Enums.PartialConsumerBehavior.Sequential)
                             {
                                 RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
-                                await ReleaseAsync(freeTargets);
-                                await Task.Delay(1000, ct);
+                                await ReleaseAsync(freeTargets); // release the rest of the batch which doesn't processed yet
+                                await Task.Delay(releaseDelay, ct);
                             }
                         }
                     }
@@ -435,7 +442,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                 return true;
             }
 
-            #endregion // HandleBatchAsync
+            #endregion // HandleBatchBreakerAsync
 
             #region ReadBatchAsync
 
