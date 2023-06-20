@@ -20,6 +20,7 @@ using Xunit.Abstractions;
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
+#pragma warning disable HAA0601 // Value type to reference type conversion causing boxing allocation
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
@@ -38,9 +39,7 @@ namespace EventSourcing.Backbone.Tests
         private readonly string ENV = $"test";
         protected override string URI { get; } = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
 
-        private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
-        private const int TIMEOUT = 1_000 * 50;
 
         #region Ctor
 

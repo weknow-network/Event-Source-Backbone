@@ -168,7 +168,10 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
+            var sw = Stopwatch.StartNew();
             await subscription.Completion;
+            sw.Stop();
+            _outputHelper.WriteLine($"Consume Duration = {sw.Elapsed:mm\\:ss\\.ff}");
 
             #region Validation
 

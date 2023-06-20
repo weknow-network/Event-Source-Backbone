@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Backbone;
+using EventSourcing.Backbone.Channels;
 
 using Microsoft.Extensions.Hosting;
 
@@ -11,28 +12,20 @@ using OpenTelemetry.Trace;
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
 // see:
 //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
+//  https://opentelemetry.io/docs/demo/services/cart/
 //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
-
-
+//  https://opentelemetry.io/docs/demo/docker-deployment/
 
 namespace Microsoft.Extensions.DependencyInjection;
-
 
 /// <summary>
 /// core extensions for ASP.NET Core
 /// </summary>
 public static class EventSourcingOtel
 {
-    /// <summary>
-    /// The name of redis consumer channel source
-    /// </summary>
-    public const string REDIS_CONSUMER_CHANNEL_SOURCE = "redis-consumer-channel";
-    /// <summary>
-    /// The name of redis producer channel source
-    /// </summary>
-    public const string REDIS_PRODUCER_CHANNEL_SOURCE = "redis-producer-channel";
-
     #region WithEventSourcingTracing
+
+    #region Overloads
 
     /// <summary>
     /// Adds the  open-telemetry tracing binding.
@@ -50,6 +43,8 @@ public static class EventSourcingOtel
         return builder.WithEventSourcingTracing(env, injection);
     }
 
+    #endregion // Overloads
+
     /// <summary>
     /// Adds the  open-telemetry tracing binding.
     /// </summary>
@@ -66,8 +61,8 @@ public static class EventSourcingOtel
                 .WithTracing(tracerProviderBuilder =>
                 {
                     var sources = new[] { (string)env,
-                                           REDIS_CONSUMER_CHANNEL_SOURCE,
-                                           REDIS_PRODUCER_CHANNEL_SOURCE};
+                                           ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
+                                           ConsumerChannelConstants.REDIS_CHANNEL_SOURCE};
 
                     tracerProviderBuilder
                         .AddSource(sources)
@@ -82,6 +77,8 @@ public static class EventSourcingOtel
     #endregion // WithEventSourcingTracing
 
     #region WithEventSourcingMetrics
+
+    #region Overloads
 
     /// <summary>
     /// Adds the  open-telemetry metrics binding.
@@ -98,6 +95,8 @@ public static class EventSourcingOtel
         var env = hostEnv.ApplicationName;
         return builder.WithEventSourcingMetrics(env, injection);
     }
+
+    #endregion // Overloads
 
     /// <summary>
     /// Adds the  open-telemetry metrics binding.

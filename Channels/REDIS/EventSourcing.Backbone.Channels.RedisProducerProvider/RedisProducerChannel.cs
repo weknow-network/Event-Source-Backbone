@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using EventSourcing.Backbone.Private;
+
 using Microsoft.Extensions.Logging;
 
 using OpenTelemetry;
@@ -16,7 +18,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider;
 
 internal class RedisProducerChannel : IProducerChannelProvider
 {
-    private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
+    private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(ProducerChannelConstants.REDIS_CHANNEL_SOURCE);
     private readonly ILogger _logger;
     private readonly AsyncPolicy _resiliencePolicy;
     private readonly IEventSourceRedisConnectionFactory _connFactory;

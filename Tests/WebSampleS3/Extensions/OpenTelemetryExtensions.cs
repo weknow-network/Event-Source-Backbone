@@ -51,8 +51,8 @@ internal static class OpenTelemetryExtensions
                     cfg.AddAspNetCoreInstrumentation( /* m => m.Filter = filter */)
                         .AddOtlpExporter()
                         .AddPrometheusExporter();
-                    if (environment.IsDevelopment())
-                        cfg.AddConsoleExporter();
+                    //if (environment.IsDevelopment())
+                    //    cfg.AddConsoleExporter();
                 });
 
         return services;

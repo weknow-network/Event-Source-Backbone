@@ -9,16 +9,16 @@ namespace EventSourcing.Backbone;
 
 public static class EventSourcingExtensions
 {
-    /// <summary>
-    /// Adds the event consumer telemetry source (will result in tracing the consumer).
-    /// </summary>
-    /// <param name="builder">The builder.</param>
-    /// <returns></returns>
-    public static TracerProviderBuilder ListenToEventSourceRedisChannel(
-                                                this TracerProviderBuilder builder) =>
-                                                        builder.AddSource(
-                                                            EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE,
-                                                            EventSourceConstants.REDIS_PRODUCER_CHANNEL_SOURCE);
+    ///// <summary>
+    ///// Adds the event consumer telemetry source (will result in tracing the consumer).
+    ///// </summary>
+    ///// <param name="builder">The builder.</param>
+    ///// <returns></returns>
+    //public static TracerProviderBuilder ListenToEventSourceRedisChannel(
+    //                                            this TracerProviderBuilder builder) =>
+    //                                                    builder.AddSource(
+    //                                                        EventSourceConstants.Consumer.REDIS_CHANNEL_SOURCE,
+    //                                                        EventSourceConstants.Producer.REDIS_CHANNEL_SOURCE);
 
     #region ExtractSpan
 
