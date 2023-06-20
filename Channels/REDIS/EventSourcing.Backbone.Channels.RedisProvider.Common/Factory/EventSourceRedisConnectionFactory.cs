@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Threading;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -146,9 +148,11 @@ namespace EventSourcing.Backbone
         #region GetAsync
 
         /// <summary>
-        /// Get a valid connection 
+        /// Get a valid connection
         /// </summary>
-        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync()
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync(CancellationToken cancellationToken)
         {
             var conn = await _redisTask;
             if (conn.IsConnected)
@@ -157,7 +161,7 @@ namespace EventSourcing.Backbone
             _logger.LogWarning("REDIS Connection [{kind}] [{ClientName}]: status = [{status}]",
                                 Kind,
                                 conn.ClientName, status);
-            var disp = await _lock.AcquireAsync();
+            var disp = await _lock.AcquireAsync(cancellationToken);
             using (disp)
             {
                 conn = await _redisTask;
@@ -187,12 +191,14 @@ namespace EventSourcing.Backbone
         #region GetDatabaseAsync
 
         /// <summary>
-        /// Get database 
+        /// Get database
         /// </summary>
-        async Task<IDatabaseAsync> IEventSourceRedisConnectionFactory.GetDatabaseAsync()
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        async Task<IDatabaseAsync> IEventSourceRedisConnectionFactory.GetDatabaseAsync(CancellationToken cancellationToken)
         {
             IEventSourceRedisConnectionFactory self = this;
-            IConnectionMultiplexer conn = await self.GetAsync();
+            IConnectionMultiplexer conn = await self.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
             return db;
         }

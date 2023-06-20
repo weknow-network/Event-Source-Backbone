@@ -24,6 +24,11 @@
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
 	</ItemGroup>
 
+	<!-- Prometheus -->
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.5.0-rc.1" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\EventSourcing.Backbone.Channels.RedisConsumerProvider.csproj" />
 		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />

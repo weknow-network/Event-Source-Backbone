@@ -43,7 +43,7 @@ namespace EventSourcing.Backbone.Channels
         {
             string key = $"{meta.FullUri()}:{type}:{meta.MessageId}";
 
-            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellation);
             IDatabaseAsync db = conn.GetDatabase();
             HashEntry[] entities;
             try

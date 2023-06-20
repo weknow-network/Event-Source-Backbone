@@ -101,7 +101,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
             try
             {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync(CancellationToken.None);
                 IDatabaseAsync db = conn.GetDatabase();
                 using var scope = SuppressInstrumentationScope.Begin();
                 var k = meta.FullUri();

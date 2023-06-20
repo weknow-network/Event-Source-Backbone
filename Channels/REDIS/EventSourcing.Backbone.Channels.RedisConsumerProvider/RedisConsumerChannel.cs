@@ -219,12 +219,14 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 RedisChannelConstants.NONE_CONSUMER,
-                logger);
+                logger,
+                cancellationToken);
 
             await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                 key,
                 plan.ConsumerGroup,
-                logger);
+                logger,
+                cancellationToken);
 
             #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
 
@@ -462,7 +464,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         {
                             isFirstBatchOrFailure = false;
 
-                            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
                             IDatabaseAsync db = conn.GetDatabase();
                             try
                             {
@@ -484,7 +486,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                 await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                                         key,
                                         plan.ConsumerGroup,
-                                        logger);
+                                        logger, cancellationToken);
                             }
                             catch (RedisServerException ex)
                             {
@@ -492,7 +494,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                                 await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                                         key,
                                         plan.ConsumerGroup,
-                                        logger);
+                                        logger, cancellationToken);
                             }
 
                             #endregion // Exception Handling
@@ -530,7 +532,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     return values;
 
 
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
@@ -566,7 +568,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                             key,
                             plan.ConsumerGroup,
-                            logger);
+                            logger, cancellationToken);
                     return Array.Empty<StreamEntry>();
                 }
 
@@ -590,7 +592,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     return values;
                 try
                 {
-                    IDatabaseAsync db = await _connFactory.GetDatabaseAsync();
+                    IDatabaseAsync db = await _connFactory.GetDatabaseAsync(ct);
                     StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
                     foreach (var c in pendingInfo.Consumers)
                     {
@@ -675,7 +677,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             {
                 try
                 {
-                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                    IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
                     IDatabaseAsync db = conn.GetDatabase();
                     // release the event (won't handle again in the future)
                     await db.StreamAcknowledgeAsync(key,
@@ -725,7 +727,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
             // Releases the messages (work around).
             async Task ReleaseAsync(RedisValue[] freeTargets)
             {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
@@ -751,7 +753,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     await _connFactory.CreateConsumerGroupIfNotExistsAsync(
                             key,
                             plan.ConsumerGroup,
-                            logger);
+                            logger, cancellationToken);
                 }
 
                 #endregion // Exception Handling  
@@ -780,7 +782,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
 
             try
             {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
+                IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
                 IDatabaseAsync db = conn.GetDatabase();
                 StreamEntry entry = await FindAsync(entryId);
 
@@ -909,7 +911,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                     ConsumerAsyncEnumerableOptions? options,
                     [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
             var loop = AsyncLoop().WithCancellation(cancellationToken);
             await foreach (StreamEntry entry in loop)
@@ -1071,7 +1073,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider
                         string pattern,
                         [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            IConnectionMultiplexer multiplexer = await _connFactory.GetAsync();
+            IConnectionMultiplexer multiplexer = await _connFactory.GetAsync(cancellationToken);
             var distict = new HashSet<string>();
             while (!cancellationToken.IsCancellationRequested)
             {

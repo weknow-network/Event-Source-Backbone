@@ -15,20 +15,17 @@ namespace EventSourcing.Backbone.WebEventTest.Controllers
         private readonly IEventFlowProducer _eventFlowProducer;
         private readonly IConsumerReadyBuilder _consumerBuilder;
         private readonly IConsumerHooksBuilder _baseBuilder;
-        private readonly IDatabase _db;
 
         public EventSourceApiController(
             ILogger<EventSourceApiController> logger,
             IEventFlowProducer eventFlowProducer,
             IConsumerReadyBuilder consumerBuilder,
-            IConsumerHooksBuilder baseBuilder,
-            IConnectionMultiplexer redis)
+            IConsumerHooksBuilder baseBuilder)
         {
             _logger = logger;
             _eventFlowProducer = eventFlowProducer;
             _consumerBuilder = consumerBuilder;
             _baseBuilder = baseBuilder;
-            _db = redis.GetDatabase();
         }
 
         #region GetAsync

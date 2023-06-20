@@ -49,7 +49,7 @@ status: {status}, ping: {p}";
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async ValueTask<TimeSpan> GetPingAsync()
     {
-        IDatabaseAsync db = await _connFacroty.GetDatabaseAsync();
+        IDatabaseAsync db = await _connFacroty.GetDatabaseAsync(CancellationToken.None);
         var p = await db.PingAsync();
         _logger.LogInformation("Schema: {schema}", Request.Scheme);
         return p;
@@ -65,7 +65,7 @@ status: {status}, ping: {p}";
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async ValueTask<string> GetStaticAsync()
     {
-        IDatabaseAsync db = await _connFacroty.GetDatabaseAsync();
+        IDatabaseAsync db = await _connFacroty.GetDatabaseAsync(CancellationToken.None);
         var p = await db.PingAsync();
 
         return @$"ping: {p}";

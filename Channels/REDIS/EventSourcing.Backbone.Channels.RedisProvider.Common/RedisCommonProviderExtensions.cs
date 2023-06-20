@@ -23,12 +23,14 @@ namespace EventSourcing.Backbone.Private
         /// <param name="eventSourceKey">The event source key.</param>
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public static async Task CreateConsumerGroupIfNotExistsAsync(
                         this IEventSourceRedisConnectionFactory connFactory,
                         string eventSourceKey,
                         string consumerGroup,
-                        ILogger logger)
+                        ILogger logger,
+                        CancellationToken cancellationToken)
         {
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
 
@@ -39,7 +41,7 @@ namespace EventSourcing.Backbone.Private
             {
                 tryNumber++;
 
-                IConnectionMultiplexer conn = await connFactory.GetAsync();
+                IConnectionMultiplexer conn = await connFactory.GetAsync(cancellationToken);
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
@@ -72,7 +74,7 @@ namespace EventSourcing.Backbone.Private
 
                     #endregion // delay on retry
 
-                    using var lk = await _lock.AcquireAsync();
+                    using var lk = await _lock.AcquireAsync(cancellationToken);
                     groupsInfo = await db.StreamGroupInfoAsync(
                                                 eventSourceKey,
                                                 flags: CommandFlags.DemandMaster);
@@ -111,7 +113,7 @@ namespace EventSourcing.Backbone.Private
                 {
                     try
                     {
-                        using var lk = await _lock.AcquireAsync();
+                        using var lk = await _lock.AcquireAsync(cancellationToken);
                         if (await db.StreamCreateConsumerGroupAsync(eventSourceKey,
                                                                 consumerGroup,
                                                                 StreamPosition.Beginning,
