@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Threading.Tasks.Dataflow;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
@@ -10,12 +9,8 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using StackExchange.Redis;
-
 using Xunit;
 using Xunit.Abstractions;
-
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 // docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
 
@@ -33,9 +28,7 @@ namespace EventSourcing.Backbone.Tests
         private readonly string ENV = $"Development";
         protected override string URI { get; } = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
 
-        private readonly ILogger _fakeLogger = A.Fake<ILogger>();
         private static readonly User USER = new User { Eracure = new Personal { Name = "mike", GovernmentId = "A25" }, Comment = "Do it" };
-        private const int TIMEOUT = 1_000 * 30;
 
         #region Ctor
 

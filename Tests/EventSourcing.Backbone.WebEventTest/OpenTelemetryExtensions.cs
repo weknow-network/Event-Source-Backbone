@@ -31,12 +31,23 @@ internal static class OpenTelemetryExtensions
                 .WithEventSourcingTracing(environment,
                         cfg =>
                         {
-                            cfg.AddAspNetCoreInstrumentation(m =>
-                            {
-                                m.Filter = TraceFilter;
-                                m.RecordException = true;
-                                m.EnableGrpcAspNetCoreSupport = true;
-                            })
+                            cfg
+                                //.AddSource("StackExchange.Redis")
+                                //.AddSource("StackExchangeRedisConnectionInstrumentation")
+                                //.AddRedisInstrumentation(RedisClientFactory.CreateProviderAsync().Result, c =>
+                                //{
+                                //    c.FlushInterval = TimeSpan.FromSeconds(1);
+                                //})
+                                //.ConfigureRedisInstrumentation((provider, b) => {
+                                //    var conn = provider.GetRequiredService<IConnectionMultiplexer>();
+                                //    b.AddConnection(conn);
+                                //})
+                                .AddAspNetCoreInstrumentation(m =>
+                                {
+                                    m.Filter = TraceFilter;
+                                    m.RecordException = true;
+                                    m.EnableGrpcAspNetCoreSupport = true;
+                                })
                                 .AddHttpClientInstrumentation(m =>
                                 {
                                     // m.Enrich
@@ -72,9 +83,9 @@ internal static class OpenTelemetryExtensions
         "/health" => false,
         "/readiness" => false,
         "/metrics" => false,
-        string x when x.StartsWith("/swagger")  => false,
-        string x when x.StartsWith("/_framework/")  => false,
-        string x when x.StartsWith("/_vs/")  => false,
+        string x when x.StartsWith("/swagger") => false,
+        string x when x.StartsWith("/_framework/") => false,
+        string x when x.StartsWith("/_vs/") => false,
         _ => true
     };
 

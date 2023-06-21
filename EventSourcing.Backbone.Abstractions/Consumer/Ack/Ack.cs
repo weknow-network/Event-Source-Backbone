@@ -57,13 +57,17 @@
             /// Preform acknowledge (which should prevent the
             /// message from process again by the consumer)
             /// </summary>
+            /// <param name="cause">The cause of the acknowledge.</param>
             /// <returns></returns>
-            public ValueTask AckAsync() => ValueTask.CompletedTask;
+            public ValueTask AckAsync(AckBehavior cause) => ValueTask.CompletedTask;
 
             /// <summary>
             /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
             /// </summary>
-            public ValueTask CancelAsync() => ValueTask.CompletedTask;
+            /// <param name="cause">The cause of the cancellation.</param>
+            /// <returns></returns>
+            /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing)
+            public ValueTask CancelAsync(AckBehavior cause) => ValueTask.CompletedTask;
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources asynchronously.

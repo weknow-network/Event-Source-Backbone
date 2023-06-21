@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Threading.Tasks.Dataflow;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
@@ -9,12 +8,8 @@ using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using StackExchange.Redis;
-
 using Xunit;
 using Xunit.Abstractions;
-
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 
@@ -30,9 +25,6 @@ namespace EventSourcing.Backbone.Tests
 
         private readonly string ENV = $"test";
         protected override string URI { get; } = $"{DateTime.UtcNow:yyyy-MM-dd HH_mm_ss}:{Guid.NewGuid():N}";
-
-        private readonly ILogger _fakeLogger = A.Fake<ILogger>();
-        private const int TIMEOUT = 1000 * 30;
 
         #region Ctor
 

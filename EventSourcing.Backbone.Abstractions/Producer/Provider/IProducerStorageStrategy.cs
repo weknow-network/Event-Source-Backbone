@@ -12,6 +12,11 @@ namespace EventSourcing.Backbone
     public interface IProducerStorageStrategy
     {
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Saves the bucket information.
         /// </summary>
         /// <param name="id">The identifier.</param>

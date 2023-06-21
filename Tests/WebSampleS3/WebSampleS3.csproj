@@ -41,6 +41,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.10" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions.csproj" />
 		<ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
 	</ItemGroup>

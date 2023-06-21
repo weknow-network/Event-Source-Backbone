@@ -8,5 +8,5 @@ internal static class ConsumerChannelConstants
     /// <summary>
     /// The name of redis consumer channel source
     /// </summary>
-    public const string REDIS_CHANNEL_SOURCE = "redis-consumer-channel";
+    public const string REDIS_CHANNEL_SOURCE = "event-source-redis-consumer-channel";
 }

@@ -45,7 +45,6 @@ namespace Microsoft.Extensions.Configuration
                                      // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
-                                         TraceAsParent = TimeSpan.FromMinutes(10),
                                          OriginFilter = MessageOrigin.Original
                                      })
                                      .Environment(env)
@@ -60,7 +59,6 @@ namespace Microsoft.Extensions.Configuration
                                      // .AddS3Storage(new S3Options { EnvironmentConvension = S3EnvironmentConvention.BucketPrefix })
                                      .WithOptions(o => o with
                                      {
-                                         TraceAsParent = TimeSpan.FromMinutes(10),
                                          OriginFilter = MessageOrigin.Original
                                      });
                 return consumer;

@@ -41,7 +41,7 @@ internal static class OpenTelemetryExtensions
                         })
                 .WithEventSourcingMetrics(environment, cfg =>
                 {
-                    cfg                     
+                    cfg
                         .AddOtlpExporter()
                         .AddPrometheusExporter()
                         .AddMeter("ConsoleTest");

@@ -1,21 +1,21 @@
 ﻿#pragma warning disable HAA0601 // Value type to reference type conversion causing boxing allocation
 #pragma warning disable HAA0301 // Closure Allocation Source
 
-using EventSourcing.Backbone;
-using System;
 using System.Diagnostics;
-using System.Text.Json;
-using EventSourcing.Backbone.Building;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using StackExchange.Redis;
+using System.Threading.Tasks.Dataflow;
 
 using ConsoleTest;
-using FakeItEasy;
-using System.Threading.Tasks.Dataflow;
+
+using EventSourcing.Backbone;
 using EventSourcing.Backbone.Enums;
-using Microsoft.Extensions.Hosting;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using StackExchange.Redis;
+
 using static ConsoleTest.Constants;
 
 CancellationTokenSource cancellation = new CancellationTokenSource(
@@ -66,6 +66,9 @@ ILogger _logger = hosing.Services.GetService<ILogger<Program>>() ?? throw new Nu
 await Cleanup(END_POINT_KEY, URI, _logger);
 
 await hosing.RunAsync(cancellation.Token);
+
+Console.WriteLine("Done!");
+Console.ReadKey(false);
 
 static async Task Cleanup(string END_POINT_KEY, string URI, ILogger fakeLogger)
 {

@@ -1,4 +1,6 @@
-﻿using OpenTelemetry.Metrics;
+﻿using EventSourcing.Backbone;
+
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
 // see:
@@ -31,12 +33,15 @@ internal static class OpenTelemetryExtensions
                 .WithEventSourcingTracing(environment,
                         cfg =>
                         {
-                            cfg.AddAspNetCoreInstrumentation(m =>
-                            {
-                                m.Filter = TraceFilter;
-                                m.RecordException = true;
-                                m.EnableGrpcAspNetCoreSupport = true;
-                            })
+                            cfg.AddRedisInstrumentation(
+                                    RedisClientFactory.CreateProviderAsync().Result,
+                                    options => options.SetVerboseDatabaseStatements = true)
+                                .AddAspNetCoreInstrumentation(m =>
+                                {
+                                    m.Filter = TraceFilter;
+                                    m.RecordException = true;
+                                    m.EnableGrpcAspNetCoreSupport = true;
+                                })
                                 .AddHttpClientInstrumentation(m =>
                                 {
                                     // m.Enrich

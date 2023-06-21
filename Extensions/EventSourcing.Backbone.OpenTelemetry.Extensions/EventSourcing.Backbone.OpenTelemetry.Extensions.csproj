@@ -12,6 +12,7 @@
 	<ItemGroup>
 	  <Compile Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\ConsumerChannelConstants.cs" Link="LinkedFiles\ConsumerChannelConstants.cs" />
 	  <Compile Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\ProducerChannelConstants.cs" Link="LinkedFiles\ProducerChannelConstants.cs" />
+	  <Compile Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProvider.Common\RedisChannelConstants.cs" Link="LinkedFiles\RedisChannelConstants.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

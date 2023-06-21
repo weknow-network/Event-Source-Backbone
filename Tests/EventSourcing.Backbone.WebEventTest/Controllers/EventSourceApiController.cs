@@ -3,8 +3,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StackExchange.Redis;
-
 namespace EventSourcing.Backbone.WebEventTest.Controllers
 {
     [Route("api/[controller]")]

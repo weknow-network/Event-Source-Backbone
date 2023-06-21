@@ -23,6 +23,11 @@ namespace EventSourcing.Backbone.Channels
         }
 
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name { get; } = "Redis";
+
+        /// <summary>
         /// Load the bucket information.
         /// </summary>
         /// <param name="meta">The meta fetch provider.</param>

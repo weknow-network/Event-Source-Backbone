@@ -122,16 +122,6 @@ namespace EventSourcing.Backbone
 
         #endregion MaxMessages 
 
-        #region TraceAsParent
-
-        /// <summary>
-        /// Gets the threshold duration which limit considering producer call as parent,
-        /// Beyond this period the consumer span will refer the producer as Link (rather than parent).
-        /// </summary>
-        public TimeSpan TraceAsParent { get; init; }
-
-        #endregion // TraceAsParent
-
         #region OriginFilter
 
         /// <summary>

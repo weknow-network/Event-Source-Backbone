@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Threading.Tasks.Dataflow;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
@@ -12,12 +11,8 @@ using Microsoft.Extensions.Logging;
 
 using Polly;
 
-using StackExchange.Redis;
-
 using Xunit;
 using Xunit.Abstractions;
-
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 #pragma warning disable HAA0601 // Value type to reference type conversion causing boxing allocation
