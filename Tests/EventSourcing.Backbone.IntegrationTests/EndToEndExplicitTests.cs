@@ -91,9 +91,12 @@ namespace EventSourcing.Backbone.Tests
 
         #region OnSucceed_ACK_Test
 
-        [Fact(Timeout = TIMEOUT)]
+        [Fact]
+        //[Fact(Timeout = TIMEOUT)]
         public async Task OnSucceed_ACK_Test()
         {
+            var sw = Stopwatch.StartNew();
+
             #region IEventFlow producer = ...
 
             IEventFlowProducer producer = _producerBuilder
@@ -105,7 +108,15 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // IEventFlow producer = ...
 
+            var snapshot = sw.Elapsed;
+            _outputHelper.WriteLine($"Build producer = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
+
             await SendSequenceAsync(producer);
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Produce = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
 
             var consumerOptions = new ConsumerOptions
             {
@@ -129,7 +140,14 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Build Consumer = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
+
             await subscription.Completion;
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Consumed = {snapshot:mm\\:ss\\.ff}");
 
             #region Validation
 

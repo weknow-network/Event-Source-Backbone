@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using static EventSourcing.Backbone.Channels.RedisProvider.Common.Telemetry;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 #pragma warning disable S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
@@ -26,6 +30,9 @@ namespace EventSourcing.Backbone
         private readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(CLOSE_DELEY_MILLISECONDS));
         private DateTime _lastResetConnection = DateTime.Now;
         private int _reconnectTry = 0;
+        private const string CHANGE_CONN = "redis-change-connection";
+        private static readonly Counter<int> ReConnectCounter = Metics.CreateCounter<int>(CHANGE_CONN, "count",
+                                                "count how many time the connection was re-create");
 
         #region Ctor
 
@@ -146,9 +153,11 @@ namespace EventSourcing.Backbone
         #region GetAsync
 
         /// <summary>
-        /// Get a valid connection 
+        /// Get a valid connection
         /// </summary>
-        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync()
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync(CancellationToken cancellationToken)
         {
             var conn = await _redisTask;
             if (conn.IsConnected)
@@ -157,7 +166,7 @@ namespace EventSourcing.Backbone
             _logger.LogWarning("REDIS Connection [{kind}] [{ClientName}]: status = [{status}]",
                                 Kind,
                                 conn.ClientName, status);
-            var disp = await _lock.AcquireAsync();
+            var disp = await _lock.AcquireAsync(cancellationToken);
             using (disp)
             {
                 conn = await _redisTask;
@@ -171,9 +180,9 @@ namespace EventSourcing.Backbone
                 {
                     _lastResetConnection = DateTime.Now;
                     var cn = conn;
-#pragma warning disable S1481 
+                    Activity.Current?.AddEvent(CHANGE_CONN, t => t.Add("redis.operation-kind", Kind));
+                    ReConnectCounter.WithTag("redis.operation-kind", Kind).Add(1);
                     Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
-#pragma warning restore S1481
                     _redisTask = _configuration.CreateProviderAsync(_logger);
                     var newConn = await _redisTask;
                     return newConn;
@@ -187,12 +196,14 @@ namespace EventSourcing.Backbone
         #region GetDatabaseAsync
 
         /// <summary>
-        /// Get database 
+        /// Get database
         /// </summary>
-        async Task<IDatabaseAsync> IEventSourceRedisConnectionFactory.GetDatabaseAsync()
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        async Task<IDatabaseAsync> IEventSourceRedisConnectionFactory.GetDatabaseAsync(CancellationToken cancellationToken)
         {
             IEventSourceRedisConnectionFactory self = this;
-            IConnectionMultiplexer conn = await self.GetAsync();
+            IConnectionMultiplexer conn = await self.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
             return db;
         }

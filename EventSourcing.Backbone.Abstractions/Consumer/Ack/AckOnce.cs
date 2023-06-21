@@ -9,9 +9,9 @@ namespace EventSourcing.Backbone
     /// <seealso cref="System.IAsyncDisposable" />
     public class AckOnce : IAck
     {
-        private static readonly Func<ValueTask> NON_FN = () => ValueTask.CompletedTask;
-        private readonly Func<ValueTask> _ackAsync;
-        private readonly Func<ValueTask> _cancelAsync;
+        private static readonly Func<AckBehavior, ValueTask> NON_FN = (_) => ValueTask.CompletedTask;
+        private readonly Func<AckBehavior, ValueTask> _ackAsync;
+        private readonly Func<AckBehavior, ValueTask> _cancelAsync;
         private readonly AckBehavior _behavior;
         private readonly ILogger _logger;
         private int _ackCount = 0;
@@ -26,10 +26,10 @@ namespace EventSourcing.Backbone
         /// <param name="behavior">The behavior.</param>
         /// <param name="logger">The logger.</param>
         public AckOnce(
-            Func<ValueTask> ackAsync,
+            Func<AckBehavior, ValueTask> ackAsync,
             AckBehavior behavior,
             ILogger logger,
-            Func<ValueTask>? cancelAsync = null)
+            Func<AckBehavior, ValueTask>? cancelAsync = null)
         {
             _ackAsync = ackAsync;
             _cancelAsync = cancelAsync ?? NON_FN;
@@ -42,17 +42,18 @@ namespace EventSourcing.Backbone
         #region AckAsync
 
         /// <summary>
-        /// Preform acknowledge (which should prevent the 
+        /// Preform acknowledge (which should prevent the
         /// message from process again by the consumer)
         /// </summary>
+        /// <param name="cause">The cause of the acknowledge.</param>
         /// <returns></returns>
-        public async ValueTask AckAsync()
+        public async ValueTask AckAsync(AckBehavior cause)
         {
             int count = Interlocked.Increment(ref _ackCount);
             try
             {
                 if (count == 1)
-                    await _ackAsync();
+                    await _ackAsync(cause);
 
             }
             catch (Exception ex)
@@ -71,14 +72,16 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
         /// </summary>
+        /// <param name="cause">The cause of the cancellation.</param>
         /// <returns></returns>
-        public async ValueTask CancelAsync()
+        /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing)
+        public async ValueTask CancelAsync(AckBehavior cause)
         {
             int count = Interlocked.Increment(ref _ackCount);
             try
             {
                 if (count == 1)
-                    await _cancelAsync();
+                    await _cancelAsync(cause);
 
             }
             catch (Exception ex)
@@ -105,7 +108,7 @@ namespace EventSourcing.Backbone
         {
             if (_behavior == AckBehavior.OnSucceed)
             {
-                await AckAsync();
+                await AckAsync(AckBehavior.OnSucceed);
             }
         }
 

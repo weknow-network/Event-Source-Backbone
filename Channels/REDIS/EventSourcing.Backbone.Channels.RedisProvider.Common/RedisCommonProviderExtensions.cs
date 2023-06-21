@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.Metrics;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
+
+using static EventSourcing.Backbone.Channels.RedisProvider.Common.Telemetry;
 
 namespace EventSourcing.Backbone.Private
 {
@@ -9,8 +13,12 @@ namespace EventSourcing.Backbone.Private
     /// </summary>
     public static class RedisCommonProviderExtensions
     {
-        private const int MAX_DELAY = 15_000;
-        private const int KEY_NOT_EXISTS_DELAY = 3_000;
+        private const int MIN_DELAY = 2;
+        private const int SPIN_LIMIT = 30;
+        private const int MAX_DELAY = 3_000;
+        private static Counter<int> KeyMissingCounter = Metics.CreateCounter<int>("event-source.key-missing", "count", "count missing key events");
+        private static Counter<int> CreateConsumerGroupCounter = Metics.CreateCounter<int>("event-source.create-consumer-group", "count", "creating a consumer group");
+        private static Counter<int> CreateConsumerGroupRetryCounter = Metics.CreateCounter<int>("event-source.create-consumer-group-retry", "count", "retries of creating a consumer group");
 
         private static readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(20));
 
@@ -23,60 +31,84 @@ namespace EventSourcing.Backbone.Private
         /// <param name="eventSourceKey">The event source key.</param>
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public static async Task CreateConsumerGroupIfNotExistsAsync(
                         this IEventSourceRedisConnectionFactory connFactory,
                         string eventSourceKey,
                         string consumerGroup,
-                        ILogger logger)
+                        ILogger logger,
+                        CancellationToken cancellationToken)
         {
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
+            using var track = Track.StartInternalTrace("event-source.consumer.create-consumer-group", t => t.Add("group-name", consumerGroup));
+            CreateConsumerGroupCounter.Add(1);
 
-            int delay = 0;
+            int delay = MIN_DELAY;
             bool exists = false;
             int tryNumber = 0;
             while (groupsInfo.Length == 0)
             {
+                if (tryNumber != 0)
+                    CreateConsumerGroupRetryCounter.Add(1);
                 tryNumber++;
 
-                IConnectionMultiplexer conn = await connFactory.GetAsync();
+                IConnectionMultiplexer conn = await connFactory.GetAsync(cancellationToken);
                 IDatabaseAsync db = conn.GetDatabase();
                 try
                 {
-                    #region Validation (if key exists)
-
-                    if (!await db.KeyExistsAsync(eventSourceKey,
-                                                 flags: CommandFlags.DemandMaster))
-                    {
-                        await Task.Delay(KEY_NOT_EXISTS_DELAY);
-                        logger.LogDebug("Key not exists (yet): {info}", CurrentInfo());
-                        continue;
-                    }
-
-                    #endregion // Validation (if key exists)
-
                     #region delay on retry
 
-                    if (delay == 0)
-                        delay = 4;
-                    else
+                    if (tryNumber > SPIN_LIMIT)
                     {
                         delay = Math.Min(delay * 2, MAX_DELAY);
-                        await Task.Delay(delay);
+                        using (Track.StartInternalTrace("event-source.consumer.delay.key-not-exists",
+                                            t => t.Add("delay", delay)
+                                                            .Add("try-number", tryNumber)
+                                                            .Add("group-name", consumerGroup))) ;
+                        {
+                            await Task.Delay(delay);
+                        }
                         if (tryNumber % 10 == 0)
                         {
                             logger.LogWarning("Create Consumer Group If Not Exists: still waiting {info}", CurrentInfo());
                         }
                     }
 
-
                     #endregion // delay on retry
 
-                    using var lk = await _lock.AcquireAsync();
-                    groupsInfo = await db.StreamGroupInfoAsync(
-                                                eventSourceKey,
-                                                flags: CommandFlags.DemandMaster);
-                    exists = groupsInfo.Any(m => m.Name == consumerGroup);
+                    #region Validation (if key exists)
+
+                    if (!await db.KeyExistsAsync(eventSourceKey,
+                                                 flags: CommandFlags.DemandMaster))
+                    {
+                        KeyMissingCounter.Add(1);
+                        //using (Track.StartInternalTrace("event-source.consumer.delay.key-not-exists",
+                        //                    t => t.Add("delay", KEY_NOT_EXISTS_DELAY)
+                        //                                    .Add("try-number", tryNumber)
+                        //                                    .Add("group-name", consumerGroup))) ;
+                        //{
+                        //    // producer didn't produce anything yet
+                        //    await Task.Delay(KEY_NOT_EXISTS_DELAY);
+                        //}
+                        if (tryNumber == 0 || tryNumber > SPIN_LIMIT)
+                            logger.LogDebug("Key not exists (yet): {info}", CurrentInfo());
+                        continue;
+                    }
+
+                    #endregion // Validation (if key exists)
+
+                    using (Track.StartInternalTrace("event-source.consumer.get-consumer-group-info",
+                                        t => t
+                                                        .Add("try-number", tryNumber)
+                                                        .Add("group-name", consumerGroup))) ;
+                    {
+                        using var lk = await _lock.AcquireAsync(cancellationToken);
+                        groupsInfo = await db.StreamGroupInfoAsync(
+                                                    eventSourceKey,
+                                                    flags: CommandFlags.DemandMaster);
+                        exists = groupsInfo.Any(m => m.Name == consumerGroup);
+                    }
                 }
                 #region Exception Handling
 
@@ -89,7 +121,7 @@ namespace EventSourcing.Backbone.Private
                     }
                     else
                     {
-                        await Task.Delay(KEY_NOT_EXISTS_DELAY);
+                        //await Task.Delay(KEY_NOT_EXISTS_DELAY);
                         logger.LogDebug(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                 }
@@ -111,11 +143,20 @@ namespace EventSourcing.Backbone.Private
                 {
                     try
                     {
-                        using var lk = await _lock.AcquireAsync();
-                        await db.StreamCreateConsumerGroupAsync(eventSourceKey,
-                                                                consumerGroup,
-                                                                StreamPosition.Beginning,
-                                                                flags: CommandFlags.DemandMaster);
+                        using (Track.StartInternalTrace("event-source.consumer.create-consumer-group",
+                                            t => t
+                                                            .Add("try-number", tryNumber)
+                                                            .Add("group-name", consumerGroup))) ;
+                        {
+                            using var lk = await _lock.AcquireAsync(cancellationToken);
+                            if (await db.StreamCreateConsumerGroupAsync(eventSourceKey,
+                                                                    consumerGroup,
+                                                                    StreamPosition.Beginning,
+                                                                    flags: CommandFlags.DemandMaster))
+                            {
+                                break;
+                            }
+                        }
                     }
                     #region Exception Handling
 

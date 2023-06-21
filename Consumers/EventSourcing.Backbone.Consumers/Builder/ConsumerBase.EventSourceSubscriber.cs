@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Enums;
@@ -190,17 +191,17 @@ namespace EventSourcing.Backbone
                             if (behavior == AckBehavior.OnSucceed)
                                 await ack.AckAsync();
                         }
-                        else
-                        {
-                            if (partialBehavior == PartialConsumerBehavior.Loose)
-                            {
-                                await ack.AckAsync();
-                            }
-                            if (partialBehavior == PartialConsumerBehavior.Sequential)
-                            {
-                                await ack.AckAsync();
-                            }
-                        }
+                        //else
+                        //{
+                        //    if (partialBehavior == PartialConsumerBehavior.Loose)
+                        //    {
+                        //        await ack.AckAsync();
+                        //    }
+                        //    if (partialBehavior == PartialConsumerBehavior.Sequential)
+                        //    {
+                        //        await ack.AckAsync();
+                        //    }
+                        //}
                     }
                 }
                 #region Exception Handling
@@ -227,7 +228,6 @@ namespace EventSourcing.Backbone
                 #endregion // Exception Handling
                 finally
                 {
-
                     if (Plan.Options.AckBehavior == AckBehavior.OnFinally && partialBehavior != PartialConsumerBehavior.Sequential)
                     {
                         await ack.AckAsync();
@@ -249,6 +249,20 @@ namespace EventSourcing.Backbone
             #endregion // ConsumingAsync
 
             #region Subscribe
+
+            /// <summary>
+            /// Subscribe consumer.
+            /// </summary>
+            /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
+            /// <returns>
+            /// The subscription lifetime (dispose to remove the subscription)
+            /// </returns>
+            /// <exception cref="System.ArgumentNullException">_plan</exception>
+            IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge handler)
+
+            {
+                return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handler.ToEnumerable());
+            }
 
             /// <summary>
             /// Subscribe consumer.

@@ -8,12 +8,16 @@ namespace EventSourcing.Backbone
     public interface IEventSourceRedisConnectionFactory
     {
         /// <summary>
-        /// Get a valid connection 
+        /// Get a valid connection
         /// </summary>
-        Task<IConnectionMultiplexer> GetAsync();
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IConnectionMultiplexer> GetAsync(CancellationToken cancellationToken);
         /// <summary>
-        /// Get database 
+        /// Get database
         /// </summary>
-        Task<IDatabaseAsync> GetDatabaseAsync();
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IDatabaseAsync> GetDatabaseAsync(CancellationToken cancellationToken);
     }
 }

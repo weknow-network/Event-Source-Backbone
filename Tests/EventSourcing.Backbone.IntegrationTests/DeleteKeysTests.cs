@@ -31,40 +31,46 @@ namespace EventSourcing.Backbone.Tests
         {
             IConnectionMultiplexer conn = await RedisClientFactory.CreateProviderAsync(
                                                     configurationHook: cfg => cfg.AllowAdmin = true);
-            string serverName = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
-            var server = conn.GetServer(serverName);
-            IEnumerable<RedisKey> keys = server.Keys(pattern: pattern).ToArray();
-            IDatabaseAsync db = conn.GetDatabase();
 
-            var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
-            foreach (string? key in keys)
+            string serverNames = Environment.GetEnvironmentVariable(END_POINT_KEY) ?? "localhost:6379";
+            foreach (var serverName in serverNames.Split(','))
             {
-                if (string.IsNullOrWhiteSpace(key)) continue;
-                ab.Post(key);
-            }
+                var server = conn.GetServer(serverName);
+                if (!server.IsConnected)
+                    continue;
+                IEnumerable<RedisKey> keys = server.Keys(pattern: pattern).ToArray();
+                IDatabaseAsync db = conn.GetDatabase();
 
-            ab.Complete();
-            await ab.Completion;
-
-            async Task LocalAsync(string k)
-            {
-                try
+                var ab = new ActionBlock<string>(k => LocalAsync(k), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
+                foreach (string? key in keys)
                 {
-                    await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
-                    Trace.WriteLine(k);
-                }
-                #region Exception Handling
-
-                catch (RedisTimeoutException ex)
-                {
-                    _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
-                }
-                catch (Exception ex)
-                {
-                    _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                    if (string.IsNullOrWhiteSpace(key)) continue;
+                    ab.Post(key);
                 }
 
-                #endregion // Exception Handling
+                ab.Complete();
+                await ab.Completion;
+
+                async Task LocalAsync(string k)
+                {
+                    try
+                    {
+                        await db.KeyDeleteAsync(k, CommandFlags.DemandMaster);
+                        Trace.WriteLine(k);
+                    }
+                    #region Exception Handling
+
+                    catch (RedisTimeoutException ex)
+                    {
+                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _outputHelper.WriteLine($"Test dispose timeout error (delete keys) {ex.FormatLazy()}");
+                    }
+
+                    #endregion // Exception Handling
+                }
             }
         }
 

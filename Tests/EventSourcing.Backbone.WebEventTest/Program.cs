@@ -17,11 +17,11 @@ builder.Services.AddAWSService<IAmazonS3>();
 IWebHostEnvironment environment = builder.Environment;
 string env = environment.EnvironmentName;
 string appName = environment.ApplicationName;
-string shortAppName = appName.Replace("EventSourcing.Backbone.", string.Empty);
 
 
 var services = builder.Services;
 // Add services to the container.
+
 
 services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -72,13 +72,14 @@ services.AddHttpClient("migration", c =>
  });
 
 //IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
-services.AddOpenTelemetry()
-        .WithEventSourcingTracing(environment)
-        .WithEventSourcingMetrics(environment);
+builder.AddOpenTelemetryEventSourcing();
+
 //services.AddOpenTelemetry(environment, shortAppName, redisConnection);
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
+//var redis = await RedisClientFactory.CreateProviderAsync();
+//services.AddSingleton(redis);
 services.AddEventSourceRedisConnection();
 services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);

@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider.Common;
+using EventSourcing.Backbone.Consumers;
 using EventSourcing.Backbone.Private;
 
 using Microsoft.Extensions.Logging;
@@ -13,1087 +15,1144 @@ using StackExchange.Redis;
 
 using static System.Math;
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using static EventSourcing.Backbone.Channels.RedisProvider.Telemetry;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
 
-namespace EventSourcing.Backbone.Channels.RedisProvider
+namespace EventSourcing.Backbone.Channels.RedisProvider;
+
+/// <summary>
+/// The redis consumer channel.
+/// </summary>
+internal class RedisConsumerChannel : IConsumerChannelProvider
 {
+    private static readonly Counter<int> StealAmountCounter = Metrics.CreateCounter<int>("event-source.consumer.message-stealing", "sum");
+    private static readonly Counter<int> ConcumeBatchCountCounter = Metrics.CreateCounter<int>("event-source.consumer.batch", "count",
+                                                "count of the number of consuming batches form the stream provider");
+    private static readonly Counter<int> ConcumeBatchSumCounter = Metrics.CreateCounter<int>("event-source.consumer.batch", "sum",
+                                                "count of the messages consuming before process");
+    private static readonly Counter<int> ConcumeBatchFailureCounter = Metrics.CreateCounter<int>("event-source.consumer.batch.failure", "count",
+                                                "batch reading failure");
+    private static readonly Counter<int> AckCounter = Metrics.CreateCounter<int>("event-source.consumer.ack", "count",
+                                                "Acknowledge count");
+
+    private const string BEGIN_OF_STREAM = "0000000000000";
     /// <summary>
-    /// The redis consumer channel.
+    /// The read by identifier chunk size.
+    /// REDIS don't have option to read direct position (it read from a position, not includes the position itself),
+    /// therefore read should start before the actual position.
     /// </summary>
-    internal class RedisConsumerChannel : IConsumerChannelProvider
+    private const int READ_BY_ID_CHUNK_SIZE = 10;
+    /// <summary>
+    /// Receiver max iterations
+    /// </summary>
+    private const int READ_BY_ID_ITERATIONS = 1000 / READ_BY_ID_CHUNK_SIZE;
+
+    private readonly ILogger _logger;
+    private readonly RedisConsumerChannelSetting _setting;
+    private readonly IEventSourceRedisConnectionFactory _connFactory;
+    private readonly IConsumerStorageStrategy _defaultStorageStrategy;
+    private const string META_SLOT = "__<META>__";
+    private const int INIT_RELEASE_DELAY = 100;
+    private const int MAX_RELEASE_DELAY = 1000 * 30; // 30 seconds
+
+    #region Ctor
+
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="redisConnFactory">The redis provider promise.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="setting">The setting.</param>
+    public RedisConsumerChannel(
+                    IEventSourceRedisConnectionFactory redisConnFactory,
+                    ILogger logger,
+                    RedisConsumerChannelSetting? setting = null)
     {
-        private const string BEGIN_OF_STREAM = "0000000000000";
-        /// <summary>
-        /// The read by identifier chunk size.
-        /// REDIS don't have option to read direct position (it read from a position, not includes the position itself),
-        /// therefore read should start before the actual position.
-        /// </summary>
-        private const int READ_BY_ID_CHUNK_SIZE = 10;
-        /// <summary>
-        /// Receiver max iterations
-        /// </summary>
-        private const int READ_BY_ID_ITERATIONS = 1000 / READ_BY_ID_CHUNK_SIZE;
-        private static readonly ActivitySource ACTIVITY_SOURCE = new ActivitySource(EventSourceConstants.REDIS_CONSUMER_CHANNEL_SOURCE);
+        _logger = logger;
+        _connFactory = redisConnFactory;
+        _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory);
+        _setting = setting ?? RedisConsumerChannelSetting.Default;
+    }
 
-        private readonly ILogger _logger;
-        private readonly RedisConsumerChannelSetting _setting;
-        private readonly IEventSourceRedisConnectionFactory _connFactory;
-        private readonly IConsumerStorageStrategy _defaultStorageStrategy;
-        private const string META_SLOT = "__<META>__";
-        private const int INIT_RELEASE_DELAY = 100;
-        private const int MAX_RELEASE_DELAY = 1000 * 30; // 30 seconds
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="setting">The setting.</param>
+    public RedisConsumerChannel(
+                    ILogger logger,
+                    ConfigurationOptions? configuration = null,
+                    RedisConsumerChannelSetting? setting = null) : this(
+                         EventSourceRedisConnectionFactory.Create(
+                                                logger,
+                                                configuration),
+                        logger,
+                        setting)
+    {
+    }
 
-        #region Ctor
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="credentialsKeys">Environment keys of the credentials</param>
+    /// <param name="setting">The setting.</param>
+    /// <param name="configurationHook">The configuration hook.</param>
+    public RedisConsumerChannel(
+                    ILogger logger,
+                    IRedisCredentials credentialsKeys,
+                    RedisConsumerChannelSetting? setting = null,
+                    Action<ConfigurationOptions>? configurationHook = null) : this(
+                        EventSourceRedisConnectionFactory.Create(
+                                                credentialsKeys,
+                                                logger,
+                                                configurationHook),
+                        logger,
+                        setting)
+    {
+    }
 
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="redisConnFactory">The redis provider promise.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="setting">The setting.</param>
-        public RedisConsumerChannel(
-                        IEventSourceRedisConnectionFactory redisConnFactory,
-                        ILogger logger,
-                        RedisConsumerChannelSetting? setting = null)
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
+    /// <param name="password">The password (not an environment variable).</param>
+    /// <param name="setting">The setting.</param>
+    /// <param name="configurationHook">The configuration hook.</param>
+    public RedisConsumerChannel(
+                    ILogger logger,
+                    string endpoint,
+                    string? password = null,
+                    RedisConsumerChannelSetting? setting = null,
+                    Action<ConfigurationOptions>? configurationHook = null) : this(
+                        EventSourceRedisConnectionFactory.Create(
+                                                logger,
+                                                endpoint,
+                                                password,
+                                                configurationHook),
+                        logger,
+                        setting)
+    {
+    }
+
+    #endregion // Ctor
+
+    #region SubsribeAsync
+
+    /// <summary>
+    /// Subscribe to the channel for specific metadata.
+    /// </summary>
+    /// <param name="plan">The consumer plan.</param>
+    /// <param name="func">The function.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// When completed
+    /// </returns>
+    public async ValueTask SubscribeAsync(
+                IConsumerPlan plan,
+                Func<Announcement, IAck, ValueTask<bool>> func,
+                CancellationToken cancellationToken)
+    {
+        var joinCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken);
+        var joinCancellation = joinCancellationSource.Token;
+        ConsumerOptions options = plan.Options;
+
+        ILogger? logger = _logger ?? plan.Logger;
+        logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.FullUri(), plan.ConsumerGroup, plan.ConsumerName);
+
+        while (!joinCancellation.IsCancellationRequested)
         {
-            _logger = logger;
-            _connFactory = redisConnFactory;
-            _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory);
-            _setting = setting ?? RedisConsumerChannelSetting.Default;
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="configuration">The configuration.</param>
-        /// <param name="setting">The setting.</param>
-        public RedisConsumerChannel(
-                        ILogger logger,
-                        ConfigurationOptions? configuration = null,
-                        RedisConsumerChannelSetting? setting = null) : this(
-                             EventSourceRedisConnectionFactory.Create(
-                                                    logger,
-                                                    configuration),
-                            logger,
-                            setting)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="credentialsKeys">Environment keys of the credentials</param>
-        /// <param name="setting">The setting.</param>
-        /// <param name="configurationHook">The configuration hook.</param>
-        public RedisConsumerChannel(
-                        ILogger logger,
-                        IRedisCredentials credentialsKeys,
-                        RedisConsumerChannelSetting? setting = null,
-                        Action<ConfigurationOptions>? configurationHook = null) : this(
-                            EventSourceRedisConnectionFactory.Create(
-                                                    credentialsKeys,
-                                                    logger,
-                                                    configurationHook),
-                            logger,
-                            setting)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="endpoint">The raw endpoint (not an environment variable).</param>
-        /// <param name="password">The password (not an environment variable).</param>
-        /// <param name="setting">The setting.</param>
-        /// <param name="configurationHook">The configuration hook.</param>
-        public RedisConsumerChannel(
-                        ILogger logger,
-                        string endpoint,
-                        string? password = null,
-                        RedisConsumerChannelSetting? setting = null,
-                        Action<ConfigurationOptions>? configurationHook = null) : this(
-                            EventSourceRedisConnectionFactory.Create(
-                                                    logger,
-                                                    endpoint,
-                                                    password,
-                                                    configurationHook),
-                            logger,
-                            setting)
-        {
-        }
-
-        #endregion // Ctor
-
-        #region SubsribeAsync
-
-        /// <summary>
-        /// Subscribe to the channel for specific metadata.
-        /// </summary>
-        /// <param name="plan">The consumer plan.</param>
-        /// <param name="func">The function.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// When completed
-        /// </returns>
-        public async ValueTask SubscribeAsync(
-                    IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask<bool>> func,
-                    CancellationToken cancellationToken)
-        {
-            var joinCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken);
-            var joinCancellation = joinCancellationSource.Token;
-            ConsumerOptions options = plan.Options;
-
-            ILogger? logger = _logger ?? plan.Logger;
-            logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.FullUri(), plan.ConsumerGroup, plan.ConsumerName);
-
-            while (!joinCancellation.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    await SubsribeToSingleAsync(plan, func, options, joinCancellation);
-                    // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by partial uri * pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
+                await SubsribeToSingleAsync(plan, func, options, joinCancellation);
+                // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by partial uri * pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
 
-                    if (options.FetchUntilUnixDateOrEmpty != null)
-                        break;
-                }
-                #region Exception Handling
-
-                catch (OperationCanceledException)
-                {
-                    if (_logger == null)
-                        Console.WriteLine($"Subscribe cancellation [{plan.FullUri()}] event stream (may have reach the messages limit)");
-                    else
-                        _logger.LogError("Subscribe cancellation [{uri}] event stream (may have reach the messages limit)",
-                            plan.Uri);
-                    joinCancellationSource.CancelSafe();
-                }
-                catch (Exception ex)
-                {
-                    if (_logger == null)
-                        Console.WriteLine($"Fail to subscribe into the [{plan.FullUri()}] event stream");
-                    else
-                        _logger.LogError(ex, "Fail to subscribe into the [{uri}] event stream",
-                            plan.Uri);
-                    throw;
-                }
-
-                #endregion // Exception Handling
+                if (options.FetchUntilUnixDateOrEmpty != null)
+                    break;
             }
+            #region Exception Handling
+
+            catch (OperationCanceledException)
+            {
+                if (_logger == null)
+                    Console.WriteLine($"Subscribe cancellation [{plan.FullUri()}] event stream (may have reach the messages limit)");
+                else
+                    _logger.LogError("Subscribe cancellation [{uri}] event stream (may have reach the messages limit)",
+                        plan.Uri);
+                joinCancellationSource.CancelSafe();
+            }
+            catch (Exception ex)
+            {
+                if (_logger == null)
+                    Console.WriteLine($"Fail to subscribe into the [{plan.FullUri()}] event stream");
+                else
+                    _logger.LogError(ex, "Fail to subscribe into the [{uri}] event stream",
+                        plan.Uri);
+                throw;
+            }
+
+            #endregion // Exception Handling
         }
+    }
 
-        #endregion // SubsribeAsync
+    #endregion // SubsribeAsync
 
-        #region SubsribeToSingleAsync
+    #region SubsribeToSingleAsync
 
-        /// <summary>
-        /// Subscribe to specific shard.
-        /// </summary>
-        /// <param name="plan">The consumer plan.</param>
-        /// <param name="func">The function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        private async Task SubsribeToSingleAsync(
-                    IConsumerPlan plan,
-                    Func<Announcement, IAck, ValueTask<bool>> func,
-                    ConsumerOptions options,
-                    CancellationToken cancellationToken)
+    /// <summary>
+    /// Subscribe to specific shard.
+    /// </summary>
+    /// <param name="plan">The consumer plan.</param>
+    /// <param name="func">The function.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    private async Task SubsribeToSingleAsync(
+                IConsumerPlan plan,
+                Func<Announcement, IAck, ValueTask<bool>> func,
+                ConsumerOptions options,
+                CancellationToken cancellationToken)
+    {
+        var claimingTrigger = options.ClaimingTrigger;
+        var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
+
+        string key = plan.FullUri();
+        bool isFirstBatchOrFailure = true;
+
+        CommandFlags flags = CommandFlags.None;
+        string? fetchUntil = options.FetchUntilUnixDateOrEmpty?.ToString();
+
+        ILogger logger = plan.Logger ?? _logger;
+
+        #region await db.CreateConsumerGroupIfNotExistsAsync(...)
+
+        await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+            key,
+            RedisChannelConstants.NONE_CONSUMER,
+            logger,
+            cancellationToken);
+
+        await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+            key,
+            plan.ConsumerGroup,
+            logger,
+            cancellationToken);
+
+        #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
+
+        int releaseDelay = INIT_RELEASE_DELAY;
+        int bachSize = options.BatchSize;
+
+        TimeSpan delay = TimeSpan.Zero;
+        int emptyBatchCount = 0;
+        using (Track.StartActivity("event-source.consumer.loop", ActivityKind.Server))
         {
-            var claimingTrigger = options.ClaimingTrigger;
-            var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
-
-            string key = plan.FullUri();
-            bool isFirstBatchOrFailure = true;
-
-            CommandFlags flags = CommandFlags.None;
-            string? fetchUntil = options.FetchUntilUnixDateOrEmpty?.ToString();
-
-            ILogger logger = plan.Logger ?? _logger;
-
-            #region await db.CreateConsumerGroupIfNotExistsAsync(...)
-
-            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                key,
-                RedisChannelConstants.NONE_CONSUMER,
-                logger);
-
-            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                key,
-                plan.ConsumerGroup,
-                logger);
-
-            #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
-
-            int releaseDelay = INIT_RELEASE_DELAY;
-            int bachSize = options.BatchSize;
-
-            TimeSpan delay = TimeSpan.Zero;
-            int emptyBatchCount = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var proceed = await HandleBatchAsync();
                 if (!proceed)
                     break;
             }
+        }
 
-            #region HandleBatchAsync
+        #region HandleBatchAsync
 
-            // Handle single batch
-            async ValueTask<bool> HandleBatchAsync()
+        // Handle single batch
+        async ValueTask<bool> HandleBatchAsync()
+        {
+            var policy = _setting.Policy.Policy;
+            return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
+        }
+
+        #endregion // HandleBatchAsync
+
+        #region HandleBatchBreakerAsync
+
+        async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            StreamEntry[] results = await ReadBatchAsync();
+            emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
+            results = await ClaimStaleMessages(emptyBatchCount, results, ct);
+
+            if (results.Length == 0)
             {
-                var policy = _setting.Policy.Policy;
-                return await policy.ExecuteAsync(HandleBatchBreakerAsync, cancellationToken);
+                if (fetchUntil == null)
+                    delay = await DelayIfEmpty(delay, cancellationToken);
+                return fetchUntil == null;
             }
 
+            ct.ThrowIfCancellationRequested();
 
-            async Task<bool> HandleBatchBreakerAsync(CancellationToken ct)
+            try
             {
-                ct.ThrowIfCancellationRequested();
-
-                StreamEntry[] results = await ReadBatchAsync();
-                emptyBatchCount = results.Length == 0 ? emptyBatchCount + 1 : 0;
-                results = await ClaimStaleMessages(emptyBatchCount, results, ct);
-
-                if (results.Length == 0)
+                var batchCancellation = new CancellationTokenSource();
+                int i = 0;
+                batchCancellation.Token.Register(async () =>
                 {
-                    if (fetchUntil == null)
-                        delay = await DelayIfEmpty(delay, cancellationToken);
-                    return fetchUntil == null;
-                }
-
-                ct.ThrowIfCancellationRequested();
-
-                try
+                    // TODO: [bnaya 2023-06-19 #RELEASE] committed id should be captured
+                    RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
+                    await ReleaseAsync(freeTargets);
+                });
+                // TODO: [bnaya 2023-06-19] enable parallel consuming (when order doesn't matters) See #RELEASE
+                for (; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                 {
-                    var batchCancellation = new CancellationTokenSource();
-                    int i = 0;
-                    batchCancellation.Token.Register(async () =>
-                    {
-                        RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
-                        await ReleaseAsync(freeTargets);
-                    });
-                    for (; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
-                    {
-                        StreamEntry result = results[i];
+                    StreamEntry result = results[i];
+                    #region Metadata meta = ...
 
-                        #region Metadata meta = ...
+                    Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
 
-                        Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
-                        Metadata meta;
-                        string? metaJson = channelMeta[META_SLOT];
-                        string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
-                        if (string.IsNullOrEmpty(metaJson))
-                        { // backward comparability
+                    Metadata meta;
+                    string? metaJson = channelMeta[META_SLOT];
+                    string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
+                    if (string.IsNullOrEmpty(metaJson))
+                    { // backward comparability
 
-                            string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.ChannelType));
+                        string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.ChannelType));
 
-                            if (channelType != CHANNEL_TYPE)
-                            {
-                                // TODO: [bnaya 2021-07] send metrics
-                                logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
-                                await AckAsync(result.Id);
-                                continue;
-                            }
-
-                            string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.MessageId));
-                            string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.Operation));
-                            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-                            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                            if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
-                                return false;
-                            meta = new Metadata
-                            {
-                                MessageId = id,
-                                EventKey = eventKey,
-                                Environment = plan.Environment,
-                                Uri = plan.Uri,
-                                Operation = operation,
-                                ProducedAt = producedAt
-                            };
-
-                        }
-                        else
+                        if (channelType != CHANNEL_TYPE)
                         {
-                            meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
-                            meta = meta with { EventKey = eventKey };
-
-                        }
-
-                        #endregion // Metadata meta = ...
-
-                        int local = i;
-                        var cancellableIds = results[local..].Select(m => m.Id);
-                        var ack = new AckOnce(
-                                        () => AckAsync(result.Id),
-                                        plan.Options.AckBehavior, logger,
-                                        async () =>
-                                        {
-                                            batchCancellation.CancelSafe(); // cancel forward
-                                            await CancelAsync(cancellableIds);
-                                        });
-
-                        #region OriginFilter
-
-                        MessageOrigin originFilter = plan.Options.OriginFilter;
-                        if (originFilter != MessageOrigin.None && (originFilter & meta.Origin) == MessageOrigin.None)
-                        {
-                            Ack.Set(ack);
-                            #region Log
-
-                            _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.FullUri());
-
-                            #endregion // Log
+                            // TODO: [bnaya 2021-07] send metrics
+                            logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
+                            await AckAsync(result.Id);
                             continue;
                         }
 
-                        #endregion // OriginFilter
-
-                        #region var announcement = new Announcement(...)
-
-                        Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-                        Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
-
-                        var announcement = new Announcement
+                        string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.MessageId));
+                        string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.Operation));
+                        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+                        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+                        if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
+                            return false;
+                        meta = new Metadata
                         {
-                            Metadata = meta,
-                            Segments = segmets,
-                            InterceptorsData = interceptions
+                            MessageId = id,
+                            EventKey = eventKey,
+                            Environment = plan.Environment,
+                            Uri = plan.Uri,
+                            Operation = operation,
+                            ProducedAt = producedAt
                         };
 
-                        #endregion // var announcement = new Announcement(...)
-
-                        #region Start Telemetry Span
-
-                        ActivityContext parentContext = meta.ExtractSpan(channelMeta, ExtractTraceContext);
-                        // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
-                        // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-                        var activityName = $"{meta.Operation} consume";
-
-                        bool traceAsParent = (DateTimeOffset.UtcNow - meta.ProducedAt) < plan.Options.TraceAsParent;
-                        ActivityContext parentActivityContext = traceAsParent ? parentContext : default;
-                        using var activity = ACTIVITY_SOURCE.StartActivity(
-                                                                activityName,
-                                                                ActivityKind.Consumer,
-                                                                parentActivityContext, links: new[] { new ActivityLink(parentContext) });
-                        meta.InjectTelemetryTags(activity);
-
-                        #region IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
-
-                        IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
-                        {
-                            try
-                            {
-                                if (entries.TryGetValue(key, out var value))
-                                {
-                                    if (string.IsNullOrEmpty(value))
-                                        return Array.Empty<string>();
-                                    return new[] { value.ToString() };
-                                }
-                            }
-                            #region Exception Handling
-
-                            catch (Exception ex)
-                            {
-                                Exception err = ex.FormatLazy();
-                                _logger.LogError(err, "Failed to extract trace context: {error}", err);
-                            }
-
-                            #endregion // Exception Handling
-
-                            return Enumerable.Empty<string>();
-                        }
-
-                        #endregion // IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
-
-                        #endregion // Start Telemetry Span
-
-                        bool succeed = await func(announcement, ack);
-                        if (succeed)
-                        {
-                            releaseDelay = INIT_RELEASE_DELAY;
-                            bachSize = options.BatchSize;
-                        }
-                        else
-                        {
-                            if (options.PartialBehavior == Enums.PartialConsumerBehavior.Sequential)
-                            {
-                                RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
-                                await ReleaseAsync(freeTargets);
-                                await Task.Delay(1000, ct);
-                            }
-                        }
                     }
-                }
-                catch
-                {
-                    isFirstBatchOrFailure = true;
-                }
-                return true;
-            }
-
-            #endregion // HandleBatchAsync
-
-            #region ReadBatchAsync
-
-            // read batch entities from REDIS
-            async Task<StreamEntry[]> ReadBatchAsync()
-            {
-                // TBD: circuit-breaker
-                try
-                {
-                    var r = await _setting.Policy.Policy.ExecuteAsync(async (ct) =>
+                    else
                     {
-                        ct.ThrowIfCancellationRequested();
-                        StreamEntry[] values = Array.Empty<StreamEntry>();
-                        values = await ReadSelfPending();
+                        meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
+                        meta = meta with { EventKey = eventKey };
 
-                        if (values.Length == 0)
-                        {
-                            isFirstBatchOrFailure = false;
-
-                            IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                            IDatabaseAsync db = conn.GetDatabase();
-                            try
-                            {
-                                values = await db.StreamReadGroupAsync(
-                                                                    key,
-                                                                    plan.ConsumerGroup,
-                                                                    plan.ConsumerName,
-                                                                    position: StreamPosition.NewMessages,
-                                                                    count: bachSize,
-                                                                    flags: flags)
-                                                .WithCancellation(ct, () => Array.Empty<StreamEntry>())
-                                                .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
-                            }
-                            #region Exception Handling
-
-                            catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
-                            {
-                                await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                                        key,
-                                        plan.ConsumerGroup,
-                                        logger);
-                            }
-                            catch (RedisServerException ex)
-                            {
-                                logger?.LogWarning(ex, ex.Message);
-                                await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                                        key,
-                                        plan.ConsumerGroup,
-                                        logger);
-                            }
-                            //catch (Exception ex) 
-                            //{
-                            //    logger?.LogWarning(ex, ex.Message);
-                            //    //await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                            //    //        key,
-                            //    //        plan.ConsumerGroup,
-                            //    //        logger);
-                            //}
-
-                            #endregion // Exception Handling
-                        }
-                        StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
-                        return results;
-                    }, cancellationToken);
-                    return r;
-                }
-                #region Exception Handling
-
-                catch (RedisTimeoutException ex)
-                {
-                    logger.LogWarning(ex, "Event source [{source}] by [{consumer}]: Timeout", key, plan.ConsumerName);
-                    return Array.Empty<StreamEntry>();
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Fail to read from event source [{source}] by [{consumer}]", key, plan.ConsumerName);
-                    return Array.Empty<StreamEntry>();
-                }
-
-                #endregion // Exception Handling
-            }
-
-            #endregion // ReadBatchAsync
-
-            #region ReadSelfPending
-
-            // Check for pending messages of the current consumer (crash scenario)
-            async Task<StreamEntry[]> ReadSelfPending()
-            {
-                StreamEntry[] values = Array.Empty<StreamEntry>();
-                if (!isFirstBatchOrFailure)
-                    return values;
-
-
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                IDatabaseAsync db = conn.GetDatabase();
-                try
-                {
-                    StreamPendingMessageInfo[] pendMsgInfo = await db.StreamPendingMessagesAsync(
-                                                key,
-                                                plan.ConsumerGroup,
-                                                options.BatchSize,
-                                                plan.ConsumerName,
-                                                flags: CommandFlags.DemandMaster);
-                    if (pendMsgInfo != null && pendMsgInfo.Length != 0)
-                    {
-                        var ids = pendMsgInfo
-                            .Select(m => m.MessageId).ToArray();
-                        if (ids.Length != 0)
-                        {
-                            values = await db.StreamClaimAsync(key,
-                                                      plan.ConsumerGroup,
-                                                      plan.ConsumerName,
-                                                      0,
-                                                      ids,
-                                                      flags: CommandFlags.DemandMaster);
-                            values = values ?? Array.Empty<StreamEntry>();
-                            _logger.LogInformation("Claimed messages: {ids}", ids);
-                        }
                     }
 
-                    return values;
-                }
-                #region Exception Handling
+                    #endregion // Metadata meta = ...
 
-                catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
-                {
-                    await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                            key,
-                            plan.ConsumerGroup,
-                            logger);
-                    return Array.Empty<StreamEntry>();
-                }
+                    ActivityContext parentContext = EventSourceTelemetryExtensions.ExtractSpan(channelMeta, ExtractTraceContext);
+                    using var activity = Track.StartConsumerTrace(meta, parentContext);
 
-                #endregion // Exception Handling
-            }
+                    #region IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
 
-            #endregion // ReadSelfPending
-
-            #region ClaimStaleMessages
-
-            // Taking work from other consumers which have log-time's pending messages
-            async Task<StreamEntry[]> ClaimStaleMessages(
-                int emptyBatchCount,
-                StreamEntry[] values,
-                CancellationToken ct)
-            {
-                var logger = plan.Logger ?? _logger;
-                ct.ThrowIfCancellationRequested();
-                if (values.Length != 0) return values;
-                if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
-                    return values;
-                try
-                {
-                    IDatabaseAsync db = await _connFactory.GetDatabaseAsync();
-                    StreamPendingInfo pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
-                    foreach (var c in pendingInfo.Consumers)
+                    IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
                     {
-                        var self = c.Name == plan.ConsumerName;
-                        if (self) continue;
                         try
                         {
-                            var pendMsgInfo = await db.StreamPendingMessagesAsync(
-                                key,
-                                plan.ConsumerGroup,
-                                10,
-                                c.Name,
-                                pendingInfo.LowestPendingMessageId,
-                                pendingInfo.HighestPendingMessageId,
-                                flags: CommandFlags.DemandMaster);
-
-
-
-                            RedisValue[] ids = pendMsgInfo
-                                        .Where(x => x.IdleTimeInMilliseconds > minIdleTime)
-                                        .Select(m => m.MessageId).ToArray();
-                            if (ids.Length == 0)
-                                continue;
-
-                            #region Log
-                            logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
-
-                            #endregion // Log
-
-                            // will claim messages only if older than _setting.ClaimingTrigger.MinIdleTime
-                            values = await db.StreamClaimAsync(key,
-                                                      plan.ConsumerGroup,
-                                                      c.Name,
-                                                      minIdleTime,
-                                                      ids,
-                                                      flags: CommandFlags.DemandMaster);
-                            if (values.Length != 0)
-                                logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                            if (entries.TryGetValue(key, out var value))
+                            {
+                                if (string.IsNullOrEmpty(value))
+                                    return Array.Empty<string>();
+                                return new[] { value.ToString() };
+                            }
                         }
                         #region Exception Handling
 
-                        catch (RedisTimeoutException ex)
-                        {
-                            logger.LogWarning(ex, "Timeout (handle pending): {name}{self}", c.Name, self);
-                            continue;
-                        }
-
                         catch (Exception ex)
                         {
-                            logger.LogError(ex, "Fail to claim pending: {name}{self}", c.Name, self);
+                            Exception err = ex.FormatLazy();
+                            _logger.LogError(err, "Failed to extract trace context: {error}", err);
                         }
 
                         #endregion // Exception Handling
 
-                        if (values != null && values.Length != 0)
-                            return values;
+                        return Enumerable.Empty<string>();
+                    }
+
+                    #endregion // IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
+
+                    int local = i;
+                    var cancellableIds = results[local..].Select(m => m.Id);
+                    var ack = new AckOnce(
+                                    async (cause) =>
+                                    {
+                                        Activity.Current?.AddEvent("event-source.consumer.event.ack", t => t.Add("cause", cause));
+                                        await AckAsync(result.Id);
+                                    },
+                                    plan.Options.AckBehavior, logger,
+                                    async (cause) =>
+                                    {
+                                        AckCounter.Add(1);
+                                        Activity.Current?.AddEvent("event-source.consumer.event.cancel", t => t.Add("cause", cause));
+                                        batchCancellation.CancelSafe(); // cancel forward
+                                        await CancelAsync(cancellableIds);
+                                    });
+
+                    #region OriginFilter
+
+                    MessageOrigin originFilter = plan.Options.OriginFilter;
+                    if (originFilter != MessageOrigin.None && (originFilter & meta.Origin) == MessageOrigin.None)
+                    {
+                        Ack.Set(ack);
+                        #region Log
+
+                        _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.FullUri());
+
+                        #endregion // Log
+                        continue;
+                    }
+
+                    #endregion // OriginFilter
+
+                    #region var announcement = new Announcement(...)
+
+                    Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+                    Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+
+                    var announcement = new Announcement
+                    {
+                        Metadata = meta,
+                        Segments = segmets,
+                        InterceptorsData = interceptions
+                    };
+
+                    #endregion // var announcement = new Announcement(...)
+
+                    bool succeed;
+                    using (var execActivity = Track.StartInternalTrace("event-source.consumer.execute-event"))
+                    {
+                        succeed = await func(announcement, ack);
+                        execActivity?.SetTag("succeed", succeed);
+                    }
+                    if (succeed)
+                    {
+                        releaseDelay = INIT_RELEASE_DELAY;
+                        bachSize = options.BatchSize;
+                    }
+                    else
+                    {
+                        // TODO: [bnaya 2023-06-19 #RELEASE] committed id should be captured
+                        if (options.PartialBehavior == Enums.PartialConsumerBehavior.Sequential)
+                        {
+                            using (Track.StartInternalTrace("event-source.consumer.release-events-on-failure"))
+                            {
+                                RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
+                                await ReleaseAsync(freeTargets); // release the rest of the batch which doesn't processed yet
+                                                                 //using (Track.StartInternalTrace("event-source.consumer.delay", t => t.Add("duration", releaseDelay)))
+                                                                 //{
+                                                                 //    // let other potential consumer the chance of getting ownership
+                                                                 //    await Task.Delay(releaseDelay, ct);
+                                                                 //}
+                            }
+                        }
                     }
                 }
-                #region Exception Handling
-
-                catch (RedisConnectionException ex)
-                {
-                    _logger.LogWarning(ex, "Fail to claim REDIS's pending");
-                }
-
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Fail to claim pending");
-                }
-
-                #endregion // Exception Handling
-
-                return Array.Empty<StreamEntry>();
             }
-
-            #endregion // ClaimStaleMessages
-
-            #region AckAsync
-
-            // Acknowledge event handling (prevent re-consuming of the message).
-            async ValueTask AckAsync(RedisValue messageId)
+            catch
             {
-                try
-                {
-                    IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                    IDatabaseAsync db = conn.GetDatabase();
-                    // release the event (won't handle again in the future)
-                    await db.StreamAcknowledgeAsync(key,
-                                                    plan.ConsumerGroup,
-                                                    messageId,
-                                                    flags: CommandFlags.DemandMaster);
-                }
-                catch (Exception ex)
-                {
-                    // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
-                    logger.LogWarning(ex.FormatLazy(), $"Fail to acknowledge message [{messageId}]");
-                    throw;
-                }
+                isFirstBatchOrFailure = true;
             }
-
-            #endregion // AckAsync
-
-            #region CancelAsync
-
-            // Cancels the asynchronous.
-            ValueTask CancelAsync(IEnumerable<RedisValue> messageIds)
-            {
-                // no way to release consumed item back to the stream
-                //try
-                //{
-                //    // release the event (won't handle again in the future)
-                //    await db.StreamClaimIdsOnlyAsync(key,
-                //                                    plan.ConsumerGroup,
-                //                                    RedisValue.Null,
-                //                                    0,
-                //                                    messageIds.ToArray(),
-                //                                    flags: CommandFlags.DemandMaster);
-                //}
-                //catch (Exception)
-                //{ // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
-                //    throw;
-                //}
-                return ValueTask.CompletedTask;
-
-            }
-
-            #endregion // CancelAsync
-
-            #region ReleaseAsync
-
-
-            // Releases the messages (work around).
-            async Task ReleaseAsync(RedisValue[] freeTargets)
-            {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                IDatabaseAsync db = conn.GetDatabase();
-                try
-                {
-                    await db.StreamClaimAsync(plan.FullUri(),
-                                              plan.ConsumerGroup,
-                                              RedisChannelConstants.NONE_CONSUMER,
-                                              1,
-                                              freeTargets,
-                                              flags: CommandFlags.DemandMaster);
-                    await Task.Delay(releaseDelay, cancellationToken);
-                    if (releaseDelay < MAX_RELEASE_DELAY)
-                        releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
-
-                    if (bachSize == options.BatchSize)
-                        bachSize = 1;
-                    else
-                        bachSize = Math.Min(bachSize * 2, options.BatchSize);
-                }
-                #region Exception Handling
-
-                catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
-                {
-                    await _connFactory.CreateConsumerGroupIfNotExistsAsync(
-                            key,
-                            plan.ConsumerGroup,
-                            logger);
-                }
-
-                #endregion // Exception Handling  
-            }
-
-            #endregion // ReleaseAsync
+            return true;
         }
 
-        #endregion // SubsribeToSingleAsync
+        #endregion // HandleBatchBreakerAsync
 
-        #region GetByIdAsync
+        #region ReadBatchAsync
 
-        /// <summary>
-        /// Gets announcement data by id.
-        /// </summary>
-        /// <param name="entryId">The entry identifier.</param>
-        /// <param name="plan">The plan.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
-            EventKey entryId,
-            IConsumerPlan plan,
-            CancellationToken cancellationToken)
+        // read batch entities from REDIS
+        async Task<StreamEntry[]> ReadBatchAsync()
         {
-            string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetByIdAsync)}";
-
+            // TBD: circuit-breaker
             try
             {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync();
-                IDatabaseAsync db = conn.GetDatabase();
-                StreamEntry entry = await FindAsync(entryId);
-
-                #region var announcement = new Announcement(...)
-
-                Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
-                string channelType = GetMeta(nameof(MetadataExtensions.Empty.ChannelType));
-                string id = GetMeta(nameof(MetadataExtensions.Empty.MessageId));
-                string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
-                long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-
-                #region string GetMeta(string propKey)
-
-                string GetMeta(string propKey)
+                var r = await _setting.Policy.Policy.ExecuteAsync(async (ct) =>
                 {
-                    string? result = channelMeta[propKey];
-                    if (result == null) throw new ArgumentNullException(propKey);
-                    return result;
-                }
+                    ct.ThrowIfCancellationRequested();
+                    StreamEntry[] values = Array.Empty<StreamEntry>();
+                    values = await ReadSelfPending();
 
-                #endregion // string GetMeta(string propKey)
-
-                DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-#pragma warning disable CS8601 // Possible null reference assignment.
-                var meta = new Metadata
-                {
-                    MessageId = id,
-                    EventKey = entry.Id,
-                    Environment = plan.Environment,
-                    Uri = plan.Uri,
-                    Operation = operation,
-                    ProducedAt = producedAt,
-                    ChannelType = channelType
-                };
-#pragma warning restore CS8601 // Possible null reference assignment.
-
-                Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-                Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
-
-                var announcement = new Announcement
-                {
-                    Metadata = meta,
-                    Segments = segmets,
-                    InterceptorsData = interceptions
-                };
-
-                #endregion // var announcement = new Announcement(...)
-
-                return announcement;
-
-                #region FindAsync
-
-                async Task<StreamEntry> FindAsync(EventKey entryId)
-                {
-                    string lookForId = (string)entryId;
-                    string key = plan.FullUri();
-
-                    string originId = lookForId;
-                    int len = originId.IndexOf('-');
-                    string fromPrefix = originId.Substring(0, len);
-                    long start = long.Parse(fromPrefix);
-                    string startPosition = (start - 1).ToString();
-                    int iteration = 0;
-                    for (int i = 0; i < READ_BY_ID_ITERATIONS; i++) // up to 1000 items
+                    if (values.Length == 0)
                     {
-                        iteration++;
-                        StreamEntry[] entries = await db.StreamReadAsync(
-                                                                key,
-                                                                startPosition,
-                                                                READ_BY_ID_CHUNK_SIZE,
-                                                                CommandFlags.DemandMaster);
-                        if (entries.Length == 0)
-                            throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return nothing, start at ({startPosition}, iteration = {iteration}).");
-                        string k = string.Empty;
-                        foreach (StreamEntry e in entries)
-                        {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                            k = e.Id;
-                            string ePrefix = k.Substring(0, len);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                            long comp = long.Parse(ePrefix);
-                            if (comp < start)
-                                continue; // not there yet
-                            if (k == lookForId)
-                            {
-                                return e;
-                            }
-                            if (ePrefix != fromPrefix)
-                                throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not exists.");
-                        }
-                        startPosition = k; // next batch will start from last entry
-                    }
-                    throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not found.");
-                }
+                        isFirstBatchOrFailure = false;
+                        string group = plan.ConsumerGroup;
+                        using var activity = Track.StartInternalTrace("event-source.consumer.read-batch", t => t.Add("consumer-group", group));
 
-                #endregion // FindAsync
+                        IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
+                        IDatabaseAsync db = conn.GetDatabase();
+                        try
+                        {
+                            ConcumeBatchCountCounter.Add(1);
+                            values = await db.StreamReadGroupAsync(
+                                                                key,
+                                                                group,
+                                                                plan.ConsumerName,
+                                                                position: StreamPosition.NewMessages,
+                                                                count: bachSize,
+                                                                flags: flags)
+                                            .WithCancellation(ct, () => Array.Empty<StreamEntry>())
+                                            .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
+                            activity?.SetTag("count", values.Length);
+                            ConcumeBatchSumCounter.Add(values.Length);
+                        }
+                        #region Exception Handling
+
+                        catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+                        {
+                            ConcumeBatchFailureCounter.Add(1);
+                            logger.LogWarning(ex, ex.Message);
+                            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                                    key,
+                                    plan.ConsumerGroup,
+                                    logger, cancellationToken);
+                        }
+                        catch (RedisServerException ex)
+                        {
+                            ConcumeBatchFailureCounter.Add(1);
+                            logger.LogWarning(ex, ex.Message);
+                            await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                                    key,
+                                    plan.ConsumerGroup,
+                                    logger, cancellationToken);
+                        }
+
+                        #endregion // Exception Handling
+                    }
+                    StreamEntry[] results = values ?? Array.Empty<StreamEntry>();
+                    return results;
+                }, cancellationToken);
+                return r;
             }
             #region Exception Handling
 
+            catch (RedisTimeoutException ex)
+            {
+                logger.LogWarning(ex, "Event source [{source}] by [{consumer}]: Timeout", key, plan.ConsumerName);
+                return Array.Empty<StreamEntry>();
+            }
             catch (Exception ex)
             {
-                string key = plan.FullUri();
-                _logger.LogError(ex.FormatLazy(), "{method} Failed: Entry [{entryId}] from [{key}] event stream",
-                    mtdName, entryId, key);
-                throw;
+                logger.LogError(ex, "Fail to read from event source [{source}] by [{consumer}]", key, plan.ConsumerName);
+                return Array.Empty<StreamEntry>();
             }
 
             #endregion // Exception Handling
         }
 
-        #endregion // GetByIdAsync
+        #endregion // ReadBatchAsync
 
-        #region GetAsyncEnumerable
+        #region ReadSelfPending
 
-        /// <summary>
-        /// Gets asynchronous enumerable of announcements.
-        /// </summary>
-        /// <param name="plan">The plan.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        async IAsyncEnumerable<Announcement> IConsumerChannelProvider.GetAsyncEnumerable(
-                    IConsumerPlan plan,
-                    ConsumerAsyncEnumerableOptions? options,
-                    [EnumeratorCancellation] CancellationToken cancellationToken)
+        // Check for pending messages of the current consumer (crash scenario)
+        async Task<StreamEntry[]> ReadSelfPending()
         {
-            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+
+            StreamEntry[] values = Array.Empty<StreamEntry>();
+            if (!isFirstBatchOrFailure)
+                return values;
+
+            using var _ = Track.StartInternalTrace("event-source.consumer.self-pending");
+
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
-            var loop = AsyncLoop().WithCancellation(cancellationToken);
-            await foreach (StreamEntry entry in loop)
+            try
             {
-                if (cancellationToken.IsCancellationRequested) yield break;
-
-                #region var announcement = new Announcement(...)
-
-                Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8601 // Possible null reference assignment.
-                string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
-                string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
-                long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-                DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                var meta = new Metadata
+                StreamPendingMessageInfo[] pendMsgInfo = await db.StreamPendingMessagesAsync(
+                                            key,
+                                            plan.ConsumerGroup,
+                                            options.BatchSize,
+                                            plan.ConsumerName,
+                                            flags: CommandFlags.DemandMaster);
+                if (pendMsgInfo != null && pendMsgInfo.Length != 0)
                 {
-                    MessageId = id,
-                    EventKey = entry.Id,
-                    Environment = plan.Environment,
-                    Uri = plan.Uri,
-                    Operation = operation,
-                    ProducedAt = producedAt
-                };
-#pragma warning restore CS8601 // Possible null reference assignment.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                var filter = options?.OperationFilter;
-                if (filter != null && !filter(meta))
-                    continue;
+                    var ids = pendMsgInfo
+                        .Select(m => m.MessageId).ToArray();
+                    if (ids.Length != 0)
+                    {
+                        values = await db.StreamClaimAsync(key,
+                                                  plan.ConsumerGroup,
+                                                  plan.ConsumerName,
+                                                  0,
+                                                  ids,
+                                                  flags: CommandFlags.DemandMaster);
+                        values = values ?? Array.Empty<StreamEntry>();
+                        _logger.LogInformation("Claimed messages: {ids}", ids);
+                    }
+                }
 
-                Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-                Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+                return values;
+            }
+            #region Exception Handling
 
-                var announcement = new Announcement
-                {
-                    Metadata = meta,
-                    Segments = segmets,
-                    InterceptorsData = interceptions
-                };
-
-                #endregion // var announcement = new Announcement(...)
-
-                yield return announcement;
+            catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+            {
+                await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                        key,
+                        plan.ConsumerGroup,
+                        logger, cancellationToken);
+                return Array.Empty<StreamEntry>();
             }
 
-            #region AsyncLoop
+            #endregion // Exception Handling
+        }
 
-            async IAsyncEnumerable<StreamEntry> AsyncLoop()
+        #endregion // ReadSelfPending
+
+        #region ClaimStaleMessages
+
+        // Taking work from other consumers which have log-time's pending messages
+        async Task<StreamEntry[]> ClaimStaleMessages(
+            int emptyBatchCount,
+            StreamEntry[] values,
+            CancellationToken ct)
+        {
+            var logger = plan.Logger ?? _logger;
+            ct.ThrowIfCancellationRequested();
+            if (values.Length != 0) return values;
+            if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
+                return values;
+            using var _ = Track.StartInternalTrace("event-source.consumer.stale-events");
+            try
             {
-                string uri = plan.FullUri();
-
-                int iteration = 0;
-                RedisValue startPosition = options?.From ?? BEGIN_OF_STREAM;
-                TimeSpan delay = TimeSpan.Zero;
-                while (true)
+                IDatabaseAsync db = await _connFactory.GetDatabaseAsync(ct);
+                StreamPendingInfo pendingInfo;
+                using (Track.StartInternalTrace("event-source.consumer.events-stealing.pending"))
                 {
-                    if (cancellationToken.IsCancellationRequested) yield break;
+                    pendingInfo = await db.StreamPendingAsync(key, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
+                }
+                foreach (var c in pendingInfo.Consumers)
+                {
+                    var self = c.Name == plan.ConsumerName;
+                    if (self) continue;
+                    try
+                    {
+                        StreamPendingMessageInfo[] pendMsgInfo;
+                        using (Track.StartInternalTrace("event-source.consumer.events-stealing.pending-events",
+                                                    t => t.Add("from-consumer", c.Name)))
+                        {
+                            pendMsgInfo = await db.StreamPendingMessagesAsync(
+                            key,
+                            plan.ConsumerGroup,
+                            10,
+                            c.Name,
+                            pendingInfo.LowestPendingMessageId,
+                            pendingInfo.HighestPendingMessageId,
+                            flags: CommandFlags.DemandMaster);
+                        }
 
+                        RedisValue[] ids = pendMsgInfo
+                                    .Where(x => x.IdleTimeInMilliseconds > minIdleTime)
+                                    .Select(m => m.MessageId).ToArray();
+                        if (ids.Length == 0)
+                            continue;
+
+                        #region Log
+                        logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} events, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+
+                        #endregion // Log
+
+                        int count = ids.Length;
+                        StealAmountCounter.WithTag("from-consumer", c.Name).Add(count);
+                        // will claim events only if older than _setting.ClaimingTrigger.MinIdleTime
+                        using (Track.StartInternalTrace("event-source.consumer.events-stealing.claim",
+                                                    t => t.Add("from-consumer", c.Name)
+                                                                   .Add("message-count", count)))
+                        {
+                            values = await db.StreamClaimAsync(key,
+                                                  plan.ConsumerGroup,
+                                                  c.Name,
+                                                  minIdleTime,
+                                                  ids,
+                                                  flags: CommandFlags.DemandMaster);
+                        }
+                        if (values.Length != 0)
+                            logger.LogInformation("Event Source Consumer [{name}]: Claimed {count} messages, from Consumer [{name}]", plan.ConsumerName, c.PendingMessageCount, c.Name);
+                    }
+                    #region Exception Handling
+
+                    catch (RedisTimeoutException ex)
+                    {
+                        logger.LogWarning(ex, "Timeout (handle pending): {name}{self}", c.Name, self);
+                        continue;
+                    }
+
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Fail to claim pending: {name}{self}", c.Name, self);
+                    }
+
+                    #endregion // Exception Handling
+
+                    if (values != null && values.Length != 0)
+                        return values;
+                }
+            }
+            #region Exception Handling
+
+            catch (RedisConnectionException ex)
+            {
+                _logger.LogWarning(ex, "Fail to claim REDIS's pending");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Fail to claim pending");
+            }
+
+            #endregion // Exception Handling
+
+            return Array.Empty<StreamEntry>();
+        }
+
+        #endregion // ClaimStaleMessages
+
+        #region AckAsync
+
+        // Acknowledge event handling (prevent re-consuming of the message).
+        async ValueTask AckAsync(RedisValue messageId)
+        {
+            try
+            {
+                IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
+                IDatabaseAsync db = conn.GetDatabase();
+                // release the event (won't handle again in the future)
+                await db.StreamAcknowledgeAsync(key,
+                                                plan.ConsumerGroup,
+                                                messageId,
+                                                flags: CommandFlags.DemandMaster);
+            }
+            catch (Exception ex)
+            {
+                // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+                logger.LogWarning(ex.FormatLazy(), $"Fail to acknowledge message [{messageId}]");
+                throw;
+            }
+        }
+
+        #endregion // AckAsync
+
+        #region CancelAsync
+
+        // Cancels the asynchronous.
+        ValueTask CancelAsync(IEnumerable<RedisValue> messageIds)
+        {
+            // no way to release consumed item back to the stream
+            //try
+            //{
+            //    // release the event (won't handle again in the future)
+            //    await db.StreamClaimIdsOnlyAsync(key,
+            //                                    plan.ConsumerGroup,
+            //                                    RedisValue.Null,
+            //                                    0,
+            //                                    messageIds.ToArray(),
+            //                                    flags: CommandFlags.DemandMaster);
+            //}
+            //catch (Exception)
+            //{ // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
+            //    throw;
+            //}
+            return ValueTask.CompletedTask;
+
+        }
+
+        #endregion // CancelAsync
+
+        #region ReleaseAsync
+
+
+        // Releases the messages (work around).
+        async Task ReleaseAsync(RedisValue[] freeTargets)
+        {
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
+            IDatabaseAsync db = conn.GetDatabase();
+            try
+            {
+                using (Track.StartInternalTrace("event-source.consumer.release-ownership", t => t.Add("consumer-group", plan.ConsumerGroup)))
+                {
+                    await db.StreamClaimAsync(plan.FullUri(),
+                                          plan.ConsumerGroup,
+                                          RedisChannelConstants.NONE_CONSUMER,
+                                          1,
+                                          freeTargets,
+                                          flags: CommandFlags.DemandMaster);
+                }
+                using (Track.StartInternalTrace("event-source.consumer.delay", t => t.Add("delay", releaseDelay)))
+                {
+                    // let other potential consumer the chance of getting ownership
+                    await Task.Delay(releaseDelay, cancellationToken);
+                }
+                if (releaseDelay < MAX_RELEASE_DELAY)
+                    releaseDelay = Math.Min(releaseDelay * 2, MAX_RELEASE_DELAY);
+
+                if (bachSize == options.BatchSize)
+                    bachSize = 1;
+                else
+                    bachSize = Math.Min(bachSize * 2, options.BatchSize);
+            }
+            #region Exception Handling
+
+            catch (RedisServerException ex) when (ex.Message.StartsWith("NOGROUP"))
+            {
+                await _connFactory.CreateConsumerGroupIfNotExistsAsync(
+                        key,
+                        plan.ConsumerGroup,
+                        logger, cancellationToken);
+            }
+
+            #endregion // Exception Handling  
+        }
+
+        #endregion // ReleaseAsync
+    }
+
+    #endregion // SubsribeToSingleAsync
+
+    #region GetByIdAsync
+
+    /// <summary>
+    /// Gets announcement data by id.
+    /// </summary>
+    /// <param name="entryId">The entry identifier.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    async ValueTask<Announcement> IConsumerChannelProvider.GetByIdAsync(
+        EventKey entryId,
+        IConsumerPlan plan,
+        CancellationToken cancellationToken)
+    {
+        string mtdName = $"{nameof(IConsumerChannelProvider)}.{nameof(IConsumerChannelProvider.GetByIdAsync)}";
+
+        try
+        {
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
+            IDatabaseAsync db = conn.GetDatabase();
+            StreamEntry entry = await FindAsync(entryId);
+
+            #region var announcement = new Announcement(...)
+
+            Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+            string channelType = GetMeta(nameof(MetadataExtensions.Empty.ChannelType));
+            string id = GetMeta(nameof(MetadataExtensions.Empty.MessageId));
+            string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
+            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+
+            #region string GetMeta(string propKey)
+
+            string GetMeta(string propKey)
+            {
+                string? result = channelMeta[propKey];
+                if (result == null) throw new ArgumentNullException(propKey);
+                return result;
+            }
+
+            #endregion // string GetMeta(string propKey)
+
+            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+#pragma warning disable CS8601 // Possible null reference assignment.
+            var meta = new Metadata
+            {
+                MessageId = id,
+                EventKey = entry.Id,
+                Environment = plan.Environment,
+                Uri = plan.Uri,
+                Operation = operation,
+                ProducedAt = producedAt,
+                ChannelType = channelType
+            };
+#pragma warning restore CS8601 // Possible null reference assignment.
+
+            Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+            Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+
+            var announcement = new Announcement
+            {
+                Metadata = meta,
+                Segments = segmets,
+                InterceptorsData = interceptions
+            };
+
+            #endregion // var announcement = new Announcement(...)
+
+            return announcement;
+
+            #region FindAsync
+
+            async Task<StreamEntry> FindAsync(EventKey entryId)
+            {
+                string lookForId = (string)entryId;
+                string key = plan.FullUri();
+
+                string originId = lookForId;
+                int len = originId.IndexOf('-');
+                string fromPrefix = originId.Substring(0, len);
+                long start = long.Parse(fromPrefix);
+                string startPosition = (start - 1).ToString();
+                int iteration = 0;
+                for (int i = 0; i < READ_BY_ID_ITERATIONS; i++) // up to 1000 items
+                {
                     iteration++;
                     StreamEntry[] entries = await db.StreamReadAsync(
-                                                            uri,
+                                                            key,
                                                             startPosition,
                                                             READ_BY_ID_CHUNK_SIZE,
                                                             CommandFlags.DemandMaster);
                     if (entries.Length == 0)
-                    {
-                        if (options?.ExitWhenEmpty ?? true) yield break;
-                        delay = await DelayIfEmpty(delay, cancellationToken);
-                        continue;
-                    }
+                        throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return nothing, start at ({startPosition}, iteration = {iteration}).");
                     string k = string.Empty;
                     foreach (StreamEntry e in entries)
                     {
-                        if (cancellationToken.IsCancellationRequested) yield break;
-
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                         k = e.Id;
+                        string ePrefix = k.Substring(0, len);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                        if (options?.To != null && string.Compare(options?.To, k) < 0)
-                            yield break;
-                        yield return e;
+                        long comp = long.Parse(ePrefix);
+                        if (comp < start)
+                            continue; // not there yet
+                        if (k == lookForId)
+                        {
+                            return e;
+                        }
+                        if (ePrefix != fromPrefix)
+                            throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not exists.");
                     }
                     startPosition = k; // next batch will start from last entry
                 }
+                throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not found.");
             }
 
-            #endregion // AsyncLoop
+            #endregion // FindAsync
+        }
+        #region Exception Handling
+
+        catch (Exception ex)
+        {
+            string key = plan.FullUri();
+            _logger.LogError(ex.FormatLazy(), "{method} Failed: Entry [{entryId}] from [{key}] event stream",
+                mtdName, entryId, key);
+            throw;
         }
 
-        #endregion // GetAsyncEnumerable
+        #endregion // Exception Handling
+    }
 
-        #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
+    #endregion // GetByIdAsync
 
-        /// <summary>
-        /// Gets a data bucket.
-        /// </summary>
-        /// <param name="plan">The plan.</param>
-        /// <param name="channelMeta">The channel meta.</param>
-        /// <param name="meta">The meta.</param>
-        /// <param name="storageType">Type of the storage.</param>
-        /// <returns></returns>
-        private async ValueTask<Bucket> GetBucketAsync(
-                                            IConsumerPlan plan,
-                                            Dictionary<RedisValue, RedisValue> channelMeta,
-                                            Metadata meta,
-                                            EventBucketCategories storageType)
+    #region GetAsyncEnumerable
+
+    /// <summary>
+    /// Gets asynchronous enumerable of announcements.
+    /// </summary>
+    /// <param name="plan">The plan.</param>
+    /// <param name="options">The options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    async IAsyncEnumerable<Announcement> IConsumerChannelProvider.GetAsyncEnumerable(
+                IConsumerPlan plan,
+                ConsumerAsyncEnumerableOptions? options,
+                [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
+        IDatabaseAsync db = conn.GetDatabase();
+        var loop = AsyncLoop().WithCancellation(cancellationToken);
+        await foreach (StreamEntry entry in loop)
         {
+            if (cancellationToken.IsCancellationRequested) yield break;
 
-            IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
-            strategies = strategies.Where(m => m.IsOfTargetType(storageType));
-            Bucket bucket = Bucket.Empty;
-            if (strategies.Any())
+            #region var announcement = new Announcement(...)
+
+            Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8601 // Possible null reference assignment.
+            string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
+            string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
+            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+            var meta = new Metadata
             {
-                foreach (var strategy in strategies)
+                MessageId = id,
+                EventKey = entry.Id,
+                Environment = plan.Environment,
+                Uri = plan.Uri,
+                Operation = operation,
+                ProducedAt = producedAt
+            };
+#pragma warning restore CS8601 // Possible null reference assignment.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            var filter = options?.OperationFilter;
+            if (filter != null && !filter(meta))
+                continue;
+
+            Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+            Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+
+            var announcement = new Announcement
+            {
+                Metadata = meta,
+                Segments = segmets,
+                InterceptorsData = interceptions
+            };
+
+            #endregion // var announcement = new Announcement(...)
+
+            yield return announcement;
+        }
+
+        #region AsyncLoop
+
+        async IAsyncEnumerable<StreamEntry> AsyncLoop()
+        {
+            string uri = plan.FullUri();
+
+            int iteration = 0;
+            RedisValue startPosition = options?.From ?? BEGIN_OF_STREAM;
+            TimeSpan delay = TimeSpan.Zero;
+            while (true)
+            {
+                if (cancellationToken.IsCancellationRequested) yield break;
+
+                iteration++;
+                StreamEntry[] entries = await db.StreamReadAsync(
+                                                        uri,
+                                                        startPosition,
+                                                        READ_BY_ID_CHUNK_SIZE,
+                                                        CommandFlags.DemandMaster);
+                if (entries.Length == 0)
+                {
+                    if (options?.ExitWhenEmpty ?? true) yield break;
+                    delay = await DelayIfEmpty(delay, cancellationToken);
+                    continue;
+                }
+                string k = string.Empty;
+                foreach (StreamEntry e in entries)
+                {
+                    if (cancellationToken.IsCancellationRequested) yield break;
+
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    k = e.Id;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+                    if (options?.To != null && string.Compare(options?.To, k) < 0)
+                        yield break;
+                    yield return e;
+                }
+                startPosition = k; // next batch will start from last entry
+            }
+        }
+
+        #endregion // AsyncLoop
+    }
+
+    #endregion // GetAsyncEnumerable
+
+    #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
+
+    /// <summary>
+    /// Gets a data bucket.
+    /// </summary>
+    /// <param name="plan">The plan.</param>
+    /// <param name="channelMeta">The channel meta.</param>
+    /// <param name="meta">The meta.</param>
+    /// <param name="storageType">Type of the storage.</param>
+    /// <returns></returns>
+    private async ValueTask<Bucket> GetBucketAsync(
+                                        IConsumerPlan plan,
+                                        Dictionary<RedisValue, RedisValue> channelMeta,
+                                        Metadata meta,
+                                        EventBucketCategories storageType)
+    {
+
+        IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
+        strategies = strategies.Where(m => m.IsOfTargetType(storageType));
+        Bucket bucket = Bucket.Empty;
+        if (strategies.Any())
+        {
+            foreach (var strategy in strategies)
+            {
+                using (Track.StartInternalTrace($"event-source.consumer.{strategy.Name}-storage.{storageType}.get"))
                 {
                     bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                 }
             }
-            else
+        }
+        else
+        {
+            using (Track.StartInternalTrace($"event-source.consumer.{_defaultStorageStrategy.Name}-storage.{storageType}.get"))
             {
                 bucket = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
             }
+        }
 
-            return bucket;
+        return bucket;
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8603 // Possible null reference return.
-            string LocalGetProperty(string k) => (string)channelMeta[k];
+        string LocalGetProperty(string k) => (string)channelMeta[k];
 #pragma warning restore CS8603 // Possible null reference return.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        }
+    }
 
-        #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
+    #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
 
-        #region DelayIfEmpty
+    #region DelayIfEmpty
 
-        // avoiding system hit when empty (mitigation of self DDoS)
-        private async Task<TimeSpan> DelayIfEmpty(TimeSpan previousDelay, CancellationToken cancellationToken)
+    // avoiding system hit when empty (mitigation of self DDoS)
+    private async Task<TimeSpan> DelayIfEmpty(TimeSpan previousDelay, CancellationToken cancellationToken)
+    {
+        var cfg = _setting.DelayWhenEmptyBehavior;
+        var newDelay = cfg.CalcNextDelay(previousDelay, cfg);
+        var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
+        newDelay = TimeSpan.FromMilliseconds(limitDelay);
+        using (Track.StartInternalTrace("event-source.consumer.delay.when-empty-queue", t => t.Add("delay", newDelay)))
         {
-            var cfg = _setting.DelayWhenEmptyBehavior;
-            var newDelay = cfg.CalcNextDelay(previousDelay, cfg);
-            var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
-            newDelay = TimeSpan.FromMilliseconds(limitDelay);
             await Task.Delay(newDelay, cancellationToken);
-            return newDelay;
         }
+        return newDelay;
+    }
 
-        #endregion // DelayIfEmpty
+    #endregion // DelayIfEmpty
 
-        #region GetKeysUnsafeAsync
+    #region GetKeysUnsafeAsync
 
-        /// <summary>
-        /// Gets the keys unsafe asynchronous.
-        /// </summary>
-        /// <param name="pattern">The pattern.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
-                        string pattern,
-                        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Gets the keys unsafe asynchronous.
+    /// </summary>
+    /// <param name="pattern">The pattern.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    public async IAsyncEnumerable<string> GetKeysUnsafeAsync(
+                    string pattern,
+                    [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        IConnectionMultiplexer multiplexer = await _connFactory.GetAsync(cancellationToken);
+        var distict = new HashSet<string>();
+        while (!cancellationToken.IsCancellationRequested)
         {
-            IConnectionMultiplexer multiplexer = await _connFactory.GetAsync();
-            var distict = new HashSet<string>();
-            while (!cancellationToken.IsCancellationRequested)
+            foreach (EndPoint endpoint in multiplexer.GetEndPoints())
             {
-                foreach (EndPoint endpoint in multiplexer.GetEndPoints())
-                {
-                    IServer server = multiplexer.GetServer(endpoint);
-                    // TODO: [bnaya 2020_09] check the pagination behavior
+                IServer server = multiplexer.GetServer(endpoint);
+                // TODO: [bnaya 2020_09] check the pagination behavior
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8604 // Possible null reference argument.
-                    await foreach (string key in server.KeysAsync(pattern: pattern))
-                    {
-                        if (distict.Contains(key))
-                            continue;
-                        distict.Add(key);
-                        yield return key;
-                    }
+                await foreach (string key in server.KeysAsync(pattern: pattern))
+                {
+                    if (distict.Contains(key))
+                        continue;
+                    distict.Add(key);
+                    yield return key;
+                }
 #pragma warning restore CS8604 // Possible null reference argument.
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                }
             }
         }
-
-        #endregion // GetKeysUnsafeAsync
     }
+
+    #endregion // GetKeysUnsafeAsync
 }

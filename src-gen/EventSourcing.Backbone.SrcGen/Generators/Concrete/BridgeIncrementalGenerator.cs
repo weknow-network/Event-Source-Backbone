@@ -95,6 +95,20 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+            builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
+            builder.AppendLine($"\t\t\t\t{interfaceName} target)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
             builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");

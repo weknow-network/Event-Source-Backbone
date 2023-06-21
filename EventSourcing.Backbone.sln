@@ -81,6 +81,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Events.ProducerWebTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Events.ConsumerWebTest.Service", "Tests\Specialized\Tests.Events.ConsumerWebTest.Service\Tests.Events.ConsumerWebTest.Service.csproj", "{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "Tests\ConsoleTest\ConsoleTest.csproj", "{EAE6F008-AB9E-4321-BC31-D50534111971}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,6 +211,11 @@ Global
 		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Gen|Any CPU.ActiveCfg = Gen|Any CPU
 		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAE6F008-AB9E-4321-BC31-D50534111971}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAE6F008-AB9E-4321-BC31-D50534111971}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAE6F008-AB9E-4321-BC31-D50534111971}.Gen|Any CPU.ActiveCfg = Gen|Any CPU
+		{EAE6F008-AB9E-4321-BC31-D50534111971}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAE6F008-AB9E-4321-BC31-D50534111971}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -240,6 +247,7 @@ Global
 		{8E90962C-870D-49C6-A260-585D16F13614} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
 		{ED906FBD-F8BB-40D5-8629-00CE0F963681} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
 		{842CEAED-FA0D-4EFF-805A-D37F62AEFB0F} = {DB106708-EA65-4FD3-9362-950CA07DB2E6}
+		{EAE6F008-AB9E-4321-BC31-D50534111971} = {4DE45B98-D18F-4E1D-9D2F-A4E40C11BC1F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {103E4CA1-859C-4E6A-9F2D-7FD54A8E687C}

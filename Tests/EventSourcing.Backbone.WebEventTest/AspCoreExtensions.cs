@@ -5,10 +5,6 @@ using EventSourcing.Backbone;
 
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-
 using StackExchange.Redis;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
@@ -42,91 +38,6 @@ namespace Microsoft.Extensions.Configuration
         }
 
         #endregion // AddRedis
-
-        #region AddOpenTelemetry
-
-        /// <summary>
-        /// Adds the  open-telemetry binding.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="hostEnv">The host env.</param>
-        /// <param name="shortAppName">Short name of the application.</param>
-        /// <param name="redisConnection">The redis connection.</param>
-        /// <returns></returns>
-        public static IServiceCollection AddOpenTelemetry(
-            this IServiceCollection services,
-            IHostEnvironment hostEnv,
-            string shortAppName,
-            IConnectionMultiplexer redisConnection)
-        {
-            // see:
-            //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
-            //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
-
-            Console.WriteLine($"JAEGER endpoint: key='OTEL_EXPORTER_JAEGER_ENDPOINT', env='{hostEnv.EnvironmentName}'"); // will be visible in the pods logs
-
-#pragma warning disable S125 // Sections of code should not be commented out
-            services.AddOpenTelemetry()
-                .WithTracing(builder =>
-                {
-                    builder.SetResourceBuilder(ResourceBuilder.CreateDefault()
-                        .AddService(shortAppName))
-                        .ListenToEventSourceRedisChannel()
-                        // .SetSampler<AlwaysOnSampler>()
-                        .AddAspNetCoreInstrumentation(m =>
-                        {
-                            m.Filter = OpenTelemetryFilter;
-                            // m.Enrich
-                            m.RecordException = true;
-                            m.EnableGrpcAspNetCoreSupport = true;
-                        })
-                        .AddHttpClientInstrumentation(m =>
-                        {
-                            // m.Enrich
-                            m.RecordException = true;
-                        })
-                        //.AddRedisInstrumentation(redisConnection
-                        //        //, m => { 
-                        //        //    m.FlushInterval
-                        //        //}
-                        //        )
-                        .AddOtlpExporter()
-                        .SetSampler(TestSampler.Create(LogLevel.Information));
-
-                    if (hostEnv.IsDevelopment())
-                    {
-                        builder.AddConsoleExporter(options => options.Targets = ConsoleExporterOutputTargets.Console);
-                    }
-                });
-            return services;
-#pragma warning restore S125 // Sections of code should not be commented out
-
-            #region OpenTelemetryFilter
-
-            bool OpenTelemetryFilter(HttpContext context) => OpenTelemetryFilterMap(context.Request.Path.Value);
-
-            bool OpenTelemetryFilterMap(string? path)
-            {
-                if (string.IsNullOrEmpty(path) ||
-                    path == "/health" ||
-                    path == "/readiness" ||
-                    path == "/version" ||
-                    path == "/settings" ||
-                    path.StartsWith("/v1/kv/") || // configuration 
-                    path == "/api/v2/write" || // influx metrics
-                    path == "/_bulk" ||
-                    path.StartsWith("/swagger") ||
-                    path.IndexOf("health-check") != -1)
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            #endregion // OpenTelemetryFilter
-        }
-
-        #endregion // AddOpenTelemetry
 
         #region WithJsonOptions
 

@@ -35,7 +35,6 @@ namespace WebSample.Extensions
                                 .ResolveS3Storage(s3Options)
                                 .WithOptions(o => o with
                                 {
-                                    TraceAsParent = TimeSpan.FromMinutes(10),
                                     OriginFilter = MessageOrigin.Original
                                 })
                                 .Environment(env)

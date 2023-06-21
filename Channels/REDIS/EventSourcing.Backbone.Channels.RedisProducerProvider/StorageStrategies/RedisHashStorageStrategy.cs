@@ -36,6 +36,11 @@ namespace EventSourcing.Backbone.Channels
         #endregion // Ctor
 
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name { get; } = "Redis";
+
+        /// <summary>
         /// Saves the bucket information.
         /// </summary>
         /// <param name="id">The identifier.</param>
@@ -53,7 +58,7 @@ namespace EventSourcing.Backbone.Channels
                                                                     Metadata meta,
                                                                     CancellationToken cancellation)
         {
-            var conn = await _connFactory.GetAsync();
+            var conn = await _connFactory.GetAsync(cancellation);
             try
             {
                 IDatabaseAsync db = conn.GetDatabase();

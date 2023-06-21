@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using EventSourcing.Backbone;
+using EventSourcing.Backbone.Channels;
+using EventSourcing.Backbone.Channels.RedisProvider.Common;
+
+using Microsoft.Extensions.Hosting;
 
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -7,26 +11,22 @@ using OpenTelemetry.Trace;
 
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732
-
+// see:
+//  https://opentelemetry.io/docs/instrumentation/net/getting-started/
+//  https://opentelemetry.io/docs/demo/services/cart/
+//  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
+//  https://opentelemetry.io/docs/demo/docker-deployment/
 
 namespace Microsoft.Extensions.DependencyInjection;
-
 
 /// <summary>
 /// core extensions for ASP.NET Core
 /// </summary>
 public static class EventSourcingOtel
 {
-    /// <summary>
-    /// The name of redis consumer channel source
-    /// </summary>
-    public const string REDIS_CONSUMER_CHANNEL_SOURCE = "redis-consumer-channel";
-    /// <summary>
-    /// The name of redis producer channel source
-    /// </summary>
-    public const string REDIS_PRODUCER_CHANNEL_SOURCE = "redis-producer-channel";
-
     #region WithEventSourcingTracing
+
+    #region Overloads
 
     /// <summary>
     /// Adds the  open-telemetry tracing binding.
@@ -40,22 +40,35 @@ public static class EventSourcingOtel
         IHostEnvironment hostEnv,
         Action<TracerProviderBuilder>? injection = null)
     {
-        // see:
-        //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
-        //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
+        var env = hostEnv.ApplicationName;
+        return builder.WithEventSourcingTracing(env, injection);
+    }
 
-        var appName = hostEnv.ApplicationName;
+    #endregion // Overloads
 
+    /// <summary>
+    /// Adds the  open-telemetry tracing binding.
+    /// </summary>
+    /// <param name="builder">The build.</param>
+    /// <param name="env">The environment.</param>
+    /// <param name="injection">Enable to inject additional setting.</param>
+    /// <returns></returns>
+    public static OpenTelemetryBuilder WithEventSourcingTracing(
+        this OpenTelemetryBuilder builder,
+        Env env,
+        Action<TracerProviderBuilder>? injection = null)
+    {
         builder
                 .WithTracing(tracerProviderBuilder =>
                 {
-                    var sources = new[] { appName,
-                                           REDIS_CONSUMER_CHANNEL_SOURCE,
-                                           REDIS_PRODUCER_CHANNEL_SOURCE};
+                    var sources = new[] { (string)env,
+                                           ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
+                                           ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
+                                           RedisChannelConstants.REDIS_CHANNEL_SOURCE };
 
                     tracerProviderBuilder
                         .AddSource(sources)
-                        .ConfigureResource(resource => resource.AddService(appName));
+                        .ConfigureResource(resource => resource.AddService(env));
 
                     injection?.Invoke(tracerProviderBuilder);
                 });
@@ -66,6 +79,8 @@ public static class EventSourcingOtel
     #endregion // WithEventSourcingTracing
 
     #region WithEventSourcingMetrics
+
+    #region Overloads
 
     /// <summary>
     /// Adds the  open-telemetry metrics binding.
@@ -79,15 +94,33 @@ public static class EventSourcingOtel
         IHostEnvironment hostEnv,
         Action<MeterProviderBuilder>? injection = null)
     {
-        // see:
-        //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
-        //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
+        var env = hostEnv.ApplicationName;
+        return builder.WithEventSourcingMetrics(env, injection);
+    }
 
-        var appName = hostEnv.ApplicationName;
+    #endregion // Overloads
+
+    /// <summary>
+    /// Adds the  open-telemetry metrics binding.
+    /// </summary>
+    /// <param name="builder">The build.</param>
+    /// <param name="env">The host environment.</param>
+    /// <param name="injection">The injection.</param>
+    /// <returns></returns>
+    public static OpenTelemetryBuilder WithEventSourcingMetrics(
+        this OpenTelemetryBuilder builder,
+        Env env,
+        Action<MeterProviderBuilder>? injection = null)
+    {
         builder.WithMetrics(metricsProviderBuilder =>
                 {
                     metricsProviderBuilder
-                        .ConfigureResource(resource => resource.AddService(appName));
+                        .ConfigureResource(resource => resource.AddService(env)
+                                                                            .AddService(ConsumerChannelConstants.REDIS_CHANNEL_SOURCE))
+                        .AddMeter(env,
+                                ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
+                                ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
+                                RedisChannelConstants.REDIS_CHANNEL_SOURCE);
                     injection?.Invoke(metricsProviderBuilder);
                 });
 

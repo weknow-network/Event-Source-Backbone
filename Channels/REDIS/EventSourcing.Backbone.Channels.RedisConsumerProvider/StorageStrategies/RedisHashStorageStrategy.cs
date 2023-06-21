@@ -23,6 +23,11 @@ namespace EventSourcing.Backbone.Channels
         }
 
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name { get; } = "Redis";
+
+        /// <summary>
         /// Load the bucket information.
         /// </summary>
         /// <param name="meta">The meta fetch provider.</param>
@@ -43,7 +48,7 @@ namespace EventSourcing.Backbone.Channels
         {
             string key = $"{meta.FullUri()}:{type}:{meta.MessageId}";
 
-            IConnectionMultiplexer conn = await _connFactory.GetAsync();
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellation);
             IDatabaseAsync db = conn.GetDatabase();
             HashEntry[] entities;
             try

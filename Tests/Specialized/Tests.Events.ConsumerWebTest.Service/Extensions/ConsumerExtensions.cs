@@ -72,7 +72,6 @@ public static class ConsumerExtensions
         return ioc.ResolveRedisConsumerChannel()
                         .WithOptions(o => o with
                         {
-                            TraceAsParent = TimeSpan.FromMinutes(10),
                             OriginFilter = MessageOrigin.Original,
                             AckBehavior = AckBehavior.OnSucceed
                         })

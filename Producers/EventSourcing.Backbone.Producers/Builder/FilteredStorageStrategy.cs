@@ -12,7 +12,6 @@ namespace EventSourcing.Backbone
         private readonly IProducerStorageStrategy _storage;
         private readonly Predicate<string>? _filter;
         private readonly EventBucketCategories _targetType;
-        private readonly static (string key, string metadata)[] EMPTY_RESULT = Array.Empty<(string key, string metadata)>();
 
         /// <summary>
         /// Initializes a new instance.
@@ -29,6 +28,11 @@ namespace EventSourcing.Backbone
             _filter = filter;
             _targetType = targetType;
         }
+
+        /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name => _storage.Name;
 
         /// <summary>
         /// Determines whether is of the right target type.

@@ -52,6 +52,11 @@ namespace EventSourcing.Backbone
         #endregion // ctor
 
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name { get; } = "S3";
+
+        /// <summary>
         /// Load the bucket information.
         /// </summary>
         /// <param name="meta">The meta fetch provider.</param>

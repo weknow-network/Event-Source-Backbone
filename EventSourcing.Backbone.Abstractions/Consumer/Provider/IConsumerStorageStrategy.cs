@@ -10,6 +10,11 @@
     public interface IConsumerStorageStrategy
     {
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Load the bucket information.
         /// </summary>
         /// <param name="meta">The meta fetch provider.</param>

@@ -57,6 +57,12 @@ namespace EventSourcing.Backbone
             #endregion // Ctor
 
             /// <summary>
+            /// Gets the name of the storage provider.
+            /// </summary>
+            public string Name { get; } = "void-storage";
+
+
+            /// <summary>
             /// Saves the bucket information.
             /// </summary>
             /// <param name="id">The identifier.</param>

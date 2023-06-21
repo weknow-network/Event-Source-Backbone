@@ -19,11 +19,20 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.0-beta.1" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.0-beta.1" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
-		<PackageReference Include="StackExchange.Redis" Version="2.6.111" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.116" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.10" />
+	</ItemGroup>
+
+	<!-- Prometheus -->
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.5.0-rc.1" />
+	</ItemGroup>
+	
 	<ItemGroup>
 		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\EventSourcing.Backbone.Channels.RedisConsumerProvider.csproj" />
 		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />

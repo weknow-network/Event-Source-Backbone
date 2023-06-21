@@ -26,6 +26,11 @@ namespace EventSourcing.Backbone
         }
 
         /// <summary>
+        /// Gets the name of the storage provider.
+        /// </summary>
+        public string Name => _storage.Name;
+
+        /// <summary>
         /// Determines whether is of the right target type.
         /// </summary>
         /// <param name="type">The type.</param>
