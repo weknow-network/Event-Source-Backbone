@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.Telemetry;
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 #pragma warning disable S2953 // Methods named "Dispose" should implement "IDisposable.Dispose"
@@ -31,7 +31,7 @@ namespace EventSourcing.Backbone
         private DateTime _lastResetConnection = DateTime.Now;
         private int _reconnectTry = 0;
         private const string CHANGE_CONN = "redis-change-connection";
-        private static readonly Counter<int> ReConnectCounter = Metics.CreateCounter<int>(CHANGE_CONN, "count",
+        private static readonly Counter<int> ReConnectCounter = EMeter.CreateCounter<int>(CHANGE_CONN, "count",
                                                 "count how many time the connection was re-create");
 
         #region Ctor

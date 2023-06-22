@@ -14,7 +14,7 @@ using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 
-using static EventSourcing.Backbone.Channels.RedisProvider.Telemetry;
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone.Channels.RedisProvider;
 
@@ -66,7 +66,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
     {
         Metadata meta = payload.Metadata;
         string id = meta.MessageId;
-        using var activity = Track.StartInternalTrace($"event-source.producer.{meta.Operation}.process",
+        using var activity = ETracer.StartInternalTrace($"event-source.producer.{meta.Operation}.process",
                                             t => t.Add("env", meta.Environment)
                                                             .Add("message-id", id));
 
@@ -99,7 +99,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
             await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
 
             var telemetryBuilder = commonEntries.ToBuilder();
-            using Activity? activity = Track.StartProducerTrace(meta);
+            using Activity? activity = ETracer.StartProducerTrace(meta);
             activity.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
             var entries = telemetryBuilder.ToArray();
 
@@ -150,7 +150,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
                 async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                 {
-                    using (Track.StartInternalTrace($"event-source.producer.{strategy.Name}-storage.{storageType}.set"))
+                    using (ETracer.StartInternalTrace($"event-source.producer.{strategy.Name}-storage.{storageType}.set"))
                     {
                         IImmutableDictionary<string, string> metaItems =
                         await strategy.SaveBucketAsync(id, bucket, storageType, meta);
