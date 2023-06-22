@@ -23,4 +23,7 @@ public static class EventSourceConstants
                         JsonMemoryBytesConverterFactory.Default
                     }
     };
+
+    public const string TELEMETRY_SOURCE = "event-source";
+
 }

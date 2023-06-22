@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Metrics;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +14,7 @@ namespace EventSourcing.Backbone.Private
     /// </summary>
     public static class RedisCommonProviderExtensions
     {
+        private const int DELAY_ON_MISSING_KEY = 5;
         private const int MIN_DELAY = 2;
         private const int SPIN_LIMIT = 30;
         private const int MAX_DELAY = 3_000;
@@ -28,29 +30,30 @@ namespace EventSourcing.Backbone.Private
         /// Creates the consumer group if not exists asynchronous.
         /// </summary>
         /// <param name="connFactory">The connection factory.</param>
-        /// <param name="eventSourceKey">The event source key.</param>
+        /// <param name="uri">The event source URI.</param>
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public static async Task CreateConsumerGroupIfNotExistsAsync(
                         this IEventSourceRedisConnectionFactory connFactory,
-                        string eventSourceKey,
+                        string uri,
                         string consumerGroup,
                         ILogger logger,
                         CancellationToken cancellationToken)
         {
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
             using var track = Track.StartInternalTrace("event-source.consumer.create-consumer-group", t => t.Add("group-name", consumerGroup));
-            CreateConsumerGroupCounter.Add(1);
-
+            CreateConsumerGroupCounter.WithTag("URI", uri).WithTag("consumer-group", consumerGroup).Add(1);
             int delay = MIN_DELAY;
             bool exists = false;
             int tryNumber = 0;
+            var retryCounter = CreateConsumerGroupRetryCounter.WithTag("URI", uri).WithTag("consumer-group", consumerGroup);
+            var missingCounter = KeyMissingCounter.WithTag("URI", uri).WithTag("consumer-group", consumerGroup);
             while (groupsInfo.Length == 0)
             {
                 if (tryNumber != 0)
-                    CreateConsumerGroupRetryCounter.Add(1);
+                    retryCounter.Add(1);
                 tryNumber++;
 
                 IConnectionMultiplexer conn = await connFactory.GetAsync(cancellationToken);
@@ -79,18 +82,11 @@ namespace EventSourcing.Backbone.Private
 
                     #region Validation (if key exists)
 
-                    if (!await db.KeyExistsAsync(eventSourceKey,
+                    if (!await db.KeyExistsAsync(uri,
                                                  flags: CommandFlags.DemandMaster))
                     {
-                        KeyMissingCounter.Add(1);
-                        //using (Track.StartInternalTrace("event-source.consumer.delay.key-not-exists",
-                        //                    t => t.Add("delay", KEY_NOT_EXISTS_DELAY)
-                        //                                    .Add("try-number", tryNumber)
-                        //                                    .Add("group-name", consumerGroup))) ;
-                        //{
-                        //    // producer didn't produce anything yet
-                        //    await Task.Delay(KEY_NOT_EXISTS_DELAY);
-                        //}
+                        missingCounter.Add(1);
+                        await Task.Delay(DELAY_ON_MISSING_KEY);
                         if (tryNumber == 0 || tryNumber > SPIN_LIMIT)
                             logger.LogDebug("Key not exists (yet): {info}", CurrentInfo());
                         continue;
@@ -105,7 +101,7 @@ namespace EventSourcing.Backbone.Private
                     {
                         using var lk = await _lock.AcquireAsync(cancellationToken);
                         groupsInfo = await db.StreamGroupInfoAsync(
-                                                    eventSourceKey,
+                                                    uri,
                                                     flags: CommandFlags.DemandMaster);
                         exists = groupsInfo.Any(m => m.Name == consumerGroup);
                     }
@@ -114,7 +110,7 @@ namespace EventSourcing.Backbone.Private
 
                 catch (RedisServerException ex)
                 {
-                    if (await db.KeyExistsAsync(eventSourceKey,
+                    if (await db.KeyExistsAsync(uri,
                                                  flags: CommandFlags.DemandMaster))
                     {
                         logger.LogWarning(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
@@ -149,7 +145,7 @@ namespace EventSourcing.Backbone.Private
                                                             .Add("group-name", consumerGroup))) ;
                         {
                             using var lk = await _lock.AcquireAsync(cancellationToken);
-                            if (await db.StreamCreateConsumerGroupAsync(eventSourceKey,
+                            if (await db.StreamCreateConsumerGroupAsync(uri,
                                                                     consumerGroup,
                                                                     StreamPosition.Beginning,
                                                                     flags: CommandFlags.DemandMaster))
@@ -201,7 +197,7 @@ namespace EventSourcing.Backbone.Private
 
                 string CurrentInfo() => @$"
 Try number:     {tryNumber}
-Stream key:     {eventSourceKey}
+Stream key:     {uri}
 Consumer Group: {consumerGroup}
 Is Connected:   {db.Multiplexer.IsConnected}
 Configuration:  {db.Multiplexer.Configuration}

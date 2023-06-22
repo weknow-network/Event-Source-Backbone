@@ -10,5 +10,4 @@ internal class Telemetry
 
     //private static readonly Counter<int> DelayCounter = Metics.CreateCounter<int>("event-source.consumer.delay", "",
     //                                        "");
-
 }

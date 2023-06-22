@@ -64,7 +64,8 @@ public static class EventSourcingOtel
                     var sources = new[] { (string)env,
                                            ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
                                            ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                           RedisChannelConstants.REDIS_CHANNEL_SOURCE };
+                                           RedisChannelConstants.REDIS_CHANNEL_SOURCE,
+                                           EventSourceConstants.TELEMETRY_SOURCE };
 
                     tracerProviderBuilder
                         .AddSource(sources)
@@ -114,14 +115,15 @@ public static class EventSourcingOtel
     {
         builder.WithMetrics(metricsProviderBuilder =>
                 {
+                    injection?.Invoke(metricsProviderBuilder);
                     metricsProviderBuilder
-                        .ConfigureResource(resource => resource.AddService(env)
-                                                                            .AddService(ConsumerChannelConstants.REDIS_CHANNEL_SOURCE))
+                        //.ConfigureResource(resource => resource.AddService(env)
+                        //                                                    .AddService(ConsumerChannelConstants.REDIS_CHANNEL_SOURCE))
                         .AddMeter(env,
                                 ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
                                 ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                RedisChannelConstants.REDIS_CHANNEL_SOURCE);
-                    injection?.Invoke(metricsProviderBuilder);
+                                RedisChannelConstants.REDIS_CHANNEL_SOURCE,
+                                EventSourceConstants.TELEMETRY_SOURCE);
                 });
 
         return builder;
