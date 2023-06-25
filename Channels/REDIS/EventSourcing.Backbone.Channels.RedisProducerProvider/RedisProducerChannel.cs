@@ -159,7 +159,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
                 async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                 {
-                    using (ETracer.StartInternalTrace($"evt-src.producer.{strategy.Name}-storage.{storageType}.set"))
+                    using (ETracer.StartInternalTrace($"producer.{strategy.Name}-storage.{storageType}.set"))
                     {
                         IImmutableDictionary<string, string> metaItems =
                         await strategy.SaveBucketAsync(id, bucket, storageType, meta);
