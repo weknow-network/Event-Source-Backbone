@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Interceptors\**" />
+    <Compile Remove="Options\**" />
+    <EmbeddedResource Remove="Interceptors\**" />
+    <EmbeddedResource Remove="Options\**" />
+    <None Remove="Interceptors\**" />
+    <None Remove="Options\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

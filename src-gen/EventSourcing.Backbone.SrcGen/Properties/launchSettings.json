@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    ".EventSourcing.Backbone.SrcGen": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\EventSourcing.Backbone.SrcGen.Playground\\EventSourcing.Backbone.SrcGen.Playground.csproj"
+    }
+  }
+}

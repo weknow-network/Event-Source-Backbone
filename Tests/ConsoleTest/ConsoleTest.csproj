@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Configurations>Debug;Release;Gen</Configurations>
+		<IsPackable>false</IsPackable>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Update="icon.png">
+			<PackagePath></PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FakeItEasy" Version="7.4.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+	</ItemGroup>
+
+	<!-- open-telemetry -->
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.5.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.5.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.0-beta.1" />
+
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.5.0-rc.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\EventSourcing.Backbone.Channels.RedisConsumerProvider.csproj" />
+		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />
+		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProvider.Common\EventSourcing.Backbone.Channels.RedisProvider.Common.csproj" />
+		<ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+		<ProjectReference Include="..\..\Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions.csproj" />
+		<ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
+		<ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
+		<ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+	</ItemGroup>
+</Project>
