@@ -53,6 +53,7 @@ internal static class OpenTelemetryExtensions
                                     // m.Enrich
                                     m.RecordException = true;
                                 })
+                                .AddGrpcClientInstrumentation()
                                 .AddOtlpExporter();
                             //if (environment.IsDevelopment())
                             //    cfg.AddConsoleExporter();

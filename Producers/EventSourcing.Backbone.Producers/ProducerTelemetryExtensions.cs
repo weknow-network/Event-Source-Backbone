@@ -28,8 +28,9 @@ public static class ProducerTelemetryExtensions
         tagsAction?.Invoke(t);
 
 
-        var activityName = activitySource.HasListeners() ? $"evt-src.producer.{meta.Environment.ToDash()}.{meta.UriDash}.{meta.Operation.ToDash()}.send" : string.Empty;
+        var activityName = activitySource.HasListeners() ? $"producer.{meta.Operation.ToDash()}.send" : string.Empty;
         Activity? activity = activitySource.StartActivity(activityName, ActivityKind.Producer);
+        
         meta.InjectTelemetryTags(activity);
 
         return activity;
