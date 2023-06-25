@@ -48,7 +48,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
         /// <param name="cancellationToken">The cancellation token.</param>
         protected override async Task OnStartAsync(CancellationToken cancellationToken)
         {
-            SubscriptionBridge subscription = new(_forwarder, _client);
+            SubscriptionBridge subscription = new(_forwarder);
             _builder.Group("Demo-Migration-GROUP")
                     .Subscribe(subscription);
 
@@ -73,12 +73,10 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
         private class SubscriptionBridge : ISubscriptionBridge
         {
             private readonly IEventsMigration _fw;
-            private readonly HttpClient _client;
 
-            public SubscriptionBridge(IEventsMigration fw, HttpClient client)
+            public SubscriptionBridge(IEventsMigration fw)
             {
                 _fw = fw;
-                _client = client;
             }
 
             public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)

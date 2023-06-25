@@ -4,7 +4,7 @@ namespace ConsoleTest;
 
 internal static class Constants
 {
-    public const int MAX = 100; //3_000;
+    public const int MAX = 1_000;
     public const string END_POINT_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
     public const string ENV = $"console-test";
     public static readonly IFooConsumer Subscriber = A.Fake<IFooConsumer>();

@@ -94,7 +94,7 @@ namespace EventSourcing.Backbone
         /// <param name="cause">The cause of the cancellation.</param>
         /// <returns></returns>
         /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing).
-        public ValueTask CancelAsync(AckBehavior cause = AckBehavior.Manual) => Ack.Current.AckAsync(cause);
+        public ValueTask CancelAsync(AckBehavior cause = AckBehavior.Manual) => Ack.Current.CancelAsync(cause);
 
         #endregion // AckAsync
 

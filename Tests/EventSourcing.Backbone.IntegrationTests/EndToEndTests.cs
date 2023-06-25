@@ -19,7 +19,7 @@ using static EventSourcing.Backbone.EventSourceConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 
-// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+// docker run -p 6379:6379 -it --rm --name redis-evt-src redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
 {
@@ -197,9 +197,15 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
+            var sw = Stopwatch.StartNew();
+
             var p = new Person(100, "bnaya");
             await producer.Stage1Async(p, "ABC");
             await producer.Stage2Async(p.ToJson(), "ABC".ToJson());
+
+            var snapshot = sw.Elapsed;
+            _outputHelper.WriteLine($"Produce = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
 
             CancellationToken cancellation = GetCancellationToken();
 
@@ -219,6 +225,9 @@ namespace EventSourcing.Backbone.Tests
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await subscription.Completion;
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Consumed = {snapshot:mm\\:ss\\.ff}");
 
             #region Validation
 

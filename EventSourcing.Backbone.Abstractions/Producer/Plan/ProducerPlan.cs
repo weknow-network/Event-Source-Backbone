@@ -150,14 +150,32 @@ namespace EventSourcing.Backbone
 
         #endregion // Environment
 
-        #region Key
+        #region Uri
+
+        private string _uri = string.Empty;
+        /// <summary>
+        /// The stream identifier (the URI combined with the environment separate one stream from another)
+        /// </summary>
+        public string Uri
+        {
+            get => _uri;
+            init
+            {
+                _uri = value;
+                UriDash = value.ToDash();
+            }
+        }
+
+        #endregion  Uri
+
+        #region UriDash
 
         /// <summary>
-        /// The stream key
+        /// Gets a lower-case URI with dash separator.
         /// </summary>
-        public string Uri { get; } = string.Empty;
+        public string UriDash { get; private set; } = string.Empty;
 
-        #endregion // Key
+        #endregion // UriDash
 
         #region Options
 

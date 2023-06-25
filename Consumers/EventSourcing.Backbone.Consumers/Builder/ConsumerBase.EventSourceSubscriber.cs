@@ -189,7 +189,7 @@ namespace EventSourcing.Backbone
                         if (hasProcessed)
                         {
                             if (behavior == AckBehavior.OnSucceed)
-                                await ack.AckAsync();
+                                await ack.AckAsync(AckBehavior.OnSucceed);
                         }
                         //else
                         //{
@@ -230,7 +230,7 @@ namespace EventSourcing.Backbone
                 {
                     if (Plan.Options.AckBehavior == AckBehavior.OnFinally && partialBehavior != PartialConsumerBehavior.Sequential)
                     {
-                        await ack.AckAsync();
+                        await ack.AckAsync(Plan.Options.AckBehavior);
                     }
 
                     #region Validation Max Messages Limit

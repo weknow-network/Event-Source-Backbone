@@ -17,7 +17,7 @@ using Xunit.Abstractions;
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 #pragma warning disable HAA0601 // Value type to reference type conversion causing boxing allocation
 
-// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+// docker run -p 6379:6379 -it --rm --name redis-evt-src redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
 {
@@ -186,10 +186,10 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // OnSucceed_ACK_WithFailure_Test
 
-        #region OnFinaly_ACK_WithFailure_Test
+        #region OnFinally_ACK_WithFailure_Test
 
         [Fact(Timeout = TIMEOUT)]
-        public async Task OnFinaly_ACK_WithFailure_Test()
+        public async Task OnFinally_ACK_WithFailure_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -252,11 +252,12 @@ namespace EventSourcing.Backbone.Tests
             #endregion // Validation
         }
 
-        #endregion // OnFinaly_ACK_WithFailure_Test
+        #endregion // OnFinally_ACK_WithFailure_Test
 
         #region Manual_ACK_Test
 
         [Fact(Timeout = TIMEOUT)]
+        [Trait("Profile", "true")]
         public async Task Manual_ACK_Test()
         {
             #region ISequenceOperations producer = ...
@@ -281,8 +282,6 @@ namespace EventSourcing.Backbone.Tests
                     if (Interlocked.Increment(ref tryNumber) < 5)
                         throw new ApplicationException("test intensional exception");
                     await meta.AckAsync();
-                    //ConsumerMetadata meta = ConsumerMetadata.Context;
-                    //await Ack.Current.AckAsync();
                 });
             A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());

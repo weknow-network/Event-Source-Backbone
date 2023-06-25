@@ -1,17 +1,20 @@
-﻿namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone;
+
+/// <summary>
+/// Plan routing identification
+/// </summary>
+public interface IPlanRoute
 {
     /// <summary>
-    /// Plan routing identification
+    /// Environment (part of the stream key).
     /// </summary>
-    public interface IPlanRoute
-    {
-        /// <summary>
-        /// Environment (part of the stream key).
-        /// </summary>
-        Env Environment { get; }
-        /// <summary>
-        /// The stream identifier (the URI combined with the environment separate one stream from another)
-        /// </summary>
-        string Uri { get; }
-    }
+    Env Environment { get; }
+    /// <summary>
+    /// The stream identifier (the URI combined with the environment separate one stream from another)
+    /// </summary>
+    string Uri { get; }
+    /// <summary>
+    /// The stream identifier (the URI combined with the environment separate one stream from another) formatted with lower-case and dash separator
+    /// </summary>
+    string UriDash { get; }
 }

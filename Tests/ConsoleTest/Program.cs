@@ -85,9 +85,9 @@ static async Task Cleanup(string END_POINT_KEY, string URI, ILogger fakeLogger)
         IDatabaseAsync db = conn.GetDatabase();
 
         var ab = new ActionBlock<string>(k => db.KeyDeleteAsync(k, CommandFlags.DemandMaster), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 30 });
-        foreach (string key in keys)
+        foreach (string? key in keys)
         {
-            ab.Post(key);
+            ab.Post(key!);
         }
 
         ab.Complete();

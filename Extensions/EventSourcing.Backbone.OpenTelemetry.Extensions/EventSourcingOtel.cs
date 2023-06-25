@@ -1,6 +1,4 @@
 ﻿using EventSourcing.Backbone;
-using EventSourcing.Backbone.Channels;
-using EventSourcing.Backbone.Channels.RedisProvider.Common;
 
 using Microsoft.Extensions.Hosting;
 
@@ -62,9 +60,7 @@ public static class EventSourcingOtel
                 .WithTracing(tracerProviderBuilder =>
                 {
                     var sources = new[] { (string)env,
-                                           ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                           ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                           RedisChannelConstants.REDIS_CHANNEL_SOURCE };
+                                           EventSourceConstants.TELEMETRY_SOURCE };
 
                     tracerProviderBuilder
                         .AddSource(sources)
@@ -114,14 +110,12 @@ public static class EventSourcingOtel
     {
         builder.WithMetrics(metricsProviderBuilder =>
                 {
-                    metricsProviderBuilder
-                        .ConfigureResource(resource => resource.AddService(env)
-                                                                            .AddService(ConsumerChannelConstants.REDIS_CHANNEL_SOURCE))
-                        .AddMeter(env,
-                                ProducerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                ConsumerChannelConstants.REDIS_CHANNEL_SOURCE,
-                                RedisChannelConstants.REDIS_CHANNEL_SOURCE);
                     injection?.Invoke(metricsProviderBuilder);
+                    metricsProviderBuilder
+                        //.ConfigureResource(resource => resource.AddService(env)
+                        //                                                    .AddService(ConsumerChannelConstants.REDIS_CHANNEL_SOURCE))
+                        .AddMeter(env,
+                                EventSourceConstants.TELEMETRY_SOURCE);
                 });
 
         return builder;

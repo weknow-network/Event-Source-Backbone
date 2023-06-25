@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Diagnostics.Metrics;
+
+using Microsoft.Extensions.Logging;
+
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone
 {
@@ -10,27 +15,35 @@ namespace EventSourcing.Backbone
     public class AckOnce : IAck
     {
         private static readonly Func<AckBehavior, ValueTask> NON_FN = (_) => ValueTask.CompletedTask;
+        private readonly string _uri;
         private readonly Func<AckBehavior, ValueTask> _ackAsync;
         private readonly Func<AckBehavior, ValueTask> _cancelAsync;
         private readonly AckBehavior _behavior;
         private readonly ILogger _logger;
         private int _ackCount = 0;
+        private static readonly Counter<int> AckCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.event.ack", "count",
+                                                    "Event's message handling acknowledge count");
+        private static readonly Counter<int> AbortCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.event.abort", "count",
+                                                    "Event's message handling aborted (cancel) count");
 
         #region Ctor
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
+        /// <param name="uri">The URI.</param>
         /// <param name="ackAsync">The ack.</param>
-        /// <param name="cancelAsync">The cancel.</param>
         /// <param name="behavior">The behavior.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="cancelAsync">The cancel.</param>
         public AckOnce(
+            string uri,
             Func<AckBehavior, ValueTask> ackAsync,
             AckBehavior behavior,
             ILogger logger,
             Func<AckBehavior, ValueTask>? cancelAsync = null)
         {
+            _uri = uri;
             _ackAsync = ackAsync;
             _cancelAsync = cancelAsync ?? NON_FN;
             _behavior = behavior;
@@ -50,11 +63,12 @@ namespace EventSourcing.Backbone
         public async ValueTask AckAsync(AckBehavior cause)
         {
             int count = Interlocked.Increment(ref _ackCount);
+            if (count != 1)
+                return;
             try
             {
-                if (count == 1)
-                    await _ackAsync(cause);
-
+                AckCounter.WithTag("URI", _uri).WithTag("cause", cause).Add(1);
+                await _ackAsync(cause);
             }
             catch (Exception ex)
             {
@@ -78,11 +92,12 @@ namespace EventSourcing.Backbone
         public async ValueTask CancelAsync(AckBehavior cause)
         {
             int count = Interlocked.Increment(ref _ackCount);
+            if (count != 1)
+                return;
             try
             {
-                if (count == 1)
-                    await _cancelAsync(cause);
-
+                AbortCounter.WithTag("URI", _uri).WithTag("cause", cause).Add(1);
+                await _cancelAsync(cause);
             }
             catch (Exception ex)
             {

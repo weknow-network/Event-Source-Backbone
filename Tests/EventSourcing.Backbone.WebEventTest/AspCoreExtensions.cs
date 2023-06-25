@@ -23,13 +23,9 @@ namespace Microsoft.Extensions.Configuration
         /// Adds the  standard configuration.
         /// </summary>
         /// <param name="services">The services.</param>
-        /// <param name="hostEnv">The host env.</param>
-        /// <param name="shortAppName"></param>
         /// <returns></returns>
         public static IConnectionMultiplexer AddRedis(
-            this IServiceCollection services,
-            IHostEnvironment hostEnv,
-            string shortAppName)
+            this IServiceCollection services)
         {
             IConnectionMultiplexer redisConnection = RedisClientFactory.CreateProviderAsync().Result;
             services.AddSingleton<IConnectionMultiplexer>(redisConnection);
@@ -60,6 +56,13 @@ namespace Microsoft.Extensions.Configuration
 
         #endregion // WithJsonOptions
 
+        #region WithDefault
+
+        /// <summary>
+        /// Withes the default.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
         public static JsonSerializerOptions WithDefault(this JsonSerializerOptions options)
         {
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
@@ -70,49 +73,6 @@ namespace Microsoft.Extensions.Configuration
             return options;
         }
 
-        #region UseRestDefaults
-
-        /// <summary>
-        /// Pre-configured host defaults for rest API.
-        /// </summary>
-        /// <typeparam name="TStartup">The type of the startup.</typeparam>
-        /// <param name="builder">The builder.</param>
-        /// <param name="args">The process arguments.</param>
-        /// <returns></returns>
-        public static IHostBuilder UseRestDefaults<TStartup>(
-        this IHostBuilder builder,
-        params string[] args) where TStartup : class
-        {
-            builder.ConfigureHostConfiguration(cfg =>
-                {
-                    // https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-2.1&tabs=windows
-                    // cfg.AddEnvironmentVariables()
-                    // cfg.AddJsonFile()
-                    // cfg.AddInMemoryCollection()
-                    // cfg.AddConfiguration()
-                    // cfg.AddUserSecrets()
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.ConfigureKestrel(
-                        (WebHostBuilderContext context,
-                         KestrelServerOptions options) =>
-                    {
-                        options.ConfigureEndpointDefaults(c => c.Protocols = HttpProtocols.Http1AndHttp2);
-                    });
-                    webBuilder.UseStartup<TStartup>();
-                }).ConfigureLogging((context, builder) =>
-                    {
-                        builder.AddOpenTelemetry(options =>
-                        {
-                            options.IncludeScopes = true;
-                            options.ParseStateValues = true;
-                            options.IncludeFormattedMessage = true;
-                        });
-                    });
-            return builder;
-        }
-
-        #endregion // UseRestDefaults
+        #endregion // WithDefault
     }
 }
