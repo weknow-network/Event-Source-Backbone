@@ -4,6 +4,8 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
+using Bnaya.Extensions.Common.Disposables;
+
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider.Common;
 using EventSourcing.Backbone.Consumers;
@@ -26,15 +28,17 @@ namespace EventSourcing.Backbone.Channels.RedisProvider;
 /// </summary>
 internal class RedisConsumerChannel : IConsumerChannelProvider
 {
-    private static readonly Counter<int> StealCountCounter = EMeter.CreateCounter<int>("event-source.consumer.events-stealing", "count",
+    private static readonly Counter<int> StealCountCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.events-stealing", "count",
                                                                                 "Attempt to get stale events (messages) from other consumer (which assumed malfunction)");
-    private static readonly Counter<int> StealAmountCounter = EMeter.CreateCounter<int>("event-source.consumer.events-stealing.messages", "count",
+    private static readonly Counter<int> StealAmountCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.events-stealing.messages", "count",
                                                                                 "Attempt to get stale events (messages) from other consumer (which assumed malfunction)");
-    private static readonly Counter<int> ConcumeBatchCountCounter = EMeter.CreateCounter<int>("event-source.consumer.batch", "count",
+    private static readonly Counter<int> ConcumeBatchCountCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.batch", "count",
                                                 "count of the number of non empty consuming batches form the stream provider");
-    private static readonly Counter<int> ConcumeBatchSumCounter = EMeter.CreateCounter<int>("event-source.consumer.batch.events", "count",
+    private static readonly Counter<int> ConcumeEventsCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.events", "count",
                                                 "Sum of total consuming events (messages) before process");
-    private static readonly Counter<int> ConcumeBatchFailureCounter = EMeter.CreateCounter<int>("event-source.consumer.batch.failure", "count",
+    private static readonly Counter<int> ConcumeEventsOperationCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.events.operation", "count",
+                                                "Sum of total consuming events (messages) before process");
+    private static readonly Counter<int> ConcumeBatchFailureCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.batch.failure", "count",
                                                 "batch reading failure");
 
     private const string BEGIN_OF_STREAM = "0000000000000";
@@ -219,9 +223,10 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
         var claimingTrigger = options.ClaimingTrigger;
         var minIdleTime = (int)options.ClaimingTrigger.MinIdleTime.TotalMilliseconds;
 
-        Env env = plan.Environment;
-        string uri = plan.Uri;
+        var env = plan.Environment.ToDash();
+        string uri = plan.Uri.ToDash();
         string fullUri = plan.FullUri();
+        string consumerGroup = plan.ConsumerGroup.ToDash();
 
         bool isFirstBatchOrFailure = true;
 
@@ -230,7 +235,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
         ILogger logger = plan.Logger ?? _logger;
 
-        #region await db.CreateConsumerGroupIfNotExistsAsync(...)
+        #region await CreateConsumerGroupIfNotExistsAsync(...)
 
         await _connFactory.CreateConsumerGroupIfNotExistsAsync(
             plan,
@@ -244,14 +249,14 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             logger,
             cancellationToken);
 
-        #endregion // await db.CreateConsumerGroupIfNotExistsAsync(...)
+        #endregion // await CreateConsumerGroupIfNotExistsAsync(...)
 
         int releaseDelay = INIT_RELEASE_DELAY;
         int bachSize = options.BatchSize;
 
         TimeSpan delay = TimeSpan.Zero;
         int emptyBatchCount = 0;
-        using (ETracer.StartActivity("event-source.consumer.loop", ActivityKind.Server))
+        using (ETracer.StartActivity("evt-src.sys.consumer.loop", ActivityKind.Server))
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -388,14 +393,14 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                                     fullUri,
                                     async (cause) =>
                                     {
-                                        Activity.Current?.AddEvent("event-source.consumer.event.ack",
+                                        Activity.Current?.AddEvent("evt-src.sys..consumer.event.ack",
                                             t => PrepareTrace(t).Add("cause", cause));
                                         await AckAsync(result.Id);
                                     },
                                     plan.Options.AckBehavior, logger,
                                     async (cause) =>
                                     {
-                                        Activity.Current?.AddEvent("event-source.consumer.event.cancel",
+                                        Activity.Current?.AddEvent("evt-src.sys..consumer.event.cancel",
                                                                     t => PrepareTrace(t).Add("cause", cause));
                                         batchCancellation.CancelSafe(); // cancel forward
                                         await CancelAsync(cancellableIds);
@@ -432,7 +437,11 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                     #endregion // var announcement = new Announcement(...)
 
                     bool succeed;
-                    using (var execActivity = ETracer.StartInternalTrace("event-source.consumer.execute-event"))
+                    ConcumeEventsOperationCounter.WithEnvUriOperation(meta).Add(1);
+                    Activity? execActivity = null;
+                    if (ETracer.HasListeners())
+                        execActivity = ETracer.StartInternalTrace($"evt-src.consumer.{env}.{uri}.{meta.Operation.ToDash()}.invoke");
+                    using (execActivity)
                     {
                         succeed = await func(announcement, ack);
                         execActivity?.SetTag("succeed", succeed);
@@ -447,15 +456,10 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                         // TODO: [bnaya 2023-06-19 #RELEASE] committed id should be captured
                         if (options.PartialBehavior == Enums.PartialConsumerBehavior.Sequential)
                         {
-                            using (ETracer.StartInternalTrace("event-source.consumer.release-events-on-failure"))
+                            using (ETracer.StartInternalTrace("evt-src.sys.consumer.release-events-on-failure"))
                             {
                                 RedisValue[] freeTargets = results[i..].Select(m => m.Id).ToArray();
-                                await ReleaseAsync(freeTargets); // release the rest of the batch which doesn't processed yet
-                                                                 //using (ETracer.StartInternalTrace("event-source.consumer.delay", t => t.Add("duration", releaseDelay)))
-                                                                 //{
-                                                                 //    // let other potential consumer the chance of getting ownership
-                                                                 //    await Task.Delay(releaseDelay, ct);
-                                                                 //}
+                                await ReleaseAsync(freeTargets); // release the rest of the batch which doesn't processed yet                                                                 
                             }
                         }
                     }
@@ -488,7 +492,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                     {
                         isFirstBatchOrFailure = false;
                         string group = plan.ConsumerGroup;
-                        using var activity = ETracer.StartInternalTrace("event-source.consumer.read-batch",
+                        using var activity = ETracer.StartInternalTrace("evt-src.sys.consumer.read-batch",
                                                                     t => PrepareTrace(t)
                                                                         .Add("consumer-group", group));
 
@@ -507,7 +511,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                                             .WithCancellation(cancellationToken, () => Array.Empty<StreamEntry>());
                             PrepareMeter(ConcumeBatchCountCounter).Add(1);
                             activity?.SetTag("count", values.Length);
-                            PrepareMeter(ConcumeBatchSumCounter).Add(values.Length);
+                            PrepareMeter(ConcumeEventsCounter).Add(values.Length);
                         }
                         #region Exception Handling
 
@@ -565,7 +569,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             if (!isFirstBatchOrFailure)
                 return values;
 
-            using var _ = ETracer.StartInternalTrace("event-source.consumer.self-pending");
+            using var _ = ETracer.StartInternalTrace("evt-src.sys.consumer.self-pending");
 
             IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
@@ -625,12 +629,12 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             if (values.Length != 0) return values;
             if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
                 return values;
-            using var _ = ETracer.StartInternalTrace("event-source.consumer.stale-events");
+            using var _ = ETracer.StartInternalTrace("evt-src.sys.consumer.stale-events");
             try
             {
                 IDatabaseAsync db = await _connFactory.GetDatabaseAsync(ct);
                 StreamPendingInfo pendingInfo;
-                using (ETracer.StartInternalTrace("event-source.consumer.events-stealing.pending"))
+                using (ETracer.StartInternalTrace("evt-src.sys.consumer.events-stealing.pending"))
                 {
                     pendingInfo = await db.StreamPendingAsync(fullUri, plan.ConsumerGroup, flags: CommandFlags.DemandMaster);
                 }
@@ -642,7 +646,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                     try
                     {
                         StreamPendingMessageInfo[] pendMsgInfo;
-                        using (ETracer.StartInternalTrace("event-source.consumer.events-stealing.pending-events",
+                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.events-stealing.pending-events",
                                                     t => PrepareTrace(t).Add("from-consumer", c.Name)))
                         {
                             pendMsgInfo = await db.StreamPendingMessagesAsync(
@@ -670,7 +674,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                         PrepareMeter(StealAmountCounter).WithTag("from-consumer", c.Name)
                                 .Add(count);
                         // will claim events only if older than _setting.ClaimingTrigger.MinIdleTime
-                        using (ETracer.StartInternalTrace("event-source.consumer.events-stealing.claim",
+                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.events-stealing.claim",
                                                     t => PrepareTrace(t)
                                                                     .Add("from-consumer", c.Name)
                                                                     .Add("message-count", count)))
@@ -784,17 +788,17 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             IDatabaseAsync db = conn.GetDatabase();
             try
             {
-                using (ETracer.StartInternalTrace("event-source.consumer.release-ownership",
+                using (ETracer.StartInternalTrace("evt-src.sys.consumer.release-ownership",
                                                             t => PrepareTrace(t).Add("consumer-group", plan.ConsumerGroup)))
                 {
-                    await db.StreamClaimAsync(plan.FullUri(),
+                    await db.StreamClaimAsync(fullUri,
                                           plan.ConsumerGroup,
                                           RedisChannelConstants.NONE_CONSUMER,
                                           1,
                                           freeTargets,
                                           flags: CommandFlags.DemandMaster);
                 }
-                using (ETracer.StartInternalTrace("event-source.consumer.release.delay",
+                using (ETracer.StartInternalTrace("evt-src.sys.consumer.release.delay",
                                                 t => PrepareTrace(t).Add("delay", releaseDelay)))
                 {
                     // let other potential consumer the chance of getting ownership
@@ -823,8 +827,11 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
         #endregion // ReleaseAsync
 
-        ITagAddition PrepareTrace(ITagAddition t) => t.Add("uri", uri).Add("env", env);
-        ICounterBuilder<int> PrepareMeter(Counter<int> t) => t.WithTag("uri", uri).WithTag("env", env);
+        ITagAddition PrepareTrace(ITagAddition t) => t.Add("uri", uri).Add("env", env)
+                                                                    .Add("group-name", consumerGroup);
+        ICounterBuilder<int> PrepareMeter(Counter<int> t) => t.WithTag("uri", uri)
+                                                                .WithTag("env", env)
+                                                                .WithTag("group-name", consumerGroup);
     }
 
     #endregion // SubsribeToSingleAsync
@@ -903,7 +910,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             async Task<StreamEntry> FindAsync(EventKey entryId)
             {
                 string lookForId = (string)entryId;
-                string key = plan.FullUri();
+                string fullUri = plan.FullUri();
 
                 string originId = lookForId;
                 int len = originId.IndexOf('-');
@@ -915,12 +922,12 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                 {
                     iteration++;
                     StreamEntry[] entries = await db.StreamReadAsync(
-                                                            key,
+                                                            fullUri,
                                                             startPosition,
                                                             READ_BY_ID_CHUNK_SIZE,
                                                             CommandFlags.DemandMaster);
                     if (entries.Length == 0)
-                        throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return nothing, start at ({startPosition}, iteration = {iteration}).");
+                        throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{fullUri}] return nothing, start at ({startPosition}, iteration = {iteration}).");
                     string k = string.Empty;
                     foreach (StreamEntry e in entries)
                     {
@@ -938,11 +945,11 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                             return e;
                         }
                         if (ePrefix != fromPrefix)
-                            throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not exists.");
+                            throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{fullUri}] return not exists.");
                     }
                     startPosition = k; // next batch will start from last entry
                 }
-                throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{key}] return not found.");
+                throw new KeyNotFoundException($"{mtdName} of [{lookForId}] from [{fullUri}] return not found.");
             }
 
             #endregion // FindAsync
@@ -1026,7 +1033,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
         async IAsyncEnumerable<StreamEntry> AsyncLoop()
         {
-            string uri = plan.FullUri();
+            string fullUri = plan.FullUri();
 
             int iteration = 0;
             RedisValue startPosition = options?.From ?? BEGIN_OF_STREAM;
@@ -1037,7 +1044,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
                 iteration++;
                 StreamEntry[] entries = await db.StreamReadAsync(
-                                                        uri,
+                                                        fullUri,
                                                         startPosition,
                                                         READ_BY_ID_CHUNK_SIZE,
                                                         CommandFlags.DemandMaster);
@@ -1092,7 +1099,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
         {
             foreach (var strategy in strategies)
             {
-                using (ETracer.StartInternalTrace($"event-source.consumer.{strategy.Name}-storage.{storageType}.get"))
+                using (ETracer.StartInternalTrace($"evt-src.sys.consumer.{strategy.Name}-storage.{storageType}.get"))
                 {
                     bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                 }
@@ -1100,7 +1107,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
         }
         else
         {
-            using (ETracer.StartInternalTrace($"event-source.consumer.{_defaultStorageStrategy.Name}-storage.{storageType}.get"))
+            using (ETracer.StartInternalTrace($"evt-src.sys.consumer.{_defaultStorageStrategy.Name}-storage.{storageType}.get"))
             {
                 bucket = await _defaultStorageStrategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
             }
@@ -1126,7 +1133,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
         var newDelay = cfg.CalcNextDelay(previousDelay, cfg);
         var limitDelay = Min(cfg.MaxDelay.TotalMilliseconds, newDelay.TotalMilliseconds);
         newDelay = TimeSpan.FromMilliseconds(limitDelay);
-        using (ETracer.StartInternalTrace("event-source.consumer.delay.when-empty-queue",
+        using (ETracer.StartInternalTrace("evt-src.sys.consumer.delay.when-empty-queue",
                                         t => t.Add("delay", newDelay)))
         {
             await Task.Delay(newDelay, cancellationToken);

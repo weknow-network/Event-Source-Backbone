@@ -22,7 +22,7 @@
 
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, bnaya</PackageTags>
+		<PackageTags>event-source, event-driven, event-sourcing, producer, consumer, pub, sub, pub-sub, messaging, reliable, redis, bnaya</PackageTags>
 		<PackageProjectUrl>https://medium.com/@bnayae</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bnayae/Event-Source-Backbone</RepositoryUrl>
 		<RepositoryType>GitHub</RepositoryType>

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+// docker run -p 6379:6379 -it --rm --name redis-evt-src redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
 {
@@ -43,7 +43,7 @@ namespace EventSourcing.Backbone.Tests
                 .AddVoidStrategy();
 
             _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsEnvKeys { Endpoint = SOURCE_KEY })
-                                        .AddS3Storage(new S3Options { Bucket = "event-source-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
+                                        .AddS3Storage(new S3Options { Bucket = "evt-src-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
         }
 
         #endregion // Ctor

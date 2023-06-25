@@ -34,10 +34,10 @@ internal static class OpenTelemetryExtensions
                             cfg
                                 //.AddSource("StackExchange.Redis")
                                 //.AddSource("StackExchangeRedisConnectionInstrumentation")
-                                //.AddRedisInstrumentation(RedisClientFactory.CreateProviderAsync().Result, c =>
-                                //{
-                                //    c.FlushInterval = TimeSpan.FromSeconds(1);
-                                //})
+                                .AddRedisInstrumentation(RedisClientFactory.CreateProviderAsync().Result, c =>
+                                {
+                                    c.FlushInterval = TimeSpan.FromSeconds(5);
+                                })
                                 //.ConfigureRedisInstrumentation((provider, b) => {
                                 //    var conn = provider.GetRequiredService<IConnectionMultiplexer>();
                                 //    b.AddConnection(conn);

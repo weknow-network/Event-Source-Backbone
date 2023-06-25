@@ -14,7 +14,7 @@ using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelCo
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 
-// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+// docker run -p 6379:6379 -it --rm --name redis-evt-src redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
 {

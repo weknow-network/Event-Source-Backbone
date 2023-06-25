@@ -3,7 +3,6 @@
 public static class RedisChannelConstants
 {
     public const string CHANNEL_TYPE = "REDIS Channel V1";
-    public const string REDIS_CHANNEL_SOURCE = "event-source-redis-channel";
     public const string META_ARRAY_SEPARATOR = "~|~";
 
     public const string END_POINT_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";

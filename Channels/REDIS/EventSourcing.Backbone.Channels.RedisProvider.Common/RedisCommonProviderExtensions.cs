@@ -18,9 +18,9 @@ namespace EventSourcing.Backbone.Private
         private const int MIN_DELAY = 2;
         private const int SPIN_LIMIT = 30;
         private const int MAX_DELAY = 3_000;
-        private static Counter<int> KeyMissingCounter = EMeter.CreateCounter<int>("event-source.key-missing", "count", "count missing key events");
-        private static Counter<int> CreateConsumerGroupCounter = EMeter.CreateCounter<int>("event-source.create-consumer-group", "count", "creating a consumer group");
-        private static Counter<int> CreateConsumerGroupRetryCounter = EMeter.CreateCounter<int>("event-source.create-consumer-group-retry", "count", "retries of creating a consumer group");
+        private static Counter<int> KeyMissingCounter = EMeter.CreateCounter<int>("evt-src.sys.key-missing", "count", "count missing key events");
+        private static Counter<int> CreateConsumerGroupCounter = EMeter.CreateCounter<int>("evt-src.sys.create-consumer-group", "count", "creating a consumer group");
+        private static Counter<int> CreateConsumerGroupRetryCounter = EMeter.CreateCounter<int>("evt-src.sys.create-consumer-group-retry", "count", "retries of creating a consumer group");
 
         private static readonly AsyncLock _lock = new AsyncLock(TimeSpan.FromSeconds(20));
 
@@ -30,8 +30,7 @@ namespace EventSourcing.Backbone.Private
         /// Creates the consumer group if not exists asynchronous.
         /// </summary>
         /// <param name="connFactory">The connection factory.</param>
-        /// <param name="env">The environment.</param>
-        /// <param name="uri">The event source URI.</param>
+        /// <param name="plan">The plan.</param>
         /// <param name="consumerGroup">The consumer group.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -44,11 +43,11 @@ namespace EventSourcing.Backbone.Private
                         CancellationToken cancellationToken)
         {
             Env env = plan.Environment;
-            string uri = plan.Uri;
+            string uri = plan.UriDash;
             string fullUri = plan.FullUri();
 
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
-            using var track = ETracer.StartInternalTrace("event-source.consumer.create-consumer-group",
+            using var track = ETracer.StartInternalTrace("evt-src.sys.consumer.create-consumer-group",
                                         t => PrepareTrace(t));
 
             PrepareMeter(CreateConsumerGroupCounter).Add(1);
@@ -72,7 +71,7 @@ namespace EventSourcing.Backbone.Private
                     if (tryNumber > SPIN_LIMIT)
                     {
                         delay = Math.Min(delay * 2, MAX_DELAY);
-                        using (ETracer.StartInternalTrace("event-source.consumer.delay.key-not-exists",
+                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.delay.key-not-exists",
                                             t => PrepareTrace(t)
                                                             .Add("delay", delay)
                                                             .Add("try-number", tryNumber))) 
@@ -101,7 +100,7 @@ namespace EventSourcing.Backbone.Private
 
                     #endregion // Validation (if key exists)
 
-                    using (ETracer.StartInternalTrace("event-source.consumer.get-consumer-group-info",
+                    using (ETracer.StartInternalTrace("evt-src.sys.consumer.get-consumer-group-info",
                                         t => PrepareTrace(t)
                                                         .Add("try-number", tryNumber)))
                     {
@@ -123,7 +122,6 @@ namespace EventSourcing.Backbone.Private
                     }
                     else
                     {
-                        //await Task.Delay(KEY_NOT_EXISTS_DELAY);
                         logger.LogDebug(ex, "Create Consumer Group If Not Exists: failed. {info}", CurrentInfo());
                     }
                 }
@@ -145,7 +143,7 @@ namespace EventSourcing.Backbone.Private
                 {
                     try
                     {
-                        using (ETracer.StartInternalTrace("event-source.consumer.create-consumer-group",
+                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.create-consumer-group",
                                             t => PrepareTrace(t)
                                                             .Add("try-number", tryNumber))) 
                         {
@@ -212,8 +210,12 @@ Configuration:  {db.Multiplexer.Configuration}
             }
 
 
-            ITagAddition PrepareTrace(ITagAddition t) => t.Add("uri", uri).Add("env", env).Add("group-name", consumerGroup);
-            ICounterBuilder<int> PrepareMeter(Counter<int> t) => t.WithTag("uri", uri).WithTag("env", env);
+            ITagAddition PrepareTrace(ITagAddition t) => t.Add("uri", uri)
+                                                            .Add("env", env)
+                                                            .Add("group-name", consumerGroup);
+            ICounterBuilder<int> PrepareMeter(Counter<int> t) => t.WithTag("uri", uri)
+                                                                    .WithTag("env", env)
+                                                                    .WithTag("group-name", consumerGroup);
         }
 
         #endregion // CreateConsumerGroupIfNotExistsAsync

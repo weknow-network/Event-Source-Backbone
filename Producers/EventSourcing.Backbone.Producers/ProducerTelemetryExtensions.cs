@@ -20,11 +20,15 @@ public static class ProducerTelemetryExtensions
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
 
+        if(!activitySource.HasListeners())
+            return null;
+
         var tags = new ActivityTagsCollection();
         var t = new TagAddition(tags);
         tagsAction?.Invoke(t);
 
-        var activityName = $"event-source.producer.{meta.Operation}.send";
+
+        var activityName = activitySource.HasListeners() ? $"evt-src.producer.{meta.Environment.ToDash()}.{meta.UriDash}.{meta.Operation.ToDash()}.send" : string.Empty;
         Activity? activity = activitySource.StartActivity(activityName, ActivityKind.Producer);
         meta.InjectTelemetryTags(activity);
 

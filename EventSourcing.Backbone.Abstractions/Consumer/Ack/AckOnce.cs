@@ -21,9 +21,9 @@ namespace EventSourcing.Backbone
         private readonly AckBehavior _behavior;
         private readonly ILogger _logger;
         private int _ackCount = 0;
-        private static readonly Counter<int> AckCounter = EMeter.CreateCounter<int>("event-source.consumer.event.ack", "count",
+        private static readonly Counter<int> AckCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.event.ack", "count",
                                                     "Event's message handling acknowledge count");
-        private static readonly Counter<int> AbortCounter = EMeter.CreateCounter<int>("event-source.consumer.event.abort", "count",
+        private static readonly Counter<int> AbortCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.event.abort", "count",
                                                     "Event's message handling aborted (cancel) count");
 
         #region Ctor

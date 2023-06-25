@@ -71,7 +71,7 @@ services.AddHttpClient("migration", c =>
      c.DefaultRequestHeaders.Add("wk-pattern", "migration");
  });
 
-//IConnectionMultiplexer redisConnection = services.AddRedis(environment, shortAppName);
+//IConnectionMultiplexer redisConnection = services.AddRedis();
 builder.AddOpenTelemetryEventSourcing();
 
 //services.AddOpenTelemetry(environment, shortAppName, redisConnection);

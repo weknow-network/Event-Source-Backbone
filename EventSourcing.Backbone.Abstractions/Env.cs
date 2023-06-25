@@ -12,6 +12,9 @@ namespace EventSourcing.Backbone
     public sealed class Env : IEquatable<Env?>
     {
         private readonly string _value;
+        private string? _dash;
+        private string? _format;
+        private string? _dashFormat;
 
         #region Ctor
 
@@ -58,13 +61,33 @@ namespace EventSourcing.Backbone
 
         #endregion // Cast overloads
 
+        #region DashFormat
+
+        /// <summary>
+        /// Formats the specified environment into convention + dash.
+        /// </summary>
+        /// <returns></returns>
+        public string DashFormat() 
+        {
+            if (string.IsNullOrEmpty(_dashFormat))
+                _dashFormat = Format().ToDash();
+            return _dashFormat;
+        }
+
+        #endregion // DashFormat
+
         #region Format
 
         /// <summary>
         /// Formats the specified environment into  convention.
         /// </summary>
         /// <returns></returns>
-        public string Format() => Env.Format(_value);
+        public string Format()
+        {
+            if (string.IsNullOrEmpty(_format))
+                _format = Env.Format(_value);
+            return _format;
+        }
 
         /// <summary>
         /// Formats the specified environment into  convention.
@@ -83,6 +106,20 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Format
+
+        #region ToDash
+
+        /// <summary>
+        /// Converts to dash-string.
+        /// </summary>
+        public string ToDash()
+        {
+            if (string.IsNullOrEmpty(_dash))
+                _dash = _value.ToDash();
+            return _dash;
+        }
+
+        #endregion // ToDash
 
         #region ToString
 

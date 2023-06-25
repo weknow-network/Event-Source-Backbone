@@ -24,6 +24,6 @@ public static class EventSourceConstants
                     }
     };
 
-    public const string TELEMETRY_SOURCE = "event-source";
+    public const string TELEMETRY_SOURCE = "evt-src";
 
 }

@@ -7,7 +7,4 @@ public class EventSourceTelemetry
 {
     public readonly static Meter EMeter = new(EventSourceConstants.TELEMETRY_SOURCE);
     public static readonly ActivitySource ETracer = new ActivitySource(EventSourceConstants.TELEMETRY_SOURCE);
-
-    //private static readonly Counter<int> DelayCounter = Metics.CreateCounter<int>("event-source.consumer.delay", "",
-    //                                        "");
 }

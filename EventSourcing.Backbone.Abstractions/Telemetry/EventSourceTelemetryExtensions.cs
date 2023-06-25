@@ -79,11 +79,11 @@ public static class EventSourceTelemetryExtensions
         // See:
         //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
 
-        activity?.SetTag("event-source.env", meta.Environment);
-        activity?.SetTag("event-source.uri", meta.Uri);
-        activity?.SetTag("event-source.operation", meta.Operation);
-        activity?.SetTag("event-source.message-id", meta.MessageId);
-        activity?.SetTag("event-source.channel-type", meta.ChannelType);
+        activity?.SetTag("evt-src.env", meta.Environment);
+        activity?.SetTag("evt-src.uri", meta.Uri);
+        activity?.SetTag("evt-src.operation", meta.Operation);
+        activity?.SetTag("evt-src.message-id", meta.MessageId);
+        activity?.SetTag("evt-src.channel-type", meta.ChannelType);
     }
 
     #endregion // InjectTelemetryTags

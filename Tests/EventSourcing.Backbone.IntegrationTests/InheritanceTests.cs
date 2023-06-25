@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-// docker run -p 6379:6379 -it --rm --name redis-event-source redislabs/rejson:latest
+// docker run -p 6379:6379 -it --rm --name redis-evt-src redislabs/rejson:latest
 
 namespace EventSourcing.Backbone.Tests
 {
