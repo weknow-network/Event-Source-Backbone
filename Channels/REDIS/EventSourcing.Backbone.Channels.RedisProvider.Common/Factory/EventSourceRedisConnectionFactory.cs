@@ -223,14 +223,22 @@ namespace EventSourcing.Backbone
         /// <param name="disposing"></param>
         private void Dispose(bool disposing)
         {
-            _logger.LogWarning("REDIS [{kind}]: Disposing connection", Kind);
-            if (!Disposed)
+            try
             {
-                var conn = _redisTask.Result;
-                conn.Dispose();
-                Disposed = true;
-                OnDispose(disposing);
+                _logger.LogWarning("REDIS [{kind}]: Disposing connection", Kind);
             }
+            catch { }
+            try
+            {
+                if (!Disposed)
+                {
+                    var conn = _redisTask.Result;
+                    conn.Dispose();
+                    Disposed = true;
+                    OnDispose(disposing);
+                }
+            }
+            catch { }
         }
 
         /// <summary>
@@ -238,9 +246,9 @@ namespace EventSourcing.Backbone
         /// </summary>
         void IDisposable.Dispose()
         {
+            GC.SuppressFinalize(this);
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -256,9 +264,15 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public async ValueTask DisposeAsync()
         {
-            _logger.LogWarning("REDIS [{kind}]: Disposing connection (async)", Kind);
+            GC.SuppressFinalize(this);
+            try
+            {
+                _logger.LogWarning("REDIS [{kind}]: Disposing connection (async)", Kind);
+            }
+            catch { }
             var redis = await _redisTask;
             redis.Dispose();
+            OnDispose(true);
         }
 
         /// <summary>
