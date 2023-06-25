@@ -47,7 +47,7 @@ namespace EventSourcing.Backbone.Private
             string fullUri = plan.FullUri();
 
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
-            using var track = ETracer.StartInternalTrace("evt-src.sys.consumer.create-consumer-group",
+            using var track = ETracer.StartInternalTrace("consumer.create-consumer-group",
                                         t => PrepareTrace(t));
 
             PrepareMeter(CreateConsumerGroupCounter).Add(1);
@@ -71,7 +71,7 @@ namespace EventSourcing.Backbone.Private
                     if (tryNumber > SPIN_LIMIT)
                     {
                         delay = Math.Min(delay * 2, MAX_DELAY);
-                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.delay.key-not-exists",
+                        using (ETracer.StartInternalTrace("consumer.delay.key-not-exists",
                                             t => PrepareTrace(t)
                                                             .Add("delay", delay)
                                                             .Add("try-number", tryNumber))) 
@@ -100,7 +100,7 @@ namespace EventSourcing.Backbone.Private
 
                     #endregion // Validation (if key exists)
 
-                    using (ETracer.StartInternalTrace("evt-src.sys.consumer.get-consumer-group-info",
+                    using (ETracer.StartInternalTrace("consumer.get-consumer-group-info",
                                         t => PrepareTrace(t)
                                                         .Add("try-number", tryNumber)))
                     {
@@ -143,7 +143,7 @@ namespace EventSourcing.Backbone.Private
                 {
                     try
                     {
-                        using (ETracer.StartInternalTrace("evt-src.sys.consumer.create-consumer-group",
+                        using (ETracer.StartInternalTrace("consumer.create-consumer-group",
                                             t => PrepareTrace(t)
                                                             .Add("try-number", tryNumber))) 
                         {
