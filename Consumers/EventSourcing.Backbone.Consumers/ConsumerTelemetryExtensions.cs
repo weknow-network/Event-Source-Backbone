@@ -81,7 +81,6 @@ public static class ConsumerTelemetryExtensions
     /// <summary>
     /// Add URI, Environment and Operation labels.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="counter">The counter.</param>
     /// <param name="metadata">The metadata.</param>
     /// <returns></returns>

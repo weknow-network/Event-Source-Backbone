@@ -21,17 +21,10 @@ namespace EventSourcing.Backbone
         private readonly IConsumerBuilder _consumerBuilder = ConsumerBuilder.Empty;
         private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
         private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
-        // private readonly IDataSerializer _serializer;
-        private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
-        private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
-        private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
-        private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-        private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly Channel<Announcement> ch;
         private readonly ISequenceOfConsumer _subscriber = A.Fake<ISequenceOfConsumer>();
 
         private readonly ISimpleEventConsumer _simpleEventConsumer = A.Fake<ISimpleEventConsumer>();
-        private readonly ISubscriptionBridge _simpleInheritSubscription;
         private readonly ISubscriptionBridge _simpleBridgeSubscription;
         private readonly ISubscriptionBridge _simpleGenSubscription;
         private readonly ISubscriptionBridge _simpleGenBridgeSubscription;
@@ -41,11 +34,9 @@ namespace EventSourcing.Backbone
         public EndToEndTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-            // _serializer = new JsonDataSerializer();
             ch = Channel.CreateUnbounded<Announcement>();
             _producerChannel = _ => new ProducerTestChannel(ch);
             _consumerChannel = _ => new ConsumerTestChannel(ch);
-            _simpleInheritSubscription = new SimpleEventSubscription(_simpleEventConsumer);
             _simpleBridgeSubscription = new SimpleEventSubscriptionBridge(_simpleEventConsumer);
             _simpleGenSubscription = new SimpleEventSubscriptionFromGen(_simpleEventConsumer);
             _simpleGenBridgeSubscription = new SimpleEventConsumerBridge(_simpleEventConsumer);
@@ -58,8 +49,6 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task End2End_CustomBaseSubscription_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
-
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
@@ -69,8 +58,6 @@ namespace EventSourcing.Backbone
             await producer.ExecuteAsync("Id", 1);
             await producer.RunAsync(1, DateTime.Now);
             await producer.RunAsync(2, DateTime.Now);
-
-            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
@@ -99,8 +86,6 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task End2End_CustomSubscriptionBridge_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
-
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
@@ -110,8 +95,6 @@ namespace EventSourcing.Backbone
             await producer.ExecuteAsync("Id", 1);
             await producer.RunAsync(1, DateTime.Now);
             await producer.RunAsync(2, DateTime.Now);
-
-            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
@@ -140,8 +123,6 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task End2End_GenBaseSubscription_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
-
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
@@ -151,8 +132,6 @@ namespace EventSourcing.Backbone
             await producer.ExecuteAsync("Id", 1);
             await producer.RunAsync(1, DateTime.Now);
             await producer.RunAsync(2, DateTime.Now);
-
-            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
@@ -181,8 +160,6 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task End2End_GenSubscriptionBridge_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
-
             ISimpleEventProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
@@ -192,8 +169,6 @@ namespace EventSourcing.Backbone
             await producer.ExecuteAsync("Id", 1);
             await producer.RunAsync(1, DateTime.Now);
             await producer.RunAsync(2, DateTime.Now);
-
-            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
@@ -222,8 +197,6 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task End2End_Test()
         {
-            //var producerOption = new EventSourceOptions(_serializer);
-
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
@@ -233,8 +206,6 @@ namespace EventSourcing.Backbone
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
             await producer.EarseAsync(4335);
-
-            //var consumerOptions = new EventSourceConsumerOptions(serializer: _serializer);
 
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =

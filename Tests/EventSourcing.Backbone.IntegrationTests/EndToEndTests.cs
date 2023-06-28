@@ -128,10 +128,10 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // DefaultOptions
 
-        #region Environmet_Test
+        #region EnvironmetEnvironment_Test_Test
 
         [Fact(Timeout = TIMEOUT)]
-        public async Task Environmet_Test()
+        public async Task Environment_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -179,7 +179,7 @@ namespace EventSourcing.Backbone.Tests
             #endregion // Validation
         }
 
-        #endregion // Environmet_Test
+        #endregion // Environment_Test
 
         #region PartialConsumer_Strict_Succeed_Test
 
@@ -1370,9 +1370,6 @@ namespace EventSourcing.Backbone.Tests
                         .MustHaveHappened(
                                     (3 /* Polly retry */),
                                     Times.OrMore);
-            //.MustHaveHappened(
-            //            (3 /* Polly retry */ + 1 /* throw */ ) * 3 /* disconnect after 3 messaged */ ,
-            //            Times.Exactly);
             A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))

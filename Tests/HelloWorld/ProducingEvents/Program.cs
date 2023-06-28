@@ -14,7 +14,6 @@ Console.Write("What is your name? ");
 string name = Console.ReadLine();
 await producer.NameAsync(name ?? "Unknown");
 
-var rnd = new Random(Guid.NewGuid().GetHashCode());
 Console.WriteLine("Press Esc to exit");
 Console.Write("Press Number for delay: ");
 Console.WriteLine("1 is ms, 2 is 10 ms, 3 is 100 ms, 4 is 1s, 5 is 10s, 6 is 30s, 7 is 1m");

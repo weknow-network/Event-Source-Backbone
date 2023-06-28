@@ -773,7 +773,6 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             //    throw;
             //}
             return ValueTask.CompletedTask;
-
         }
 
         #endregion // CancelAsync
