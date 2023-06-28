@@ -91,8 +91,7 @@ namespace EventSourcing.Backbone.Tests
 
         #region OnSucceed_ACK_Test
 
-        [Fact]
-        //[Fact(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT)]
         public async Task OnSucceed_ACK_Test()
         {
             var sw = Stopwatch.StartNew();
