@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using Xunit;
 
 namespace EventSourcing.Backbone

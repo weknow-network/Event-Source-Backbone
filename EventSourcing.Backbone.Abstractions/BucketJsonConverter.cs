@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using static EventSourcing.Backbone.EventSourceOptions;
@@ -69,6 +70,22 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Write
+
+
+        #region SerializerOptions
+
+        internal static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            Converters =
+            {
+                EnumConvertor,
+                JsonMemoryBytesConverterFactory.Default
+            }
+        };
+
+        #endregion // SerializerOptions
 
     }
 

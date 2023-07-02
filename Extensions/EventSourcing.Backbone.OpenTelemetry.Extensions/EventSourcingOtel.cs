@@ -60,8 +60,7 @@ public static class EventSourcingOtel
                 .WithTracing(tracerProviderBuilder =>
                 {
                     var sources = new[] { (string)env,
-                                           EventSourceConstants.TELEMETRY_SOURCE,
-                                           EventSourceConstants.REDIS_TELEMETRY_SOURCE };
+                                           EventSourceConstants.TELEMETRY_SOURCE };
 
                     tracerProviderBuilder
                         .AddSource(sources)

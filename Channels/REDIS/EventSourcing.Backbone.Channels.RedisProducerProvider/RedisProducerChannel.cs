@@ -82,7 +82,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
         #region var entries = new NameValueEntry[]{...}
 
-        string metaJson = JsonSerializer.Serialize(meta, EventSourceOptions.FullSerializerOptions);
+        string metaJson = JsonSerializer.Serialize(meta, EventSourceOptions.SerializerOptions);
 
         // local method 
         NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);

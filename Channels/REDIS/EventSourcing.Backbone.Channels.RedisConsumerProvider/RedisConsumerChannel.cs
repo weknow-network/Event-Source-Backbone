@@ -349,7 +349,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                     }
                     else
                     {
-                        meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.FullSerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
+                        meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
                         meta = meta with { EventKey = eventKey };
 
                     }
