@@ -105,8 +105,9 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
         async Task<RedisValue> LocalStreamAddAsync()
         {
-            await LocalStoreBucketAsync(EventBucketCategories.Segments);
-            await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
+            await Task.WhenAll(LocalStoreBucketAsync(EventBucketCategories.Segments),
+                               LocalStoreBucketAsync(EventBucketCategories.Interceptions))
+                       .ThrowAll();
 
             var telemetryBuilder = commonEntries.ToBuilder();
             using Activity? activity = ETracer.StartProducerTrace(plan, meta);
@@ -143,7 +144,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
             #region ValueTask StoreBucketAsync(StorageType storageType) // local function
 
-            async ValueTask LocalStoreBucketAsync(EventBucketCategories storageType)
+            async Task LocalStoreBucketAsync(EventBucketCategories storageType)
             {
                 var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
                 Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;

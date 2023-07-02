@@ -246,6 +246,19 @@ namespace EventSourcing.Backbone
             return new ProducerBuilder(prms);
         }
 
+        /// <summary>
+        /// Apply configuration.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        IProducerEnvironmentBuilder IProducerOptionsBuilder.WithOptions(Func<EventSourceOptions, EventSourceOptions> options)
+        {
+            var opt = options(EventSourceOptions.Default);
+            var prms = Plan.WithOptions(opt);
+            return new ProducerBuilder(prms);
+        }
+
         #endregion // WithOptions
 
         #region UseSegmentation

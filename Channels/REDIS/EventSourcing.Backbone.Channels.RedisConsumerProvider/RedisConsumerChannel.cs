@@ -424,8 +424,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
                     #region var announcement = new Announcement(...)
 
-                    Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-                    Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+                    (Bucket segmets, Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
                     var announcement = new Announcement
                     {
@@ -890,8 +889,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             };
 #pragma warning restore CS8601 // Possible null reference assignment.
 
-            Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-            Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+            (Bucket segmets, Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
             var announcement = new Announcement
             {
@@ -1013,8 +1011,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             if (filter != null && !filter(meta))
                 continue;
 
-            Bucket segmets = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-            Bucket interceptions = await GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+            (Bucket segmets ,Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
             var announcement = new Announcement
             {
@@ -1074,7 +1071,30 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
     #endregion // GetAsyncEnumerable
 
-    #region ValueTask<Bucket> GetBucketAsync(StorageType storageType) // local function
+    #region GetStorageAsync
+
+    /// <summary>
+    /// Gets the storage information.
+    /// </summary>
+    /// <param name="plan">The plan.</param>
+    /// <param name="channelMeta">The channel meta.</param>
+    /// <param name="meta">The meta.</param>
+    /// <returns></returns>
+    private async ValueTask<(Bucket segments, Bucket interceptions)> GetStorageAsync(
+                                        IConsumerPlan plan,
+                                        Dictionary<RedisValue, RedisValue> channelMeta,
+                                        Metadata meta)
+    {
+        ValueTask<Bucket> segmetsTask = GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
+        ValueTask<Bucket> interceptionsTask = GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+        Bucket segmets = await segmetsTask;
+        Bucket interceptions = await interceptionsTask;
+        return (segmets, interceptions);
+    }
+
+    #endregion // GetStorageAsync
+
+    #region Task<Bucket> GetBucketAsync(StorageType storageType) // local function
 
     /// <summary>
     /// Gets a data bucket.
@@ -1121,7 +1141,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     }
 
-    #endregion // ValueTask<Bucket> StoreBucketAsync(StorageType storageType) // local function
+    #endregion // Task<Bucket> GetBucketAsync(StorageType storageType) // local function
 
     #region DelayIfEmpty
 

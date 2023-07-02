@@ -8,6 +8,7 @@ namespace EventSourcing.Backbone
     /// </summary>
     public record EventSourceOptions
     {
+        public static readonly EventSourceOptions Default;
         private static readonly IDataSerializer DEFAULT_SERIALIZER;
         internal static readonly JsonStringEnumConverter EnumConvertor = new JsonStringEnumConverter(JsonNamingPolicy.CamelCase);
         public static readonly JsonSerializerOptions SerializerOptions;
@@ -27,6 +28,7 @@ namespace EventSourcing.Backbone
             };
             SerializerOptions = serializerOptions;
             DEFAULT_SERIALIZER = new JsonDataSerializer(serializerOptions);
+            Default = new EventSourceOptions();
         }
 
         /// <summary>
