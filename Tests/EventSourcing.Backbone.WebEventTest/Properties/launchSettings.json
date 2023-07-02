@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "Primary": {
       "commandName": "Project",
@@ -7,7 +6,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "FW": "4998"
+        "FW": "4998",
+        "EVENT_SOURCE_WITH_REDIS_TRACE": "true"
       },
       "dotnetRunMessages": "true",
       "applicationUrl": "http://localhost:4999"
@@ -23,5 +23,6 @@
       "dotnetRunMessages": "true",
       "applicationUrl": "http://localhost:4998"
     }
-  }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
 }

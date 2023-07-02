@@ -2,6 +2,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+using Microsoft.Extensions.Logging;
+
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 
@@ -86,7 +88,188 @@ public static class EventSourceTelemetryExtensions
         activity?.SetTag("evt-src.channel-type", meta.ChannelType);
     }
 
+    /// <summary>
+    /// Adds standard open-telemetry tags (for redis).
+    /// </summary>
+    /// <param name="plan">The builder plan.</param>
+    /// <param name="activity">The activity.</param>
+    /// <param name="meta">The metadata.</param>
+    public static void InjectTelemetryTags(this IPlanBase plan, Activity? activity, Metadata? meta = null)
+    {
+        // These tags are added demonstrating the semantic conventions of the OpenTelemetry messaging specification
+        // See:
+        //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
+
+        var levels = plan.Options.TelemetryLevel;
+        activity?.SetTag("evt-src.env", plan.Environment);
+        activity?.SetTag("evt-src.uri", plan.Uri);
+
+        //activity?.SetTag("evt-src.trace-level", levels.Trace);
+        //activity?.SetTag("evt-src.metrics-level", levels.Metric);
+
+        if (meta != null)
+        {
+            activity?.SetTag("evt-src.operation", meta.Operation);
+            activity?.SetTag("evt-src.message-id", meta.MessageId);
+            activity?.SetTag("evt-src.channel-type", meta.ChannelType);
+        }
+    }
+
     #endregion // InjectTelemetryTags
+
+    #region StartInternalTraceCritical
+
+    /// <summary>
+    /// Starts a trace Critical level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceCritical(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Critical) 
+            return null;
+
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceCritical
+
+    #region StartInternalTraceError
+
+    /// <summary>
+    /// Starts a trace Error level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceError(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Error) 
+            return null;
+
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceError
+
+    #region StartInternalTraceWarning
+
+    /// <summary>
+    /// Starts a trace warning level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceWarning(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Warning) 
+            return null;
+
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceWarning
+
+    #region StartInternalTraceInformation
+
+    /// <summary>
+    /// Starts a trace Information level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceInformation(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Information) 
+            return null;
+
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceInformation
+
+    #region StartInternalTraceOnTraceLevel
+
+    /// <summary>
+    /// Starts a trace on Trace level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceOnTraceLevel(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Trace)
+            return null;
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceOnTraceLevel
+
+    #region StartInternalTraceDebug
+
+    /// <summary>
+    /// Starts a trace Debug level.
+    /// </summary>
+    /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
+    /// <returns></returns>
+    public static Activity? StartInternalTraceDebug(this ActivitySource activitySource,
+                                        IPlanBase plan,
+                                        string name,
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
+    {
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Debug)
+            return null;
+        var activity = activitySource.StartInternalTrace(plan, name, tagsAction, metadata);
+        return activity;
+    }
+
+    #endregion // StartInternalTraceDebug
 
     #region StartInternalTrace
 
@@ -94,12 +277,16 @@ public static class EventSourceTelemetryExtensions
     /// Starts a trace.
     /// </summary>
     /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
     /// <param name="name">The name.</param>
     /// <param name="tagsAction">The tags action.</param>
+    /// <param name="metadata">The metadata.</param>
     /// <returns></returns>
-    public static Activity? StartInternalTrace(this ActivitySource activitySource,
+    private static Activity? StartInternalTrace(this ActivitySource activitySource,
+                                        IPlanBase plan,
                                         string name,
-                                        Action<ITagAddition>? tagsAction = null)
+                                        Action<ITagAddition>? tagsAction = null,
+                                        Metadata? metadata = null)
     {
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
@@ -125,6 +312,8 @@ public static class EventSourceTelemetryExtensions
                                                     ActivityKind.Internal,
                                                     Activity.Current?.Context ?? default, tags, link.ToEnumerable());
         }
+        plan.InjectTelemetryTags(activity, metadata);
+
 
         return activity;
     }

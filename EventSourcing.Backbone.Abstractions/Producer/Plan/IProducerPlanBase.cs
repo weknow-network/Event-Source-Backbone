@@ -8,7 +8,7 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// common plan properties
     /// </summary>
-    public interface IProducerPlanBase : IPlanRoute
+    public interface IProducerPlanBase : IPlanBase
     {
         /// <summary>
         /// Producer interceptors (Timing: after serialization).
@@ -17,14 +17,6 @@ namespace EventSourcing.Backbone
         /// The interceptors.
         /// </value>
         IImmutableList<IProducerAsyncInterceptor> Interceptors { get; }
-        /// <summary>
-        /// Gets the logger.
-        /// </summary>
-        ILogger Logger { get; }
-        /// <summary>
-        /// Gets the configuration.
-        /// </summary>
-        EventSourceOptions Options { get; }
         /// <summary>
         /// Segmentation responsible of splitting an instance into segments.
         /// Segments is how the producer sending its raw data to

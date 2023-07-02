@@ -12,18 +12,20 @@ public static class ConsumerTelemetryExtensions
     /// Starts a consumer trace.
     /// </summary>
     /// <param name="activitySource">The activity source.</param>
+    /// <param name="plan">The plan.</param>
     /// <param name="meta">The metadata.</param>
     /// <param name="parentContext">The parent context.</param>
     /// <param name="tagsAction">The tags action.</param>
     /// <returns></returns>
     public static Activity? StartConsumerTrace(this ActivitySource activitySource,
+                                        IConsumerPlanBase plan,
                                         Metadata meta,
                                         ActivityContext parentContext,
                                         Action<ITagAddition>? tagsAction = null)
     {
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-        var activityName = $"evt-src.sys.Consumer.{meta.Environment.ToDash()}.{meta.UriDash}.{meta.Operation}.process";
+        var activityName = $"consumer.{meta.Operation}.process";
 
         var tags = new ActivityTagsCollection();
         var t = new TagAddition(tags);
@@ -33,7 +35,7 @@ public static class ConsumerTelemetryExtensions
                                                 activityName,
                                                 ActivityKind.Consumer,
                                                 parentContext, tags, links: new ActivityLink(parentContext).ToEnumerable());
-        meta.InjectTelemetryTags(activity);
+        plan.InjectTelemetryTags(activity, meta);
 
         return activity;
     }

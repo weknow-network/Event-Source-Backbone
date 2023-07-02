@@ -254,7 +254,7 @@
             {
                 var strategies = await plan.StorageStrategiesAsync;
                 var ch = plan.Channel;
-                EventKey k = await ch.SendAsync(announcement, strategies);
+                EventKey k = await ch.SendAsync(plan, announcement, strategies);
                 return new EventKeys(k);
             }
 

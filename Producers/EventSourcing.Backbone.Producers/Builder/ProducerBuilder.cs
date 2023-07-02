@@ -587,7 +587,7 @@ namespace EventSourcing.Backbone
                     };
                 }
                 data = data with { Metadata = meta };
-                await _plan.Channel.SendAsync(data, strategies);
+                await _plan.Channel.SendAsync(_plan, data, strategies);
             }
         }
 

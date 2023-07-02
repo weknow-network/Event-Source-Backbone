@@ -204,6 +204,11 @@ namespace EventSourcing.Backbone
         /// </summary>
         public ConsumerOptions Options { get; } = new ConsumerOptions();
 
+        /// <summary>
+        /// Gets the configuration.
+        /// </summary>
+        EventSourceOptions IPlanBase.Options => Options;
+
         #endregion // Options
 
         #region SegmentationStrategies

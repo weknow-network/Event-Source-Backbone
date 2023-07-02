@@ -22,11 +22,13 @@ namespace EventSourcing.Backbone
         {
             A.CallTo(() => _producerChannelFactory1.Invoke(A<ILogger>.Ignored)).ReturnsLazily(() => _producerChannel1);
             A.CallTo(() => _producerChannel1.SendAsync(
+                                    A<IProducerPlan>.Ignored,
                                     A<Announcement>.Ignored,
                                     A<ImmutableArray<IProducerStorageStrategyWithFilter>>.Ignored)).
                                     ReturnsLazily(() => $"{(char)(Interlocked.Increment(ref _index1) + 'A')}");
             A.CallTo(() => _producerChannelFactory2.Invoke(A<ILogger>.Ignored)).ReturnsLazily(() => _producerChannel2);
             A.CallTo(() => _producerChannel2.SendAsync(
+                                    A<IProducerPlan>.Ignored,
                                     A<Announcement>.Ignored,
                                     A<ImmutableArray<IProducerStorageStrategyWithFilter>>.Ignored)).
                                     ReturnsLazily(() => $"#{(char)(Interlocked.Increment(ref _index2) + 'a')}");

@@ -10,7 +10,7 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// Common plan properties
     /// </summary>
-    public interface IConsumerPlanBase : IPlanRoute
+    public interface IConsumerPlanBase : IPlanRoute, IPlanBase
     {
         /// <summary>
         /// Gets the consumer group.

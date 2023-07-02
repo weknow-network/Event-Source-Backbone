@@ -20,6 +20,10 @@
 		<PackageReference Include="Bnaya.Extensions.Json" Version="5.1.159" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.10" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.5.1" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
 	</ItemGroup>
 

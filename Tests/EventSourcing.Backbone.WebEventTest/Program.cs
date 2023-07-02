@@ -16,7 +16,7 @@ builder.Services.AddAWSService<IAmazonS3>();
 
 IWebHostEnvironment environment = builder.Environment;
 string env = environment.EnvironmentName;
-string appName = environment.ApplicationName;
+//string appName = environment.ApplicationName;
 
 
 var services = builder.Services;
@@ -78,19 +78,11 @@ builder.AddOpenTelemetryEventSourcing();
 
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
-//var redis = await RedisClientFactory.CreateProviderAsync();
-//services.AddSingleton(redis);
 services.AddEventSourceRedisConnection();
 services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 services.AddEventSource(env);
 
-//void RedisConfigEnrichment(ConfigurationOptions configuration)
-//{
-//    configuration.ReconnectRetryPolicy = new RedisReconnectRetryPolicy();
-//    configuration.ClientName = "Web Test";
-//}
-//services.AddSingleton<Action<ConfigurationOptions>>(RedisConfigEnrichment);
 
 services.AddControllers()
                 .WithJsonOptions();

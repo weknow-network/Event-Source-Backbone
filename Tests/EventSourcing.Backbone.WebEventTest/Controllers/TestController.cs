@@ -51,6 +51,8 @@ status: {status}, ping: {p}";
     {
         IDatabaseAsync db = await _connFacroty.GetDatabaseAsync(CancellationToken.None);
         var p = await db.PingAsync();
+        await db.SetAddAsync("test-123", 1);
+        await db.SetAddAsync("test-123", 2);
         _logger.LogInformation("Schema: {schema}", Request.Scheme);
         return p;
     }

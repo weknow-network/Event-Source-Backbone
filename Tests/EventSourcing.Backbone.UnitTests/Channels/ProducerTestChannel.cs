@@ -29,7 +29,15 @@ namespace EventSourcing.Backbone
 
         #region SendAsync
 
+        /// <summary>
+        /// Sends the asynchronous.
+        /// </summary>
+        /// <param name="plan">The plan.</param>
+        /// <param name="payload">The payload.</param>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <returns></returns>
         public async ValueTask<string> SendAsync(
+            IProducerPlan plan,
             Announcement payload,
             ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
         {

@@ -27,11 +27,12 @@ public static class ConsumerExtensions
         {
             IConsumerReadyBuilder consumer =
                         ioc.ResolveRedisConsumerChannel()
-                            .ResolveS3Storage(s3Options)
+                            //.ResolveS3Storage(s3Options)
                             .WithOptions(o => o with
                             {
                                 OriginFilter = MessageOrigin.Original,
-                                AckBehavior = AckBehavior.OnSucceed
+                                AckBehavior = AckBehavior.OnSucceed,
+                                TelemetryLevel = o.TelemetryLevel with { Trace = LogLevel.Debug }
                             })
                             .Environment(env)
                             .Uri(uri);

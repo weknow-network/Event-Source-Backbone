@@ -25,5 +25,5 @@ public static class EventSourceConstants
     };
 
     public const string TELEMETRY_SOURCE = "evt-src";
-
+    public const string REDIS_TELEMETRY_SOURCE = $"{EventSourceConstants.TELEMETRY_SOURCE}-redis";
 }

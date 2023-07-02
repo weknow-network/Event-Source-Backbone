@@ -1,4 +1,5 @@
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 // see:
@@ -24,6 +25,9 @@ internal static class OpenTelemetryExtensions
         IWebHostEnvironment environment = builder.Environment;
         IServiceCollection services = builder.Services;
 
+        string env = environment.EnvironmentName;
+        string appName = environment.ApplicationName;
+
         // see:
         //  https://opentelemetry.io/docs/instrumentation/net/getting-started/
         //  https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.Jaeger/README.md#environment-variables
@@ -32,16 +36,6 @@ internal static class OpenTelemetryExtensions
                         cfg =>
                         {
                             cfg
-                                //.AddSource("StackExchange.Redis")
-                                //.AddSource("StackExchangeRedisConnectionInstrumentation")
-                                .AddRedisInstrumentation(RedisClientFactory.CreateProviderAsync().Result, c =>
-                                {
-                                    c.FlushInterval = TimeSpan.FromSeconds(5);
-                                })
-                                //.ConfigureRedisInstrumentation((provider, b) => {
-                                //    var conn = provider.GetRequiredService<IConnectionMultiplexer>();
-                                //    b.AddConnection(conn);
-                                //})
                                 .AddAspNetCoreInstrumentation(m =>
                                 {
                                     m.Filter = TraceFilter;

@@ -60,12 +60,14 @@ internal class RedisProducerChannel : IProducerChannelProvider
     /// <summary>
     /// Sends raw announcement.
     /// </summary>
+    /// <param name="plan">The plan.</param>
     /// <param name="payload">The raw announcement data.</param>
     /// <param name="storageStrategy">The storage strategy.</param>
     /// <returns>
     /// Return the message id
     /// </returns>
     public async ValueTask<string> SendAsync(
+        IProducerPlan plan,
         Announcement payload,
         ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
     {
@@ -73,7 +75,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
         string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
-        using var activity = ETracer.StartInternalTrace($"producer.{meta.Operation}.process",
+        using var activity = ETracer.StartInternalTraceDebug(plan, $"producer.{meta.Operation}.process",
                                             t => t.Add("env", env)
                                                             .Add("uri", uri)
                                                             .Add("message-id", id));
@@ -107,7 +109,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
             await LocalStoreBucketAsync(EventBucketCategories.Interceptions);
 
             var telemetryBuilder = commonEntries.ToBuilder();
-            using Activity? activity = ETracer.StartProducerTrace(meta);
+            using Activity? activity = ETracer.StartProducerTrace(plan, meta);
             activity.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
             var entries = telemetryBuilder.ToArray();
 
@@ -159,7 +161,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
                 async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                 {
-                    using (ETracer.StartInternalTrace($"producer.{strategy.Name}-storage.{storageType}.set"))
+                    using (ETracer.StartInternalTraceDebug(plan, $"producer.{strategy.Name}-storage.{storageType}.set"))
                     {
                         IImmutableDictionary<string, string> metaItems =
                         await strategy.SaveBucketAsync(id, bucket, storageType, meta);
