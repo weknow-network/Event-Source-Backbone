@@ -44,8 +44,8 @@ namespace EventSourcing.Backbone.Private
             string fullUri = plan.FullUri();
 
             StreamGroupInfo[] groupsInfo = Array.Empty<StreamGroupInfo>();
-            using var track = ETracer.StartInternalTraceOnTraceLevel(plan, "consumer.create-consumer-group-process",
-                                        t => PrepareTrace(t));
+            using var track = plan.StartTraceVerbose("consumer.create-consumer-group-process",
+                                        tagsAction: t => PrepareTrace(t));
 
             PrepareMeter(CreateConsumerGroupCounter).Add(1);
             int delay = MIN_DELAY;
@@ -68,8 +68,8 @@ namespace EventSourcing.Backbone.Private
                     if (tryNumber > SPIN_LIMIT)
                     {
                         delay = Math.Min(delay * 2, MAX_DELAY);
-                        using (ETracer.StartInternalTraceDebug(plan, "consumer.delay.key-not-exists",
-                                            t => PrepareTrace(t)
+                        using (plan.StartTraceDebug("consumer.delay.key-not-exists",
+                                            tagsAction: t => PrepareTrace(t)
                                                             .Add("delay", delay)
                                                             .Add("try-number", tryNumber))) 
                         {
@@ -97,8 +97,8 @@ namespace EventSourcing.Backbone.Private
 
                     #endregion // Validation (if key exists)
 
-                    using (ETracer.StartInternalTraceOnTraceLevel(plan, "consumer.get-consumer-group-info",
-                                        t => PrepareTrace(t)
+                    using (plan.StartTraceVerbose("consumer.get-consumer-group-info",
+                                        tagsAction: t => PrepareTrace(t)
                                                         .Add("try-number", tryNumber)))
                     {
                         using var lk = await _lock.AcquireAsync(cancellationToken);
@@ -140,8 +140,8 @@ namespace EventSourcing.Backbone.Private
                 {
                     try
                     {
-                        using (ETracer.StartInternalTraceDebug(plan, "consumer.create-consumer-group",
-                                            t => PrepareTrace(t)
+                        using (plan.StartTraceDebug("consumer.create-consumer-group",
+                                            tagsAction: t => PrepareTrace(t)
                                                             .Add("try-number", tryNumber))) 
                         {
                             using var lk = await _lock.AcquireAsync(cancellationToken);

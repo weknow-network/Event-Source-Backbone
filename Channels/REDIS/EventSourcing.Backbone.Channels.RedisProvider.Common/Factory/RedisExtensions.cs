@@ -2,6 +2,7 @@
 using OpenTelemetry;
 using OpenTelemetry.Trace;
 using System.Reflection;
+using OpenTelemetry.Resources;
 
 namespace EventSourcing.Backbone;
 
@@ -17,6 +18,8 @@ public static class RedisExtensions
         if (bool.TryParse(enable, out var enableValue) && enableValue)
         {
             Sdk.CreateTracerProviderBuilder()
+                            .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                                        .AddService("evt-src-redis"))
                             .AddRedisInstrumentation(
                             connection,
                             opt =>

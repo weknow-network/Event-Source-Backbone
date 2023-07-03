@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Numerics;
+using System.Reflection;
 using System.Text;
 
 using Microsoft.Extensions.Logging;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone;
 /// <summary>
@@ -17,6 +21,10 @@ public static class RedisClientFactory
     private const string CONNECTION_NAME_PATTERN = "ev-src:{0}:{1}:{2}";
     private static readonly string? ASSEMBLY_NAME = Assembly.GetEntryAssembly()?.GetName()?.Name?.ToDash();
     private static readonly Version? ASSEMBLY_VERSION = Assembly.GetEntryAssembly()?.GetName()?.Version;
+    private static readonly Counter<int> ReConnectCounter = EMeter.CreateCounter<int>("evt-src.redis.re-connect.succeed", "count",
+                                                                            "succeed to re-connect to redis");
+    private static readonly Counter<int> ReConnectFailCounter = EMeter.CreateCounter<int>("evt-src.redis.re-connect.failure", "count",
+                                                                            "failure to re-connect to redis");
 
     #region CreateConfigurationOptions
 
@@ -192,11 +200,12 @@ public static class RedisClientFactory
                 */
 #pragma warning restore S125 
             }
-);
+            );
 
 
-            IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(configuration, writer);
             string endpoints = string.Join(";", configuration.EndPoints);
+            using var trace = "redis-connect".StartTrace(t => t.Add("endpoints", endpoints), ActivityKind.Client);
+            IConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync(configuration, writer);
             if (logger != null)
                 logger.LogInformation("REDIS Connection [{envKey}]: {info} succeed",
                     endpoints,
@@ -206,11 +215,12 @@ public static class RedisClientFactory
             redis.ConnectionFailed += OnConnectionFailed;
             redis.ErrorMessage += OnConnErrorMessage;
             redis.InternalError += OnInternalConnError;
-
+            ReConnectCounter.Add(1);
             return redis.WithTelemetry();
         }
         catch (Exception ex)
         {
+            ReConnectFailCounter.Add(1);
             if (logger != null)
                 logger.LogError(ex.FormatLazy(), "REDIS CONNECTION ERROR");
             else

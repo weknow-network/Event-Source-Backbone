@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
+
 namespace EventSourcing.Backbone.Consumers;
 
 public static class ConsumerTelemetryExtensions
@@ -11,18 +13,19 @@ public static class ConsumerTelemetryExtensions
     /// <summary>
     /// Starts a consumer trace.
     /// </summary>
-    /// <param name="activitySource">The activity source.</param>
     /// <param name="plan">The plan.</param>
     /// <param name="meta">The metadata.</param>
     /// <param name="parentContext">The parent context.</param>
     /// <param name="tagsAction">The tags action.</param>
+    /// <param name="activitySource">The activity source.</param>
     /// <returns></returns>
-    public static Activity? StartConsumerTrace(this ActivitySource activitySource,
-                                        IConsumerPlanBase plan,
+    public static Activity? StartConsumerTrace(this IConsumerPlanBase plan,
                                         Metadata meta,
                                         ActivityContext parentContext,
-                                        Action<ITagAddition>? tagsAction = null)
+                                        Action<ITagAddition>? tagsAction = null,
+                                        ActivitySource? activitySource = null)
     {
+        activitySource = activitySource ?? ETracer;
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
         var activityName = $"consumer.{meta.Operation}.process";

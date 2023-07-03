@@ -2,6 +2,8 @@
 
 using Microsoft.Extensions.Logging;
 
+using static EventSourcing.Backbone.Private.EventSourceTelemetry;
+
 namespace EventSourcing.Backbone.Producers;
 
 public static class ProducerTelemetryExtensions
@@ -11,19 +13,20 @@ public static class ProducerTelemetryExtensions
     /// <summary>
     /// Starts a consumer trace.
     /// </summary>
-    /// <param name="activitySource">The activity source.</param>
     /// <param name="plan">The plan.</param>
     /// <param name="meta">The metadata.</param>
     /// <param name="tagsAction">The tags action.</param>
+    /// <param name="activitySource">The activity source.</param>
     /// <returns></returns>
-    public static Activity? StartProducerTrace(this ActivitySource activitySource,
-                                        IProducerPlan plan,
+    public static Activity? StartProducerTrace(this IProducerPlan plan,
                                         Metadata meta,
-                                        Action<ITagAddition>? tagsAction = null)
+                                        Action<ITagAddition>? tagsAction = null,
+                                        ActivitySource? activitySource = null)
     {
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
 
+        activitySource = activitySource ?? ETracer;
         if (plan.Options.TelemetryLevel.Trace > LogLevel.Information)
             return null;
 

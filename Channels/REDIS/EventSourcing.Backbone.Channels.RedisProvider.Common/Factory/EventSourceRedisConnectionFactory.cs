@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Net;
 
 using Microsoft.Extensions.Logging;
 
@@ -33,8 +34,16 @@ namespace EventSourcing.Backbone
         private const string CHANGE_CONN = "redis-change-connection";
         private static readonly Counter<int> ReConnectCounter = EMeter.CreateCounter<int>(CHANGE_CONN, "count",
                                                 "count how many time the connection was re-create");
+        private static readonly bool TRACE_ENABLED = false;
+
 
         #region Ctor
+
+        static EventSourceRedisConnectionFactory()
+        {
+            if (bool.TryParse(Environment.GetEnvironmentVariable("EVENT_SOURCE_WITH_REDIS_TRACE") ?? "false", out var enable))
+                TRACE_ENABLED = enable;
+        }
 
         /// <summary>
         /// Constructor
@@ -159,7 +168,12 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync(CancellationToken cancellationToken)
         {
-            var conn = await _redisTask;
+            IConnectionMultiplexer conn;
+            using (var trace = TRACE_ENABLED ? "get-redis-connection".StartTrace(kind: ActivityKind.Client) : null)
+            {
+                conn = await _redisTask;
+                trace?.SetTag("is-connected", conn.IsConnected);
+            }
             if (conn.IsConnected)
                 return conn;
             string status = conn.GetStatus();
@@ -169,7 +183,11 @@ namespace EventSourcing.Backbone
             var disp = await _lock.AcquireAsync(cancellationToken);
             using (disp)
             {
-                conn = await _redisTask;
+                using (var trace = TRACE_ENABLED ? "re-get-redis-connection".StartTrace(kind: ActivityKind.Client) : null)
+                {
+                    conn = await _redisTask;
+                    trace?.SetTag("is-connected", conn.IsConnected);
+                }
                 if (conn.IsConnected)
                     return conn;
                 int tryNumber = Interlocked.Increment(ref _reconnectTry);
@@ -183,9 +201,12 @@ namespace EventSourcing.Backbone
                     Activity.Current?.AddEvent(CHANGE_CONN, t => t.Add("redis.operation-kind", Kind));
                     ReConnectCounter.WithTag("redis.operation-kind", Kind).Add(1);
                     Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
-                    _redisTask = _configuration.CreateProviderAsync(_logger);
-                    var newConn = await _redisTask;
-                    return newConn;
+                    using (var trace = TRACE_ENABLED ? "redis-re-connection".StartTrace(kind: ActivityKind.Client) : null)
+                    {
+                        _redisTask = _configuration.CreateProviderAsync(_logger);
+                        var newConn = await _redisTask;
+                        return newConn;
+                    }
                 }
                 return conn;
             }

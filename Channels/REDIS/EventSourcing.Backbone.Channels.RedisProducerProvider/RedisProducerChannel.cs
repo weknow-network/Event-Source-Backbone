@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Text.Json;
@@ -7,8 +6,6 @@ using System.Text.Json;
 using EventSourcing.Backbone.Producers;
 
 using Microsoft.Extensions.Logging;
-
-using OpenTelemetry;
 
 using Polly;
 
@@ -75,8 +72,8 @@ internal class RedisProducerChannel : IProducerChannelProvider
         string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
-        using var activity = ETracer.StartInternalTraceDebug(plan, $"producer.{meta.Operation}.process",
-                                            t => t.Add("env", env)
+        using var activity = plan.StartTraceDebug($"producer.{meta.Operation}.process",
+                                            tagsAction: t => t.Add("env", env)
                                                             .Add("uri", uri)
                                                             .Add("message-id", id));
 
@@ -110,7 +107,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
                        .ThrowAll();
 
             var telemetryBuilder = commonEntries.ToBuilder();
-            using Activity? activity = ETracer.StartProducerTrace(plan, meta);
+            using Activity? activity = plan.StartProducerTrace(meta);
             activity.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
             var entries = telemetryBuilder.ToArray();
 
@@ -162,7 +159,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
 
                 async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
                 {
-                    using (ETracer.StartInternalTraceDebug(plan, $"producer.{strategy.Name}-storage.{storageType}.set"))
+                    using (plan.StartTraceDebug($"producer.{strategy.Name}-storage.{storageType}.set"))
                     {
                         IImmutableDictionary<string, string> metaItems =
                         await strategy.SaveBucketAsync(id, bucket, storageType, meta);
