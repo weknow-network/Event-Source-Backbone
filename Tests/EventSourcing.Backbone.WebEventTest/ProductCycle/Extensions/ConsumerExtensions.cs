@@ -27,7 +27,7 @@ public static class ConsumerExtensions
         {
             IConsumerReadyBuilder consumer =
                         ioc.ResolveRedisConsumerChannel()
-                            //.ResolveS3Storage(s3Options)
+                            .ResolveS3Storage(s3Options)
                             .WithOptions(o => o with
                             {
                                 OriginFilter = MessageOrigin.Original,
