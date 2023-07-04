@@ -1,5 +1,6 @@
 ﻿using EventSourcing.Backbone.Building;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using static System.String;
@@ -19,6 +20,12 @@ namespace EventSourcing.Backbone
         /// Event Source producer builder.
         /// </summary>
         public static readonly IProducerBuilder Empty = new ProducerBuilder();
+        /// <summary>
+        /// Creates the specified service provider.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns></returns>
+        public static IProducerBuilder Create(IServiceProvider serviceProvider) => new ProducerBuilder(serviceProvider);
 
         #region Ctor
 
@@ -28,6 +35,20 @@ namespace EventSourcing.Backbone
         private ProducerBuilder()
         {
 
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProducerBuilder"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        internal ProducerBuilder(IServiceProvider serviceProvider)
+        {
+            TelemetryLevel? telemetryLevel = serviceProvider.GetService<TelemetryLevel>();
+            if (telemetryLevel != null)
+            {
+                var optins = Plan.Options with { TelemetryLevel = telemetryLevel };
+                Plan = Plan.WithOptions(optins);
+            }
         }
 
         /// <summary>
@@ -46,7 +67,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the producer's plan.
         /// </summary>
-        public ProducerPlan Plan { get; } = ProducerPlan.Empty;
+        public ProducerPlan Plan { get; init;  } = ProducerPlan.Empty;
 
         #endregion // Plan
 

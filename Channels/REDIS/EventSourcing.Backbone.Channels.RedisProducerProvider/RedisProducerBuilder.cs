@@ -183,7 +183,7 @@ namespace EventSourcing.Backbone
                             this IServiceProvider serviceProvider,
                             AsyncPolicy? resiliencePolicy = null)
         {
-            var result = ProducerBuilder.Empty.ResolveRedisProducerChannel(serviceProvider, resiliencePolicy);
+            var result = ProducerBuilder.Create(serviceProvider).ResolveRedisProducerChannel(serviceProvider, resiliencePolicy);
             return result;
         }
     }

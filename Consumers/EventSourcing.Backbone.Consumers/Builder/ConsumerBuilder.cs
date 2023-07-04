@@ -6,6 +6,7 @@ using System.Text.Json;
 
 using EventSourcing.Backbone.Building;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Polly;
@@ -30,6 +31,13 @@ namespace EventSourcing.Backbone
         /// </summary>
         public static readonly IConsumerBuilder Empty = new ConsumerBuilder();
 
+        /// <summary>
+        /// Event Source consumer builder.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <returns></returns>
+        public static  IConsumerBuilder Create(IServiceProvider serviceProvider) => new ConsumerBuilder(serviceProvider);
+
         #region Ctor
 
         /// <summary>
@@ -38,6 +46,20 @@ namespace EventSourcing.Backbone
         private ConsumerBuilder()
         {
 
+        }
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="ConsumerBuilder" /> class from being created.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        private ConsumerBuilder(IServiceProvider serviceProvider)
+        {
+            TelemetryLevel? telemetryLevel = serviceProvider?.GetService<TelemetryLevel>();
+            if (telemetryLevel != null)
+            {
+                var optins = _plan.Options with { TelemetryLevel = telemetryLevel };
+                _plan = _plan.WithOptions(optins);
+            }
         }
 
         /// <summary>

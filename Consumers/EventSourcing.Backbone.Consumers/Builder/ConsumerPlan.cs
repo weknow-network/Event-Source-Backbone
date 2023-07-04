@@ -202,7 +202,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public ConsumerOptions Options { get; } = new ConsumerOptions();
+        public ConsumerOptions Options { get; init;  } = new ConsumerOptions();
 
         /// <summary>
         /// Gets the configuration.

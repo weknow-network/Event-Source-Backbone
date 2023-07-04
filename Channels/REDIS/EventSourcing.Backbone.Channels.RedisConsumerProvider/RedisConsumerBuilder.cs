@@ -228,7 +228,7 @@ public static class RedisConsumerBuilder
                         this IServiceProvider serviceProvider,
                         RedisConsumerChannelSetting? setting = null)
     {
-        var result = ConsumerBuilder.Empty.ResolveRedisConsumerChannel(serviceProvider, setting);
+        var result = ConsumerBuilder.Create(serviceProvider).ResolveRedisConsumerChannel(serviceProvider, setting);
         return result;
     }
 }

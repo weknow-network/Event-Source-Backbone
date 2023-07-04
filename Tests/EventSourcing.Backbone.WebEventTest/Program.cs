@@ -2,9 +2,11 @@ using System.Text.Json;
 
 using Amazon.S3;
 
+using EventSourcing.Backbone;
 using EventSourcing.Backbone.WebEventTest;
 using EventSourcing.Backbone.WebEventTest.Jobs;
 
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 
 using Refit;
@@ -45,8 +47,6 @@ services.AddSwaggerGen(
         });
     });
 
-services.AddProductCycleProducer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
-services.AddConsumer(EventSourcingConstants.URI, EventSourcingConstants.S3_BUCKET, env);
 
 services.AddHostedService<ConsumerJob>();
 services.AddHostedService<MicroDemoJob>();
@@ -71,11 +71,10 @@ services.AddHttpClient("migration", c =>
      c.DefaultRequestHeaders.Add("wk-pattern", "migration");
  });
 
+
+services.TryAddSingleton<TelemetryLevel>(LogLevel.Debug);
 //IConnectionMultiplexer redisConnection = services.AddRedis();
 builder.AddOpenTelemetryEventSourcing();
-
-//services.AddOpenTelemetry(environment, shortAppName, redisConnection);
-
 
 services.AddOptions(); // enable usage of IOptionsSnapshot<TConfig> dependency injection
 services.AddEventSourceRedisConnection();
