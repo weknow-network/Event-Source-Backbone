@@ -169,11 +169,7 @@ namespace EventSourcing.Backbone
         async Task<IConnectionMultiplexer> IEventSourceRedisConnectionFactory.GetAsync(CancellationToken cancellationToken)
         {
             IConnectionMultiplexer conn;
-            using (var trace = TRACE_ENABLED ? "get-redis-connection".StartTrace(kind: ActivityKind.Client) : null)
-            {
-                conn = await _redisTask;
-                trace?.SetTag("is-connected", conn.IsConnected);
-            }
+            conn = await _redisTask;
             if (conn.IsConnected)
                 return conn;
             string status = conn.GetStatus();
@@ -183,11 +179,7 @@ namespace EventSourcing.Backbone
             var disp = await _lock.AcquireAsync(cancellationToken);
             using (disp)
             {
-                using (var trace = TRACE_ENABLED ? "re-get-redis-connection".StartTrace(kind: ActivityKind.Client) : null)
-                {
-                    conn = await _redisTask;
-                    trace?.SetTag("is-connected", conn.IsConnected);
-                }
+                conn = await _redisTask;
                 if (conn.IsConnected)
                     return conn;
                 int tryNumber = Interlocked.Increment(ref _reconnectTry);
@@ -201,12 +193,9 @@ namespace EventSourcing.Backbone
                     Activity.Current?.AddEvent(CHANGE_CONN, t => t.Add("redis.operation-kind", Kind));
                     ReConnectCounter.WithTag("redis.operation-kind", Kind).Add(1);
                     Task _ = Task.Delay(CLOSE_DELEY_MILLISECONDS).ContinueWith(_ => cn.CloseAsync());
-                    using (var trace = TRACE_ENABLED ? "redis-re-connection".StartTrace(kind: ActivityKind.Client) : null)
-                    {
-                        _redisTask = _configuration.CreateProviderAsync(_logger);
-                        var newConn = await _redisTask;
-                        return newConn;
-                    }
+                    _redisTask = _configuration.CreateProviderAsync(_logger);
+                    var newConn = await _redisTask;
+                    return newConn;
                 }
                 return conn;
             }
