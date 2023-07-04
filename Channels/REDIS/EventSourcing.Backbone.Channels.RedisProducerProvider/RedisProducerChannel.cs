@@ -72,7 +72,7 @@ internal class RedisProducerChannel : IProducerChannelProvider
         string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
-        using var activity = plan.StartTraceDebug($"producer.{meta.Operation}.process",
+        using var activity = plan.StartTraceInformation($"producer.{meta.Operation}.process",
                                             tagsAction: t => t.Add("env", env)
                                                             .Add("uri", uri)
                                                             .Add("message-id", id));

@@ -32,7 +32,6 @@ public static class ConsumerExtensions
                             {
                                 OriginFilter = MessageOrigin.Original,
                                 AckBehavior = AckBehavior.OnSucceed,
-                                TelemetryLevel = LogLevel.Debug 
                             })
                             .Environment(env)
                             .Uri(uri);

@@ -72,7 +72,7 @@ services.AddHttpClient("migration", c =>
  });
 
 
-services.TryAddSingleton<TelemetryLevel>(LogLevel.Debug);
+services.TryAddSingleton<TelemetryLevel>(LogLevel.Information);
 //IConnectionMultiplexer redisConnection = services.AddRedis();
 builder.AddOpenTelemetryEventSourcing();
 

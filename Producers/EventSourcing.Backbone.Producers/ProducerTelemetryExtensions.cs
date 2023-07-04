@@ -27,7 +27,7 @@ public static class ProducerTelemetryExtensions
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
 
         activitySource = activitySource ?? ETracer;
-        if (plan.Options.TelemetryLevel.Trace > LogLevel.Information)
+        if (plan.Options.TelemetryLevel.Trace > LogLevel.Debug)
             return null;
 
         if (!activitySource.HasListeners())
