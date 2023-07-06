@@ -22,6 +22,7 @@ namespace EventSourcing.Backbone
     public partial class ConsumerBuilder :
         IConsumerBuilder,
         IConsumerReadyBuilder,
+        IConsumerStoreStrategyBuilder,
         IConsumerIocStoreStrategyBuilder
     {
         private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
@@ -125,8 +126,36 @@ namespace EventSourcing.Backbone
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder.AddStorageStrategyFactory(
-            Func<ILogger, ValueTask<IConsumerStorageStrategy>> storageStrategy,
+        IConsumerIocStoreStrategyBuilder IConsumerStoreStrategyBuilder<IConsumerIocStoreStrategyBuilder>.AddStorageStrategyFactory(
+            Func<ILogger, IConsumerStorageStrategy> storageStrategy, EventBucketCategories targetType)
+        {
+            return AddStorageStrategyFactory(storageStrategy, targetType);
+        }
+
+        /// <summary>
+        /// Adds the storage strategy (Segment / Interceptions).
+        /// Will use default storage (REDIS Hash) when empty.
+        /// When adding more than one it will to all, act as a fall-back (first win, can use for caching).
+        /// It important the consumer's storage will be in sync with this setting.
+        /// </summary>
+        /// <param name="storageStrategy">Storage strategy provider.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <returns></returns>
+        IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder<IConsumerStoreStrategyBuilder>.AddStorageStrategyFactory(
+            Func<ILogger, IConsumerStorageStrategy> storageStrategy,
+            EventBucketCategories targetType)
+        {
+            return AddStorageStrategyFactory(storageStrategy, targetType);
+        }
+
+        /// <summary>
+        /// Adds the storage strategy factory.
+        /// </summary>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <returns></returns>
+        private ConsumerBuilder AddStorageStrategyFactory(
+            Func<ILogger, IConsumerStorageStrategy> storageStrategy,
             EventBucketCategories targetType)
         {
 
@@ -135,9 +164,9 @@ namespace EventSourcing.Backbone
 
             return result;
 
-            async Task<IConsumerStorageStrategyWithFilter> Local(ILogger logger)
+            IConsumerStorageStrategyWithFilter Local(ILogger logger)
             {
-                var strategy = await storageStrategy(logger);
+                var strategy = storageStrategy(logger);
                 var decorated = new FilteredStorageStrategy(strategy, targetType);
                 return decorated;
             }

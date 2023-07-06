@@ -1,10 +1,12 @@
-﻿namespace EventSourcing.Backbone.Building
+﻿using Microsoft.Extensions.Logging;
+
+namespace EventSourcing.Backbone.Building
 {
     /// <summary>
     /// storage configuration with IoC.
     /// </summary>
     /// <seealso cref="EventSourcing.Backbone.Building.IConsumerStoreStrategyBuilder" />
-    public interface IConsumerIocStoreStrategyBuilder : IConsumerStoreStrategyBuilder
+    public interface IConsumerIocStoreStrategyBuilder : IConsumerStoreStrategyBuilder<IConsumerIocStoreStrategyBuilder>
     {
         /// <summary>
         /// Gets the service provider.

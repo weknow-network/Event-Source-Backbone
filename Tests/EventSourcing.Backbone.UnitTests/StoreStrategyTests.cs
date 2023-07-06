@@ -73,9 +73,9 @@ namespace EventSourcing.Backbone
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
-                         .AddStorageStrategyFactory(l => _consumerStorageStrategyA.ToValueTask())
-                         .AddStorageStrategyFactory(l => _consumerStorageStrategyB.ToValueTask(), EventBucketCategories.Segments)
-                         .AddStorageStrategyFactory(l => _consumerStorageStrategyC.ToValueTask(), EventBucketCategories.Interceptions)
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyA)
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyB, EventBucketCategories.Segments)
+                         .AddStorageStrategyFactory(l => _consumerStorageStrategyC, EventBucketCategories.Interceptions)
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Uri("Kids:HappySocks")

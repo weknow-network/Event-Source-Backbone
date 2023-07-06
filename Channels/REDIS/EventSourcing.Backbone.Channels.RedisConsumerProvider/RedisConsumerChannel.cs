@@ -76,7 +76,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
     {
         _logger = logger;
         _connFactory = redisConnFactory;
-        _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory);
+        _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory, logger);
         _setting = setting ?? RedisConsumerChannelSetting.Default;
     }
 
@@ -1111,7 +1111,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                                         EventBucketCategories storageType)
     {
 
-        IEnumerable<IConsumerStorageStrategyWithFilter> strategies = await plan.StorageStrategiesAsync;
+        IEnumerable<IConsumerStorageStrategyWithFilter> strategies = plan.StorageStrategies;
         strategies = strategies.Where(m => m.IsOfTargetType(storageType));
         Bucket bucket = Bucket.Empty;
         if (strategies.Any())
