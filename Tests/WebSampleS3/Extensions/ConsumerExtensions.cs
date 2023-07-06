@@ -27,7 +27,7 @@ namespace WebSample.Extensions
             IWebHostEnvironment environment = builder.Environment;
             string env = environment.EnvironmentName;
 
-            var s3Options = new S3Options { Bucket = s3Bucket };
+            var s3Options = new S3ConsumerOptions { Bucket = s3Bucket };
             services.AddSingleton(ioc =>
             {
                 IConsumerReadyBuilder consumer =

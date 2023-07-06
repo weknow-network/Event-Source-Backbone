@@ -22,7 +22,7 @@ public static class ConsumerExtensions
         string s3Bucket,
         Env env)
     {
-        var s3Options = new S3Options { Bucket = s3Bucket };
+        var s3Options = new S3ConsumerOptions { Bucket = s3Bucket };
         services.AddKeyedSingleton(ioc =>
         {
             IConsumerReadyBuilder consumer =

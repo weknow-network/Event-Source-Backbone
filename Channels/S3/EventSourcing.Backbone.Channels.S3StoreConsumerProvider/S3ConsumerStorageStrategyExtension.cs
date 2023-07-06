@@ -27,7 +27,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder AddS3Storage(
             this IConsumerStoreStrategyBuilder builder,
-            S3Options options = default,
+            S3ConsumerOptions? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
             string envSecretKey = "S3_EVENT_SOURCE_SECRET",
@@ -39,8 +39,10 @@ namespace EventSourcing.Backbone
             ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, envAccessKey, envSecretKey, envRegion, fromEnvironment);
-                var repo = factory.Get(options);
-                var strategy = new S3ConsumerStorageStrategy(repo);
+                var opt = options ?? S3ConsumerOptions.Default;
+                var repo = factory.Get(opt);
+                S3ConsumerStorageTuning tune = new S3ConsumerStorageTuning { OverrideKeyIfExists = opt.OverrideKeyIfExists, KeysFilter = opt.KeysFilter };
+                var strategy = new S3ConsumerStorageStrategy(repo, tune);
                 return strategy.ToValueTask<IConsumerStorageStrategy>();
             }
             return result;
@@ -60,7 +62,7 @@ namespace EventSourcing.Backbone
         public static IConsumerStoreStrategyBuilder AddS3Storage(
             this IConsumerStoreStrategyBuilder builder,
             IAmazonS3 client,
-            S3Options options = default,
+            S3ConsumerOptions? options = null,
             EventBucketCategories targetType = EventBucketCategories.All)
         {
             var result = builder.AddStorageStrategyFactory(Local, targetType);
@@ -68,8 +70,10 @@ namespace EventSourcing.Backbone
             ValueTask<IConsumerStorageStrategy> Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, client);
-                var repo = factory.Get(options);
-                var strategy = new S3ConsumerStorageStrategy(repo);
+                var opt = options ?? S3ConsumerOptions.Default;
+                var repo = factory.Get(opt);
+                S3ConsumerStorageTuning tune = new S3ConsumerStorageTuning { OverrideKeyIfExists = opt.OverrideKeyIfExists, KeysFilter = opt.KeysFilter };
+                var strategy = new S3ConsumerStorageStrategy(repo, tune);
                 return strategy.ToValueTask<IConsumerStorageStrategy>();
             }
             return result;
@@ -87,7 +91,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IConsumerStoreStrategyBuilder ResolveS3Storage(
             this IConsumerIocStoreStrategyBuilder builder,
-            S3Options options = default,
+            S3ConsumerOptions? options = null,
             EventBucketCategories targetType = EventBucketCategories.All)
         {
             ILogger? logger = builder.ServiceProvider.GetService<ILogger<S3Options>>();

@@ -1,10 +1,12 @@
+using System.Text;
+
 using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
 {
     public class InheritanceS3StoreStrategyTests : InheritanceTests
     {
-        private static readonly S3Options OPTIONS = new S3Options
+        private static readonly S3ConsumerOptions OPTIONS = new S3ConsumerOptions
         {
             EnvironmentConvension = S3EnvironmentConvention.BucketPrefix,
             BasePath = "tests"

@@ -120,7 +120,6 @@ namespace EventSourcing.Backbone.Channels
         /// <returns></returns>
         IS3Repository IS3RepositoryFactory.Get(S3Options options)
         {
-
             var repo = _cache.GetOrAdd(options, CreateInternal);
             repo.AddReference();
             return repo;

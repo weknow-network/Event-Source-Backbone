@@ -37,7 +37,7 @@ namespace EventSourcing.Backbone.Tests
                              //.AddEnvironmentVariables()
                              .ConfigureServices((context, services) =>
                              {
-                                 var s3Options = new S3Options { Bucket = "event-sourcing-validation" };
+                                 var s3Options = new S3ConsumerOptions { Bucket = "event-sourcing-validation" };
 
                                  services.AddDefaultAWSOptions(context.Configuration.GetAWSOptions());
                                  services.AddAWSService<IAmazonS3>();

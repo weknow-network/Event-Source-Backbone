@@ -26,7 +26,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder AddS3Storage(
             this IProducerStoreStrategyBuilder builder,
-            S3Options options = default,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null,
             string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
@@ -39,7 +39,7 @@ namespace EventSourcing.Backbone
             ValueTask<IProducerStorageStrategy> Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, envAccessKey, envSecretKey, envRegion, fromEnvironment);
-                var repo = factory.Get(options);
+                var repo = factory.Get(options ?? S3Options.Default);
                 var strategy = new S3ProducerStorageStrategy(repo);
                 return strategy.ToValueTask<IProducerStorageStrategy>();
             }
@@ -62,7 +62,7 @@ namespace EventSourcing.Backbone
         public static IProducerStoreStrategyBuilder AddS3Storage(
             this IProducerStoreStrategyBuilder builder,
             IAmazonS3 client,
-            S3Options options = default,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
         {
@@ -71,7 +71,7 @@ namespace EventSourcing.Backbone
             ValueTask<IProducerStorageStrategy> Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, client);
-                var repo = factory.Get(options);
+                var repo = factory.Get(options ?? S3Options.Default);
                 var strategy = new S3ProducerStorageStrategy(repo);
                 return strategy.ToValueTask<IProducerStorageStrategy>();
             }
@@ -89,7 +89,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder ResolveS3Storage(
             this IProducerIocStoreStrategyBuilder builder,
-            S3Options options = default,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
         {
