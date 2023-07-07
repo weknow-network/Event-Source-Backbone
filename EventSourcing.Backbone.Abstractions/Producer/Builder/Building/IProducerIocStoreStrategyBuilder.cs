@@ -1,14 +1,13 @@
-﻿namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone;
+
+/// <summary>
+/// storage configuration with IoC.
+/// </summary>
+/// <seealso cref="EventSourcing.Backbone.IProducerStoreStrategyBuilder" />
+public interface IProducerIocStoreStrategyBuilder : IProducerStoreStrategyBuilder<IProducerIocStoreStrategyBuilder>
 {
     /// <summary>
-    /// storage configuration with IoC.
+    /// Gets the service provider.
     /// </summary>
-    /// <seealso cref="EventSourcing.Backbone.IProducerStoreStrategyBuilder" />
-    public interface IProducerIocStoreStrategyBuilder : IProducerStoreStrategyBuilder
-    {
-        /// <summary>
-        /// Gets the service provider.
-        /// </summary>
-        IServiceProvider ServiceProvider { get; }
-    }
+    IServiceProvider ServiceProvider { get; }
 }

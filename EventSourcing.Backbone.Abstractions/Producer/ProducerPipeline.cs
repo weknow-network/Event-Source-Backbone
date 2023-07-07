@@ -252,7 +252,7 @@
 
             if (plan.ForwardPlans.Count == 0) // merged
             {
-                var strategies = await plan.StorageStrategiesAsync;
+                var strategies = plan.StorageStrategiesAsync;
                 var ch = plan.Channel;
                 EventKey k = await ch.SendAsync(plan, announcement, strategies);
                 return new EventKeys(k);

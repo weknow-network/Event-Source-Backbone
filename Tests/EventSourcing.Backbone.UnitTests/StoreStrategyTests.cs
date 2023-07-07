@@ -58,8 +58,8 @@ namespace EventSourcing.Backbone
 
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
-                        .AddStorageStrategy(l => _producerStorageStrategyA.ToValueTask(), filter: LocalOnlyEmail)
-                        .AddStorageStrategy(l => _producerStorageStrategyB.ToValueTask(), filter: LocalAllButEmail)
+                        .AddStorageStrategy(l => _producerStorageStrategyA, filter: LocalOnlyEmail)
+                        .AddStorageStrategy(l => _producerStorageStrategyB, filter: LocalAllButEmail)
                         //.WithOptions(producerOption)
                         .Uri("Kids:HappySocks")
                         .BuildSequenceOperationsProducer();

@@ -8,8 +8,8 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// storage configuration.
     /// </summary>
-    /// <seealso cref="EventSourcing.Backbone.Building.IProducerOptionsBuilder" />
-    public interface IProducerStoreStrategyBuilder : IProducerOptionsBuilder
+    public interface IProducerStoreStrategyBuilder<T> : IProducerOptionsBuilder
+        where T : IProducerStoreStrategyBuilder<T>
     {
         /// <summary>
         /// Adds the storage strategy (Segment / Interceptions).
@@ -21,9 +21,17 @@ namespace EventSourcing.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        IProducerStoreStrategyBuilder AddStorageStrategy(
-            Func<ILogger, ValueTask<IProducerStorageStrategy>> storageStrategy,
+        T AddStorageStrategy(
+            Func<ILogger, IProducerStorageStrategy> storageStrategy,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null);
+    }
+
+    /// <summary>
+    /// storage configuration.
+    /// </summary>
+    /// <seealso cref="EventSourcing.Backbone.Building.IProducerOptionsBuilder" />
+    public interface IProducerStoreStrategyBuilder : IProducerStoreStrategyBuilder<IProducerStoreStrategyBuilder>
+    {
     }
 }

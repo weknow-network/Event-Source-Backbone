@@ -15,7 +15,6 @@ namespace EventSourcing.Backbone
     public class ProducerPlan : IProducerPlan, IProducerPlanBuilder
     {
         public static readonly ProducerPlan Empty = new ProducerPlan();
-        private static readonly Task<ImmutableArray<IProducerStorageStrategyWithFilter>> EMPTY_STORAGE_STRATEGY = Task.FromResult(ImmutableArray<IProducerStorageStrategyWithFilter>.Empty);
 
         #region Ctor
 
@@ -56,7 +55,7 @@ namespace EventSourcing.Backbone
             IImmutableList<IProducerHooksBuilder>? routes = null,
             IImmutableList<IProducerHooksBuilder>? forwards = null,
             IImmutableList<IProducerPlan>? forwardPlans = null,
-            Func<ILogger, Task<IProducerStorageStrategyWithFilter>>? storageStrategyFactories = null,
+            Func<ILogger, IProducerStorageStrategyWithFilter>? storageStrategyFactories = null,
             IServiceProvider? serviceProvider = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
@@ -119,8 +118,8 @@ namespace EventSourcing.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public ImmutableArray<Func<ILogger, Task<IProducerStorageStrategyWithFilter>>> StorageStrategyFactories { get; } =
-                                            ImmutableArray<Func<ILogger, Task<IProducerStorageStrategyWithFilter>>>.Empty;
+        public ImmutableArray<Func<ILogger, IProducerStorageStrategyWithFilter>> StorageStrategyFactories { get; } =
+                                            ImmutableArray<Func<ILogger, IProducerStorageStrategyWithFilter>>.Empty;
 
 
         #endregion // StorageStrategyFactories
@@ -130,7 +129,7 @@ namespace EventSourcing.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public Task<ImmutableArray<IProducerStorageStrategyWithFilter>> StorageStrategiesAsync { get; init; } = EMPTY_STORAGE_STRATEGY;
+        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategiesAsync { get; init; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
 
         #region Logger
 
@@ -297,7 +296,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
-        public ProducerPlan WithStorageStrategy(Func<ILogger, Task<IProducerStorageStrategyWithFilter>> storageStrategy)
+        public ProducerPlan WithStorageStrategy(Func<ILogger, IProducerStorageStrategyWithFilter> storageStrategy)
         {
             return new ProducerPlan(this, storageStrategyFactories: storageStrategy);
         }
@@ -439,7 +438,7 @@ namespace EventSourcing.Backbone
                 var channel = ChannelFactory(Logger);
                 var plan = new ProducerPlan(this, channel: channel)
                 {
-                    StorageStrategiesAsync = LocalAsync()
+                    StorageStrategiesAsync = Local()
                 };
                 return plan;
             }
@@ -453,12 +452,12 @@ namespace EventSourcing.Backbone
 
             return new ProducerPlan(this, forwardPlans: ImmutableList.CreateRange(fws))
             {
-                StorageStrategiesAsync = LocalAsync()
+                StorageStrategiesAsync = Local()
             };
 
-            async Task<ImmutableArray<IProducerStorageStrategyWithFilter>> LocalAsync()
+            ImmutableArray<IProducerStorageStrategyWithFilter> Local()
             {
-                var strategies = await Task.WhenAll(StorageStrategyFactories.Select(m => m(Logger)));
+                var strategies = StorageStrategyFactories.Select(m => m(Logger));
                 return ImmutableArray.CreateRange(strategies);
             }
 
