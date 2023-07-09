@@ -17,18 +17,25 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
 {
     private readonly IEventSourceRedisConnectionFactory _connFactory;
     private readonly ILogger _logger;
+    private readonly Predicate<string>? _keysFilter;
 
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
     /// <param name="connFactory">The database task.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="keysFilter">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// </param>
     public RedisHashStorageStrategy(
         IEventSourceRedisConnectionFactory connFactory,
-        ILogger logger)
+        ILogger logger,
+        Predicate<string>? keysFilter = null)
     {
         _connFactory = connFactory;
         _logger = logger;
+        _keysFilter = keysFilter;
     }
 
     /// <summary>
@@ -43,7 +50,6 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
     /// <param name="type">The type of the storage.</param>
     /// <param name="getProperty">The get property.</param>
-    /// <param name="cancellation">The cancellation.</param>
     /// <returns>
     /// Either Segments or Interceptions.
     /// </returns>
@@ -72,7 +78,10 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
 
 #pragma warning disable CS8600 
 #pragma warning disable CS8620
-        var pairs = entities.Select(m => ((string)m.Name, (byte[])m.Value));
+        var pairs = entities
+                        .Select(m => (Key: (string)m.Name, Value: (byte[])m.Value))
+                        .Where(m => !prevBucket.ContainsKey(m.Key!))
+                        .Where(m => _keysFilter?.Invoke(m.Key!) ?? true);
         var results = prevBucket.TryAddRange(pairs);
 #pragma warning restore CS8620
 #pragma warning restore CS8600

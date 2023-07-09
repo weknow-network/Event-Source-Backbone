@@ -124,8 +124,8 @@ namespace EventSourcing.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerSubscribeBuilder builder = ConsumerBuilder.Empty.UseRedisChannel()
-                         .AddS3Storage(OPTIONS)
                          .AddRedisStorage()
+                         .AddS3Storage(OPTIONS)
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
                              .Environment(ENV)
@@ -158,6 +158,119 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // StorageSplitting_Test
+
+        #region StorageCache_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task StorageCache_Test()
+        {
+            IConsumerStorageStrategy fakeStorageFirst = A.Fake<IConsumerStorageStrategy>();
+            A.CallTo(() => fakeStorageFirst.LoadBucketAsync(
+                                    A<Metadata>.Ignored,
+                                    A<Bucket>.Ignored,
+                                    A<EventBucketCategories>.Ignored,
+                                    A<Func<string, string>>.Ignored,
+                                    A<CancellationToken>.Ignored))
+                                .Returns(Bucket.Empty.ToValueTask());
+            A.CallTo(() => fakeStorageFirst.Name)
+                                .Returns("Fake 1");
+            IConsumerStorageStrategy fakeStorageLast = A.Fake<IConsumerStorageStrategy>();
+            A.CallTo(() => fakeStorageLast.LoadBucketAsync(
+                                    A<Metadata>.Ignored,
+                                    A<Bucket>.Ignored,
+                                    A<EventBucketCategories>.Ignored,
+                                    A<Func<string, string>>.Ignored,
+                                    A<CancellationToken>.Ignored))
+                                .ReturnsLazily<ValueTask<Bucket>, Metadata, Bucket, EventBucketCategories, Func<string, string>, CancellationToken>(
+                                    (meta, prv, cat, getPrp, cancellationToken) => prv.ToValueTask());
+            A.CallTo(() => fakeStorageLast.Name)
+                                .Returns("Fake 2");
+
+            var sw = Stopwatch.StartNew();
+
+            #region IEventFlow producer = ...
+
+            IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannel()
+                                .AddS3Storage(OPTIONS)
+                                .AddRedisHashStorage()
+                                .Environment(ENV)
+                                //.WithOptions(producerOption)
+                                .Uri(URI)
+                                //.WithLogger(_fakeLogger)
+                                .BuildEventFlowProducer();
+
+            #endregion // IEventFlow producer = ...
+
+            var snapshot = sw.Elapsed;
+            _outputHelper.WriteLine($"Build producer = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
+
+            await SendSequenceAsync(producer);
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Produce = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
+
+            var consumerOptions = new ConsumerOptions
+            {
+                AckBehavior = AckBehavior.OnSucceed,
+                MaxMessages = 2 /* detach consumer after 2 messages*/
+            };
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            IConsumerSubscribeBuilder builder = ConsumerBuilder.Empty.UseRedisChannel()
+                         .AddStorageStrategyFactory(logger => fakeStorageFirst)
+                         .AddRedisStorage()
+                         .AddS3Storage(OPTIONS)
+                         .AddStorageStrategyFactory(logger => fakeStorageLast)
+                         .WithOptions(o => consumerOptions)
+                             .WithCancellation(cancellation)
+                             .Environment(ENV)
+                             .Uri(URI)
+                             .WithLogger(_fakeLogger);
+            await using IConsumerLifetime subscription = builder
+                                        .Group("CONSUMER_GROUP_1")
+                                        .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                                        .SubscribeEventFlowConsumer(_subscriber);
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Build Consumer = {snapshot:mm\\:ss\\.ff}");
+            snapshot = sw.Elapsed;
+
+            await subscription.Completion;
+
+            snapshot = sw.Elapsed - snapshot;
+            _outputHelper.WriteLine($"Consumed = {snapshot:mm\\:ss\\.ff}");
+
+            #region Validation
+
+            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerMetadata>.Ignored, A<Person>.Ignored, A<string>.Ignored))
+                        .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerMetadata>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
+                        .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeStorageFirst.LoadBucketAsync(
+                                    A<Metadata>.Ignored, 
+                                    A<Bucket>.Ignored, 
+                                    EventBucketCategories.Segments, 
+                                    A<Func<string, string>>.Ignored, 
+                                    A<CancellationToken>.Ignored))
+                        .MustHaveHappenedTwiceExactly(); // 2 operations 
+            A.CallTo(() => fakeStorageLast.LoadBucketAsync(
+                                    A<Metadata>.Ignored, 
+                                    A<Bucket>.Ignored,
+                                    EventBucketCategories.Segments,
+                                    A<Func<string, string>>.Ignored, 
+                                    A<CancellationToken>.Ignored))
+                        .MustHaveHappenedTwiceExactly(); // 2 operations 
+
+            #endregion // Validation
+        }
+
+        #endregion // StorageCache_Test
 
         #region SendSequenceAsync
 

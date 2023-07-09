@@ -42,8 +42,7 @@ namespace EventSourcing.Backbone
                 var factory = S3RepositoryFactory.Create(logger, envAccessKey, envSecretKey, envRegion, fromEnvironment);
                 var opt = options ?? S3ConsumerOptions.Default;
                 var repo = factory.Get(opt);
-                S3ConsumerStorageTuning tune = new S3ConsumerStorageTuning { OverrideKeyIfExists = opt.OverrideKeyIfExists, KeysFilter = opt.KeysFilter };
-                var strategy = new S3ConsumerStorageStrategy(repo, tune);
+                var strategy = new S3ConsumerStorageStrategy(repo, opt.KeysFilter);
                 return strategy;
             }
             return result;
@@ -74,8 +73,7 @@ namespace EventSourcing.Backbone
                 var factory = S3RepositoryFactory.Create(logger, client);
                 var opt = options ?? S3ConsumerOptions.Default;
                 var repo = factory.Get(opt);
-                S3ConsumerStorageTuning tune = new S3ConsumerStorageTuning { OverrideKeyIfExists = opt.OverrideKeyIfExists, KeysFilter = opt.KeysFilter };
-                var strategy = new S3ConsumerStorageStrategy(repo, tune);
+                var strategy = new S3ConsumerStorageStrategy(repo, opt);
                 return strategy;
             }
             return result;

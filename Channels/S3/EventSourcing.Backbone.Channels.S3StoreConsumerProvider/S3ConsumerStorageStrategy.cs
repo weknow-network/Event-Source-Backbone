@@ -20,7 +20,11 @@ namespace EventSourcing.Backbone;
 public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
 {
     private readonly IS3Repository _repository;
-    private readonly S3ConsumerStorageTuning _tune;
+    /// <summary>
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// </summary>
+    private readonly Predicate<string>? _keysFilter;
 
     #region ctor
 
@@ -30,13 +34,31 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     /// <param name="s3Repository">S3 repository.
     /// Use S3Factory in order to create it (will create one if missing).
     /// S3Factory will read credentials from the following environment variables: "S3_EVENT_SOURCE_ACCESS_KEY", "S3_EVENT_SOURCE_SECRET", "S3_EVENT_SOURCE_REGION".</param>
-    /// <param name="tune">Tuning options.</param>
+    /// <param name="keysFilter">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// </param>
     public S3ConsumerStorageStrategy(
         IS3Repository s3Repository,
-        S3ConsumerStorageTuning tune)
+        Predicate<string>? keysFilter = null)
     {
         _repository = s3Repository;
-        _tune = tune;
+        _keysFilter = keysFilter;
+    }
+
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    /// <param name="s3Repository">S3 repository.
+    /// Use S3Factory in order to create it (will create one if missing).
+    /// S3Factory will read credentials from the following environment variables: "S3_EVENT_SOURCE_ACCESS_KEY", "S3_EVENT_SOURCE_SECRET", "S3_EVENT_SOURCE_REGION".</param>
+    /// <param name="options">The options.</param>
+    public S3ConsumerStorageStrategy(
+        IS3Repository s3Repository,
+        S3ConsumerOptions options)
+    {
+        _repository = s3Repository;
+        _keysFilter = options.KeysFilter;
     }
 
     /// <summary>
@@ -53,7 +75,7 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
         var opt = options ?? S3ConsumerOptions.Default;
         _repository = facroey.Get(opt);
-        _tune = new S3ConsumerStorageTuning { KeysFilter = opt.KeysFilter, OverrideKeyIfExists = opt.OverrideKeyIfExists };
+        _keysFilter = opt.KeysFilter;
     }
 
     #endregion // ctor
@@ -62,6 +84,7 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     /// Gets the name of the storage provider.
     /// </summary>
     public string Name { get; } = "S3";
+
 
     /// <summary>
     /// Load the bucket information.
@@ -81,9 +104,6 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         Func<string, string> getProperty,
         CancellationToken cancellation)
     {
-        var filter = _tune.KeysFilter;
-        var overrideExisting = _tune.OverrideKeyIfExists;
-
         string json = getProperty($"{Constants.PROVIDER_ID}~{type}");
         var keyPathPairs = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(
                                                         json, SerializerOptionsWithIndent) ??
@@ -91,7 +111,7 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
 
 
         var tasks = keyPathPairs.Select(LocalFetchAsync);
-        var pairs = await Task.WhenAll(tasks);
+        var pairs = await Task.WhenAll(tasks).ThrowAll();
 
         Bucket result = prevBucket.TryAddRange(pairs);
         return result;
@@ -100,11 +120,11 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         {
             var (key, value ) = item;
             // honor filtering
-            if (filter != null && !filter(key))
+            if (_keysFilter != null && !_keysFilter(key))
                 return null;
 
             // avoid overriding existing keys
-            if(!overrideExisting && prevBucket.ContainsKey(key))
+            if(prevBucket.ContainsKey(key))
                 return null;
 
             string path = value;
