@@ -82,10 +82,10 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // Ctor
 
-        #region MultiStorage_Test
+        #region StorageSplitting_Test
 
         [Fact(Timeout = TIMEOUT)]
-        public async Task MultiStorage_Test()
+        public async Task StorageSplitting_Test()
         {
             var sw = Stopwatch.StartNew();
 
@@ -157,7 +157,7 @@ namespace EventSourcing.Backbone.Tests
             #endregion // Validation
         }
 
-        #endregion // MultiStorage_Test
+        #endregion // StorageSplitting_Test
 
         #region SendSequenceAsync
 
