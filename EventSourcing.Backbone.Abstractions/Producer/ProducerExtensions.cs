@@ -24,10 +24,10 @@ namespace EventSourcing.Backbone
         {
             var result = builder.AddStorageStrategy(Local);
 
-            ValueTask<IProducerStorageStrategy> Local(ILogger logger)
+            IProducerStorageStrategy Local(ILogger logger)
             {
                 IProducerStorageStrategy result = new VoidStorageStrategy(providerPrefix);
-                return result.ToValueTask();
+                return result;
             }
 
             return result;

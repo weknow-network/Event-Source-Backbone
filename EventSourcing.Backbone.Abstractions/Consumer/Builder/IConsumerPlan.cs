@@ -31,7 +31,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the storage strategies.
         /// </summary>
-        Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }
+        ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategies { get; }
 
         /// <summary>
         /// Get parameter value from the announcement.

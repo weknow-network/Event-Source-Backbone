@@ -1,9 +1,11 @@
 ﻿using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Channels;
 using EventSourcing.Backbone.Channels.RedisProvider;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using StackExchange.Redis;
 
@@ -11,6 +13,8 @@ namespace EventSourcing.Backbone;
 
 public static class RedisConsumerBuilder
 {
+    #region Create
+
     /// <summary>
     /// Create REDIS consumer builder.
     /// </summary>
@@ -26,6 +30,11 @@ public static class RedisConsumerBuilder
         var configuration = RedisClientFactory.CreateConfigurationOptions(endpoint, password, configurationHook);
         return configuration.CreateRedisConsumerBuilder();
     }
+
+    #endregion // Create
+
+    #region CreateRedisConsumerBuilder
+
     /// <summary>
     /// Create REDIS consumer builder.
     /// </summary>
@@ -95,7 +104,6 @@ public static class RedisConsumerBuilder
         return configuration.CreateRedisConsumerBuilder(setting);
     }
 
-
     /// <summary>
     /// Create REDIS consumer builder.
     /// </summary>
@@ -111,6 +119,10 @@ public static class RedisConsumerBuilder
         var configuration = credentialsKeys.CreateConfigurationOptions(configurationHook);
         return configuration.CreateRedisConsumerBuilder(setting);
     }
+
+    #endregion // CreateRedisConsumerBuilder
+
+    #region UseRedisChannel
 
     /// <summary>
     /// Uses REDIS consumer channel.
@@ -231,4 +243,94 @@ public static class RedisConsumerBuilder
         var result = ConsumerBuilder.Create(serviceProvider).ResolveRedisConsumerChannel(serviceProvider, setting);
         return result;
     }
+
+    #endregion // UseRedisChannel
+
+    #region AddRedisStorage
+
+    /// <summary>
+    /// Uses REDIS consumer storage.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="redisConfiguration">The redis configuration.</param>
+    /// <returns></returns>
+    public static IConsumerStoreStrategyBuilder AddRedisStorage(
+                        this IConsumerStoreStrategyBuilder builder,
+                        ConfigurationOptions? redisConfiguration = null)
+    {
+        var channelBuilder = builder.AddStorageStrategyFactory(LocalCreate);
+        return channelBuilder;
+
+        IConsumerStorageStrategy LocalCreate(ILogger logger)
+        {
+            var connFactory = EventSourceRedisConnectionFactory.Create(
+                                                        logger,
+                                                        redisConfiguration);
+            if (connFactory == null)
+                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFactory)} is not registered, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+            var storage = new RedisHashStorageStrategy(connFactory, logger);
+            return storage;
+        }        
+    }
+
+    /// <summary>
+    /// Uses REDIS consumer storage.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="credentialsKeys">Environment keys of the credentials</param>
+    /// <returns></returns>
+    public static IConsumerStoreStrategyBuilder AddRedisStorage(
+                        this IConsumerStoreStrategyBuilder builder,
+                        RedisCredentialsEnvKeys credentialsKeys,
+                        Action<ConfigurationOptions>? configurationHook = null)
+    {
+        var configuration = credentialsKeys.CreateConfigurationOptions(configurationHook);
+        var channelBuilder = builder.AddRedisStorage(configuration);
+        return channelBuilder;
+    }
+
+    /// <summary>
+    /// Uses REDIS consumer storage.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="redisClientFactory">The redis client factory.</param>
+    /// <returns></returns>
+    internal static IConsumerStoreStrategyBuilder AddRedisStorage(
+                        this IConsumerStoreStrategyBuilder builder,
+                        IEventSourceRedisConnectionFactory redisClientFactory)
+    {
+        var channelBuilder = builder.AddStorageStrategyFactory(LocalCreate);
+        return channelBuilder;
+
+        IConsumerStorageStrategy LocalCreate(ILogger logger)
+        {
+            var storage = new RedisHashStorageStrategy(redisClientFactory, logger);
+            return storage;
+        }
+    }
+
+    /// <summary>
+    /// Uses REDIS consumer storage.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns></returns>
+    /// <exception cref="System.ArgumentNullException">redisClient</exception>
+    public static IConsumerIocStoreStrategyBuilder ResolveRedisStorage(
+                        this IConsumerIocStoreStrategyBuilder builder)
+    {
+        var channelBuilder = builder.AddStorageStrategyFactory(LocalCreate);
+        return channelBuilder;
+
+        IConsumerStorageStrategy LocalCreate(ILogger logger)
+        {
+            IServiceProvider serviceProvider = builder.ServiceProvider;
+            var connFactory = serviceProvider.GetService<IEventSourceRedisConnectionFactory>();
+            if (connFactory == null)
+                throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFactory)} is not registered, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
+            var storage = new RedisHashStorageStrategy(connFactory, logger);
+            return storage;
+        }
+    }
+
+    #endregion // AddRedisStorage
 }

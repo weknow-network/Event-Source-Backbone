@@ -3,8 +3,10 @@
     /// <summary>
     /// S3 provider options
     /// </summary>
-    public readonly record struct S3Options
+    public record S3Options
     {
+        public static readonly S3Options Default = new S3Options();
+
         public S3Options()
         {
             Bucket = null;

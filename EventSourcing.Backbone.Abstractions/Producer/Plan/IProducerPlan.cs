@@ -20,7 +20,7 @@ namespace EventSourcing.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        Task<ImmutableArray<IProducerStorageStrategyWithFilter>> StorageStrategiesAsync { get; }
+        ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategies { get; }
 
         /// <summary>
         /// Gets the forwards pipelines.

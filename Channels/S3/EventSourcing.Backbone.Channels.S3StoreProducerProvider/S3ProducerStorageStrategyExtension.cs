@@ -24,24 +24,25 @@ namespace EventSourcing.Backbone
         /// <param name="envRegion">Either the region or environment variable hold it (depend on the fromEnvironment parameters)</param>
         /// <param name="fromEnvironment">if set to <c>true</c>looks for the access key, secret and region in the environment variables.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder AddS3Storage(
-            this IProducerStoreStrategyBuilder builder,
-            S3Options options = default,
+        public static T AddS3Storage<T>(
+            this T builder,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null,
             string envAccessKey = "S3_EVENT_SOURCE_ACCESS_KEY",
             string envSecretKey = "S3_EVENT_SOURCE_SECRET",
             string envRegion = "S3_EVENT_SOURCE_REGION",
             bool fromEnvironment = true)
+                    where T : IProducerStoreStrategyBuilder<T>
         {
             var result = builder.AddStorageStrategy(Local, targetType, filter);
 
-            ValueTask<IProducerStorageStrategy> Local(ILogger logger)
+            IProducerStorageStrategy Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, envAccessKey, envSecretKey, envRegion, fromEnvironment);
-                var repo = factory.Get(options);
+                var repo = factory.Get(options ?? S3Options.Default);
                 var strategy = new S3ProducerStorageStrategy(repo);
-                return strategy.ToValueTask<IProducerStorageStrategy>();
+                return strategy;
             }
 
             return result;
@@ -59,21 +60,22 @@ namespace EventSourcing.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder AddS3Storage(
-            this IProducerStoreStrategyBuilder builder,
+        public static T AddS3Storage<T>(
+            this T builder,
             IAmazonS3 client,
-            S3Options options = default,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
+                where T : IProducerStoreStrategyBuilder<T>
         {
             var result = builder.AddStorageStrategy(Local, targetType, filter);
 
-            ValueTask<IProducerStorageStrategy> Local(ILogger logger)
+            IProducerStorageStrategy Local(ILogger logger)
             {
                 var factory = S3RepositoryFactory.Create(logger, client);
-                var repo = factory.Get(options);
+                var repo = factory.Get(options ?? S3Options.Default);
                 var strategy = new S3ProducerStorageStrategy(repo);
-                return strategy.ToValueTask<IProducerStorageStrategy>();
+                return strategy;
             }
 
             return result;
@@ -87,9 +89,9 @@ namespace EventSourcing.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        public static IProducerStoreStrategyBuilder ResolveS3Storage(
+        public static IProducerIocStoreStrategyBuilder ResolveS3Storage(
             this IProducerIocStoreStrategyBuilder builder,
-            S3Options options = default,
+            S3Options? options = null,
             EventBucketCategories targetType = EventBucketCategories.All,
             Predicate<string>? filter = null)
         {
@@ -98,12 +100,13 @@ namespace EventSourcing.Backbone
 
             if (s3Client != null)
             {
-                IProducerStoreStrategyBuilder injectionResult = builder.AddS3Storage(s3Client, options, targetType, filter);
+                var injectionResult = 
+                    builder.AddS3Storage(s3Client, options, targetType, filter);
                 logger?.LogInformation("Producer, Resolving AWS S3 via IAmazonS3 injection (might be via profile)");
                 return injectionResult;
             }
             logger?.LogInformation("Producer, Resolving AWS S3 via environment variable");
-            IProducerStoreStrategyBuilder envVarResult = builder.AddS3Storage(options, targetType, filter);
+            var envVarResult = builder.AddS3Storage(options, targetType, filter);
             return envVarResult;
         }
     }

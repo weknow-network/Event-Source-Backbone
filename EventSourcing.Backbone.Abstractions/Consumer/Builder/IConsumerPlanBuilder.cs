@@ -19,7 +19,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the storage strategy factories.
         /// </summary>
-        ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>> StorageStrategyFactories { get; }
+        ImmutableArray<Func<ILogger, IConsumerStorageStrategyWithFilter>> StorageStrategyFactories { get; }
 
         /// <summary>
         /// Builds the plan.

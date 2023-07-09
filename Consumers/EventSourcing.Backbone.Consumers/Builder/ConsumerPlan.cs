@@ -19,7 +19,6 @@ namespace EventSourcing.Backbone
     public class ConsumerPlan : IConsumerPlan, IConsumerPlanBuilder
     {
         public static readonly ConsumerPlan Empty = new ConsumerPlan();
-        private static readonly Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> EMPTY_STORAGE_STRATEGIES = Task.FromResult(ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty);
 
         #region Ctor
 
@@ -72,7 +71,7 @@ namespace EventSourcing.Backbone
             string? consumerGroup = null,
             string? consumerName = null,
             AsyncPolicy? resiliencePolicy = null,
-            Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>? storageStrategyFactories = null,
+            Func<ILogger, IConsumerStorageStrategyWithFilter>? storageStrategyFactories = null,
             IServiceProvider? serviceProvider = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
@@ -91,7 +90,7 @@ namespace EventSourcing.Backbone
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
-            StorageStrategiesAsync = copyFrom.StorageStrategiesAsync;
+            StorageStrategies = copyFrom.StorageStrategies;
             if (cancellation == null)
                 Cancellation = copyFrom.Cancellation;
             else
@@ -139,7 +138,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the storage strategy.
         /// </summary>
-        public ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>> StorageStrategyFactories { get; } = ImmutableArray<Func<ILogger, Task<IConsumerStorageStrategyWithFilter>>>.Empty;
+        public ImmutableArray<Func<ILogger, IConsumerStorageStrategyWithFilter>> StorageStrategyFactories { get; } = ImmutableArray<Func<ILogger, IConsumerStorageStrategyWithFilter>>.Empty;
 
         #endregion // StorageStrategyFactories
 
@@ -148,7 +147,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the storage strategies.
         /// </summary>
-        public Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> StorageStrategiesAsync { get; init; } = EMPTY_STORAGE_STRATEGIES;
+        public ImmutableArray<IConsumerStorageStrategyWithFilter> StorageStrategies { get; init; } = ImmutableArray<IConsumerStorageStrategyWithFilter>.Empty;
 
         #endregion // StorageStrategiesAsync
 
@@ -351,7 +350,8 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
-        internal ConsumerPlan WithStorageStrategy(Func<ILogger, Task<IConsumerStorageStrategyWithFilter>> storageStrategy)
+        internal ConsumerPlan WithStorageStrategy(
+            Func<ILogger, IConsumerStorageStrategyWithFilter> storageStrategy)
         {
             return new ConsumerPlan(this, storageStrategyFactories: storageStrategy);
         }
@@ -572,14 +572,14 @@ namespace EventSourcing.Backbone
             var channel = ChannelFactory(Logger);
             var plan = new ConsumerPlan(this, channel: channel)
             {
-                StorageStrategiesAsync = LocalAsync()
+                StorageStrategies = LocalAsync()
             };
 
             return plan;
 
-            async Task<ImmutableArray<IConsumerStorageStrategyWithFilter>> LocalAsync()
+            ImmutableArray<IConsumerStorageStrategyWithFilter> LocalAsync()
             {
-                var strategies = await Task.WhenAll(StorageStrategyFactories.Select(m => m(Logger)));
+                var strategies = StorageStrategyFactories.Select(m => m(Logger));
                 return ImmutableArray.CreateRange(strategies);
             }
         }

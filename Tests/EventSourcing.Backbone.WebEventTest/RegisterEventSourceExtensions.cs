@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.Configuration
             this IServiceCollection services,
             Env env)
         {
-            var s3Options = new S3Options { Bucket = "event-sourcing-web" };
+            var s3Options = new S3ConsumerOptions { Bucket = "event-sourcing-web" };
             services.AddSingleton(ioc =>
             {
                 IRawProducer producer = ioc.ResolveRedisProducerChannel()

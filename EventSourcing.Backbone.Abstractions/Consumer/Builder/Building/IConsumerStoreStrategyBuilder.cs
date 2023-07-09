@@ -7,7 +7,15 @@ namespace EventSourcing.Backbone.Building
     /// <summary>
     /// storage configuration.
     /// </summary>
-    public interface IConsumerStoreStrategyBuilder : IConsumerOptionsBuilder
+    public interface IConsumerStoreStrategyBuilder : IConsumerStoreStrategyBuilder<IConsumerStoreStrategyBuilder>
+    {
+    }
+
+    /// <summary>
+    /// storage configuration.
+    /// </summary>
+    public interface IConsumerStoreStrategyBuilder<T> : IConsumerOptionsBuilder
+        where T : IConsumerStoreStrategyBuilder<T>
     {
         /// <summary>
         /// Adds the storage strategy (Segment / Interceptions).
@@ -18,8 +26,8 @@ namespace EventSourcing.Backbone.Building
         /// <param name="storageStrategy">Storage strategy provider.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        IConsumerStoreStrategyBuilder AddStorageStrategyFactory(
-            Func<ILogger, ValueTask<IConsumerStorageStrategy>> storageStrategy,
+        T AddStorageStrategyFactory(
+            Func<ILogger, IConsumerStorageStrategy> storageStrategy,
             EventBucketCategories targetType = EventBucketCategories.All);
     }
 }

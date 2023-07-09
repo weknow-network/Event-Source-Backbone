@@ -1,5 +1,7 @@
 ﻿using System.Threading.Channels;
 
+using Microsoft.Extensions.Logging;
+
 namespace EventSourcing.Backbone
 {
 
@@ -36,21 +38,23 @@ namespace EventSourcing.Backbone
                     Func<Announcement, IAck, ValueTask<bool>> func,
                     CancellationToken cancellationToken)
         {
-            ConsumerOptions options = plan.Options;
             while (!_channel.Reader.Completion.IsCompleted &&
                    !cancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     var announcement = await _channel.Reader.ReadAsync(cancellationToken);
-                    foreach (var strategy in await plan.StorageStrategiesAsync)
+                    foreach (var strategy in plan.StorageStrategies)
                     {
                         await strategy.LoadBucketAsync(announcement.Metadata, Bucket.Empty, EventBucketCategories.Segments, m => string.Empty);
                         await strategy.LoadBucketAsync(announcement.Metadata, Bucket.Empty, EventBucketCategories.Interceptions, m => string.Empty);
                     }
                     await func(announcement, Ack.Empty);
                 }
-                catch (ChannelClosedException) { }
+                catch (ChannelClosedException) 
+                {
+                    plan.Logger.LogWarning("Channel closed: {uri}", plan.FullUri());
+                }
             }
         }
 

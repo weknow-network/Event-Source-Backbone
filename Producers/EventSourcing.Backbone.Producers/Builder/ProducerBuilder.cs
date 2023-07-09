@@ -13,6 +13,7 @@ namespace EventSourcing.Backbone
     public class ProducerBuilder :
         IProducerBuilder,
         IProducerHooksBuilder,
+        IProducerStoreStrategyBuilder,
         IProducerIocStoreStrategyBuilder
     {
 
@@ -157,17 +158,33 @@ namespace EventSourcing.Backbone
         /// <param name="targetType">Type of the target.</param>
         /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
-        IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder.AddStorageStrategy(
-                                            Func<ILogger, ValueTask<IProducerStorageStrategy>> storageStrategy,
+        IProducerIocStoreStrategyBuilder IProducerStoreStrategyBuilder<IProducerIocStoreStrategyBuilder>.AddStorageStrategy(
+            Func<ILogger, IProducerStorageStrategy> storageStrategy,
+            EventBucketCategories targetType, 
+            Predicate<string>? filter)
+        {
+            return AddStorageStrategy(storageStrategy, targetType, filter);
+        }
+
+        IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder<IProducerStoreStrategyBuilder>.AddStorageStrategy(
+                                            Func<ILogger, IProducerStorageStrategy> storageStrategy,
+                                            EventBucketCategories targetType,
+                                            Predicate<string>? filter)
+        {
+            return AddStorageStrategy(storageStrategy, targetType, filter);
+        }
+
+        private ProducerBuilder AddStorageStrategy(
+                                            Func<ILogger, IProducerStorageStrategy> storageStrategy,
                                             EventBucketCategories targetType,
                                             Predicate<string>? filter)
         {
             var prms = Plan.WithStorageStrategy(Local);
             return new ProducerBuilder(prms);
 
-            async Task<IProducerStorageStrategyWithFilter> Local(ILogger logger)
+            IProducerStorageStrategyWithFilter Local(ILogger logger)
             {
-                var strategy = await storageStrategy(logger);
+                var strategy = storageStrategy(logger);
                 var decorated = new FilteredStorageStrategy(strategy, filter, targetType);
                 return decorated;
             }
@@ -606,7 +623,6 @@ namespace EventSourcing.Backbone
             /// <returns></returns>
             public async ValueTask Produce(Announcement data)
             {
-                var strategies = await _plan.StorageStrategiesAsync;
                 Metadata metadata = data.Metadata;
                 Metadata meta = metadata;
                 if (!(_options?.KeepOriginalMeta ?? false))
@@ -621,7 +637,7 @@ namespace EventSourcing.Backbone
                     };
                 }
                 data = data with { Metadata = meta };
-                await _plan.Channel.SendAsync(_plan, data, strategies);
+                await _plan.Channel.SendAsync(_plan, data);
             }
         }
 
