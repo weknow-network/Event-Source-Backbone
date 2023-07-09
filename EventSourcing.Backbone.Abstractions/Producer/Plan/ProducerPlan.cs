@@ -123,13 +123,18 @@ namespace EventSourcing.Backbone
 
 
         #endregion // StorageStrategyFactories
+
+        #region StorageStrategies
+
         /// <summary>
         /// Gets the storage strategy.
         /// By design the stream should hold minimal information while the main payload 
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategiesAsync { get; init; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategies { get; init; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+
+        #endregion // StorageStrategies
 
         #region Logger
 
@@ -438,7 +443,7 @@ namespace EventSourcing.Backbone
                 var channel = ChannelFactory(Logger);
                 var plan = new ProducerPlan(this, channel: channel)
                 {
-                    StorageStrategiesAsync = Local()
+                    StorageStrategies = Local()
                 };
                 return plan;
             }
@@ -452,7 +457,7 @@ namespace EventSourcing.Backbone
 
             return new ProducerPlan(this, forwardPlans: ImmutableList.CreateRange(fws))
             {
-                StorageStrategiesAsync = Local()
+                StorageStrategies = Local()
             };
 
             ImmutableArray<IProducerStorageStrategyWithFilter> Local()

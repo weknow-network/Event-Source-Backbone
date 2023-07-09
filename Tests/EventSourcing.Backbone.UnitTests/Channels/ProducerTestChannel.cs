@@ -34,13 +34,12 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="plan">The plan.</param>
         /// <param name="payload">The payload.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
         public async ValueTask<string> SendAsync(
             IProducerPlan plan,
-            Announcement payload,
-            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
+            Announcement payload)
         {
+            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy = plan.StorageStrategies;
             foreach (var strategy in storageStrategy)
             {
                 await strategy.SaveBucketAsync(payload.Metadata.MessageId, payload.Segments, EventBucketCategories.Segments, payload.Metadata);

@@ -623,7 +623,6 @@ namespace EventSourcing.Backbone
             /// <returns></returns>
             public async ValueTask Produce(Announcement data)
             {
-                var strategies = _plan.StorageStrategiesAsync;
                 Metadata metadata = data.Metadata;
                 Metadata meta = metadata;
                 if (!(_options?.KeepOriginalMeta ?? false))
@@ -638,7 +637,7 @@ namespace EventSourcing.Backbone
                     };
                 }
                 data = data with { Metadata = meta };
-                await _plan.Channel.SendAsync(_plan, data, strategies);
+                await _plan.Channel.SendAsync(_plan, data);
             }
         }
 

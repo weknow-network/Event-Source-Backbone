@@ -17,12 +17,12 @@ using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone.Channels.RedisProvider;
 
-internal class RedisProducerChannel : IProducerChannelProvider
+/// <summary>
+/// Redis producer channel provider
+/// </summary>
+internal class RedisProducerChannel : ProducerChannelBase
 {
-    private readonly ILogger _logger;
-    private readonly AsyncPolicy _resiliencePolicy;
     private readonly IEventSourceRedisConnectionFactory _connFactory;
-    private readonly IProducerStorageStrategy _defaultStorageStrategy;
     private const string META_SLOT = "__<META>__";
 
     private static readonly Counter<int> ProduceEventsCounter = EMeter.CreateCounter<int>("evt-src.sys.produce.events", "count",
@@ -39,154 +39,114 @@ internal class RedisProducerChannel : IProducerChannelProvider
     public RedisProducerChannel(
                     IEventSourceRedisConnectionFactory redisFactory,
                     ILogger logger,
-                    AsyncPolicy? resiliencePolicy)
+                    AsyncPolicy? resiliencePolicy) : base(logger, resiliencePolicy)
     {
         _connFactory = redisFactory;
-        _logger = logger;
-        _resiliencePolicy = resiliencePolicy ??
-                            Policy.Handle<Exception>()
-                                  .RetryAsync(3);
-        _defaultStorageStrategy = new RedisHashStorageStrategy(_connFactory, logger);
+        DefaultStorageStrategy = new RedisHashStorageStrategy(_connFactory, logger);
     }
 
 
     #endregion // Ctor
 
+    #region DefaultStorageStrategy
+
+    /// <summary>
+    /// Gets the default storage strategy.
+    /// </summary>
+    protected override IProducerStorageStrategy DefaultStorageStrategy { get; }
+
+    #endregion // DefaultStorageStrategy
+
+    #region ChannelType
+
+    /// <summary>
+    /// Gets the type of the channel.
+    /// </summary>
+    protected override string ChannelType { get; } = CHANNEL_TYPE;
+
+    #endregion // ChannelType
+
     #region SendAsync
 
     /// <summary>
-    /// Sends raw announcement.
+    /// Sends announcement.
+    /// Happens right after saving into the storage
     /// </summary>
     /// <param name="plan">The plan.</param>
     /// <param name="payload">The raw announcement data.</param>
-    /// <param name="storageStrategy">The storage strategy.</param>
+    /// <param name="storageMeta">The storage meta information, like the bucket name in case of s3, etc.</param>
     /// <returns>
     /// Return the message id
     /// </returns>
-    public async ValueTask<string> SendAsync(
-        IProducerPlan plan,
-        Announcement payload,
-        ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy)
+    protected async override ValueTask<string> OnSendAsync(
+                IProducerPlan plan,
+                Announcement payload,
+                IImmutableDictionary<string, string> storageMeta)
     {
         Metadata meta = payload.Metadata;
         string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
-        using var activity = plan.StartTraceInformation($"producer.{meta.Operation}.process",
-                                            tagsAction: t => t.Add("env", env)
-                                                            .Add("uri", uri)
-                                                            .Add("message-id", id));
 
-        #region var entries = new NameValueEntry[]{...}
+        #region var entries = ...
 
         string metaJson = JsonSerializer.Serialize(meta, EventSourceOptions.SerializerOptions);
 
         // local method 
         NameValueEntry KV(RedisValue key, RedisValue value) => new NameValueEntry(key, value);
         ImmutableArray<NameValueEntry> commonEntries = ImmutableArray.Create(
-            KV(nameof(meta.MessageId), id),
-            KV(nameof(meta.Operation), meta.Operation),
             KV(nameof(meta.ProducedAt), meta.ProducedAt.ToUnixTimeSeconds()),
-            KV(nameof(meta.ChannelType), CHANNEL_TYPE),
-            KV(nameof(meta.Origin), meta.Origin.ToString()),
             KV(META_SLOT, metaJson)
         );
 
-        #endregion // var entries = new NameValueEntry[]{...}
-
-        RedisValue messageId = await _resiliencePolicy.ExecuteAsync(LocalStreamAddAsync);
-
-        return (string?)messageId ?? "0000000000000-0";
-
-        #region LocalStreamAddAsync
-
-        async Task<RedisValue> LocalStreamAddAsync()
+        var telemetryBuilder = commonEntries.ToBuilder();
+        foreach (var item in storageMeta)
         {
-            await Task.WhenAll(LocalStoreBucketAsync(EventBucketCategories.Segments),
-                               LocalStoreBucketAsync(EventBucketCategories.Interceptions))
-                       .ThrowAll();
+            telemetryBuilder.Add(KV(item.Key, item.Value));
+        }
+        Activity.Current?.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
+        var entries = telemetryBuilder.ToArray();
 
-            var telemetryBuilder = commonEntries.ToBuilder();
-            using Activity? activity = plan.StartProducerTrace(meta);
-            activity.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
-            var entries = telemetryBuilder.ToArray();
+        #endregion // var entries = ...
 
-            try
-            {
-                IConnectionMultiplexer conn = await _connFactory.GetAsync(CancellationToken.None);
-                IDatabaseAsync db = conn.GetDatabase();
-                // using var scope = SuppressInstrumentationScope.Begin();
-                var k = meta.FullUri();
-                ProduceEventsCounter.WithTag("uri", uri).WithTag("env", env).Add(1);
-                var result = await db.StreamAddAsync(k, entries,
-                                               flags: CommandFlags.DemandMaster);
-                return result;
-            }
-            #region Exception Handling
+        try
+        {
+            IConnectionMultiplexer conn = await _connFactory.GetAsync(CancellationToken.None);
+            IDatabaseAsync db = conn.GetDatabase();
+            var k = meta.FullUri();
+            var result = await db.StreamAddAsync(k, entries,
+                                           flags: CommandFlags.DemandMaster);
+            return (string)result!;
+        }
+        #region Exception Handling
 
-            catch (RedisConnectionException ex)
-            {
-                _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                    meta.MessageId, env, uri, meta.Operation);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Fail to push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                    meta.MessageId, env, uri, meta.Operation);
-                throw;
-            }
-
-            #endregion // Exception Handling
-
-            #region ValueTask StoreBucketAsync(StorageType storageType) // local function
-
-            async Task LocalStoreBucketAsync(EventBucketCategories storageType)
-            {
-                var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
-                Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
-                if (strategies.Any())
-                {
-                    foreach (var strategy in strategies)
-                    {
-                        await SaveBucketAsync(strategy);
-                    }
-                }
-                else
-                {
-                    await SaveBucketAsync(_defaultStorageStrategy);
-                }
-
-                async ValueTask SaveBucketAsync(IProducerStorageStrategy strategy)
-                {
-                    using (plan.StartTraceDebug($"producer.{strategy.Name}-storage.{storageType}.set"))
-                    {
-                        IImmutableDictionary<string, string> metaItems =
-                        await strategy.SaveBucketAsync(id, bucket, storageType, meta);
-                        foreach (var item in metaItems)
-                        {
-                            commonEntries = commonEntries.Add(KV(item.Key, item.Value));
-                        }
-                    }
-                }
-            }
-
-            #endregion // ValueTask StoreBucketAsync(StorageType storageType) // local function
-
-            #region LocalInjectTelemetry
-
-            void LocalInjectTelemetry(
-                            ImmutableArray<NameValueEntry>.Builder builder,
-                            string key,
-                            string value)
-            {
-                builder.Add(KV(key, value));
-            }
-
-            #endregion // LocalInjectTelemetry
+        catch (RedisConnectionException ex)
+        {
+            _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{env}:{URI}] stream: {operation}",
+                meta.MessageId, env, uri, meta.Operation);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Fail to push event [{id}] into the [{env}:{URI}] stream: {operation}",
+                meta.MessageId, env, uri, meta.Operation);
+            throw;
         }
 
-        #endregion // LocalStreamAddAsync
+        #endregion // Exception Handling
+
+        #region LocalInjectTelemetry
+
+        void LocalInjectTelemetry(
+                        ImmutableArray<NameValueEntry>.Builder builder,
+                        string key,
+                        string value)
+        {
+            builder.Add(KV(key, value));
+        }
+
+        #endregion // LocalInjectTelemetry
+
     }
 
     #endregion // SendAsync

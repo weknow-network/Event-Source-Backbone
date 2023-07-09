@@ -14,13 +14,11 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="plan">The builder's plan.</param>
         /// <param name="payload">The raw announcement data.</param>
-        /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns>
         /// Return the message id
         /// </returns>
         ValueTask<string> SendAsync(
             IProducerPlan plan,
-            Announcement payload,
-            ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy);
+            Announcement payload);
     }
 }
