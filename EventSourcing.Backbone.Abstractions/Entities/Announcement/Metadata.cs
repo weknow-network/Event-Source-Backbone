@@ -12,7 +12,7 @@ namespace EventSourcing.Backbone
      /// Unlike the segments, this part can be flow with
      /// message & will be set as async-context.]]> 
      /// </summary>
-    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, Target:{Environment}:{Uri}, EventKey:{EventKey}")]
+    [DebuggerDisplay("{Operation} [{MessageId}]: Origin={Origin}, Target={Environment}={Uri}, EventKey={EventKey}, StorageTypes={StorageTypes}")]
     public record Metadata
     {
         #region MessageId
@@ -116,6 +116,16 @@ namespace EventSourcing.Backbone
         public string ChannelType { get; init; } = string.Empty;
 
         #endregion ChannelType 
+
+        #region StorageTypes
+
+        /// <summary>
+        /// Gets the storage types which having values.
+        /// By setting it into the metadata at the producer side, we reduce IO by ignoring fetching an empty buckets.
+        /// </summary>
+        public EventBucketCategories StorageTypes { get; init; } = EventBucketCategories.None;
+
+        #endregion // StorageTypes
 
         #region ToString
 

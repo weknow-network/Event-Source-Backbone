@@ -91,6 +91,8 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
         Announcement payload)
     {
         Metadata meta = payload.Metadata;
+        // TODO: [bnaya 2023-07-10] Make it relevant within `OnSendAsync`: meta = meta with { ChannelType = ChannelType };
+
         string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
@@ -169,6 +171,10 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
             var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
             Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
             IImmutableDictionary<string, string> storageMetaInfo = ImmutableDictionary<string, string>.Empty;
+
+            if (bucket.IsEmpty)
+                return ImmutableDictionary<string, string>.Empty;
+
             if (strategies.Any())
             {
                 var tasks = strategies.Select(strategy => SaveBucketAsync(strategy));

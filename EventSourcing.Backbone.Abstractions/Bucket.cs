@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ using static EventSourcing.Backbone.EventSourceConstants;
 
 namespace EventSourcing.Backbone;
 
+[DebuggerDisplay("IsEmpty={IsEmpty}")]
 public class Bucket : IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>>
 {
     /// <summary>
@@ -159,6 +161,18 @@ public class Bucket : IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>>
     }
 
     #endregion // RemoveRange
+
+    #region IsEmpty
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is empty.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is empty; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsEmpty => _data.Count == 0;
+
+    #endregion // IsEmpty
 
     #region ContainsKey
 
