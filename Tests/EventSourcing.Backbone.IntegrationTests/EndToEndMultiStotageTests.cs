@@ -191,8 +191,8 @@ namespace EventSourcing.Backbone.Tests
             #region IEventFlow producer = ...
 
             IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannel()
-                                .AddS3Storage(OPTIONS)
                                 .AddRedisHashStorage(timeToLive: TimeSpan.FromMicroseconds(1))
+                                .AddS3Storage(OPTIONS)
                                 .Environment(ENV)
                                 //.WithOptions(producerOption)
                                 .Uri(URI)
