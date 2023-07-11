@@ -27,6 +27,7 @@ namespace EventSourcing.Backbone
             Predicate<string>? filter = null);
     }
 
+
     /// <summary>
     /// storage configuration.
     /// </summary>

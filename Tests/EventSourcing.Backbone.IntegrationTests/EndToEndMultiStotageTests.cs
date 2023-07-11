@@ -192,7 +192,7 @@ namespace EventSourcing.Backbone.Tests
 
             IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannel()
                                 .AddS3Storage(OPTIONS)
-                                .AddRedisHashStorage()
+                                .AddRedisHashStorage(timeToLive: TimeSpan.FromMicroseconds(1))
                                 .Environment(ENV)
                                 //.WithOptions(producerOption)
                                 .Uri(URI)
@@ -207,6 +207,7 @@ namespace EventSourcing.Backbone.Tests
 
             await SendSequenceAsync(producer);
 
+            await Task.Delay(40);
             snapshot = sw.Elapsed - snapshot;
             _outputHelper.WriteLine($"Produce = {snapshot:mm\\:ss\\.ff}");
             snapshot = sw.Elapsed;
