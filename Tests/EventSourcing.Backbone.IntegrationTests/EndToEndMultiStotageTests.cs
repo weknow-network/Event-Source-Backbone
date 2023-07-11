@@ -124,7 +124,7 @@ namespace EventSourcing.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             IConsumerSubscribeBuilder builder = ConsumerBuilder.Empty.UseRedisChannel()
-                         .AddRedisStorage()
+                         .AddRedisHashStorage()
                          .AddS3Storage(OPTIONS)
                          .WithOptions(o => consumerOptions)
                              .WithCancellation(cancellation)
@@ -223,7 +223,7 @@ namespace EventSourcing.Backbone.Tests
 
             IConsumerSubscribeBuilder builder = ConsumerBuilder.Empty.UseRedisChannel()
                          .AddStorageStrategyFactory(logger => fakeStorageFirst)
-                         .AddRedisStorage()
+                         .AddRedisHashStorage()
                          .AddS3Storage(OPTIONS)
                          .AddStorageStrategyFactory(logger => fakeStorageLast)
                          .WithOptions(o => consumerOptions)

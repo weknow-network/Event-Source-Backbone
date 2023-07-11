@@ -246,7 +246,7 @@ public static class RedisConsumerBuilder
 
     #endregion // UseRedisChannel
 
-    #region AddRedisStorage
+    #region AddRedisHashStorage
 
     /// <summary>
     /// Uses REDIS consumer storage.
@@ -254,7 +254,7 @@ public static class RedisConsumerBuilder
     /// <param name="builder">The builder.</param>
     /// <param name="redisConfiguration">The redis configuration.</param>
     /// <returns></returns>
-    public static IConsumerStoreStrategyBuilder AddRedisStorage(
+    public static IConsumerStoreStrategyBuilder AddRedisHashStorage(
                         this IConsumerStoreStrategyBuilder builder,
                         ConfigurationOptions? redisConfiguration = null)
     {
@@ -279,13 +279,13 @@ public static class RedisConsumerBuilder
     /// <param name="builder">The builder.</param>
     /// <param name="credentialsKeys">Environment keys of the credentials</param>
     /// <returns></returns>
-    public static IConsumerStoreStrategyBuilder AddRedisStorage(
+    public static IConsumerStoreStrategyBuilder AddRedisHashStorage(
                         this IConsumerStoreStrategyBuilder builder,
                         RedisCredentialsEnvKeys credentialsKeys,
                         Action<ConfigurationOptions>? configurationHook = null)
     {
         var configuration = credentialsKeys.CreateConfigurationOptions(configurationHook);
-        var channelBuilder = builder.AddRedisStorage(configuration);
+        var channelBuilder = builder.AddRedisHashStorage(configuration);
         return channelBuilder;
     }
 
@@ -295,7 +295,7 @@ public static class RedisConsumerBuilder
     /// <param name="builder">The builder.</param>
     /// <param name="redisClientFactory">The redis client factory.</param>
     /// <returns></returns>
-    internal static IConsumerStoreStrategyBuilder AddRedisStorage(
+    internal static IConsumerStoreStrategyBuilder AddRedisHashStorage(
                         this IConsumerStoreStrategyBuilder builder,
                         IEventSourceRedisConnectionFactory redisClientFactory)
     {
@@ -309,13 +309,17 @@ public static class RedisConsumerBuilder
         }
     }
 
+    #endregion // AddRedisHashStorage
+
+    #region ResolveRedisHashStorage
+
     /// <summary>
     /// Uses REDIS consumer storage.
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <returns></returns>
     /// <exception cref="System.ArgumentNullException">redisClient</exception>
-    public static IConsumerIocStoreStrategyBuilder ResolveRedisStorage(
+    public static IConsumerIocStoreStrategyBuilder ResolveRedisHashStorage(
                         this IConsumerIocStoreStrategyBuilder builder)
     {
         var channelBuilder = builder.AddStorageStrategyFactory(LocalCreate);
@@ -332,5 +336,5 @@ public static class RedisConsumerBuilder
         }
     }
 
-    #endregion // AddRedisStorage
+    #endregion // ResolveRedisHashStorage
 }

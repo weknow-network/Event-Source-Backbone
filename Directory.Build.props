@@ -10,6 +10,10 @@
 			Breaking changes: registration extensions was re-module
 			# 1.2.121
 			Open Telemetry
+			# 1.2.146
+			Breaking changes:
+			- AddRedisStorage - renamed -> AddRedisHashStorage
+			- ResolveRedisStorage - renamed -> ResolveRedisHashStorage
 		</PackageReleaseNotes>
 	</PropertyGroup>
 	

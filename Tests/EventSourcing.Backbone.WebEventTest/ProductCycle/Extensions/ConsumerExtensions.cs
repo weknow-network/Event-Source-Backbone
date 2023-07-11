@@ -27,7 +27,7 @@ public static class ConsumerExtensions
         {
             IConsumerReadyBuilder consumer =
                         ioc.ResolveRedisConsumerChannel()
-                            .ResolveRedisStorage()
+                            .ResolveRedisHashStorage()
                             .ResolveS3Storage(s3Options)
                             .WithOptions(o => o with
                             {
