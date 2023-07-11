@@ -27,11 +27,12 @@ public static class ProductCycleProducerExtensions
         {
             ILogger logger = ioc.GetService<ILogger<Program>>() ?? throw new EventSourcingException("Logger is missing");
             IProductCycleProducer producer = ioc.ResolveRedisProducerChannel()
-                                   .ResolveS3Storage(s3Options)
-                                 .Environment(env)
-                                 .Uri(uri)
-                                 .WithLogger(logger)
-                                 .BuildProductCycleProducer();
+                                .ResolveRedisHashStorage()
+                                .ResolveS3Storage(s3Options)
+                                .Environment(env)
+                                .Uri(uri)
+                                .WithLogger(logger)
+                                .BuildProductCycleProducer();
             return producer;
         });
 

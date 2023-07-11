@@ -26,7 +26,7 @@ namespace EventSourcing.Backbone.Channels.RedisProvider;
 /// <summary>
 /// The redis consumer channel.
 /// </summary>
-internal class RedisConsumerChannel : IConsumerChannelProvider
+internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvider
 {
     private static readonly Counter<int> StealCountCounter = EMeter.CreateCounter<int>("evt-src.sys.consumer.events-stealing", "count",
                                                                                 "Attempt to get stale events (messages) from other consumer (which assumed malfunction)");
@@ -53,7 +53,6 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
     /// </summary>
     private const int READ_BY_ID_ITERATIONS = 1000 / READ_BY_ID_CHUNK_SIZE;
 
-    private readonly ILogger _logger;
     private readonly RedisConsumerChannelSetting _setting;
     private readonly IEventSourceRedisConnectionFactory _connFactory;
     private readonly IConsumerStorageStrategy _defaultStorageStrategy;
@@ -63,22 +62,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
     #region Ctor
 
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    /// <param name="redisConnFactory">The redis provider promise.</param>
-    /// <param name="logger">The logger.</param>
-    /// <param name="setting">The setting.</param>
-    public RedisConsumerChannel(
-                    IEventSourceRedisConnectionFactory redisConnFactory,
-                    ILogger logger,
-                    RedisConsumerChannelSetting? setting = null)
-    {
-        _logger = logger;
-        _connFactory = redisConnFactory;
-        _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory, logger);
-        _setting = setting ?? RedisConsumerChannelSetting.Default;
-    }
+    #region Overloads
 
     /// <summary>
     /// Initializes a new instance.
@@ -143,67 +127,26 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
     {
     }
 
-    #endregion // Ctor
-
-    #region SubsribeAsync
+    #endregion // Overloads
 
     /// <summary>
-    /// Subscribe to the channel for specific metadata.
+    /// Initializes a new instance.
     /// </summary>
-    /// <param name="plan">The consumer plan.</param>
-    /// <param name="func">The function.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// When completed
-    /// </returns>
-    public async ValueTask SubscribeAsync(
-                IConsumerPlan plan,
-                Func<Announcement, IAck, ValueTask<bool>> func,
-                CancellationToken cancellationToken)
+    /// <param name="redisConnFactory">The redis provider promise.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="setting">The setting.</param>
+    public RedisConsumerChannel(
+                    IEventSourceRedisConnectionFactory redisConnFactory,
+                    ILogger logger,
+                    RedisConsumerChannelSetting? setting = null)
+        : base(logger)
     {
-        var joinCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(plan.Cancellation, cancellationToken);
-        var joinCancellation = joinCancellationSource.Token;
-        ConsumerOptions options = plan.Options;
-
-        ILogger? logger = _logger ?? plan.Logger;
-        logger.LogInformation("REDIS EVENT-SOURCE | SUBSCRIBE key: [{key}], consumer-group: [{consumer-group}], consumer-name: [{consumer-name}]", plan.FullUri(), plan.ConsumerGroup, plan.ConsumerName);
-
-        while (!joinCancellation.IsCancellationRequested)
-        {
-            try
-            {
-                await SubsribeToSingleAsync(plan, func, options, joinCancellation);
-                // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by partial uri * pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
-
-                if (options.FetchUntilUnixDateOrEmpty != null)
-                    break;
-            }
-            #region Exception Handling
-
-            catch (OperationCanceledException)
-            {
-                if (_logger == null)
-                    Console.WriteLine($"Subscribe cancellation [{plan.FullUri()}] event stream (may have reach the messages limit)");
-                else
-                    _logger.LogError("Subscribe cancellation [{uri}] event stream (may have reach the messages limit)",
-                        plan.Uri);
-                joinCancellationSource.CancelSafe();
-            }
-            catch (Exception ex)
-            {
-                if (_logger == null)
-                    Console.WriteLine($"Fail to subscribe into the [{plan.FullUri()}] event stream");
-                else
-                    _logger.LogError(ex, "Fail to subscribe into the [{uri}] event stream",
-                        plan.Uri);
-                throw;
-            }
-
-            #endregion // Exception Handling
-        }
+        _connFactory = redisConnFactory;
+        _defaultStorageStrategy = new RedisHashStorageStrategy(redisConnFactory, logger);
+        _setting = setting ?? RedisConsumerChannelSetting.Default;
     }
 
-    #endregion // SubsribeAsync
+    #endregion // Ctor
 
     #region SubsribeToSingleAsync
 
@@ -214,7 +157,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
     /// <param name="func">The function.</param>
     /// <param name="options">The options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private async Task SubsribeToSingleAsync(
+    protected override async Task OnSubsribeToSingleAsync(
                 IConsumerPlan plan,
                 Func<Announcement, IAck, ValueTask<bool>> func,
                 ConsumerOptions options,
@@ -310,51 +253,8 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                 for (; i < results.Length && !batchCancellation.IsCancellationRequested; i++)
                 {
                     StreamEntry result = results[i];
-                    #region Metadata meta = ...
 
-                    Dictionary<RedisValue, RedisValue> channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
-
-                    Metadata meta;
-                    string? metaJson = channelMeta[META_SLOT];
-                    string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
-                    if (string.IsNullOrEmpty(metaJson))
-                    { // backward comparability
-
-                        string channelType = ((string?)channelMeta[nameof(MetadataExtensions.Empty.ChannelType)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.ChannelType));
-
-                        if (channelType != CHANNEL_TYPE)
-                        {
-                            // TODO: [bnaya 2021-07] send metrics
-                            logger.LogWarning($"{nameof(RedisConsumerChannel)} [{CHANNEL_TYPE}] omit handling message of type '{channelType}'");
-                            await AckAsync(result.Id);
-                            continue;
-                        }
-
-                        string id = ((string?)channelMeta[nameof(MetadataExtensions.Empty.MessageId)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.MessageId));
-                        string operation = ((string?)channelMeta[nameof(MetadataExtensions.Empty.Operation)]) ?? throw new EventSourcingException(nameof(MetadataExtensions.Empty.Operation));
-                        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-                        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-                        if (fetchUntil != null && string.Compare(fetchUntil, result.Id) < 0)
-                            return false;
-                        meta = new Metadata
-                        {
-                            MessageId = id,
-                            EventKey = eventKey,
-                            Environment = plan.Environment,
-                            Uri = plan.Uri,
-                            Operation = operation,
-                            ProducedAt = producedAt
-                        };
-
-                    }
-                    else
-                    {
-                        meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
-                        meta = meta with { EventKey = eventKey };
-
-                    }
-
-                    #endregion // Metadata meta = ...
+                    Metadata meta = ExtractMetadata(result, out var channelMeta);
 
                     ActivityContext parentContext = EventSourceTelemetryExtensions.ExtractSpan(channelMeta, ExtractTraceContext);
                     using var activity = plan.StartConsumerTrace(meta, parentContext);
@@ -858,7 +758,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
             #region var announcement = new Announcement(...)
 
-            Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
+            var meta = ExtractMetadata(entry, out var channelMeta);
             string channelType = GetMeta(nameof(MetadataExtensions.Empty.ChannelType));
             string id = GetMeta(nameof(MetadataExtensions.Empty.MessageId));
             string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
@@ -876,18 +776,6 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
             #endregion // string GetMeta(string propKey)
 
             DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-#pragma warning disable CS8601 // Possible null reference assignment.
-            var meta = new Metadata
-            {
-                MessageId = id,
-                EventKey = entry.Id,
-                Environment = plan.Environment,
-                Uri = plan.Uri,
-                Operation = operation,
-                ProducedAt = producedAt,
-                ChannelType = channelType
-            };
-#pragma warning restore CS8601 // Possible null reference assignment.
 
             (Bucket segmets, Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
@@ -989,24 +877,7 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
 
             #region var announcement = new Announcement(...)
 
-            Dictionary<RedisValue, RedisValue> channelMeta = entry.Values.ToDictionary(m => m.Name, m => m.Value);
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable CS8601 // Possible null reference assignment.
-            string id = channelMeta[nameof(MetadataExtensions.Empty.MessageId)];
-            string operation = channelMeta[nameof(MetadataExtensions.Empty.Operation)];
-            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-            var meta = new Metadata
-            {
-                MessageId = id,
-                EventKey = entry.Id,
-                Environment = plan.Environment,
-                Uri = plan.Uri,
-                Operation = operation,
-                ProducedAt = producedAt
-            };
-#pragma warning restore CS8601 // Possible null reference assignment.
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            var meta = ExtractMetadata(entry, out var channelMeta);
             var filter = options?.OperationFilter;
             if (filter != null && !filter(meta))
                 continue;
@@ -1085,8 +956,16 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
                                         Dictionary<RedisValue, RedisValue> channelMeta,
                                         Metadata meta)
     {
-        ValueTask<Bucket> segmetsTask = GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments);
-        ValueTask<Bucket> interceptionsTask = GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions);
+        ValueTask<Bucket> segmetsTask = (meta.StorageTypes & EventBucketCategories.Segments) switch
+        {
+            EventBucketCategories.None => Bucket.Empty.ToValueTask(),
+            _ => GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Segments)
+        };
+        ValueTask<Bucket> interceptionsTask = (meta.StorageTypes & EventBucketCategories.Interceptions) switch
+        {
+            EventBucketCategories.None => Bucket.Empty.ToValueTask(),
+            _ => GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions)
+        }; 
         Bucket segmets = await segmetsTask;
         Bucket interceptions = await interceptionsTask;
         return (segmets, interceptions);
@@ -1142,6 +1021,32 @@ internal class RedisConsumerChannel : IConsumerChannelProvider
     }
 
     #endregion // Task<Bucket> GetBucketAsync(StorageType storageType) // local function
+
+    #region ExtractMetadata
+
+    /// <summary>
+    /// Extracts the metadata.
+    /// </summary>
+    /// <param name="result">The result.</param>
+    /// <param name="channelMeta">The channel meta.</param>
+    /// <returns></returns>
+    /// <exception cref="System.ArgumentException">EventKey</exception>
+    /// <exception cref="EventSourcing.Backbone.EventSourcingException">Metadata</exception>
+    private static Metadata ExtractMetadata(StreamEntry result, out Dictionary<RedisValue, RedisValue> channelMeta)
+    {
+        Metadata meta;
+        channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
+        string? metaJson = channelMeta[META_SLOT];
+        string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
+        meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
+      
+        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
+        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
+        meta = meta with { EventKey = eventKey, ProducedAt = producedAt };
+        return meta;
+    }
+
+    #endregion // ExtractMetadata
 
     #region DelayIfEmpty
 

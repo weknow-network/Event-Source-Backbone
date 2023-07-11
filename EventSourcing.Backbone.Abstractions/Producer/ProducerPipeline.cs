@@ -243,6 +243,14 @@
                                             payload,
                                             interceptorsData);
 
+            var storageTypes = metadata.StorageTypes;
+            if (!payload.IsEmpty)
+                storageTypes = storageTypes | EventBucketCategories.Segments;
+            if (!interceptorsData.IsEmpty)
+                storageTypes = storageTypes | EventBucketCategories.Interceptions;
+            if (storageTypes != metadata.StorageTypes)
+                metadata = metadata with { StorageTypes = storageTypes };
+
             var announcement = new Announcement
             {
                 Metadata = metadata,

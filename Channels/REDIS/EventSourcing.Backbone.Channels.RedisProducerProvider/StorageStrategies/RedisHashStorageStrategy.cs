@@ -17,6 +17,7 @@ namespace EventSourcing.Backbone.Channels
     {
         private readonly IEventSourceRedisConnectionFactory _connFactory;
         private readonly ILogger _logger;
+        private readonly TimeSpan? _timeToLive;
 
         #region Ctor
 
@@ -25,12 +26,19 @@ namespace EventSourcing.Backbone.Channels
         /// </summary>
         /// <param name="connFactory">The connection factory.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="timeToLive">
+        /// Time to live (TTL) which will be attached to each entity.
+        /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
+        /// Setting this property to no-null value will make the storage ephemeral.
+        /// </param>
         public RedisHashStorageStrategy(
                         IEventSourceRedisConnectionFactory connFactory,
-                        ILogger logger)
+                        ILogger logger, 
+                        TimeSpan? timeToLive = null)
         {
             _connFactory = connFactory;
             _logger = logger;
+            _timeToLive = timeToLive;
         }
 
         #endregion // Ctor
@@ -69,6 +77,8 @@ namespace EventSourcing.Backbone.Channels
                                                 .ToArray();
                 var key = $"{meta.FullUri()}:{type}:{id}";
                 await db.HashSetAsync(key, segmentsEntities);
+                if(_timeToLive != null)
+                    await db.KeyExpireAsync(key, _timeToLive);
 
                 return ImmutableDictionary<string, string>.Empty;
             }

@@ -50,6 +50,7 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     /// <param name="prevBucket">The current bucket (previous item in the chain).</param>
     /// <param name="type">The type of the storage.</param>
     /// <param name="getProperty">The get property.</param>
+    /// <param name="cancellation">The cancellation.</param>
     /// <returns>
     /// Either Segments or Interceptions.
     /// </returns>
@@ -80,7 +81,7 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
 #pragma warning disable CS8620
         var pairs = entities
                         .Select(m => (Key: (string)m.Name, Value: (byte[])m.Value))
-                        .Where(m => !prevBucket.ContainsKey(m.Key!))
+                        //.Where(m => !prevBucket.ContainsKey(m.Key!))
                         .Where(m => _keysFilter?.Invoke(m.Key!) ?? true);
         var results = prevBucket.TryAddRange(pairs);
 #pragma warning restore CS8620
