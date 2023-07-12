@@ -15,7 +15,7 @@
 		<ProjectReference Include="..\..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="AWSSDK.S3" Version="3.7.107" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.107.5" />
 		<PackageReference Include="Bnaya.Extensions.Json" Version="5.1.159" />
 	</ItemGroup>
 	<ItemGroup>
