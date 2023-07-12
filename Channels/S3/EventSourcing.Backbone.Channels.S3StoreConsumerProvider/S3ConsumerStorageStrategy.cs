@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using EventSourcing.Backbone.Channels;
 
@@ -91,10 +90,10 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
 
         async Task<(string key, byte[] value)?> LocalFetchAsync(KeyValuePair<string, string> item)
         {
-            var (key, value ) = item;
+            var (key, value) = item;
 
             // avoid overriding existing keys
-            if(prevBucket.ContainsKey(key))
+            if (prevBucket.ContainsKey(key))
                 return null;
 
             string path = value;

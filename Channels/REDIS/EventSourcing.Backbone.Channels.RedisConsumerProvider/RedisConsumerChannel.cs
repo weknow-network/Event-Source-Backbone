@@ -4,8 +4,6 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
-using Bnaya.Extensions.Common.Disposables;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider.Common;
 using EventSourcing.Backbone.Consumers;
@@ -16,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using static System.Math;
-using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
 using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 // TODO: [bnaya 2021-07] MOVE TELEMETRY TO THE BASE CLASSES OF PRODUCER / CONSUME
@@ -157,7 +154,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
     /// <param name="func">The function.</param>
     /// <param name="options">The options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task OnSubsribeToSingleAsync(
+    protected override async Task OnSubscribeToSingleAsync(
                 IConsumerPlan plan,
                 Func<Announcement, IAck, ValueTask<bool>> func,
                 ConsumerOptions options,
@@ -202,11 +199,11 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         //using ("consumer.loop".StartTrace(ActivityKind.Server))
         //{
         while (!cancellationToken.IsCancellationRequested)
-            {
-                var proceed = await HandleBatchAsync();
-                if (!proceed)
-                    break;
-            }
+        {
+            var proceed = await HandleBatchAsync();
+            if (!proceed)
+                break;
+        }
         //}
 
         #region HandleBatchAsync
@@ -468,7 +465,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
             if (!isFirstBatchOrFailure)
                 return values;
 
-            using var _ = plan.StartTraceVerbose( "consumer.self-pending");
+            using var _ = plan.StartTraceVerbose("consumer.self-pending");
 
             IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellationToken);
             IDatabaseAsync db = conn.GetDatabase();
@@ -528,7 +525,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
             if (values.Length != 0) return values;
             if (emptyBatchCount < claimingTrigger.EmptyBatchCount)
                 return values;
-            using var _ = plan.StartTraceVerbose( "consumer.stale-events");
+            using var _ = plan.StartTraceVerbose("consumer.stale-events");
             try
             {
                 IDatabaseAsync db = await _connFactory.GetDatabaseAsync(ct);
@@ -697,7 +694,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                                           flags: CommandFlags.DemandMaster);
                 }
                 using (plan.StartTraceVerbose("consumer.release.delay",
-                                              tagsAction:  t => PrepareTrace(t).Add("delay", releaseDelay)))
+                                              tagsAction: t => PrepareTrace(t).Add("delay", releaseDelay)))
                 {
                     // let other potential consumer the chance of getting ownership
                     await Task.Delay(releaseDelay, cancellationToken);
@@ -882,7 +879,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
             if (filter != null && !filter(meta))
                 continue;
 
-            (Bucket segmets ,Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
+            (Bucket segmets, Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
             var announcement = new Announcement
             {
@@ -965,7 +962,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         {
             EventBucketCategories.None => Bucket.Empty.ToValueTask(),
             _ => GetBucketAsync(plan, channelMeta, meta, EventBucketCategories.Interceptions)
-        }; 
+        };
         Bucket segmets = await segmetsTask;
         Bucket interceptions = await interceptionsTask;
         return (segmets, interceptions);
@@ -997,7 +994,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         {
             foreach (var strategy in strategies)
             {
-                using (plan.StartTraceDebug( $"consumer.{strategy.Name}-storage.{storageType}.get"))
+                using (plan.StartTraceDebug($"consumer.{strategy.Name}-storage.{storageType}.get"))
                 {
                     bucket = await strategy.LoadBucketAsync(meta, bucket, storageType, LocalGetProperty);
                 }
@@ -1039,7 +1036,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         string? metaJson = channelMeta[META_SLOT];
         string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
         meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
-      
+
         long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
         DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
         meta = meta with { EventKey = eventKey, ProducedAt = producedAt };

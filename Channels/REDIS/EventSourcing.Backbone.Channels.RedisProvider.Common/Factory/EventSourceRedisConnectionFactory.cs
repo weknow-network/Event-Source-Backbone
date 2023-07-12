@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using System.Net;
 
 using Microsoft.Extensions.Logging;
 

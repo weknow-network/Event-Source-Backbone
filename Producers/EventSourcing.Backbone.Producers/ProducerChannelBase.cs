@@ -184,12 +184,12 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
                     metaBuilder.AddRange(m);
                 }
                 var result = metaBuilder.ToImmutable();
-                return result; 
+                return result;
             }
             else
             {
                 var result = await SaveBucketAsync(DefaultStorageStrategy);
-                return result;  
+                return result;
             }
 
             async Task<IImmutableDictionary<string, string>> SaveBucketAsync(IProducerStorageStrategy storage)

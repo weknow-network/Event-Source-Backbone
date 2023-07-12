@@ -5,7 +5,6 @@ using EventSourcing.Backbone.Channels.RedisProvider;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using StackExchange.Redis;
 
@@ -270,7 +269,7 @@ public static class RedisConsumerBuilder
                 throw new RedisConnectionException(ConnectionFailureType.None, $"{nameof(IEventSourceRedisConnectionFactory)} is not registered, use services.{nameof(RedisDiExtensions.AddEventSourceRedisConnection)} in order to register it at Setup stage.");
             var storage = new RedisHashStorageStrategy(connFactory, logger);
             return storage;
-        }        
+        }
     }
 
     /// <summary>

@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 using EventSourcing.Backbone.Building;
 
 using FakeItEasy;

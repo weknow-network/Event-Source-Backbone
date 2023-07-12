@@ -37,7 +37,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
         /// <returns></returns>
-        public static  IConsumerBuilder Create(IServiceProvider serviceProvider) => new ConsumerBuilder(serviceProvider);
+        public static IConsumerBuilder Create(IServiceProvider serviceProvider) => new ConsumerBuilder(serviceProvider);
 
         #region Ctor
 

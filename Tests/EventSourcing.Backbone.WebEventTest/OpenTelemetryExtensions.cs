@@ -1,7 +1,4 @@
-using System.Diagnostics;
-
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 // see:
@@ -48,13 +45,13 @@ internal static class OpenTelemetryExtensions
                                 {
                                     // m.Enrich
                                     m.RecordException = true;
-                                    m.FilterHttpRequestMessage = m => 
+                                    m.FilterHttpRequestMessage = m =>
                                     {
                                         // remove it to record s3 tracing
                                         //if (m.RequestUri?.Host == "s3.amazonaws.com")
                                         //    return false;
                                         return true;
-                                    };                                
+                                    };
                                 })
                                 .AddGrpcClientInstrumentation()
                                 .AddOtlpExporter();

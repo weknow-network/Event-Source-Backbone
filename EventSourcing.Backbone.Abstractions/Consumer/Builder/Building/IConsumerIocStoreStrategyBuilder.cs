@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace EventSourcing.Backbone.Building
+﻿namespace EventSourcing.Backbone.Building
 {
     /// <summary>
     /// storage configuration with IoC.

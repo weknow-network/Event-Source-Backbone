@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using Microsoft.Extensions.Logging;
-
 namespace EventSourcing.Backbone
 {
 

@@ -118,9 +118,9 @@ namespace EventSourcing.Backbone.Channels
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        IS3Repository IS3RepositoryFactory.Get(S3Options options)
+        IS3Repository IS3RepositoryFactory.Get(S3Options? options)
         {
-            var repo = _cache.GetOrAdd(options, CreateInternal);
+            var repo = _cache.GetOrAdd(options ?? S3Options.Default, CreateInternal);
             repo.AddReference();
             return repo;
         }
@@ -135,7 +135,7 @@ namespace EventSourcing.Backbone.Channels
         /// <param name="options">The options.</param>
         /// <returns></returns>
         private S3Repository CreateInternal(
-            S3Options options = default)
+            S3Options? options = null)
         {
             return new S3Repository(_client, _logger, options);
         }

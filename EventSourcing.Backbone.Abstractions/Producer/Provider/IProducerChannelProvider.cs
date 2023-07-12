@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Channel provider responsible for passing the actual message 

@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        IS3Repository Get(S3Options options = default);
+        IS3Repository Get(S3Options? options = null);
     }
 }

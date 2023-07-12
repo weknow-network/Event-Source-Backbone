@@ -67,7 +67,7 @@ namespace EventSourcing.Backbone
         /// Formats the specified environment into convention + dash.
         /// </summary>
         /// <returns></returns>
-        public string DashFormat() 
+        public string DashFormat()
         {
             if (string.IsNullOrEmpty(_dashFormat))
                 _dashFormat = Format().ToDash();

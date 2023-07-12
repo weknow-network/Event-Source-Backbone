@@ -43,7 +43,7 @@ namespace EventSourcing.Backbone.Tests
                 .AddVoidStrategy();
 
             _sourceConsumerBuilder = ConsumerBuilder.Empty.UseRedisChannel(credentialsKeys: new RedisCredentialsEnvKeys { Endpoint = SOURCE_KEY })
-                                        .AddS3Storage(new S3ConsumerOptions { Bucket = "evt-src-storage", EnvironmentConvension = S3EnvironmentConvention.BucketPrefix });
+                                        .AddS3Storage(new S3ConsumerOptions { Bucket = "evt-src-storage", EnvironmentConvention = S3EnvironmentConvention.BucketPrefix });
         }
 
         #endregion // Ctor

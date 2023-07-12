@@ -73,10 +73,10 @@ namespace EventSourcing.Backbone.Channels
             try
             {
                 IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> query = bucket;
-                if(_filter != null)
+                if (_filter != null)
                     query = query.Where(kv => _filter(meta, kv.Key));
 
-                var result = await OnSaveBucketAsync(id, query, type, meta, cancellation);  
+                var result = await OnSaveBucketAsync(id, query, type, meta, cancellation);
                 return result;
             }
             catch (Exception ex)

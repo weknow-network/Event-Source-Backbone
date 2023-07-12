@@ -1,6 +1,5 @@
 using System.Threading.Channels;
 
-using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;
@@ -48,7 +47,7 @@ namespace EventSourcing.Backbone
         {
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
-                        .AddStorageStrategy(l => _producerStorageStrategy) 
+                        .AddStorageStrategy(l => _producerStorageStrategy)
                         .Uri("Kids:HappySocks")
                         .BuildSequenceOperationsProducer();
 

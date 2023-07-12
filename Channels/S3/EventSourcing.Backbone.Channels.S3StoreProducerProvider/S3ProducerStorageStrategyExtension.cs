@@ -99,9 +99,9 @@ namespace EventSourcing.Backbone
             this T builder,
             IAmazonS3 client,
             Func<Metadata, string, bool> filterByOperationAndKey,
-            S3Options? options = null )
+            S3Options? options = null)
                 where T : IProducerStoreStrategyBuilder<T>
-        { 
+        {
             return builder.AddS3Storage<T>(client, options, filterByOperationAndKey);
         }
 
@@ -181,7 +181,7 @@ namespace EventSourcing.Backbone
 
             if (s3Client != null)
             {
-                var injectionResult = 
+                var injectionResult =
                     builder.AddS3Storage(s3Client, options, behavior);
                 logger?.LogInformation("Producer, Resolving AWS S3 via IAmazonS3 injection (might be via profile)");
                 return injectionResult;

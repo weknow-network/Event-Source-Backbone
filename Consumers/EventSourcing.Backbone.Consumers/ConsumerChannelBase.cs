@@ -1,20 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-
-using Bnaya.Extensions.Common.Disposables;
-
-using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Consumers;
-using EventSourcing.Backbone.Private;
-
-using Microsoft.Extensions.Logging;
-
-
-using static System.Math;
-using static EventSourcing.Backbone.Private.EventSourceTelemetry;
+﻿using Microsoft.Extensions.Logging;
 
 namespace EventSourcing.Backbone.Private;
 
@@ -30,10 +14,8 @@ public abstract class ConsumerChannelBase // : IConsumerChannelProvider
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
-    /// <param name="redisConnFactory">The redis provider promise.</param>
     /// <param name="logger">The logger.</param>
-    /// <param name="setting">The setting.</param>
-    public ConsumerChannelBase(ILogger logger)
+    protected ConsumerChannelBase(ILogger logger)
     {
         _logger = logger;
     }
@@ -67,7 +49,7 @@ public abstract class ConsumerChannelBase // : IConsumerChannelProvider
         {
             try
             {
-                await OnSubsribeToSingleAsync(plan, func, options, joinCancellation);
+                await OnSubscribeToSingleAsync(plan, func, options, joinCancellation);
                 // TODO: [bnaya 2023-05-22] think of the api for multi stream subscription (by partial uri * pattern) ->  var keys = GetKeysUnsafeAsync(pattern: $"{partition}:*").WithCancellation(cancellationToken)
 
                 if (options.FetchUntilUnixDateOrEmpty != null)
@@ -100,7 +82,7 @@ public abstract class ConsumerChannelBase // : IConsumerChannelProvider
 
     #endregion // SubsribeAsync
 
-    #region SubsribeToSingleAsync
+    #region OnSubscribeToSingleAsync
 
     /// <summary>
     /// Subscribe to specific shard.
@@ -109,12 +91,12 @@ public abstract class ConsumerChannelBase // : IConsumerChannelProvider
     /// <param name="func">The function.</param>
     /// <param name="options">The options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected abstract Task OnSubsribeToSingleAsync(
+    protected abstract Task OnSubscribeToSingleAsync(
                 IConsumerPlan plan,
                 Func<Announcement, IAck, ValueTask<bool>> func,
                 ConsumerOptions options,
                 CancellationToken cancellationToken);
 
 
-    #endregion // SubsribeToSingleAsync
+    #endregion // OnSubscribeToSingleAsync
 }

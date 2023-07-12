@@ -71,7 +71,7 @@ namespace EventSourcing.Backbone.Private
                         using (plan.StartTraceDebug("consumer.delay.key-not-exists",
                                             tagsAction: t => PrepareTrace(t)
                                                             .Add("delay", delay)
-                                                            .Add("try-number", tryNumber))) 
+                                                            .Add("try-number", tryNumber)))
                         {
                             await Task.Delay(delay);
                         }
@@ -142,7 +142,7 @@ namespace EventSourcing.Backbone.Private
                     {
                         using (plan.StartTraceDebug("consumer.create-consumer-group",
                                             tagsAction: t => PrepareTrace(t)
-                                                            .Add("try-number", tryNumber))) 
+                                                            .Add("try-number", tryNumber)))
                         {
                             using var lk = await _lock.AcquireAsync(cancellationToken);
                             if (await db.StreamCreateConsumerGroupAsync(fullUri,

@@ -23,7 +23,7 @@ namespace EventSourcing.Backbone
         /// <returns>
         ///   <c>true</c> if is of category; otherwise, <c>false</c>.
         /// </returns>
-        bool IsOfCategory (EventBucketCategories category);
+        bool IsOfCategory(EventBucketCategories category);
 
         /// <summary>
         /// Saves the bucket information.

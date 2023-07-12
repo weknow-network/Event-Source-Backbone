@@ -25,7 +25,7 @@ public record ProducerStorageBehavior
     /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
     /// Setting this property to no-null value will make the storage ephemeral.
     /// </summary>
-    public TimeSpan? timeToLive { get; init; } 
+    public TimeSpan? timeToLive { get; init; }
 
     #region Cast overloads
 

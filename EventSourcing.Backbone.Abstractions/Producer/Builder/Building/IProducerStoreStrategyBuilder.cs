@@ -3,8 +3,6 @@ using EventSourcing.Backbone.Building;
 
 using Microsoft.Extensions.Logging;
 
-using Polly;
-
 namespace EventSourcing.Backbone;
 
 /// <summary>

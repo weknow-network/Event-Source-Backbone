@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
+
 using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone;
@@ -101,12 +102,8 @@ public static class EventSourceTelemetryExtensions
         // See:
         //   * https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#messaging-attributes
 
-        var levels = plan.Options.TelemetryLevel;
         activity?.SetTag("evt-src.env", plan.Environment);
         activity?.SetTag("evt-src.uri", plan.Uri);
-
-        //activity?.SetTag("evt-src.trace-level", levels.Trace);
-        //activity?.SetTag("evt-src.metrics-level", levels.Metric);
 
         if (meta != null)
         {
@@ -140,10 +137,11 @@ public static class EventSourceTelemetryExtensions
     /// <summary>
     /// Starts the trace error.
     /// </summary>
-    /// <param name="name">The name.</param>
     /// <param name="activitySource">The activity source.</param>
+    /// <param name="name">The name.</param>
     /// <param name="tagsAction">The tags action.</param>
     /// <param name="metadata">The metadata.</param>
+    /// <param name="kind">The kind.</param>
     /// <returns></returns>
     public static Activity? StartTrace(this ActivitySource activitySource,
                                         string name,
@@ -268,7 +266,7 @@ public static class EventSourceTelemetryExtensions
     /// <param name="tagsAction">The tags action.</param>
     /// <param name="metadata">The metadata.</param>
     /// <returns></returns>
-    public static Activity? StartTraceDebug(this  IPlanBase plan,
+    public static Activity? StartTraceDebug(this IPlanBase plan,
                                         string name,
                                         ActivitySource? activitySource = null,
                                         Action<ITagAddition>? tagsAction = null,

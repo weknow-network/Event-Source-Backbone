@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using Microsoft.Extensions.Logging;
-
 using Polly;
 
 namespace EventSourcing.Backbone
@@ -10,7 +8,7 @@ namespace EventSourcing.Backbone
     /// <summary>
     /// Common plan properties
     /// </summary>
-    public interface IConsumerPlanBase : IPlanRoute, IPlanBase
+    public interface IConsumerPlanBase : IPlanBase
     {
         /// <summary>
         /// Gets the consumer group.
@@ -35,13 +33,9 @@ namespace EventSourcing.Backbone
         /// </value>
         IImmutableList<IConsumerAsyncInterceptor> Interceptors { get; }
         /// <summary>
-        /// Gets the logger.
-        /// </summary>
-        ILogger Logger { get; }
-        /// <summary>
         /// Gets the configuration.
         /// </summary>
-        ConsumerOptions Options { get; }
+        new ConsumerOptions Options { get; }
         /// <summary>
         /// Segmentation responsible of splitting an instance into segments.
         /// Segments is how the Consumer sending its raw data to

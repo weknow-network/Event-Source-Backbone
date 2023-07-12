@@ -1,13 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 
-using Amazon.Runtime.Internal.Util;
-
-using EventSourcing.Backbone.Channels;
-
-using microsoft = Microsoft.Extensions.Logging;
-
 using static EventSourcing.Backbone.EventSourceConstants;
+
+using MS = Microsoft.Extensions.Logging;
 
 
 namespace EventSourcing.Backbone.Channels
@@ -31,16 +27,14 @@ namespace EventSourcing.Backbone.Channels
         /// </summary>
         /// <param name="s3Repository">S3 repository.
         /// Use S3Factory in order to create it (will create one if missing).
-        /// S3Factory will read credentials from the following environment variables: "S3_ACCESS_KEY", "S3_SECRET", "S3_REGION".
-        /// </param>
-        /// <param name="behavior">
-        /// Define the storage behavior
+        /// S3Factory will read credentials from the following environment variables: "S3_ACCESS_KEY", "S3_SECRET", "S3_REGION".</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="behavior">Define the storage behavior
         /// Useful when having multi storage configuration.
-        /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
-        /// </param>
+        /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.</param>
         public S3ProducerStorageStrategy(
                         IS3Repository s3Repository,
-                        microsoft.ILogger logger,
+                        MS.ILogger logger,
                         StorageBehavior? behavior = null)
                             : base(logger, behavior)
         {
@@ -59,7 +53,7 @@ namespace EventSourcing.Backbone.Channels
         /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
         /// </param>
         public S3ProducerStorageStrategy(
-                        microsoft.ILogger logger,
+                        MS.ILogger logger,
                         S3Options? options = null,
                         IS3RepositoryFactory? factory = null,
                         StorageBehavior? behavior = null)
@@ -94,10 +88,10 @@ namespace EventSourcing.Backbone.Channels
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         protected override async ValueTask<IImmutableDictionary<string, string>> OnSaveBucketAsync(
-                                string id, 
-                                IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket, 
+                                string id,
+                                IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket,
                                 EventBucketCategories type,
-                                Metadata meta, 
+                                Metadata meta,
                                 CancellationToken cancellation)
         {
             var date = DateTime.UtcNow;
@@ -113,7 +107,8 @@ namespace EventSourcing.Backbone.Channels
             {
                 var (key, data) = pair;
                 string path = $"{basePath}/{key}";
-                var response = await _repository.SaveAsync(data, meta.Environment, path, cancellation: cancellation);
+                await _repository.SaveAsync(data, meta.Environment, path, cancellation: cancellation);
+
                 return new KeyValuePair<string, string>(key, path);
             }
         }

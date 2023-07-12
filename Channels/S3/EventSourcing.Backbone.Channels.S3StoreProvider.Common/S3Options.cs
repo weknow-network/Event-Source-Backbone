@@ -11,7 +11,7 @@
         {
             Bucket = null;
             BasePath = null;
-            EnvironmentConvension = S3EnvironmentConvention.BucketPrefix;
+            EnvironmentConvention = S3EnvironmentConvention.BucketPrefix;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@
         /// <summary>
         /// Environment convention's options
         /// </summary>
-        public S3EnvironmentConvention EnvironmentConvension { get; init; }
+        public S3EnvironmentConvention EnvironmentConvention { get; init; }
 
         /// <summary>
         /// Indicating whether to avoid actual writing (dry run).

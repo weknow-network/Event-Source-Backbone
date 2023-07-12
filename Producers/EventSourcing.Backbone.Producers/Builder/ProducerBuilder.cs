@@ -68,7 +68,7 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Gets the producer's plan.
         /// </summary>
-        public ProducerPlan Plan { get; init;  } = ProducerPlan.Empty;
+        public ProducerPlan Plan { get; init; } = ProducerPlan.Empty;
 
         #endregion // Plan
 

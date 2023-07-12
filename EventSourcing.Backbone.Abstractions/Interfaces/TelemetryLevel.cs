@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using Polly;
-
 namespace EventSourcing.Backbone;
 
 /// <summary>
@@ -30,7 +28,7 @@ public record TelemetryLevel
     /// </returns>
     public static implicit operator TelemetryLevel(LogLevel level)
     {
-        return new TelemetryLevel {  Metric = level, Trace = level };
+        return new TelemetryLevel { Metric = level, Trace = level };
     }
 
     #endregion // Cast overloads

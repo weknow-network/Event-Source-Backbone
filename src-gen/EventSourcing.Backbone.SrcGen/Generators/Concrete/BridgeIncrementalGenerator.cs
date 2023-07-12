@@ -331,15 +331,6 @@ namespace EventSourcing.Backbone
         {
             var symbol = info.Symbol;
             var kind = info.Kind;
-            var hash = new HashSet<string>();
-            hash.Add("using EventSourcing.Backbone.Building;");
-            builder.AppendLine("\tusing EventSourcing.Backbone.Building;");
-            foreach (var u in usingStatements)
-            {
-                if (hash.Contains(u))
-                    continue;
-                builder.AppendLine(u);
-            }
 
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&

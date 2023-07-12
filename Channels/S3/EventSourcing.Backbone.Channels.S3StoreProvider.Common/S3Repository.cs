@@ -44,14 +44,14 @@ namespace EventSourcing.Backbone.Channels
         public S3Repository(
                     IAmazonS3 client,
                     ILogger logger,
-                    S3Options options = default)
+                    S3Options? options = null)
         {
             _client = client;
             _logger = logger;
-            _bucket = options.Bucket ?? BUCKET;
-            _basePath = options.BasePath;
-            _environmentConvension = options.EnvironmentConvension;
-            _dryRun = options.DryRun;
+            _bucket = options?.Bucket ?? BUCKET;
+            _basePath = options?.BasePath;
+            _environmentConvension = options?.EnvironmentConvention ?? S3EnvironmentConvention.BucketPrefix;
+            _dryRun = options?.DryRun ?? false;
         }
 
         #endregion // Ctor

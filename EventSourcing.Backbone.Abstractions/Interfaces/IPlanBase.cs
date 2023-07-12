@@ -5,7 +5,7 @@ namespace EventSourcing.Backbone;
 /// <summary>
 /// Plan routing identification
 /// </summary>
-public interface IPlanBase: IPlanRoute
+public interface IPlanBase : IPlanRoute
 {
     /// <summary>
     /// Gets the configuration.

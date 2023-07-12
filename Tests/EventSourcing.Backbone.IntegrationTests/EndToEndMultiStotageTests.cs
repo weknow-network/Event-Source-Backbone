@@ -43,7 +43,7 @@ namespace EventSourcing.Backbone.Tests
 
         private static readonly S3ConsumerOptions OPTIONS = new S3ConsumerOptions
         {
-            EnvironmentConvension = S3EnvironmentConvention.BucketPrefix,
+            EnvironmentConvention = S3EnvironmentConvention.BucketPrefix,
             BasePath = "tests"
         };
 
@@ -263,17 +263,17 @@ namespace EventSourcing.Backbone.Tests
             A.CallTo(() => _subscriber.Stage2Async(A<ConsumerMetadata>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeStorageFirst.LoadBucketAsync(
-                                    A<Metadata>.Ignored, 
-                                    A<Bucket>.Ignored, 
-                                    EventBucketCategories.Segments, 
-                                    A<Func<string, string>>.Ignored, 
+                                    A<Metadata>.Ignored,
+                                    A<Bucket>.Ignored,
+                                    EventBucketCategories.Segments,
+                                    A<Func<string, string>>.Ignored,
                                     A<CancellationToken>.Ignored))
                         .MustHaveHappenedTwiceExactly(); // 2 operations 
             A.CallTo(() => fakeStorageLast.LoadBucketAsync(
-                                    A<Metadata>.Ignored, 
+                                    A<Metadata>.Ignored,
                                     A<Bucket>.Ignored,
                                     EventBucketCategories.Segments,
-                                    A<Func<string, string>>.Ignored, 
+                                    A<Func<string, string>>.Ignored,
                                     A<CancellationToken>.Ignored))
                         .MustHaveHappenedTwiceExactly(); // 2 operations 
 

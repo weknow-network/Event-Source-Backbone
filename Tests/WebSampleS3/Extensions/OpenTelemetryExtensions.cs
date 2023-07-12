@@ -1,6 +1,4 @@
-﻿using EventSourcing.Backbone;
-
-using OpenTelemetry.Metrics;
+﻿using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
 // see:
@@ -70,20 +68,20 @@ internal static class OpenTelemetryExtensions
     /// </summary>
     /// <param name="ctx">The CTX.</param>
     /// <returns></returns>
-    private static bool TraceFilter(HttpContext ctx) 
+    private static bool TraceFilter(HttpContext ctx)
+    {
+        return ctx.Request.Path.Value switch
         {
-            return ctx.Request.Path.Value switch
-            {
-                "/health" => false,
-                "/readiness" => false,
-                "/metrics" => false,
-                string x when x.StartsWith("https://s3.amazonaws.com") => false,
-                string x when x.StartsWith("/swagger") => false,
-                string x when x.StartsWith("/_framework/") => false,
-                string x when x.StartsWith("/_vs/") => false,
-                _ => true
-            };
-        }
+            "/health" => false,
+            "/readiness" => false,
+            "/metrics" => false,
+            string x when x.StartsWith("https://s3.amazonaws.com") => false,
+            string x when x.StartsWith("/swagger") => false,
+            string x when x.StartsWith("/_framework/") => false,
+            string x when x.StartsWith("/_vs/") => false,
+            _ => true
+        };
+    }
 
     #endregion // TraceFilter
 }

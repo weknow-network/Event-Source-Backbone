@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace EventSourcing.Backbone;
+﻿namespace EventSourcing.Backbone;
 
 public record S3ConsumerOptions : S3Options
 {

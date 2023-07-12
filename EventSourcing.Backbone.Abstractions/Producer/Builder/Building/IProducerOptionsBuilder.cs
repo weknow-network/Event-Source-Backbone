@@ -14,6 +14,6 @@
         /// <summary>
         /// Apply configuration.
         /// </summary>
-        IProducerEnvironmentBuilder WithOptions(Func<EventSourceOptions, EventSourceOptions>  options);
+        IProducerEnvironmentBuilder WithOptions(Func<EventSourceOptions, EventSourceOptions> options);
     }
 }

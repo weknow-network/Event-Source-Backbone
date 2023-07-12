@@ -1,8 +1,10 @@
-﻿using StackExchange.Redis;
+﻿using System.Reflection;
+
 using OpenTelemetry;
-using OpenTelemetry.Trace;
-using System.Reflection;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+using StackExchange.Redis;
 
 namespace EventSourcing.Backbone;
 
@@ -11,7 +13,7 @@ namespace EventSourcing.Backbone;
 /// </summary>
 public static class RedisExtensions
 {
-    private static readonly AssemblyName ASSEMBLY = Assembly.GetEntryAssembly().GetName();
+    private static readonly AssemblyName ASSEMBLY = Assembly.GetEntryAssembly()?.GetName() ?? new AssemblyName("EventSourcing");
     public static IConnectionMultiplexer WithTelemetry(this IConnectionMultiplexer connection)
     {
         string enable = Environment.GetEnvironmentVariable("EVENT_SOURCE_WITH_REDIS_TRACE") ?? "false";

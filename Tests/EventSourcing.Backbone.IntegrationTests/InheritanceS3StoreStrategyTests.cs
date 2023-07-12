@@ -1,5 +1,3 @@
-using System.Text;
-
 using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
@@ -8,7 +6,7 @@ namespace EventSourcing.Backbone.Tests
     {
         private static readonly S3ConsumerOptions OPTIONS = new S3ConsumerOptions
         {
-            EnvironmentConvension = S3EnvironmentConvention.BucketPrefix,
+            EnvironmentConvention = S3EnvironmentConvention.BucketPrefix,
             BasePath = "tests"
         };
 

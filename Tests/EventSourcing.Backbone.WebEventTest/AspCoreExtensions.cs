@@ -3,8 +3,6 @@ using System.Text.Json.Serialization;
 
 using EventSourcing.Backbone;
 
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-
 using StackExchange.Redis;
 
 // Configuration: https://medium.com/@gparlakov/the-confusion-of-asp-net-configuration-with-environment-variables-c06c545ef732

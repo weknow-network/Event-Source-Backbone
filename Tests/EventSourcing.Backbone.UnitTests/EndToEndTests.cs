@@ -1,6 +1,5 @@
 using System.Threading.Channels;
 
-using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;

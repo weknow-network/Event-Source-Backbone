@@ -51,7 +51,7 @@ namespace EventSourcing.Backbone
                     }
                     await func(announcement, Ack.Empty);
                 }
-                catch (ChannelClosedException) 
+                catch (ChannelClosedException)
                 {
                     plan.Logger.LogWarning("Channel closed: {uri}", plan.FullUri());
                 }

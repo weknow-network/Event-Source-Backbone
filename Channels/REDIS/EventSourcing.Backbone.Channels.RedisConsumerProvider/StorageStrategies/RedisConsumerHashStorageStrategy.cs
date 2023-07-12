@@ -1,6 +1,4 @@
-﻿using EventSourcing.Backbone.Building;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
