@@ -55,7 +55,7 @@ namespace EventSourcing.Backbone
             IImmutableList<IProducerHooksBuilder>? routes = null,
             IImmutableList<IProducerHooksBuilder>? forwards = null,
             IImmutableList<IProducerPlan>? forwardPlans = null,
-            Func<ILogger, IProducerStorageStrategyWithFilter>? storageStrategyFactories = null,
+            Func<ILogger, IProducerStorageStrategy>? storageStrategyFactories = null,
             IServiceProvider? serviceProvider = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
@@ -118,8 +118,8 @@ namespace EventSourcing.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public ImmutableArray<Func<ILogger, IProducerStorageStrategyWithFilter>> StorageStrategyFactories { get; } =
-                                            ImmutableArray<Func<ILogger, IProducerStorageStrategyWithFilter>>.Empty;
+        public ImmutableArray<Func<ILogger, IProducerStorageStrategy>> StorageStrategyFactories { get; } =
+                                            ImmutableArray<Func<ILogger, IProducerStorageStrategy>>.Empty;
 
 
         #endregion // StorageStrategyFactories
@@ -132,7 +132,7 @@ namespace EventSourcing.Backbone
         /// is segmented and can stored outside of the stream.
         /// This pattern will help us to split data for different reasons, for example GDPR PII (personally identifiable information).
         /// </summary>
-        public ImmutableArray<IProducerStorageStrategyWithFilter> StorageStrategies { get; init; } = ImmutableArray<IProducerStorageStrategyWithFilter>.Empty;
+        public ImmutableArray<IProducerStorageStrategy> StorageStrategies { get; init; } = ImmutableArray<IProducerStorageStrategy>.Empty;
 
         #endregion // StorageStrategies
 
@@ -301,7 +301,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
         /// <returns></returns>
-        public ProducerPlan WithStorageStrategy(Func<ILogger, IProducerStorageStrategyWithFilter> storageStrategy)
+        public ProducerPlan WithStorageStrategy(Func<ILogger, IProducerStorageStrategy> storageStrategy)
         {
             return new ProducerPlan(this, storageStrategyFactories: storageStrategy);
         }
@@ -460,7 +460,7 @@ namespace EventSourcing.Backbone
                 StorageStrategies = Local()
             };
 
-            ImmutableArray<IProducerStorageStrategyWithFilter> Local()
+            ImmutableArray<IProducerStorageStrategy> Local()
             {
                 var strategies = StorageStrategyFactories.Select(m => m(Logger));
                 return ImmutableArray.CreateRange(strategies);

@@ -42,7 +42,7 @@ internal class RedisProducerChannel : ProducerChannelBase
                     AsyncPolicy? resiliencePolicy) : base(logger, resiliencePolicy)
     {
         _connFactory = redisFactory;
-        DefaultStorageStrategy = new RedisHashStorageStrategy(_connFactory, logger);
+        DefaultStorageStrategy = new RedisProducerHashStorageStrategy(_connFactory, logger);
     }
 
 

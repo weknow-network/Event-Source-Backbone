@@ -139,24 +139,24 @@ namespace EventSourcing.Backbone
         /// It important the consumer's storage will be in sync with this setting.
         /// </summary>
         /// <param name="storageStrategy">Storage strategy provider.</param>
-        /// <param name="targetType">Type of the target.</param>
+        /// <param name="category">Type of the target.</param>
         /// <returns></returns>
         IConsumerStoreStrategyBuilder IConsumerStoreStrategyBuilder<IConsumerStoreStrategyBuilder>.AddStorageStrategyFactory(
             Func<ILogger, IConsumerStorageStrategy> storageStrategy,
-            EventBucketCategories targetType)
+            EventBucketCategories category)
         {
-            return AddStorageStrategyFactory(storageStrategy, targetType);
+            return AddStorageStrategyFactory(storageStrategy, category);
         }
 
         /// <summary>
         /// Adds the storage strategy factory.
         /// </summary>
         /// <param name="storageStrategy">The storage strategy.</param>
-        /// <param name="targetType">Type of the target.</param>
+        /// <param name="category">Type of the category.</param>
         /// <returns></returns>
         private ConsumerBuilder AddStorageStrategyFactory(
             Func<ILogger, IConsumerStorageStrategy> storageStrategy,
-            EventBucketCategories targetType)
+            EventBucketCategories category)
         {
 
             var prms = _plan.WithStorageStrategy(Local);
@@ -167,7 +167,7 @@ namespace EventSourcing.Backbone
             IConsumerStorageStrategyWithFilter Local(ILogger logger)
             {
                 var strategy = storageStrategy(logger);
-                var decorated = new FilteredStorageStrategy(strategy, targetType);
+                var decorated = new FilteredStorageStrategy(strategy, category);
                 return decorated;
             }
         }

@@ -21,16 +21,9 @@ namespace EventSourcing.Backbone
         private readonly IConsumerBuilder _consumerBuilder = ConsumerBuilder.Empty;
         private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
         private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
-        // private readonly IDataSerializer _serializer;
-        private readonly IProducerInterceptor _rawInterceptor = A.Fake<IProducerInterceptor>();
-        private readonly IProducerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IProducerAsyncInterceptor>();
-        private readonly IProducerAsyncSegmentationStrategy _segmentationStrategy = A.Fake<IProducerAsyncSegmentationStrategy>();
-        private readonly IProducerSegmentationStrategy _otherSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
-        private readonly IProducerSegmentationStrategy _postSegmentationStrategy = A.Fake<IProducerSegmentationStrategy>();
         private readonly Channel<Announcement> _ch;
         private readonly ISequenceOfConsumer _subscriber = A.Fake<ISequenceOfConsumer>();
-        private readonly IProducerStorageStrategy _producerStorageStrategyA = A.Fake<IProducerStorageStrategy>();
-        private readonly IProducerStorageStrategy _producerStorageStrategyB = A.Fake<IProducerStorageStrategy>();
+        private readonly IProducerStorageStrategy _producerStorageStrategy = A.Fake<IProducerStorageStrategy>();
         private readonly IConsumerStorageStrategy _consumerStorageStrategyA = A.Fake<IConsumerStorageStrategy>();
         private readonly IConsumerStorageStrategy _consumerStorageStrategyB = A.Fake<IConsumerStorageStrategy>();
         private readonly IConsumerStorageStrategy _consumerStorageStrategyC = A.Fake<IConsumerStorageStrategy>();
@@ -48,19 +41,14 @@ namespace EventSourcing.Backbone
 
         #endregion // Ctor
 
-        #region Build_Serializer_Producer_Test
+        #region StorageStrategy_Test
 
         [Fact]
-        public async Task Build_Serializer_Producer_Test()
+        public async Task StorageStrategy_Test()
         {
-            bool LocalOnlyEmail(string key) => key == "email";
-            bool LocalAllButEmail(string key) => !LocalOnlyEmail(key);
-
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
-                        .AddStorageStrategy(l => _producerStorageStrategyA, filter: LocalOnlyEmail)
-                        .AddStorageStrategy(l => _producerStorageStrategyB, filter: LocalAllButEmail)
-                        //.WithOptions(producerOption)
+                        .AddStorageStrategy(l => _producerStorageStrategy) 
                         .Uri("Kids:HappySocks")
                         .BuildSequenceOperationsProducer();
 
@@ -91,20 +79,13 @@ namespace EventSourcing.Backbone
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _producerStorageStrategyA.SaveBucketAsync(
+            A.CallTo(() => _producerStorageStrategy.SaveBucketAsync(
                                                         A<string>.Ignored,
-                                                        A<Bucket>.That.Matches(m => m.ContainsKey("email")),
+                                                        A<Bucket>.Ignored,
                                                         A<EventBucketCategories>.Ignored,
                                                         A<Metadata>.Ignored,
                                                         A<CancellationToken>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _producerStorageStrategyB.SaveBucketAsync(
-                                                        A<string>.Ignored,
-                                                        A<Bucket>.That.Matches(m => m.ContainsKey("email")),
-                                                        A<EventBucketCategories>.Ignored,
-                                                        A<Metadata>.Ignored,
-                                                        A<CancellationToken>.Ignored))
-                .MustNotHaveHappened();
+                .MustHaveHappened(3 * 2, Times.Exactly);
             A.CallTo(() => _consumerStorageStrategyA.LoadBucketAsync(
                                                         A<Metadata>.Ignored,
                                                         A<Bucket>.Ignored,
@@ -149,6 +130,6 @@ namespace EventSourcing.Backbone
                 .MustNotHaveHappened();
         }
 
-        #endregion // Build_Serializer_Producer_Test
+        #endregion // StorageStrategy_Test
     }
 }

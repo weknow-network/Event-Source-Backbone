@@ -155,38 +155,34 @@ namespace EventSourcing.Backbone
         /// It important the consumer's storage will be in sync with this setting.
         /// </summary>
         /// <param name="storageStrategy">Storage strategy provider.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="filter">The filter of which keys in the bucket will be store into this storage.</param>
         /// <returns></returns>
         IProducerIocStoreStrategyBuilder IProducerStoreStrategyBuilder<IProducerIocStoreStrategyBuilder>.AddStorageStrategy(
-            Func<ILogger, IProducerStorageStrategy> storageStrategy,
-            EventBucketCategories targetType, 
-            Predicate<string>? filter)
+            Func<ILogger, IProducerStorageStrategy> storageStrategy)
         {
-            return AddStorageStrategy(storageStrategy, targetType, filter);
+            return AddStorageStrategy(storageStrategy);
         }
 
+        /// <summary>
+        /// Adds the storage strategy.
+        /// </summary>
+        /// <param name="storageStrategy">The storage strategy.</param>
+        /// <returns></returns>
         IProducerStoreStrategyBuilder IProducerStoreStrategyBuilder<IProducerStoreStrategyBuilder>.AddStorageStrategy(
-                                            Func<ILogger, IProducerStorageStrategy> storageStrategy,
-                                            EventBucketCategories targetType,
-                                            Predicate<string>? filter)
+                                            Func<ILogger, IProducerStorageStrategy> storageStrategy)
         {
-            return AddStorageStrategy(storageStrategy, targetType, filter);
+            return AddStorageStrategy(storageStrategy);
         }
 
         private ProducerBuilder AddStorageStrategy(
-                                            Func<ILogger, IProducerStorageStrategy> storageStrategy,
-                                            EventBucketCategories targetType,
-                                            Predicate<string>? filter)
+                                            Func<ILogger, IProducerStorageStrategy> storageStrategy)
         {
             var prms = Plan.WithStorageStrategy(Local);
             return new ProducerBuilder(prms);
 
-            IProducerStorageStrategyWithFilter Local(ILogger logger)
+            IProducerStorageStrategy Local(ILogger logger)
             {
                 var strategy = storageStrategy(logger);
-                var decorated = new FilteredStorageStrategy(strategy, filter, targetType);
-                return decorated;
+                return strategy;
             }
 
         }

@@ -24,10 +24,10 @@ namespace EventSourcing.Backbone.Building
         /// It important the consumer's storage will be in sync with this setting.
         /// </summary>
         /// <param name="storageStrategy">Storage strategy provider.</param>
-        /// <param name="targetType">Type of the target.</param>
+        /// <param name="category">Type of the target category.</param>
         /// <returns></returns>
         T AddStorageStrategyFactory(
             Func<ILogger, IConsumerStorageStrategy> storageStrategy,
-            EventBucketCategories targetType = EventBucketCategories.All);
+            EventBucketCategories category = EventBucketCategories.All);
     }
 }

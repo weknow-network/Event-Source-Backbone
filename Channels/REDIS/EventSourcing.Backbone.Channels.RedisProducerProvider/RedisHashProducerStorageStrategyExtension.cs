@@ -1,4 +1,6 @@
-﻿using EventSourcing.Backbone.Channels;
+﻿using System.Net;
+
+using EventSourcing.Backbone.Channels;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,37 +15,49 @@ namespace EventSourcing.Backbone;
 /// </summary>
 public static class RedisHashProducerStorageStrategyExtension
 {
+    #region AddRedisHashStorage
+
     /// <summary>
     /// Resolves the redis hash.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="credential">The credential.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="targetType">Type of the target.</param>
-    /// <param name="configurationHook">The configuration hook.</param>
-    /// <param name="timeToLive">
-    /// Time to live (TTL) which will be attached to each entity.
-    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
-    /// Setting this property to no-null value will make the storage ephemeral.
+    /// <param name="filterByOperationAndKey">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// The predicate signature is: (metadata, key) => bool
+    ///   the key is driven from the method parameter.
     /// </param>
     /// <returns></returns>
     public static IProducerStoreStrategyBuilder AddRedisHashStorage(
             this IProducerStoreStrategyBuilder builder,
-            IRedisCredentials credential,
-            Predicate<string>? filter = null,
-            EventBucketCategories targetType = EventBucketCategories.All,
-            Action<ConfigurationOptions>? configurationHook = null,
-            TimeSpan? timeToLive = null)
+            Func<Metadata, string, bool> filterByOperationAndKey)
     {
 
-        var result = builder.AddStorageStrategy(Local, targetType, filter);
+        var result = builder.AddRedisHashStorage((StorageBehavior)filterByOperationAndKey);
         return result;
+    }
 
-        IProducerStorageStrategy Local (ILogger logger)
+    /// <summary>
+    /// Resolves the redis hash.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="behavior">
+    /// Define the storage behavior
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
+    /// </param>
+    /// <returns></returns>
+    public static IProducerStoreStrategyBuilder AddRedisHashStorage(
+            this IProducerStoreStrategyBuilder builder,
+            StorageBehavior? behavior = null)
+    {
+
+        var result = builder.AddStorageStrategy(Local);
+        return result;
+        IProducerStorageStrategy Local(ILogger logger)
         {
-            var configuration = credential.CreateConfigurationOptions(configurationHook);
-            var connFactory = EventSourceRedisConnectionFactory.Create(logger, configuration);
-            var storage = new RedisHashStorageStrategy (connFactory, logger, timeToLive);
+            var connFactory = EventSourceRedisConnectionFactory.Create(logger);
+            var storage = new RedisProducerHashStorageStrategy(connFactory, logger, behavior);
             return storage;
         }
     }
@@ -52,9 +66,14 @@ public static class RedisHashProducerStorageStrategyExtension
     /// Resolves the redis hash.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="targetType">Type of the target.</param>
-    /// <param name="timeToLive">
+    /// <param name="credential">The credential.</param>
+    /// <param name="filterByOperationAndKey">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// The predicate signature is: (metadata, key) => bool
+    ///   the key is driven from the method parameter.
+    /// </param>
+    /// <param name="configurationHook">The configuration hook.</param>
     /// Time to live (TTL) which will be attached to each entity.
     /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
     /// Setting this property to no-null value will make the storage ephemeral.
@@ -62,17 +81,45 @@ public static class RedisHashProducerStorageStrategyExtension
     /// <returns></returns>
     public static IProducerStoreStrategyBuilder AddRedisHashStorage(
             this IProducerStoreStrategyBuilder builder,
-            Predicate<string>? filter = null,
-            EventBucketCategories targetType = EventBucketCategories.All,
-            TimeSpan? timeToLive = null)
+            IRedisCredentials credential,
+            Func<Metadata, string, bool> filterByOperationAndKey,
+            Action<ConfigurationOptions>? configurationHook = null)
+    { 
+        var result = builder.AddRedisHashStorage(credential, (StorageBehavior)filterByOperationAndKey, configurationHook);
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves the redis hash.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="credential">The credential.</param>
+    /// <param name="behavior">
+    /// Define the storage behavior
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
+    /// </param>
+    /// <param name="configurationHook">The configuration hook.</param>
+    /// Time to live (TTL) which will be attached to each entity.
+    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
+    /// Setting this property to no-null value will make the storage ephemeral.
+    /// </param>
+    /// <returns></returns>
+    public static IProducerStoreStrategyBuilder AddRedisHashStorage(
+            this IProducerStoreStrategyBuilder builder,
+            IRedisCredentials credential,
+            StorageBehavior? behavior = null,
+            Action<ConfigurationOptions>? configurationHook = null)
     {
-        var result = builder.AddStorageStrategy(Local, targetType, filter);
+
+        var result = builder.AddStorageStrategy(Local);
         return result;
 
         IProducerStorageStrategy Local (ILogger logger)
         {
-            var connFactory = EventSourceRedisConnectionFactory.Create(logger);
-            var storage = new RedisHashStorageStrategy (connFactory, logger, timeToLive);
+            var configuration = credential.CreateConfigurationOptions(configurationHook);
+            var connFactory = EventSourceRedisConnectionFactory.Create(logger, configuration);
+            var storage = new RedisProducerHashStorageStrategy (connFactory, logger, behavior);
             return storage;
         }
     }
@@ -82,29 +129,45 @@ public static class RedisHashProducerStorageStrategyExtension
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="configuration">The configuration.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="targetType">Type of the target.</param>
-    /// <param name="timeToLive">
-    /// Time to live (TTL) which will be attached to each entity.
-    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
-    /// Setting this property to no-null value will make the storage ephemeral.
+    /// <param name="filterByOperationAndKey">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// The predicate signature is: (metadata, key) => bool
+    ///   the key is driven from the method parameter.
     /// </param>
     /// <returns></returns>
     public static IProducerStoreStrategyBuilder AddRedisHashStorage(
             this IProducerStoreStrategyBuilder builder,
             ConfigurationOptions configuration,
-            Predicate<string>? filter = null,
-            EventBucketCategories targetType = EventBucketCategories.All,
-            TimeSpan? timeToLive = null)
+            Func<Metadata, string, bool> filterByOperationAndKey)
+    {
+        var result =  builder.AddRedisHashStorage(configuration, (StorageBehavior)filterByOperationAndKey);
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves the redis hash.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="behavior">
+    /// Define the storage behavior
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
+    /// <returns></returns>
+    public static IProducerStoreStrategyBuilder AddRedisHashStorage(
+            this IProducerStoreStrategyBuilder builder,
+            ConfigurationOptions configuration,
+            StorageBehavior? behavior = null)
     {
 
-        var result = builder.AddStorageStrategy(Local, targetType, filter);
+        var result = builder.AddStorageStrategy(Local);
         return result;
 
         IProducerStorageStrategy Local (ILogger logger)
         {
             var connFactory = EventSourceRedisConnectionFactory.Create(logger, configuration);
-            var storage = new RedisHashStorageStrategy (connFactory, logger, timeToLive);
+            var storage = new RedisProducerHashStorageStrategy (connFactory, logger, behavior);
             return storage;
         }
     }
@@ -114,49 +177,48 @@ public static class RedisHashProducerStorageStrategyExtension
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="connFactory">The redis connection factory.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="targetType">Type of the target.</param>
-    /// <param name="timeToLive">
-    /// Time to live (TTL) which will be attached to each entity.
-    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
-    /// Setting this property to no-null value will make the storage ephemeral.
+    /// <param name="behavior">
+    /// Define the storage behavior
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
     /// </param>
     /// <returns></returns>
     public static IProducerStoreStrategyBuilder AddRedisHashStorage(
         this IProducerStoreStrategyBuilder builder,
         IEventSourceRedisConnectionFactory connFactory,
-        Predicate<string>? filter = null,
-        EventBucketCategories targetType = EventBucketCategories.All,
-            TimeSpan? timeToLive = null)
+        StorageBehavior? behavior = null)
     {
 
-        var result = builder.AddStorageStrategy(Local, targetType, filter);
+        var result = builder.AddStorageStrategy(Local);
         return result;
 
         IProducerStorageStrategy Local (ILogger logger)
         {
-            var storage = new RedisHashStorageStrategy (connFactory, logger, timeToLive);
+            var storage = new RedisProducerHashStorageStrategy (connFactory, logger, behavior);
             return storage;
         }
     }
+
+    #endregion // AddRedisHashStorage
+
+    #region ResolveRedisHashStorage
 
     /// <summary>
     /// Resolves the redis hash.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="timeToLive">
-    /// Time to live (TTL) which will be attached to each entity.
-    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
-    /// Setting this property to no-null value will make the storage ephemeral.
+    /// <param name="filterByOperationAndKey">
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// The predicate signature is: (metadata, key) => bool
+    ///   the key is driven from the method parameter.
     /// </param>
     /// <returns></returns>
     public static IProducerIocStoreStrategyBuilder ResolveRedisHashStorage(
             this IProducerIocStoreStrategyBuilder builder,
-            Predicate<string> filter,
-            TimeSpan? timeToLive = null)
+            Func<Metadata, string, bool> filterByOperationAndKey)
     {
-        var result = builder.ResolveRedisHashStorage(EventBucketCategories.All, filter, timeToLive);
+        var result = builder.ResolveRedisHashStorage((StorageBehavior)filterByOperationAndKey);
         return result;
     }
 
@@ -164,22 +226,18 @@ public static class RedisHashProducerStorageStrategyExtension
     /// Resolves the redis hash.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <param name="targetType">Type of the target.</param>
-    /// <param name="filter">The filter.</param>
-    /// <param name="timeToLive">
-    /// Time to live (TTL) which will be attached to each entity.
-    /// BE CAREFUL, USE IT WHEN THE STORAGE USE AS CACHING LAYER!!!
-    /// Setting this property to no-null value will make the storage ephemeral.
+    /// <param name="behavior">
+    /// Define the storage behavior
+    /// Useful when having multi storage configuration.
+    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
     /// </param>
     /// <returns></returns>
     public static IProducerIocStoreStrategyBuilder ResolveRedisHashStorage(
             this IProducerIocStoreStrategyBuilder builder,
-            EventBucketCategories targetType = EventBucketCategories.All,
-            Predicate<string>? filter = null,
-            TimeSpan? timeToLive = null)
+            StorageBehavior? behavior = null)
     {
 
-        var result = builder.AddStorageStrategy(Local, targetType, filter);
+        var result = builder.AddStorageStrategy(Local);
         return result;
 
         IProducerStorageStrategy Local(ILogger logger)
@@ -191,8 +249,10 @@ public static class RedisHashProducerStorageStrategyExtension
                 logger.LogError(error);
                 throw new EventSourcingException(error);
             }
-            var storage = new RedisHashStorageStrategy(connFactory, logger, timeToLive);
+            var storage = new RedisProducerHashStorageStrategy(connFactory, logger, behavior);
             return storage;
         }
     }
+
+    #endregion // ResolveRedisHashStorage
 }

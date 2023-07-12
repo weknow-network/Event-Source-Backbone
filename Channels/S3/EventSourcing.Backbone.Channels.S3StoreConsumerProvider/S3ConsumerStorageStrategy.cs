@@ -24,7 +24,6 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     /// Useful when having multi storage configuration.
     /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
     /// </summary>
-    private readonly Predicate<string>? _keysFilter;
 
     #region ctor
 
@@ -39,11 +38,9 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
     /// </param>
     public S3ConsumerStorageStrategy(
-        IS3Repository s3Repository,
-        Predicate<string>? keysFilter = null)
+        IS3Repository s3Repository)
     {
         _repository = s3Repository;
-        _keysFilter = keysFilter;
     }
 
     /// <summary>
@@ -58,7 +55,6 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         S3ConsumerOptions options)
     {
         _repository = s3Repository;
-        _keysFilter = options.KeysFilter;
     }
 
     /// <summary>
@@ -75,7 +71,6 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
         var opt = options ?? S3ConsumerOptions.Default;
         _repository = facroey.Get(opt);
-        _keysFilter = opt.KeysFilter;
     }
 
     #endregion // ctor
@@ -119,9 +114,6 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         async Task<(string key, byte[] value)?> LocalFetchAsync(KeyValuePair<string, string> item)
         {
             var (key, value ) = item;
-            // honor filtering
-            if (_keysFilter != null && !_keysFilter(key))
-                return null;
 
             // avoid overriding existing keys
             if(prevBucket.ContainsKey(key))

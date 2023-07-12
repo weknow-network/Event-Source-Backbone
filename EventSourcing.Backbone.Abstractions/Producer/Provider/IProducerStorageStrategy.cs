@@ -17,6 +17,15 @@ namespace EventSourcing.Backbone
         string Name { get; }
 
         /// <summary>
+        /// Determines whether is belong to a category.
+        /// </summary>
+        /// <param name="category">The category.</param>
+        /// <returns>
+        ///   <c>true</c> if is of category; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsOfCategory (EventBucketCategories category);
+
+        /// <summary>
         /// Saves the bucket information.
         /// </summary>
         /// <param name="id">The identifier.</param>

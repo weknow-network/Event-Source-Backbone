@@ -61,6 +61,10 @@ namespace EventSourcing.Backbone
             /// </summary>
             public string Name { get; } = "void-storage";
 
+            string IProducerStorageStrategy.Name => throw new NotImplementedException();
+
+            bool IProducerStorageStrategy.IsOfCategory(EventBucketCategories category) => true;
+
 
             /// <summary>
             /// Saves the bucket information.

@@ -991,7 +991,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
     {
 
         IEnumerable<IConsumerStorageStrategyWithFilter> strategies = plan.StorageStrategies;
-        strategies = strategies.Where(m => m.IsOfTargetType(storageType));
+        strategies = strategies.Where(m => m.IsOfCategory(storageType));
         Bucket bucket = Bucket.Empty;
         if (strategies.Any())
         {

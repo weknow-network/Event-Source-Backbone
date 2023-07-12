@@ -1,14 +1,16 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json;
 
+using Amazon.Runtime.Internal.Util;
+
 using EventSourcing.Backbone.Channels;
 
-using Microsoft.Extensions.Logging;
+using microsoft = Microsoft.Extensions.Logging;
 
 using static EventSourcing.Backbone.EventSourceConstants;
 
 
-namespace EventSourcing.Backbone
+namespace EventSourcing.Backbone.Channels
 {
     /// <summary>
     /// Responsible to save information to S3 storage.
@@ -17,7 +19,7 @@ namespace EventSourcing.Backbone
     /// 'Chain of Responsibility' for saving different parts into different storage (For example GDPR's PII).
     /// Alternative, chain can serve as a cache layer.
     /// </summary>
-    public class S3ProducerStorageStrategy : IProducerStorageStrategy
+    public class S3ProducerStorageStrategy : ProducerStorageStrategyBase
     {
         private readonly IS3Repository _repository;
         private int _index = 0;
@@ -29,9 +31,18 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="s3Repository">S3 repository.
         /// Use S3Factory in order to create it (will create one if missing).
-        /// S3Factory will read credentials from the following environment variables: "S3_ACCESS_KEY", "S3_SECRET", "S3_REGION".</param>
+        /// S3Factory will read credentials from the following environment variables: "S3_ACCESS_KEY", "S3_SECRET", "S3_REGION".
+        /// </param>
+        /// <param name="behavior">
+        /// Define the storage behavior
+        /// Useful when having multi storage configuration.
+        /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
+        /// </param>
         public S3ProducerStorageStrategy(
-            IS3Repository s3Repository)
+                        IS3Repository s3Repository,
+                        microsoft.ILogger logger,
+                        StorageBehavior? behavior = null)
+                            : base(logger, behavior)
         {
             _repository = s3Repository;
         }
@@ -42,45 +53,58 @@ namespace EventSourcing.Backbone
         /// <param name="logger">The logger.</param>
         /// <param name="options">The options.</param>
         /// <param name="factory">The repository's factory.</param>
+        /// <param name="behavior">
+        /// Define the storage behavior
+        /// Useful when having multi storage configuration.
+        /// May use to implement storage splitting (separation of concerns) like in the case of GDPR.
+        /// </param>
         public S3ProducerStorageStrategy(
-            ILogger logger,
-            S3Options options = default,
-            IS3RepositoryFactory? factory = null)
+                        microsoft.ILogger logger,
+                        S3Options? options = null,
+                        IS3RepositoryFactory? factory = null,
+                        StorageBehavior? behavior = null)
+                            : base(logger, behavior)
         {
             IS3RepositoryFactory facroey = factory ?? S3RepositoryFactory.Create(logger);
-            _repository = facroey.Get(options);
+            _repository = facroey.Get(options ?? S3Options.Default);
         }
 
         #endregion // ctor
 
+        #region Name
+
         /// <summary>
         /// Gets the name of the storage provider.
         /// </summary>
-        public string Name { get; } = "S3";
+        public override string Name { get; } = "S3";
+
+        #endregion // Name
+
+        #region OnSaveBucketAsync
 
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <param name="bucket">Either Segments or Interceptions.</param>
+        /// <param name="bucket">Either Segments or Interceptions (after filtering).</param>
         /// <param name="type">The type.</param>
-        /// <param name="meta">The meta.</param>
+        /// <param name="meta">The metadata.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
-        async ValueTask<IImmutableDictionary<string, string>> IProducerStorageStrategy.SaveBucketAsync(
-                                                            string id,
-                                                            Bucket bucket,
-                                                            EventBucketCategories type,
-                                                            Metadata meta,
-                                                            CancellationToken cancellation)
+        protected override async ValueTask<IImmutableDictionary<string, string>> OnSaveBucketAsync(
+                                string id, 
+                                IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket, 
+                                EventBucketCategories type,
+                                Metadata meta, 
+                                CancellationToken cancellation)
         {
             var date = DateTime.UtcNow;
             int index = Interlocked.Increment(ref _index);
             string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{index}/{type}";
             var tasks = bucket.Select(SaveAsync);
-            var propKeyToS3Key = await Task.WhenAll(tasks);
+            KeyValuePair<string, string>[] propKeyToS3Key = await Task.WhenAll(tasks);
             string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);
             var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{type}", json);
             return result;
@@ -93,5 +117,7 @@ namespace EventSourcing.Backbone
                 return new KeyValuePair<string, string>(key, path);
             }
         }
+
+        #endregion // OnSaveBucketAsync
     }
 }

@@ -17,25 +17,24 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
 {
     private readonly IEventSourceRedisConnectionFactory _connFactory;
     private readonly ILogger _logger;
-    private readonly Predicate<string>? _keysFilter;
 
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
     /// <param name="connFactory">The database task.</param>
     /// <param name="logger">The logger.</param>
-    /// <param name="keysFilter">
+    /// <param name="filterByOperationAndKey">
     /// Useful when having multi storage configuration.
     /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
+    /// The predicate signature is: (metadata, key) => bool
+    ///   the key is driven from the method parameter.
     /// </param>
     public RedisHashStorageStrategy(
         IEventSourceRedisConnectionFactory connFactory,
-        ILogger logger,
-        Predicate<string>? keysFilter = null)
+        ILogger logger)
     {
         _connFactory = connFactory;
         _logger = logger;
-        _keysFilter = keysFilter;
     }
 
     /// <summary>
@@ -62,7 +61,8 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
         Func<string, string> getProperty,
         CancellationToken cancellation)
     {
-        string key = $"{meta.FullUri()}:{type}:{meta.MessageId}";
+        string operation = meta.Operation;
+        string key = $"{meta.FullUri()}:{type}:{operation}:{meta.MessageId}";
 
         IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellation);
         IDatabaseAsync db = conn.GetDatabase();
@@ -80,9 +80,7 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
 #pragma warning disable CS8600 
 #pragma warning disable CS8620
         var pairs = entities
-                        .Select(m => (Key: (string)m.Name, Value: (byte[])m.Value))
-                        //.Where(m => !prevBucket.ContainsKey(m.Key!))
-                        .Where(m => _keysFilter?.Invoke(m.Key!) ?? true);
+                        .Select(m => (Key: (string)m.Name, Value: (byte[])m.Value));
         var results = prevBucket.TryAddRange(pairs);
 #pragma warning restore CS8620
 #pragma warning restore CS8600

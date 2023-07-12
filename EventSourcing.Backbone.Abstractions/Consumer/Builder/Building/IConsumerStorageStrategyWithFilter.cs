@@ -10,10 +10,10 @@
     public interface IConsumerStorageStrategyWithFilter : IConsumerStorageStrategy
     {
         /// <summary>
-        /// Determines whether is of the right target type.
+        /// Determines whether is of the right target category.
         /// </summary>
-        /// <param name="type">The type.</param>
+        /// <param name="category">The category.</param>
 
-        bool IsOfTargetType(EventBucketCategories type);
+        bool IsOfCategory(EventBucketCategories category);
     }
 }

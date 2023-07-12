@@ -42,7 +42,7 @@ namespace EventSourcing.Backbone
                 var factory = S3RepositoryFactory.Create(logger, envAccessKey, envSecretKey, envRegion, fromEnvironment);
                 var opt = options ?? S3ConsumerOptions.Default;
                 var repo = factory.Get(opt);
-                var strategy = new S3ConsumerStorageStrategy(repo, opt.KeysFilter);
+                var strategy = new S3ConsumerStorageStrategy(repo);
                 return strategy;
             }
             return result;

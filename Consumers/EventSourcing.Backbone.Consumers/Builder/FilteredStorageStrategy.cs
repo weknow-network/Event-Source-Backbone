@@ -16,13 +16,13 @@ namespace EventSourcing.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="storage">The actual storage provider.</param>
-        /// <param name="targetType">Type of the target.</param>
+        /// <param name="category">Type of the target.</param>
         public FilteredStorageStrategy(
             IConsumerStorageStrategy storage,
-            EventBucketCategories targetType)
+            EventBucketCategories category)
         {
             _storage = storage;
-            _targetType = targetType;
+            _targetType = category;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace EventSourcing.Backbone
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        bool IConsumerStorageStrategyWithFilter.IsOfTargetType(EventBucketCategories type) => (_targetType & type) == type;
+        bool IConsumerStorageStrategyWithFilter.IsOfCategory(EventBucketCategories type) => (_targetType & type) == type;
 
         /// <summary>
         /// Load the bucket information.

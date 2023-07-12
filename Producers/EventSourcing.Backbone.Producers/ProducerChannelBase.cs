@@ -154,7 +154,7 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
     {
         Metadata meta = payload.Metadata;
         string id = meta.MessageId;
-        ImmutableArray<IProducerStorageStrategyWithFilter> storageStrategy = plan.StorageStrategies;
+        ImmutableArray<IProducerStorageStrategy> storageStrategy = plan.StorageStrategies;
 
         var results = ImmutableDictionary.CreateBuilder<string, string>();
         var storageMeta = await Task.WhenAll(LocalStoreBucketAsync(EventBucketCategories.Segments),
@@ -168,9 +168,8 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
 
         async Task<IImmutableDictionary<string, string>> LocalStoreBucketAsync(EventBucketCategories storageType)
         {
-            var strategies = storageStrategy.Where(m => m.IsOfTargetType(storageType));
+            var strategies = storageStrategy.Where(m => m.IsOfCategory(storageType));
             Bucket bucket = storageType == EventBucketCategories.Segments ? payload.Segments : payload.InterceptorsData;
-            IImmutableDictionary<string, string> storageMetaInfo = ImmutableDictionary<string, string>.Empty;
 
             if (bucket.IsEmpty)
                 return ImmutableDictionary<string, string>.Empty;
@@ -184,13 +183,14 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
                 {
                     metaBuilder.AddRange(m);
                 }
-                storageMetaInfo = metaBuilder.ToImmutable();
+                var result = metaBuilder.ToImmutable();
+                return result; 
             }
             else
             {
-                storageMetaInfo = await SaveBucketAsync(DefaultStorageStrategy);
+                var result = await SaveBucketAsync(DefaultStorageStrategy);
+                return result;  
             }
-            return storageMetaInfo;
 
             async Task<IImmutableDictionary<string, string>> SaveBucketAsync(IProducerStorageStrategy storage)
             {

@@ -91,11 +91,19 @@ namespace EventSourcing.Backbone.Tests
 
             #region IEventFlow producer = ...
 
+            StorageBehavior behavior1 = new StorageBehavior
+            {
+                Filter = (meta, k) => k == "PII"
+            };
+
+            StorageBehavior behavior2 = new StorageBehavior
+            {
+                Filter = (meta, k) => k != "PII"
+            };
+
             IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannel()
-                                .AddS3Storage(OPTIONS, 
-                                        filter: k => k == nameof(IEventFlowProducer.Stage1Async))
-                                .AddRedisHashStorage(
-                                        filter: k => k != nameof(IEventFlowProducer.Stage1Async))
+                                .AddS3Storage(OPTIONS, behavior1)
+                                .AddRedisHashStorage(behavior2)
                                 .Environment(ENV)
                                 //.WithOptions(producerOption)
                                 .Uri(URI)
@@ -190,8 +198,9 @@ namespace EventSourcing.Backbone.Tests
 
             #region IEventFlow producer = ...
 
+            StorageBehavior behavior = TimeSpan.FromMicroseconds(1); // time to live
             IEventFlowProducer producer = ProducerBuilder.Empty.UseRedisChannel()
-                                .AddRedisHashStorage(timeToLive: TimeSpan.FromMicroseconds(1))
+                                .AddRedisHashStorage(behavior)
                                 .AddS3Storage(OPTIONS)
                                 .Environment(ENV)
                                 //.WithOptions(producerOption)
