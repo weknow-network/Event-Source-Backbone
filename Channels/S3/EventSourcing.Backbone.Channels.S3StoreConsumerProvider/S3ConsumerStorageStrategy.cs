@@ -20,10 +20,6 @@ namespace EventSourcing.Backbone;
 public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
 {
     private readonly IS3Repository _repository;
-    /// <summary>
-    /// Useful when having multi storage configuration.
-    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
-    /// </summary>
 
     #region ctor
 
@@ -33,26 +29,8 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
     /// <param name="s3Repository">S3 repository.
     /// Use S3Factory in order to create it (will create one if missing).
     /// S3Factory will read credentials from the following environment variables: "S3_EVENT_SOURCE_ACCESS_KEY", "S3_EVENT_SOURCE_SECRET", "S3_EVENT_SOURCE_REGION".</param>
-    /// <param name="keysFilter">
-    /// Useful when having multi storage configuration.
-    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
-    /// </param>
     public S3ConsumerStorageStrategy(
         IS3Repository s3Repository)
-    {
-        _repository = s3Repository;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    /// <param name="s3Repository">S3 repository.
-    /// Use S3Factory in order to create it (will create one if missing).
-    /// S3Factory will read credentials from the following environment variables: "S3_EVENT_SOURCE_ACCESS_KEY", "S3_EVENT_SOURCE_SECRET", "S3_EVENT_SOURCE_REGION".</param>
-    /// <param name="options">The options.</param>
-    public S3ConsumerStorageStrategy(
-        IS3Repository s3Repository,
-        S3ConsumerOptions options)
     {
         _repository = s3Repository;
     }

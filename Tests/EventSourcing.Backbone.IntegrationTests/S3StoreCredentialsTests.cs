@@ -129,7 +129,6 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // S3_Cred_No_Env_Test
 
-
         #region Dispose Pattern
 
         public void Dispose()
