@@ -21,12 +21,6 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
     /// </summary>
     /// <param name="connFactory">The database task.</param>
     /// <param name="logger">The logger.</param>
-    /// <param name="filterByOperationAndKey">
-    /// Useful when having multi storage configuration.
-    /// May use to implement storage splitting (separation of concerns) like in the case of GDPR .
-    /// The predicate signature is: (metadata, key) => bool
-    ///   the key is driven from the method parameter.
-    /// </param>
     public RedisHashStorageStrategy(
         IEventSourceRedisConnectionFactory connFactory,
         ILogger logger)

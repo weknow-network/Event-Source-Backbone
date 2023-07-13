@@ -277,6 +277,7 @@ public static class RedisConsumerBuilder
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="credentialsKeys">Environment keys of the credentials</param>
+    /// <param name="configurationHook">The configuration hook.</param>
     /// <returns></returns>
     public static IConsumerStoreStrategyBuilder AddRedisHashStorage(
                         this IConsumerStoreStrategyBuilder builder,

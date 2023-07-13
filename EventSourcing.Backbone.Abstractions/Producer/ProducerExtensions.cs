@@ -39,7 +39,7 @@ namespace EventSourcing.Backbone
         /// Non strategy implementation
         /// </summary>
         /// <seealso cref="EventSourcing.Backbone.IProducerStorageStrategy" />
-        private class VoidStorageStrategy : IProducerStorageStrategy
+        private sealed class VoidStorageStrategy : IProducerStorageStrategy
         {
             private readonly string _providerPrefix;
 

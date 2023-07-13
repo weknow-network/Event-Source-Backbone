@@ -127,7 +127,9 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
             storageMeta.Add(nameof(meta.MessageId), id);
             storageMeta.Add(nameof(meta.Operation), meta.Operation);
             storageMeta.Add(nameof(meta.ChannelType), ChannelType);
+#pragma warning disable HAA0102 
             storageMeta.Add(nameof(meta.Origin), meta.Origin.ToString());
+#pragma warning restore HAA0102 
 
             using Activity? activity = plan.StartProducerTrace(meta);
 

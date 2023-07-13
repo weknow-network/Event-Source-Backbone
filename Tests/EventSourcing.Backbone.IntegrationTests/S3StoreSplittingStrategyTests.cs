@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
 {
-    public class S3StoreSplitingStrategyTests : EndToEndTests
+    public class S3StoreSplittingStrategyTests : EndToEndTests
     {
         private readonly static ImmutableHashSet<string> _gdrpFilter = ImmutableHashSet.CreateRange(new[] {
             nameof(UnitTests.Entities.ISequenceOperationsProducer.LoginAsync),
@@ -17,7 +17,7 @@ namespace EventSourcing.Backbone.Tests
             BasePath = "tests"
         };
 
-        public S3StoreSplitingStrategyTests(ITestOutputHelper outputHelper) :
+        public S3StoreSplittingStrategyTests(ITestOutputHelper outputHelper) :
                 base(outputHelper,
                     (b, logger) => b
                         .AddS3Storage((meta, key) => _gdrpFilter.Contains(meta.Operation),

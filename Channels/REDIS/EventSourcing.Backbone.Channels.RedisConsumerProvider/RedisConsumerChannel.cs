@@ -281,8 +281,6 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
 
                     #endregion // IEnumerable<string> ExtractTraceContext(Dictionary<RedisValue, RedisValue> entries, string key)
 
-                    int local = i;
-                    var cancellableIds = results[local..].Select(m => m.Id);
                     var ack = new AckOnce(
                                     fullUri,
                                     async (cause) =>
@@ -292,11 +290,12 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                                         await AckAsync(result.Id);
                                     },
                                     plan.Options.AckBehavior, logger,
-                                    async (cause) =>
+                                    (cause) =>
                                     {
                                         Activity.Current?.AddEvent("consumer.event.cancel",
                                                                     t => PrepareTrace(t).Add("cause", cause));
                                         batchCancellation.CancelSafe(); // cancel forward
+                                        return ValueTask.CompletedTask;
                                     });
 
                     #region OriginFilter
@@ -727,23 +726,6 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
             #region var announcement = new Announcement(...)
 
             var meta = ExtractMetadata(entry, out var channelMeta);
-            string channelType = GetMeta(nameof(MetadataExtensions.Empty.ChannelType));
-            string id = GetMeta(nameof(MetadataExtensions.Empty.MessageId));
-            string operation = GetMeta(nameof(MetadataExtensions.Empty.Operation));
-            long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-
-            #region string GetMeta(string propKey)
-
-            string GetMeta(string propKey)
-            {
-                string? result = channelMeta[propKey];
-                if (result == null) throw new ArgumentNullException(propKey);
-                return result;
-            }
-
-            #endregion // string GetMeta(string propKey)
-
-            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
 
             (Bucket segmets, Bucket interceptions) = await GetStorageAsync(plan, channelMeta, meta);
 
@@ -1004,13 +986,22 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
     {
         Metadata meta;
         channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
-        string? metaJson = channelMeta[META_SLOT];
+        string? metaJson = channelMeta?[META_SLOT];
+        if(metaJson == null)
+            throw new EventSourcingException("Couldn't find the metadata slot");
         string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
         meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));
 
-        long producedAtUnix = (long)channelMeta[nameof(MetadataExtensions.Empty.ProducedAt)];
-        DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds(producedAtUnix);
-        meta = meta with { EventKey = eventKey, ProducedAt = producedAt };
+        long? producedAtUnix = (long?)channelMeta?[nameof(MetadataExtensions.Empty.ProducedAt)];
+        if (producedAtUnix == null)
+        {
+            meta = meta with { EventKey = eventKey };
+        }
+        else
+        {
+            DateTimeOffset producedAt = DateTimeOffset.FromUnixTimeSeconds((long)producedAtUnix);
+            meta = meta with { EventKey = eventKey, ProducedAt = producedAt };
+        }
         return meta;
     }
 

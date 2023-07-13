@@ -25,9 +25,6 @@ internal class RedisProducerChannel : ProducerChannelBase
     private readonly IEventSourceRedisConnectionFactory _connFactory;
     private const string META_SLOT = "__<META>__";
 
-    private static readonly Counter<int> ProduceEventsCounter = EMeter.CreateCounter<int>("evt-src.sys.produce.events", "count",
-                                            "Sum of total produced events (messages)");
-
     #region Ctor
 
     /// <summary>
@@ -84,7 +81,6 @@ internal class RedisProducerChannel : ProducerChannelBase
                 IImmutableDictionary<string, string> storageMeta)
     {
         Metadata meta = payload.Metadata;
-        string id = meta.MessageId;
         string env = meta.Environment.ToDash();
         string uri = meta.UriDash;
 
