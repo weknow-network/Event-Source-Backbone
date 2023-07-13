@@ -19,6 +19,10 @@
         /// </summary>
         public string? Bucket { get; init; }
 
+        /// <summary>
+        /// A suffix for the target bucket
+        /// </summary>
+        public string? BucketSuffix { get; init; } 
 
         /// <summary>
         /// Base path

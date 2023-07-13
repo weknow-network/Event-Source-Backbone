@@ -8,6 +8,17 @@ namespace EventSourcing.Backbone.Channels
     /// </summary>
     public interface IS3Repository
     {
+
+        /// <summary>
+        /// Gets the bucket.
+        /// </summary>
+        string Bucket { get; }
+
+        /// <summary>
+        /// Gets the base path.
+        /// </summary>
+        string? BasePath { get; }
+
         /// <summary>
         /// Gets.
         /// </summary>

@@ -100,7 +100,7 @@ namespace EventSourcing.Backbone.Channels
             var tasks = bucket.Select(SaveAsync);
             KeyValuePair<string, string>[] propKeyToS3Key = await Task.WhenAll(tasks);
             string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);
-            var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{type}", json);
+            var result = ImmutableDictionary<string, string>.Empty.Add($"{Constants.PROVIDER_ID}~{meta.Environment}~{_repository.Bucket}~{_repository.BasePath}~{type}", json);
             return result;
 
             async Task<KeyValuePair<string, string>> SaveAsync(KeyValuePair<string, ReadOnlyMemory<byte>> pair)

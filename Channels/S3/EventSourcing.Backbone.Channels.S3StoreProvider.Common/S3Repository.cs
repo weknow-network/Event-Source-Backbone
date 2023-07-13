@@ -21,9 +21,7 @@ namespace EventSourcing.Backbone.Channels
             Environment.GetEnvironmentVariable("S3_EVENT_SOURCE_BUCKET")
             ?? string.Empty;
 
-        private readonly string _bucket;
         private readonly ILogger _logger;
-        private readonly string? _basePath;
         private readonly IAmazonS3 _client;
         private static readonly List<Tag> EMPTY_TAGS = new List<Tag>();
         private int _disposeCount = 0;
@@ -48,13 +46,33 @@ namespace EventSourcing.Backbone.Channels
         {
             _client = client;
             _logger = logger;
-            _bucket = options?.Bucket ?? BUCKET;
-            _basePath = options?.BasePath;
+            Bucket = options?.Bucket ?? BUCKET;
+            if (!string.IsNullOrEmpty(options?.BucketSuffix))
+                Bucket = $"{Bucket}{options.BucketSuffix}";
+            BasePath = options?.BasePath;
             _environmentConvension = options?.EnvironmentConvention ?? S3EnvironmentConvention.BucketPrefix;
             _dryRun = options?.DryRun ?? false;
         }
 
         #endregion // Ctor
+
+        #region Bucket
+
+        /// <summary>
+        /// Gets the bucket.
+        /// </summary>
+        public string Bucket { get; }
+
+        #endregion // Bucket
+
+        #region BasePath
+
+        /// <summary>
+        /// Gets the base path.
+        /// </summary>
+        public string? BasePath { get; }
+
+        #endregion // BasePath
 
         #region AddReference
 
@@ -418,11 +436,11 @@ namespace EventSourcing.Backbone.Channels
         private string GetBucket(Env env)
         {
             if (string.IsNullOrEmpty(env))
-                return _bucket;
+                return Bucket;
             var bucket = _environmentConvension switch
             {
-                S3EnvironmentConvention.BucketPrefix => $"{env.Format()}.{_bucket}",
-                _ => _bucket
+                S3EnvironmentConvention.BucketPrefix => $"{env.Format()}.{Bucket}",
+                _ => Bucket
             };
             return bucket;
         }
@@ -439,8 +457,8 @@ namespace EventSourcing.Backbone.Channels
         /// <returns></returns>
         private string GetKey(string env, string id)
         {
-            string sep = string.IsNullOrEmpty(_basePath) ? string.Empty : "/";
-            string key = $"{_basePath}{sep}{Uri.UnescapeDataString(id)}";
+            string sep = string.IsNullOrEmpty(BasePath) ? string.Empty : "/";
+            string key = $"{BasePath}{sep}{Uri.UnescapeDataString(id)}";
             if (_environmentConvension == S3EnvironmentConvention.PathPrefix)
                 key = $"{env}/{key}";
             return key;

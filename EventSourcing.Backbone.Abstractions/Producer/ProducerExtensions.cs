@@ -20,7 +20,7 @@ namespace EventSourcing.Backbone
         /// <returns></returns>
         public static IProducerStoreStrategyBuilder AddVoidStrategy(
             this IProducerStoreStrategyBuilder builder,
-            string providerPrefix = "S3_V1")
+            string providerPrefix = "VOID_V1")
         {
             var result = builder.AddStorageStrategy(Local);
 

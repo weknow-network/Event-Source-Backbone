@@ -76,7 +76,7 @@ public class S3ConsumerStorageStrategy : IConsumerStorageStrategy
         Func<string, string> getProperty,
         CancellationToken cancellation)
     {
-        string json = getProperty($"{Constants.PROVIDER_ID}~{type}");
+        string json = getProperty($"{Constants.PROVIDER_ID}~{meta.Environment}~{_repository.Bucket}~{_repository.BasePath}~{type}");
         var keyPathPairs = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(
                                                         json, SerializerOptionsWithIndent) ??
                                                         Array.Empty<KeyValuePair<string, string>>();
