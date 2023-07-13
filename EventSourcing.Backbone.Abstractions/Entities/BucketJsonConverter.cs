@@ -70,7 +70,6 @@ namespace EventSourcing.Backbone
 
         #endregion // Write
 
-
         #region SerializerOptions
 
         internal static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
@@ -85,7 +84,6 @@ namespace EventSourcing.Backbone
         };
 
         #endregion // SerializerOptions
-
     }
 
 }

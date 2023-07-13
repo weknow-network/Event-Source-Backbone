@@ -20,9 +20,9 @@ namespace EventSourcing.Backbone.Tests
         public S3StoreSplitingStrategyTests(ITestOutputHelper outputHelper) :
                 base(outputHelper,
                     (b, logger) => b
-                        .AddS3Storage((meta, key) => _gdrpFilter.Contains(meta.Operation), 
+                        .AddS3Storage((meta, key) => _gdrpFilter.Contains(meta.Operation),
                                         OPTIONS with { BucketSuffix = "-private" })
-                        .AddS3Storage((meta, key) => !_gdrpFilter.Contains(meta.Operation), 
+                        .AddS3Storage((meta, key) => !_gdrpFilter.Contains(meta.Operation),
                                         OPTIONS),
                     (b, logger) => b
                             .AddS3Storage(OPTIONS)

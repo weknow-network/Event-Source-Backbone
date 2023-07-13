@@ -22,7 +22,7 @@
         /// <summary>
         /// A suffix for the target bucket
         /// </summary>
-        public string? BucketSuffix { get; init; } 
+        public string? BucketSuffix { get; init; }
 
         /// <summary>
         /// Base path

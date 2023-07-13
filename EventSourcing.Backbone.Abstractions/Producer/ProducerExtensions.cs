@@ -93,8 +93,6 @@ namespace EventSourcing.Backbone
                 string json = JsonSerializer.Serialize(pairs, SerializerOptionsWithIndent);
                 var result = ImmutableDictionary<string, string>.Empty.Add($"{_providerPrefix}~{type}", json);
                 return result.ToValueTask<IImmutableDictionary<string, string>>();
-                //ImmutableDictionary<string, string> result = bucket;
-                //return result.ToValueTask<IImmutableDictionary<string, string>>();
             }
         }
 

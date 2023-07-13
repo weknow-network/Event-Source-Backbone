@@ -196,15 +196,12 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
 
         TimeSpan delay = TimeSpan.Zero;
         int emptyBatchCount = 0;
-        //using ("consumer.loop".StartTrace(ActivityKind.Server))
-        //{
         while (!cancellationToken.IsCancellationRequested)
         {
             var proceed = await HandleBatchAsync();
             if (!proceed)
                 break;
         }
-        //}
 
         #region HandleBatchAsync
 
@@ -300,7 +297,6 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                                         Activity.Current?.AddEvent("consumer.event.cancel",
                                                                     t => PrepareTrace(t).Add("cause", cause));
                                         batchCancellation.CancelSafe(); // cancel forward
-                                        await CancelAsync(cancellableIds);
                                     });
 
                     #region OriginFilter
@@ -647,31 +643,6 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         }
 
         #endregion // AckAsync
-
-        #region CancelAsync
-
-        // Cancels the asynchronous.
-        ValueTask CancelAsync(IEnumerable<RedisValue> messageIds)
-        {
-            // no way to release consumed item back to the stream
-            //try
-            //{
-            //    // release the event (won't handle again in the future)
-            //    await db.StreamClaimIdsOnlyAsync(key,
-            //                                    plan.ConsumerGroup,
-            //                                    RedisValue.Null,
-            //                                    0,
-            //                                    messageIds.ToArray(),
-            //                                    flags: CommandFlags.DemandMaster);
-            //}
-            //catch (Exception)
-            //{ // TODO: [bnaya 2020-10] do better handling (re-throw / swallow + reason) currently logged at the wrapping class
-            //    throw;
-            //}
-            return ValueTask.CompletedTask;
-        }
-
-        #endregion // CancelAsync
 
         #region ReleaseAsync
 
