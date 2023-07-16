@@ -15,21 +15,27 @@
         /// Initializes a new instance of the <see cref="EventsContractAttribute" /> class.
         /// </summary>
         /// <param name="version">The version which will be produce.</param>
-        public EventSourceVersionAttribute(ushort version)
+        public EventSourceVersionAttribute(int version)
         {
             Version = version;
         }
 
         /// <summary>
-        /// Gets the lower version for consume.
+        /// Sets the maximum version on which the method will be retired.
+        /// Specifies the version number at which the associated functionality is considered retired.
+        /// When a version number is assigned, it indicates that the functionality becomes obsolete or
+        /// deprecated starting from that version onwards.
         /// </summary>
-        public ushort ConsumeFrom { get; init; }
+        /// <remarks>
+        /// Value of zero will be ignored
+        /// </remarks>
+        public int Retired { get; init; }
 
         /// <summary>
         /// Gets the version which will be produce.
         /// When From doesn't specified this version will consider as the lower version for consume.
         /// When UpTo doesn't specified this version will consider as the higher version for consume.
         /// </summary>
-        public ushort Version { get; }
+        public int Version { get; }
     }
 }

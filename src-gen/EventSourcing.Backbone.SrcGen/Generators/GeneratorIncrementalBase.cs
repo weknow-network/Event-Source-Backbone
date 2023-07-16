@@ -178,20 +178,6 @@ namespace EventSourcing.Backbone
                 }
 
                 var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString();
-                //if (overrideNS == null && item.Parent is BaseNamespaceDeclarationSyntax ns_)
-                //{
-                //    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
-                //    {
-                //        if (c is UsingDirectiveSyntax use)
-                //        {
-                //            var u = use.ToFullString().Trim();
-                //            if (!usingSet.Contains(u))
-                //                usingSet.Add(u);
-                //        }
-                //    }
-                //    builder.AppendLine();
-                //    overrideNS = ns_?.Name?.ToString();
-                //}
                 foreach (var u in usingSet.OrderBy(m => m))
                 {
                     builder.AppendLine(u);
