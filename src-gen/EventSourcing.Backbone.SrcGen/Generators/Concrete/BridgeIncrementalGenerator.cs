@@ -392,7 +392,6 @@ namespace EventSourcing.Backbone
                                         return name.EndsWith("EventSourceVersionAttribute") ||
                                                 name.EndsWith("EventSourceVersion");
                                     });
-                opVersionInfo.Parent = versionInfo;
                 var v = opVersionInfo.Version;
                 if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;

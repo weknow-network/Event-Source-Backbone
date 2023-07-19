@@ -7,7 +7,5 @@ internal struct OperationVersionInfo
 {
     public int Version { get; set; }
     public int? Retired { get; set; }
-    public VersionInfo? Parent { get; set; }
-
     public override string ToString() => $"v{Version}";
 }

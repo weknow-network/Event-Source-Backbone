@@ -59,43 +59,11 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             if (method is MethodDeclarationSyntax mds)
             {
                 var opVersionInfo = mds.GetOperationVersionInfo(compilation);
-                opVersionInfo.Parent = versionInfo;
                 var v = opVersionInfo.Version;
                 if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
 
-                var sb = new StringBuilder();
-                CopyDocumentation(sb, kind, mds, opVersionInfo);
-                var ps = mds.ParameterList.Parameters.Select(GetParameter);
-                if (sb.Length != 0 && !isProducer && ps.Any())
-                {
-                    string summaryEnds = "/// </summary>";
-                    int idxRet = sb.ToString().IndexOf(summaryEnds);
-                    if (idxRet != -1)
-                        sb.Insert(idxRet + summaryEnds.Length, "\r\n\t\t/// <param name=\"consumerMetadata\">The consumer metadata.</param>");
-                }
-                builder.Append(sb);
-
-                builder.Append("\t\tValueTask");
-                if (isProducer)
-                    builder.Append("<EventKeys>");
-                var mtdName = mds.ToNameConvention();
-                string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
-                builder.AppendLine($" {nameVersion}(");
-
-                if (!isProducer)
-                {
-                    builder.Append("\t\t\t");
-                    builder.Append("ConsumerMetadata consumerMetadata");
-                    if (ps.Any())
-                        builder.Append(',');
-                }
-                builder.Append("\t\t\t");
-#pragma warning disable RS1035 // Do not use APIs banned for analyzers
-                builder.Append(string.Join(",", ps));
-#pragma warning restore RS1035 // Do not use APIs banned for analyzers
-                builder.AppendLine(");");
-                builder.AppendLine();
+                versionInfo = GenMethod(kind, isProducer, versionInfo, builder, mds, opVersionInfo);
             }
         }
         builder.AppendLine("\t}");
@@ -108,6 +76,8 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 
         return new[] { new GenInstruction(interfaceName, builder.ToString()) };
 
+        #region GetParameter
+
         string GetParameter(ParameterSyntax p)
         {
             var mod = p.Modifiers.FirstOrDefault();
@@ -115,5 +85,48 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             var result = $"\r\n\t\t\t{modifier}{p.Type} {p.Identifier.ValueText}";
             return result;
         }
+
+        #endregion // GetParameter
+
+        #region GenMethod
+
+        SrcGen.Entities.VersionInfo GenMethod(string kind, bool isProducer, SrcGen.Entities.VersionInfo versionInfo, StringBuilder builder, MethodDeclarationSyntax mds, SrcGen.Entities.OperationVersionInfo opVersionInfo)
+        {
+            var sb = new StringBuilder();
+            CopyDocumentation(sb, kind, mds, opVersionInfo);
+            var ps = mds.ParameterList.Parameters.Select(GetParameter);
+            if (sb.Length != 0 && !isProducer && ps.Any())
+            {
+                string summaryEnds = "/// </summary>";
+                int idxRet = sb.ToString().IndexOf(summaryEnds);
+                if (idxRet != -1)
+                    sb.Insert(idxRet + summaryEnds.Length, "\r\n\t\t/// <param name=\"consumerMetadata\">The consumer metadata.</param>");
+            }
+            builder.Append(sb);
+
+            builder.Append("\t\tValueTask");
+            if (isProducer)
+                builder.Append("<EventKeys>");
+            var mtdName = mds.ToNameConvention();
+            string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
+            builder.AppendLine($" {nameVersion}(");
+
+            if (!isProducer)
+            {
+                builder.Append("\t\t\t");
+                builder.Append("ConsumerMetadata consumerMetadata");
+                if (ps.Any())
+                    builder.Append(',');
+            }
+            builder.Append("\t\t\t");
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
+            builder.Append(string.Join(",", ps));
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
+            builder.AppendLine(");");
+            builder.AppendLine();
+            return versionInfo;
+        }
+
+        #endregion // GenMethod
     }
 }

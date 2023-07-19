@@ -44,7 +44,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 if (method is MethodDeclarationSyntax mds)
                 {
                     var opVersionInfo = mds.GetOperationVersionInfo(compilation);
-                    opVersionInfo.Parent = versionInfo;
                     var v = opVersionInfo.Version;
                     if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                         continue;
@@ -168,7 +167,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 if (method is not MethodDeclarationSyntax mds)
                     continue;
                 var opVersionInfo = mds.GetOperationVersionInfo(compilation);
-                opVersionInfo.Parent = versionInfo;
                 var v = opVersionInfo.Version;
                 if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
