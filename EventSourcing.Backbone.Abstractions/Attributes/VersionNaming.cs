@@ -17,5 +17,5 @@ public enum VersionNaming
     /// <summary>
     /// Append version suffix to the method name separated with _
     /// </summary>
-    Default = AppendUnderscore
+    Default = None
 }

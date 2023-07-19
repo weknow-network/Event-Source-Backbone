@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 
 using EventSourcing.Backbone.SrcGen.Entities;
@@ -33,7 +32,7 @@ namespace EventSourcing.Backbone
 
             if (info.Kind == "Producer")
             {
-                var file = OnGenerateProducer(compilation, builder, info, interfaceName, usingStatements );
+                var file = OnGenerateProducer(compilation, builder, info, interfaceName, usingStatements);
                 return new[] { new GenInstruction(file, builder.ToString()) };
             }
             return OnGenerateConsumers(compilation, info, interfaceName, usingStatements);
@@ -212,17 +211,21 @@ namespace EventSourcing.Backbone
                 builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
                 builder.AppendLine("\t\t\tswitch (meta)");
                 builder.AppendLine("\t\t\t{");
- 
+
                 foreach (var method in allMethods)
                 {
                     var opVersionInfo = method.GetOperationVersionInfo();
-                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                    var v = opVersionInfo.Version;
+                    if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                         continue;
 
                     string mtdName = method.ToNameConvention();
-                    string mtdType = method.ContainingType.Name;
-                    mtdType = info.FormatName(mtdType);
-                    builder.AppendLine($"\t\t\t\tcase {{ Operation: nameof({mtdType}.{mtdName}), Version: {opVersionInfo.Version} }} :");
+                    string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
+                    string nameOfOperetion = mtdName;
+
+                    //string mtdType = method.ContainingType.Name;
+                    //mtdType = info.FormatName(mtdType);
+                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version} }} :");
                     builder.AppendLine("\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -234,7 +237,7 @@ namespace EventSourcing.Backbone
                     }
                     IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
                     string metaParam = ps.Any() ? "consumerMetadata, " : "consumerMetadata";
-                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{mtdName}({metaParam}{string.Join(", ", ps)}));");
+                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{nameVersion}({metaParam}{string.Join(", ", ps)}));");
                     builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
                     builder.AppendLine("\t\t\t\t\treturn true;");
                     builder.AppendLine("\t\t\t\t}");
@@ -287,19 +290,21 @@ namespace EventSourcing.Backbone
             if (allMethods.Length != 0)
             {
                 builder.AppendLine("\t\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
-                builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
+                builder.AppendLine("\t\t\t\tMetadata meta = announcement.Metadata;");
                 builder.AppendLine("\t\t\t\tswitch (meta)");
                 builder.AppendLine("\t\t\t\t{");
                 foreach (var method in allMethods)
                 {
                     var opVersionInfo = method.GetOperationVersionInfo();
-                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                    var v = opVersionInfo.Version;
+                    if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                         continue;
 
                     string mtdName = method.ToNameConvention();
-                    string mtdType = method.ContainingType.Name;
-                    mtdType = info.FormatName(mtdType);
-                    builder.AppendLine($"\t\t\t\tcase {{ Operation: nameof({mtdType}.{mtdName}), Version: {opVersionInfo.Version} }} :");
+                    //string mtdType = method.ContainingType.Name;
+                    //mtdType = info.FormatName(mtdType);
+                    string nameOfOperetion = mtdName;
+                    builder.AppendLine($"\t\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version} }} :");
                     builder.AppendLine("\t\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -388,10 +393,11 @@ namespace EventSourcing.Backbone
                                                 name.EndsWith("EventSourceVersion");
                                     });
                 opVersionInfo.Parent = versionInfo;
-                if (versionInfo.MinVersion > opVersionInfo.Version)
+                var v = opVersionInfo.Version;
+                if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
 
-                GenerateProducerMethods(builder, info, method);
+                GenerateProducerMethods(builder, info, method, versionInfo, opVersionInfo);
             }
             builder.AppendLine("\t}");
 
@@ -423,22 +429,26 @@ namespace EventSourcing.Backbone
         private static void GenerateProducerMethods(
                             StringBuilder builder,
                             SyntaxReceiverResult info,
-                            IMethodSymbol mds)
+                            IMethodSymbol mds,
+                            VersionInfo versionInfo,
+                            OperationVersionInfo opVersionInfo)
         {
             string mtdName = mds.ToNameConvention();
+            string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
             string interfaceName = mds.ContainingType.Name;
-            interfaceName = info.FormatName(interfaceName);
+            string interfaceNameFormatted = info.FormatName(interfaceName);
             builder.Append("\t\tasync ValueTask");
             builder.Append("<EventKeys>");
-            builder.Append($" {interfaceName}.{mtdName}(");
+            builder.Append($" {interfaceNameFormatted}.{nameVersion}(");
 
-            var opVersionInfo = mds.GetOperationVersionInfo();
             IEnumerable<string> ps = mds.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
             builder.Append("\t\t\t");
             builder.Append(string.Join(", ", ps));
             builder.AppendLine(")");
             builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\tvar operation_ = nameof({interfaceName}.{mtdName});");
+
+            string nameOfOperetion = mtdName;
+            builder.AppendLine($"\t\t\tvar operation_ = \"{nameOfOperetion}\";");
             builder.AppendLine($"\t\t\tvar version_ = {opVersionInfo.Version};");
             int i = 0;
             var prms = mds.Parameters;

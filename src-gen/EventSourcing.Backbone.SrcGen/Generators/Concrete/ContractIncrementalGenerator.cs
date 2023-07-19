@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
@@ -41,6 +40,8 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         var (type, att, symbol, kind, ns, isProducer, @using) = info;
 #pragma warning restore S1481 // Unused local variables should be removed
         string interfaceName = info.FormatName();
+        var versionInfo = att.GetVersionInfo(compilation);
+
         var builder = new StringBuilder();
         CopyDocumentation(builder, kind, type, "\t");
         var asm = GetType().Assembly.GetName();
@@ -53,19 +54,18 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         else
             builder.AppendLine($" : {inheritance}");
         builder.AppendLine("\t{");
-        var versionInfo  = att.GetVersionInfo(compilation);
-
         foreach (var method in type.Members)
         {
             if (method is MethodDeclarationSyntax mds)
             {
                 var opVersionInfo = mds.GetOperationVersionInfo(compilation);
                 opVersionInfo.Parent = versionInfo;
-                if (versionInfo.MinVersion > opVersionInfo.Version)
+                var v = opVersionInfo.Version;
+                if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
 
                 var sb = new StringBuilder();
-                CopyDocumentation(sb, kind, mds);
+                CopyDocumentation(sb, kind, mds, opVersionInfo);
                 var ps = mds.ParameterList.Parameters.Select(GetParameter);
                 if (sb.Length != 0 && !isProducer && ps.Any())
                 {
@@ -79,7 +79,9 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                 builder.Append("\t\tValueTask");
                 if (isProducer)
                     builder.Append("<EventKeys>");
-                builder.AppendLine($" {mds.ToNameConvention()}(");
+                var mtdName = mds.ToNameConvention();
+                string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
+                builder.AppendLine($" {nameVersion}(");
 
                 if (!isProducer)
                 {

@@ -52,6 +52,7 @@ namespace EventSourcing.Backbone
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
                         .Uri("Kids#HappySocks")
+                        .WithLogger(TestLogger.Create(_outputHelper))
                         .BuildSimpleEventProducer();
 
             await producer.ExecuteAsync("Id", 1);
@@ -64,6 +65,7 @@ namespace EventSourcing.Backbone
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
+                         .WithLogger(TestLogger.Create(_outputHelper))
                          .SubscribeSimpleEvent(_simpleEventConsumer);
 
             ch.Writer.Complete();
@@ -200,6 +202,7 @@ namespace EventSourcing.Backbone
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
                         .Uri("Kids#HappySocks")
+                        .WithLogger(TestLogger.Create(_outputHelper))
                         .BuildSequenceOperationsProducer();
 
             await producer.RegisterAsync(new User());
@@ -212,6 +215,7 @@ namespace EventSourcing.Backbone
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
+                         .WithLogger(TestLogger.Create(_outputHelper))
                          .Subscribe(new SequenceOfConsumerBridge(_subscriber));
 
             ch.Writer.Complete();

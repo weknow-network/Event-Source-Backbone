@@ -2,8 +2,8 @@
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new [] { 3 }, VersionNaming = VersionNaming.None)]
-    [EventsContract(EventsContractType.Producer, MinVersion = 2)]
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.AppendUnderscore)]
+    [EventsContract(EventsContractType.Producer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.AppendUnderscore)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Used for code generation, use the producer / consumer version of it", true)]
     public interface IEventsWithVersion
@@ -57,5 +57,13 @@ namespace EventSourcing.Backbone.WebEventTest
         /// <returns></returns>
         [EventSourceVersion(5)]
         ValueTask Ping(string value);
+
+        /// <summary>
+        /// Pings the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        [EventSourceVersion(3)]
+        ValueTask ShouldIgnored(string value);
     }
 }

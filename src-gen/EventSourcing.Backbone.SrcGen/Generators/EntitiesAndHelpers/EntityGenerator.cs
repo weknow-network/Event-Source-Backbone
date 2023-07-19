@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
 
-using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using Microsoft.CodeAnalysis;
@@ -46,13 +45,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 {
                     var opVersionInfo = mds.GetOperationVersionInfo(compilation);
                     opVersionInfo.Parent = versionInfo;
-                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                    var v = opVersionInfo.Version;
+                    if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                         continue;
 
                     string version = opVersionInfo.ToString();
 
                     var builder = new StringBuilder();
-                    CopyDocumentation(builder, kind, mds, "\t");
+                    CopyDocumentation(builder, kind, mds, opVersionInfo, "\t");
 
                     string recordPrefix = friendlyName;
                     if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
@@ -93,8 +93,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         {
             var builder = new StringBuilder();
 
-            // CopyDocumentation(builder, kind, item, "\t");
-
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Marker interface for entity mapper family contract generated from {interfaceName}");
             builder.AppendLine("\t/// </summary>");
@@ -121,12 +119,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         {
             var builder = new StringBuilder();
             var (item, att, symbol, kind, ns, @using) = info;
-
-            // CopyDocumentation(builder, kind, item, "\t");
-
-            //builder.AppendLine("\tnamespace Hidden");
-            //builder.AppendLine("\t{");
-
 
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
@@ -167,6 +159,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {interfaceName}_EntityFamily");
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
+            builder.AppendLine("\t\t\t\tvar version_ = announcement.Metadata.Version;");
 
             var versionInfo = att.GetVersionInfo(compilation);
             int j = 0;
@@ -176,34 +169,35 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     continue;
                 var opVersionInfo = mds.GetOperationVersionInfo(compilation);
                 opVersionInfo.Parent = versionInfo;
-                if (versionInfo.MinVersion > opVersionInfo.Version)
+                var v = opVersionInfo.Version;
+                if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
 
                 string version = opVersionInfo.ToString();
 
                 string mtdName = mds.ToNameConvention();
+                int opVersion = opVersionInfo.Version;
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
                 string fullRecordName = $"{recordPrefix}_{recordSuffix}";
 
-                string nameOfOperetion = $"{info.Name ?? interfaceName}.{mtdName}";
+                string nameOfOperetion = mtdName;
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";
-                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation_ == nameof({nameOfOperetion}))");
+                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation_ == \"{nameOfOperetion}\" &&");
+                builder.AppendLine($"\t\t\t\t\t\t version_ == {opVersion} &&");
+                builder.AppendLine($"\t\t\t\t\t\t typeof(TCast) == typeof({fullRecordName}_{version}))");
                 builder.AppendLine("\t\t\t\t{");
-                builder.AppendLine($"\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}_{version}))");
-                builder.AppendLine("\t\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
                 int i = 0;
                 foreach (var p in prms)
                 {
                     var pName = p.Identifier.ValueText;
-                    builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                    builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                     i++;
                 }
                 var ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
                 builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}_{version}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
-                builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
             }
             if (item.Members.Count == 0)
@@ -230,8 +224,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-
-            // CopyDocumentation(builder, kind, item, "\t");
 
             string bridge = $"{friendlyName}EntityMapper";
             string fileName = $"{bridge}Extensions";

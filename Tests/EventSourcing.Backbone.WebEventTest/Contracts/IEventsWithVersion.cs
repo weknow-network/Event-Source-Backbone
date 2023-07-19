@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new [] { 3 }, VersionNaming = VersionNaming.None)]
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.None)]
     [EventsContract(EventsContractType.Producer, MinVersion = 2)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Used for code generation, use the producer / consumer version of it", true)]

@@ -987,7 +987,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         Metadata meta;
         channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
         string? metaJson = channelMeta?[META_SLOT];
-        if(metaJson == null)
+        if (metaJson == null)
             throw new EventSourcingException("Couldn't find the metadata slot");
         string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
         meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));

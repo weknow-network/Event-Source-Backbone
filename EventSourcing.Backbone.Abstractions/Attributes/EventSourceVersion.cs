@@ -15,7 +15,7 @@
         /// Initializes a new instance of the <see cref="EventsContractAttribute" /> class.
         /// </summary>
         /// <param name="version">The version which will be produce.</param>
-        public EventSourceVersionAttribute(int version)
+        public EventSourceVersionAttribute(int version = 0)
         {
             Version = version;
         }

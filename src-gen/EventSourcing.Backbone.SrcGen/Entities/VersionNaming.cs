@@ -3,19 +3,19 @@
 internal enum VersionNaming
 {
     /// <summary>
-    /// Append version suffix to the method name separated with _
+    /// Keep original method name. 
     /// </summary>
-    AppendUnderscore,
+    None,
     /// <summary>
     /// Append version suffix to the method name
     /// </summary>
     Append,
     /// <summary>
-    /// Keep original method name. 
+    /// Append version suffix to the method name separated with _
     /// </summary>
-    None,
+    AppendUnderscore,
     /// <summary>
     /// Append version suffix to the method name separated with _
     /// </summary>
-    Default = AppendUnderscore
+    Default = None
 }

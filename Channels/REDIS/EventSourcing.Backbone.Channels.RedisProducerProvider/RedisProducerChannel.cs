@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Text.Json;
 
 using EventSourcing.Backbone.Producers;
@@ -12,8 +11,6 @@ using Polly;
 using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-
-using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone.Channels.RedisProvider;
 

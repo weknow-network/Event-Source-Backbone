@@ -25,7 +25,7 @@
         {
             var operation = nameof(ISequenceOperationsProducer.EarseAsync);
             var classification = CreateClassificationAdaptor(operation, nameof(id), id);
-            return await SendAsync(operation,0, classification);
+            return await SendAsync(operation, 0, classification);
         }
 
         async ValueTask<EventKeys> ISequenceOperationsProducer.LoginAsync(string email, string password)

@@ -1,11 +1,11 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
+
+using EventSourcing.Backbone.SrcGen.Entities;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using System.Collections.Immutable;
-using EventSourcing.Backbone.SrcGen.Entities;
 
 namespace EventSourcing.Backbone;
 
@@ -47,17 +47,55 @@ internal static class Helper
     /// <param name="source">The source.</param>
     /// <param name="kind">The kind.</param>
     /// <param name="mds">The MDS.</param>
+    /// <param name="versionInfo">The version information.</param>
     /// <param name="indent">The indent.</param>
-    public static void CopyDocumentation(StringBuilder source, string kind, CSharpSyntaxNode mds, string indent = "\t\t")
+    public static void CopyDocumentation(
+        StringBuilder source,
+        string kind,
+        CSharpSyntaxNode mds,
+        string indent = "\t\t")
+    {
+    }
+
+    /// <summary>
+    /// Copies the documentation.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="kind">The kind.</param>
+    /// <param name="mds">The MDS.</param>
+    /// <param name="versionInfo">The version information.</param>
+    /// <param name="indent">The indent.</param>
+    public static void CopyDocumentation(
+        StringBuilder source,
+        string kind,
+        CSharpSyntaxNode mds,
+        OperationVersionInfo? versionInfo,
+        string indent = "\t\t")
     {
         var trivia = mds.GetLeadingTrivia()
                         .Where(t =>
                                 t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia) ||
                                 t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia));
+        StringBuilder local = versionInfo == null ? source : new StringBuilder();
         foreach (var doc in trivia)
         {
-            source.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
+            local.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
         }
+        if (versionInfo == null)
+            return;
+
+        string content = local.ToString();
+        int at = content.IndexOf("</remarks>");
+        if (at == -1)
+        {
+            local.AppendLine($"{indent}/// <remarks>Event Version {versionInfo?.Version}</remarks>");
+        }
+        else
+        {
+            local.Insert(at, $"Event Version {versionInfo?.Version}\r\n{indent}/// </remarks>");
+        }
+
+        source.AppendLine(local.ToString());
     }
 
     #endregion // CopyDocumentation
@@ -97,11 +135,12 @@ internal static class Helper
         var versionNamingRawValue = (int?)versionNamingRaw.Value.Value;
         var versionNaming = versionNamingRawValue == null ? VersionNaming.Default : (VersionNaming)versionNamingRawValue;
         var ignoreVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.IgnoreVersion));
-        var ignoreVersion = ignoreVersionRaw.Value.Kind == TypedConstantKind.Array 
-            ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToArray()
-            : Array.Empty<int>();
 
-        var result = new VersionInfo(type) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion ?? Array.Empty<int>() };
+        IImmutableSet<int> ignoreVersion = ignoreVersionRaw.Value.Kind == TypedConstantKind.Array
+            ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToImmutableHashSet()
+            : ImmutableHashSet<int>.Empty;
+
+        var result = new VersionInfo(type) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
         return result;
     }
 

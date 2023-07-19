@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
@@ -10,7 +11,7 @@ internal struct VersionInfo
         Type = type;
         VersionNaming = VersionNaming.Default;
         MinVersion = 0;
-        IgnoreVersion = Array.Empty<int>();
+        IgnoreVersion = ImmutableHashSet<int>.Empty;
     }
 
     public EventsContractType Type { get; private set; }
@@ -28,5 +29,22 @@ internal struct VersionInfo
     /// <summary>
     /// Won't generate method with versions specified
     /// </summary>
-    public int[] IgnoreVersion { get; set; }
+    public IImmutableSet<int> IgnoreVersion { get; set; }
+
+    public string FormatMethodName(string name, int version)
+    {
+        string versionSuffix = VersionNaming switch
+        {
+            SrcGen.Entities.VersionNaming.Append => version.ToString(),
+            SrcGen.Entities.VersionNaming.AppendUnderscore => $"_{version}",
+            _ => string.Empty
+        };
+
+        if (name.EndsWith("Async"))
+        {
+            var prefix = name.Substring(0, name.Length - 5);
+            return $"{prefix}{versionSuffix}Async";
+        }
+        return $"{name}{versionSuffix}";
+    }
 }
