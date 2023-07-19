@@ -154,7 +154,7 @@ namespace EventSourcing.Backbone
         {
             var builder = new StringBuilder();
             var symbol = info.Symbol;
-            var versionInfo = info.Att.GetVersionInfo(compilation);
+            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
 
             string fileName = $"{prefix}Bridge";
 
@@ -268,7 +268,7 @@ namespace EventSourcing.Backbone
             var builder = new StringBuilder();
             var symbol = info.Symbol;
 
-            var versionInfo = info.Att.GetVersionInfo(compilation);
+            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
 
             string fileName = $"{prefix}Base";
 
@@ -357,7 +357,7 @@ namespace EventSourcing.Backbone
         {
             var symbol = info.Symbol;
             var kind = info.Kind;
-            var versionInfo = info.Att.GetVersionInfo(compilation);
+            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
 
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&

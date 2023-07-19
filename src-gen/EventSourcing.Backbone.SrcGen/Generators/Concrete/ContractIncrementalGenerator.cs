@@ -40,7 +40,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         var (type, att, symbol, kind, ns, isProducer, @using) = info;
 #pragma warning restore S1481 // Unused local variables should be removed
         string interfaceName = info.FormatName();
-        var versionInfo = att.GetVersionInfo(compilation);
+        var versionInfo = att.GetVersionInfo(compilation, info.Kind);
 
         var builder = new StringBuilder();
         CopyDocumentation(builder, kind, type, "\t");

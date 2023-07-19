@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 using EventSourcing.Backbone.SrcGen.Entities;
@@ -120,15 +121,15 @@ internal static class Helper
 
     public static VersionInfo GetVersionInfo(
                                     this AttributeSyntax attribute,
-                                    Compilation compilation)
+                                    Compilation compilation,
+                                    string kind)
     {
         var attData = attribute.GetAttributesData(
-                                    compilation);
+                                    compilation, kind);
         if (attData == null)
             return default;
 
         var typeRaw = attData.ConstructorArguments.First();
-        var type = typeRaw.Value?.Equals(0) ?? true ? EventsContractType.Producer : EventsContractType.Consumer;
         var minVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.MinVersion));
         var minVersion = (int?)minVersionRaw.Value.Value;
         var versionNamingRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.VersionNaming));
@@ -140,7 +141,8 @@ internal static class Helper
             ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToImmutableHashSet()
             : ImmutableHashSet<int>.Empty;
 
-        var result = new VersionInfo(type) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
+        EventsContractType knd = kind == nameof(EventsContractType.Producer) ? EventsContractType.Producer : EventsContractType.Consumer;   
+        var result = new VersionInfo(knd) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
         return result;
     }
 
@@ -250,7 +252,8 @@ internal static class Helper
     /// </remarks>
     public static AttributeData GetAttributesData(
                                 this AttributeSyntax attribute,
-                                Compilation compilation)
+                                Compilation compilation,
+                                string kind)
     {
         // Collect pertinent syntax trees from these attributes
         var acceptedTrees = new HashSet<SyntaxTree>();
@@ -261,7 +264,17 @@ internal static class Helper
         var query = from att in parentAttributes
                     where acceptedTrees.Contains(att.ApplicationSyntaxReference!.SyntaxTree)
                     select att;
-        return query.First();
+        return query.First(m =>
+        {
+            var val = m.ConstructorArguments.FirstOrDefault().Value;
+
+            return val switch
+            {
+                0 when kind == nameof(EventsContractType.Producer) => true,
+                1 when kind == nameof(EventsContractType.Consumer) => true,
+                _ => false
+            };
+        });
     }
 
     #endregion // GetAttributesData

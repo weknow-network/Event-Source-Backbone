@@ -34,7 +34,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         {
 
             var (item, att, symbol, kind, ns, usingStatements) = info;
-            var versionInfo = att.GetVersionInfo(compilation);
+            var versionInfo = att.GetVersionInfo(compilation, info.Kind);
 
 
             // TODO: [bnaya 2023-07-16] find max (current) version and excludes retired
@@ -161,7 +161,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
             builder.AppendLine("\t\t\t\tvar version_ = announcement.Metadata.Version;");
 
-            var versionInfo = att.GetVersionInfo(compilation);
+            var versionInfo = att.GetVersionInfo(compilation, info.Kind);
             int j = 0;
             foreach (var method in item.Members)
             {

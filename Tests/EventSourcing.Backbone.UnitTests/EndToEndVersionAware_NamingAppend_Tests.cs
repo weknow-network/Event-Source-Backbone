@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone;
 
-public class EndToEndVersionAware_NamingNoneTests
+public class EndToEndVersionAware_NamingAppend_Tests
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly IProducerBuilder _producerBuilder = ProducerBuilder.Empty;
@@ -21,11 +21,11 @@ public class EndToEndVersionAware_NamingNoneTests
     private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
     private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
     private readonly Channel<Announcement> ch;
-    private readonly IVersionAwareNoneConsumer _subscriber = A.Fake<IVersionAwareNoneConsumer>();
+    private readonly IVersionAwareAppendConsumer _subscriber = A.Fake<IVersionAwareAppendConsumer>();
 
     #region Ctor
 
-    public EndToEndVersionAware_NamingNoneTests(ITestOutputHelper outputHelper)
+    public EndToEndVersionAware_NamingAppend_Tests(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
         ch = Channel.CreateUnbounded<Announcement>();
@@ -35,23 +35,23 @@ public class EndToEndVersionAware_NamingNoneTests
 
     #endregion // Ctor
 
-    #region End2End_VersionAware_Test
+    #region End2End_VersionAware_Append_Test
 
     [Fact]
-    public async Task End2End_VersionAware_Test()
+    public async Task End2End_VersionAware_Append_Test()
     {
         string URI = "testing:version:aware";
-        IVersionAwareNoneProducer producer =
+        IVersionAwareAppendProducer producer =
             _producerBuilder.UseChannel(_producerChannel)
                     //.WithOptions(producerOption)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
-                    .BuildVersionAwareNoneProducer();
+                    .BuildVersionAwareAppendProducer();
 
         var ts = TimeSpan.FromSeconds(1);
-        await producer.ExecuteAsync(ts);
-        await producer.ExecuteAsync(10);
-        await producer.ExecuteAsync(11);
+        await producer.Execute4Async(ts);
+        await producer.Execute1Async(10);
+        await producer.Execute1Async(11);
 
         var cts = new CancellationTokenSource();
         IAsyncDisposable subscription =
@@ -60,21 +60,21 @@ public class EndToEndVersionAware_NamingNoneTests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .SubscribeVersionAwareNoneConsumer(_subscriber);
+                     .SubscribeVersionAwareAppendConsumer(_subscriber);
 
         ch.Writer.Complete();
         await subscription.DisposeAsync();
         await ch.Reader.Completion;
 
-        A.CallTo(() => _subscriber.ExecuteAsync(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        A.CallTo(() => _subscriber.ExecuteAsync(A<ConsumerMetadata>.Ignored, 10))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 10))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.ExecuteAsync(A<ConsumerMetadata>.Ignored, 11))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 11))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.ExecuteAsync(A<ConsumerMetadata>.Ignored, ts))
+        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }
 
-    #endregion // End2End_VersionAware_Test
+    #endregion // End2End_VersionAware_Append_Test
 }
