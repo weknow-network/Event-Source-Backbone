@@ -885,7 +885,7 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
             int i = 0;
-            await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
+            await foreach (SequenceOperations_Login_v0 item in iterator.GetAsyncEnumerable<SequenceOperations_Login_v0>().WithCancellation(cancellation))
             {
                 Assert.True(i < 1);
                 Assert.Equal("admin", item.email);
@@ -931,7 +931,7 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
             int i = 0;
-            await foreach (SequenceOperations_Login item in iterator.GetAsyncEnumerable<SequenceOperations_Login>().WithCancellation(cancellation))
+            await foreach (SequenceOperations_Login_v0 item in iterator.GetAsyncEnumerable<SequenceOperations_Login_v0>().WithCancellation(cancellation))
             {
                 Assert.True(i < 1);
                 Assert.Equal("admin", item.email);

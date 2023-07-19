@@ -121,6 +121,21 @@ internal static class Helper
                                         return name.EndsWith("EventSourceVersionAttribute") ||
                                                 name.EndsWith("EventSourceVersion");
                                     }).FirstOrDefault();
+        return GetOperationVersionInfo(attData);
+    }
+
+    public static OperationVersionInfo GetOperationVersionInfo(this IMethodSymbol method,
+                                    Predicate<AttributeData>? predicate = null)
+    {
+        AttributeData? opAtt = method.GetAttributes().Where(
+                            a => predicate?.Invoke(a) ?? true).FirstOrDefault();
+
+        var result = opAtt.GetOperationVersionInfo();
+        return result;
+    }
+
+    private static OperationVersionInfo GetOperationVersionInfo(this AttributeData? attData)
+    {
         if (attData == null)
             return default;
 

@@ -184,6 +184,7 @@
         /// Sends the produced data via the channel.
         /// </summary>
         /// <param name="operation">The operation.</param>
+        /// <param name="version">The version.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         /// <remarks>
@@ -191,6 +192,7 @@
         /// </remarks>
         protected ValueTask<EventKeys> SendAsync(
             string operation,
+            int version,
             params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
@@ -203,6 +205,7 @@
                         payload,
                         interceptorsData,
                         operation,
+                        version,
                         classifyAdaptors);
         }
 
@@ -214,6 +217,7 @@
         /// <param name="payload">The payload.</param>
         /// <param name="interceptorsData">The interceptors data.</param>
         /// <param name="operation">The operation.</param>
+        /// <param name="version">The version.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         private async ValueTask<EventKeys> SendAsync(
@@ -222,6 +226,7 @@
             Bucket payload,
             Bucket interceptorsData,
             string operation,
+            int version,
             Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             Metadata metadata = new Metadata
@@ -229,7 +234,8 @@
                 MessageId = id,
                 Environment = plan.Environment,
                 Uri = plan.Uri,
-                Operation = operation
+                Operation = operation,
+                Version = version
             };
 
             foreach (var classify in classifyAdaptors)
@@ -274,6 +280,7 @@
                              payload,
                              interceptorsData,
                              operation,
+                             version,
                              classifyAdaptors);
                 return k;
             });

@@ -127,6 +127,15 @@ namespace EventSourcing.Backbone
 
         #endregion // StorageTypes
 
+        #region Version
+
+        /// <summary>
+        /// Gets the version of the message (as defined in the interface).
+        /// </summary>
+        public required int Version { get; init; }
+
+        #endregion // Version
+
         #region ToString
 
         /// <summary>
@@ -147,7 +156,7 @@ namespace EventSourcing.Backbone
     {
         private const string EMPTY_KEY = "~EMPTY~";
 
-        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Operation = "NONE", Uri = string.Empty };
+        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, Version = -1, ChannelType = "NONE", EventKey = string.Empty, Operation = "NONE", Uri = string.Empty };
 
         #region Duration
 

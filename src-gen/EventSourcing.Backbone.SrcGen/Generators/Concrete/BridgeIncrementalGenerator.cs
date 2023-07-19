@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
+using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
@@ -31,10 +33,10 @@ namespace EventSourcing.Backbone
 
             if (info.Kind == "Producer")
             {
-                var file = OnGenerateProducer(builder, info, interfaceName, usingStatements);
+                var file = OnGenerateProducer(compilation, builder, info, interfaceName, usingStatements );
                 return new[] { new GenInstruction(file, builder.ToString()) };
             }
-            return OnGenerateConsumers(info, interfaceName, usingStatements);
+            return OnGenerateConsumers(compilation, info, interfaceName, usingStatements);
 
         }
 
@@ -43,6 +45,7 @@ namespace EventSourcing.Backbone
         #region OnGenerateConsumers
 
         protected GenInstruction[] OnGenerateConsumers(
+                            Compilation compilation,
                             SyntaxReceiverResult info,
                             string interfaceName,
                             string[] usingStatements)
@@ -54,15 +57,15 @@ namespace EventSourcing.Backbone
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
 
-            var dtos = EntityGenerator.GenerateEntities(prefix, info, interfaceName, generateFrom, assemblyName);
+            var dtos = EntityGenerator.GenerateEntities(compilation, prefix, info, interfaceName, generateFrom, assemblyName);
             GenInstruction[] gens =
             {
-                EntityGenerator.GenerateEntityFamilyContract(prefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapper(prefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapperExtensions(prefix, info, interfaceName , generateFrom, assemblyName),
-                OnGenerateConsumerBase(prefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridge(prefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridgeExtensions(prefix, info, interfaceName, generateFrom, assemblyName)
+                EntityGenerator.GenerateEntityFamilyContract(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapper(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapperExtensions(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
+                OnGenerateConsumerBase(compilation, prefix, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridge(compilation, prefix, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridgeExtensions(compilation, prefix, info, interfaceName, generateFrom, assemblyName)
             };
 
             return dtos.Concat(gens).ToArray();
@@ -73,11 +76,12 @@ namespace EventSourcing.Backbone
         #region OnGenerateConsumerBridgeExtensions
 
         protected GenInstruction OnGenerateConsumerBridgeExtensions(
-            string prefix,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string prefix,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
 
@@ -143,13 +147,15 @@ namespace EventSourcing.Backbone
         #region OnGenerateConsumerBridge
 
         protected GenInstruction OnGenerateConsumerBridge(
-            string prefix,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string prefix,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
             var symbol = info.Symbol;
+            var versionInfo = info.Att.GetVersionInfo(compilation);
 
             string fileName = $"{prefix}Bridge";
 
@@ -203,14 +209,20 @@ namespace EventSourcing.Backbone
             if (allMethods.Length != 0)
             {
                 builder.AppendLine("\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
-                builder.AppendLine("\t\t\tswitch (announcement.Metadata.Operation)");
+                builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
+                builder.AppendLine("\t\t\tswitch (meta)");
                 builder.AppendLine("\t\t\t{");
+ 
                 foreach (var method in allMethods)
                 {
+                    var opVersionInfo = method.GetOperationVersionInfo();
+                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                        continue;
+
                     string mtdName = method.ToNameConvention();
                     string mtdType = method.ContainingType.Name;
                     mtdType = info.FormatName(mtdType);
-                    builder.AppendLine($"\t\t\t\tcase nameof({mtdType}.{mtdName}):");
+                    builder.AppendLine($"\t\t\t\tcase {{ Operation: nameof({mtdType}.{mtdName}), Version: {opVersionInfo.Version} }} :");
                     builder.AppendLine("\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -244,13 +256,16 @@ namespace EventSourcing.Backbone
         #region OnGenerateConsumerBase
 
         protected GenInstruction OnGenerateConsumerBase(
-            string prefix,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string prefix,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
             var symbol = info.Symbol;
+
+            var versionInfo = info.Att.GetVersionInfo(compilation);
 
             string fileName = $"{prefix}Base";
 
@@ -272,14 +287,19 @@ namespace EventSourcing.Backbone
             if (allMethods.Length != 0)
             {
                 builder.AppendLine("\t\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
-                builder.AppendLine("\t\t\t\tswitch (announcement.Metadata.Operation)");
+                builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
+                builder.AppendLine("\t\t\t\tswitch (meta)");
                 builder.AppendLine("\t\t\t\t{");
                 foreach (var method in allMethods)
                 {
+                    var opVersionInfo = method.GetOperationVersionInfo();
+                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                        continue;
+
                     string mtdName = method.ToNameConvention();
                     string mtdType = method.ContainingType.Name;
                     mtdType = info.FormatName(mtdType);
-                    builder.AppendLine($"\t\t\t\t\tcase nameof({mtdType}.{mtdName}):");
+                    builder.AppendLine($"\t\t\t\tcase {{ Operation: nameof({mtdType}.{mtdName}), Version: {opVersionInfo.Version} }} :");
                     builder.AppendLine("\t\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -324,6 +344,7 @@ namespace EventSourcing.Backbone
         #region OnGenerateProducer
 
         protected string OnGenerateProducer(
+                            Compilation compilation,
                             StringBuilder builder,
                             SyntaxReceiverResult info,
                             string interfaceName,
@@ -331,6 +352,7 @@ namespace EventSourcing.Backbone
         {
             var symbol = info.Symbol;
             var kind = info.Kind;
+            var versionInfo = info.Att.GetVersionInfo(compilation);
 
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
@@ -358,6 +380,17 @@ namespace EventSourcing.Backbone
             builder.AppendLine();
             foreach (IMethodSymbol method in symbol.GetAllMethods())
             {
+                var opVersionInfo = method.GetOperationVersionInfo(
+                                    a =>
+                                    {
+                                        var name = a.AttributeClass!.Name;
+                                        return name.EndsWith("EventSourceVersionAttribute") ||
+                                                name.EndsWith("EventSourceVersion");
+                                    });
+                opVersionInfo.Parent = versionInfo;
+                if (versionInfo.MinVersion > opVersionInfo.Version)
+                    continue;
+
                 GenerateProducerMethods(builder, info, method);
             }
             builder.AppendLine("\t}");
@@ -388,9 +421,9 @@ namespace EventSourcing.Backbone
         #region GenerateProducerMethods
 
         private static void GenerateProducerMethods(
-            StringBuilder builder,
-            SyntaxReceiverResult info,
-            IMethodSymbol mds)
+                            StringBuilder builder,
+                            SyntaxReceiverResult info,
+                            IMethodSymbol mds)
         {
             string mtdName = mds.ToNameConvention();
             string interfaceName = mds.ContainingType.Name;
@@ -399,12 +432,14 @@ namespace EventSourcing.Backbone
             builder.Append("<EventKeys>");
             builder.Append($" {interfaceName}.{mtdName}(");
 
+            var opVersionInfo = mds.GetOperationVersionInfo();
             IEnumerable<string> ps = mds.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
             builder.Append("\t\t\t");
             builder.Append(string.Join(", ", ps));
             builder.AppendLine(")");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar operation_ = nameof({interfaceName}.{mtdName});");
+            builder.AppendLine($"\t\t\tvar version_ = {opVersionInfo.Version};");
             int i = 0;
             var prms = mds.Parameters;
             foreach (var pName in from p in prms
@@ -417,7 +452,7 @@ namespace EventSourcing.Backbone
 
             var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification_{m}_");
 
-            builder.Append($"\t\t\treturn await SendAsync(operation_");
+            builder.Append($"\t\t\treturn await SendAsync(operation_, version_");
             if (classifications.Any())
                 builder.AppendLine($", {string.Join(", ", classifications)});");
             else

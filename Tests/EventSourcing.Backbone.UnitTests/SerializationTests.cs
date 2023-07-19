@@ -12,6 +12,7 @@ namespace EventSourcing.Backbone
             var meta = new Metadata
             {
                 MessageId = "message1",
+                Version = 10,
                 Environment = "env1",
                 Uri = "uri1",
                 Operation = "operation1"
@@ -55,6 +56,7 @@ namespace EventSourcing.Backbone
             {
                 MessageId = "message1",
                 Environment = "env1",
+                Version = 10,
                 Uri = "uri1",
                 Operation = "operation1"
             };

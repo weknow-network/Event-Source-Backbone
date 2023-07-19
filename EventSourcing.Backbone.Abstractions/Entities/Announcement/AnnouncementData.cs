@@ -42,6 +42,7 @@ namespace EventSourcing.Backbone
             Operation = this.Operation,
             Uri = this.Uri,
             ProducedAt = this.ProducedAt,
+            Version = this.Version,
         };
 
         #endregion // ExtractMeta
@@ -69,6 +70,7 @@ namespace EventSourcing.Backbone
                 ProducedAt = meta.ProducedAt,
                 Operation = meta.Operation,
                 Uri = meta.Uri,
+                Version = meta.Version,
             };
         }
 

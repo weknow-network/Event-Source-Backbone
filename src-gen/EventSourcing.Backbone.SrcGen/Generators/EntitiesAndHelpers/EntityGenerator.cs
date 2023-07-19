@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
 
+using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using Microsoft.CodeAnalysis;
@@ -25,20 +26,31 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         /// File name
         /// </returns>
         internal static GenInstruction[] GenerateEntities(
-            string friendlyName,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string friendlyName,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom,
+                            AssemblyName assemblyName)
         {
 
-            var (item, symbol, kind, ns, usingStatements) = info;
+            var (item, att, symbol, kind, ns, usingStatements) = info;
+            var versionInfo = att.GetVersionInfo(compilation);
 
+
+            // TODO: [bnaya 2023-07-16] find max (current) version and excludes retired
             var results = new List<GenInstruction>();
             foreach (var method in item.Members)
             {
                 if (method is MethodDeclarationSyntax mds)
                 {
+                    var opVersionInfo = mds.GetOperationVersionInfo(compilation);
+                    opVersionInfo.Parent = versionInfo;
+                    if (versionInfo.MinVersion > opVersionInfo.Version)
+                        continue;
+
+                    string version = opVersionInfo.ToString();
+
                     var builder = new StringBuilder();
                     CopyDocumentation(builder, kind, mds, "\t");
 
@@ -51,7 +63,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                         mtdName = mtdName.Substring(0, mtdName.Length - 5);
                     builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
                     builder.Append("\tpublic record");
-                    builder.Append($" {recordPrefix}_{mtdName}(");
+                    builder.Append($" {recordPrefix}_{mtdName}_{version}(");
 
                     var ps = mds.ParameterList.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}");
                     builder.Append("\t\t");
@@ -59,7 +71,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     builder.AppendLine($"): {interfaceName}_EntityFamily;");
                     builder.AppendLine();
 
-                    results.Add(new GenInstruction($"{recordPrefix}.{mtdName}.Entity", builder.ToString()));
+                    results.Add(new GenInstruction($"{recordPrefix}.{mtdName}.{version}.Entity", builder.ToString()));
                 }
             }
 
@@ -72,11 +84,12 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         #region GenerateEntityFamilyContract
 
         internal static GenInstruction GenerateEntityFamilyContract(
-            string friendlyName,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string friendlyName,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
 
@@ -99,14 +112,15 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         #region GenerateEntityMapper
 
         internal static GenInstruction GenerateEntityMapper(
-            string friendlyName,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string friendlyName,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, symbol, kind, ns, @using) = info;
+            var (item, att, symbol, kind, ns, @using) = info;
 
             // CopyDocumentation(builder, kind, item, "\t");
 
@@ -154,11 +168,19 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t\t{");
             builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
 
+            var versionInfo = att.GetVersionInfo(compilation);
             int j = 0;
             foreach (var method in item.Members)
             {
                 if (method is not MethodDeclarationSyntax mds)
                     continue;
+                var opVersionInfo = mds.GetOperationVersionInfo(compilation);
+                opVersionInfo.Parent = versionInfo;
+                if (versionInfo.MinVersion > opVersionInfo.Version)
+                    continue;
+
+                string version = opVersionInfo.ToString();
+
                 string mtdName = mds.ToNameConvention();
                 string recordSuffix = mtdName.EndsWith("Async") ? mtdName.Substring(0, mtdName.Length - 5) : mtdName;
                 string fullRecordName = $"{recordPrefix}_{recordSuffix}";
@@ -167,7 +189,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 string ifOrElseIf = j++ > 0 ? "else if" : "if";
                 builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation_ == nameof({nameOfOperetion}))");
                 builder.AppendLine("\t\t\t\t{");
-                builder.AppendLine($"\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}))");
+                builder.AppendLine($"\t\t\t\t\tif(typeof(TCast) == typeof({fullRecordName}_{version}))");
                 builder.AppendLine("\t\t\t\t\t{");
                 var prms = mds.ParameterList.Parameters;
                 int i = 0;
@@ -179,7 +201,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 }
                 var ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
+                builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}_{version}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
                 builder.AppendLine("\t\t\t\t\t}");
                 builder.AppendLine("\t\t\t\t}");
@@ -191,7 +213,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t\t}");
 
             builder.AppendLine("\t\t}");
-            //builder.AppendLine("\t}");
 
             return new GenInstruction($"{friendlyName}.EntityMapper", builder.ToString());
         }
@@ -201,11 +222,12 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         #region GenerateEntityMapperExtensions
 
         internal static GenInstruction GenerateEntityMapperExtensions(
-            string friendlyName,
-            SyntaxReceiverResult info,
-            string interfaceName,
-            string generateFrom,
-            AssemblyName assemblyName)
+                            Compilation compilation,
+                            string friendlyName,
+                            SyntaxReceiverResult info,
+                            string interfaceName,
+                            string generateFrom,
+                            AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
 
