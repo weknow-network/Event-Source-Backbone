@@ -4,9 +4,9 @@ using System.Diagnostics;
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
 [DebuggerDisplay("{Type}, Min: {MinVersion}, naming: {VersionNaming}")]
-internal struct VersionInfo
+internal struct VersionInstructions
 {
-    public VersionInfo(EventsContractType type)
+    public VersionInstructions(EventsContractType type)
     {
         Type = type;
         VersionNaming = VersionNaming.Default;

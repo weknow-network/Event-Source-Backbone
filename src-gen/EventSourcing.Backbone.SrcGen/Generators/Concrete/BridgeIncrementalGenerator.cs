@@ -223,8 +223,6 @@ namespace EventSourcing.Backbone
                     string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
                     string nameOfOperetion = mtdName;
 
-                    //string mtdType = method.ContainingType.Name;
-                    //mtdType = info.FormatName(mtdType);
                     builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version} }} :");
                     builder.AppendLine("\t\t\t\t{");
                     var prms = method.Parameters;
@@ -385,13 +383,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine();
             foreach (IMethodSymbol method in symbol.GetAllMethods())
             {
-                var opVersionInfo = method.GetOperationVersionInfo(
-                                    a =>
-                                    {
-                                        var name = a.AttributeClass!.Name;
-                                        return name.EndsWith("EventSourceVersionAttribute") ||
-                                                name.EndsWith("EventSourceVersion");
-                                    });
+                var opVersionInfo = method.GetOperationVersionInfo();
                 var v = opVersionInfo.Version;
                 if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                     continue;
@@ -429,8 +421,8 @@ namespace EventSourcing.Backbone
                             StringBuilder builder,
                             SyntaxReceiverResult info,
                             IMethodSymbol mds,
-                            VersionInfo versionInfo,
-                            OperationVersionInfo opVersionInfo)
+                            VersionInstructions versionInfo,
+                            OperatioVersionInstructions opVersionInfo)
         {
             string mtdName = mds.ToNameConvention();
             string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);

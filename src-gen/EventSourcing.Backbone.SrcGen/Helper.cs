@@ -13,6 +13,14 @@ namespace EventSourcing.Backbone;
 /// </summary>
 internal static class Helper
 {
+    private static readonly Predicate<AttributeData> DEFAULT_VERSION_PREDICATE =
+                                a =>
+                                {
+                                    var name = a.AttributeClass!.Name;
+                                    return name.EndsWith("EventSourceVersionAttribute") ||
+                                            name.EndsWith("EventSourceVersion");
+                                };
+
     #region Convert
 
     /// <summary>
@@ -70,7 +78,7 @@ internal static class Helper
         StringBuilder source,
         string kind,
         CSharpSyntaxNode mds,
-        OperationVersionInfo? versionInfo,
+        OperatioVersionInstructions? versionInfo,
         string indent = "\t\t")
     {
         var trivia = mds.GetLeadingTrivia()
@@ -119,7 +127,7 @@ internal static class Helper
 
     #region GetVersionInfo
 
-    public static VersionInfo GetVersionInfo(
+    public static VersionInstructions GetVersionInfo(
                                     this AttributeSyntax attribute,
                                     Compilation compilation,
                                     string kind)
@@ -130,19 +138,19 @@ internal static class Helper
             return default;
 
         var typeRaw = attData.ConstructorArguments.First();
-        var minVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.MinVersion));
+        var minVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.MinVersion));
         var minVersion = (int?)minVersionRaw.Value.Value;
-        var versionNamingRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.VersionNaming));
+        var versionNamingRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.VersionNaming));
         var versionNamingRawValue = (int?)versionNamingRaw.Value.Value;
         var versionNaming = versionNamingRawValue == null ? VersionNaming.Default : (VersionNaming)versionNamingRawValue;
-        var ignoreVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInfo.IgnoreVersion));
+        var ignoreVersionRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.IgnoreVersion));
 
         IImmutableSet<int> ignoreVersion = ignoreVersionRaw.Value.Kind == TypedConstantKind.Array
             ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToImmutableHashSet()
             : ImmutableHashSet<int>.Empty;
 
         EventsContractType knd = kind == nameof(EventsContractType.Producer) ? EventsContractType.Producer : EventsContractType.Consumer;   
-        var result = new VersionInfo(knd) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
+        var result = new VersionInstructions(knd) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
         return result;
     }
 
@@ -150,7 +158,7 @@ internal static class Helper
 
     #region GetOperationVersionInfo
 
-    public static OperationVersionInfo GetOperationVersionInfo(
+    public static OperatioVersionInstructions GetOperationVersionInfo(
                                     this MethodDeclarationSyntax method,
                                     Compilation compilation)
     {
@@ -165,9 +173,10 @@ internal static class Helper
         return GetOperationVersionInfo(attData);
     }
 
-    public static OperationVersionInfo GetOperationVersionInfo(this IMethodSymbol method,
+    public static OperatioVersionInstructions GetOperationVersionInfo(this IMethodSymbol method,
                                     Predicate<AttributeData>? predicate = null)
     {
+        predicate = predicate ?? DEFAULT_VERSION_PREDICATE;
         AttributeData? opAtt = method.GetAttributes().Where(
                             a => predicate?.Invoke(a) ?? true).FirstOrDefault();
 
@@ -175,17 +184,17 @@ internal static class Helper
         return result;
     }
 
-    private static OperationVersionInfo GetOperationVersionInfo(this AttributeData? attData)
+    private static OperatioVersionInstructions GetOperationVersionInfo(this AttributeData? attData)
     {
         if (attData == null)
             return default;
 
         var versionRaw = attData.ConstructorArguments.First();
         var version = (int)versionRaw.Value!;
-        var retiredRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperationVersionInfo.Retired));
+        var retiredRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioVersionInstructions.Retired));
         var retired = (int?)retiredRaw.Value.Value;
 
-        var result = new OperationVersionInfo { Version = version, Retired = retired };
+        var result = new OperatioVersionInstructions { Version = version, Retired = retired };
         return result;
     }
 

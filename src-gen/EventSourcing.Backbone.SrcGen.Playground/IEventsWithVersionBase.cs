@@ -1,10 +1,6 @@
-﻿using System.ComponentModel;
-
-namespace EventSourcing.Backbone.WebEventTest
+﻿namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.Append)]
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.AppendUnderscore)]
-    public interface IEventsWithVersion// : IEventsWithVersionBase
+    public interface IEventsWithVersionBase
     {
         /// <summary>
         /// Logins the specified name.

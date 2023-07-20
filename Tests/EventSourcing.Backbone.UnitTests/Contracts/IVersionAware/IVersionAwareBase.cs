@@ -4,10 +4,7 @@
     /// <summary>
     /// Test contract
     /// </summary>
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.AppendUnderscore, IgnoreVersion = new[] { 3 })]
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.AppendUnderscore, IgnoreVersion = new[] { 3 })]
-    [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
-    public interface IVersionAwareAppendUnderscore//: IVersionAwareBase
+    public interface IVersionAwareBase
     {
         //[EventSourceVersion(Retired = 4)]
         ValueTask ExecuteAsync(string key, int value);

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using Microsoft.CodeAnalysis;
@@ -40,19 +41,19 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         var (type, att, symbol, kind, ns, isProducer, @using) = info;
 #pragma warning restore S1481 // Unused local variables should be removed
         string interfaceName = info.FormatName();
-        var versionInfo = att.GetVersionInfo(compilation, info.Kind);
+        VersionInstructions versionInfo = att.GetVersionInfo(compilation, info.Kind);
 
         var builder = new StringBuilder();
         CopyDocumentation(builder, kind, type, "\t");
         var asm = GetType().Assembly.GetName();
         builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
         builder.Append($"\tpublic interface {interfaceName}");
-        var baseTypes = symbol.Interfaces.Select(m => info.FormatName(m.Name));
-        string inheritance = string.Join(", ", baseTypes);
-        if (string.IsNullOrEmpty(inheritance))
+        var baseTypesFormats = symbol.Interfaces.Select(m => info.FormatName(m.Name));
+        string inheritanceNames = string.Join(", ", baseTypesFormats);
+        if (string.IsNullOrEmpty(inheritanceNames))
             builder.AppendLine();
         else
-            builder.AppendLine($" : {inheritance}");
+            builder.AppendLine($" : {inheritanceNames}");
         builder.AppendLine("\t{");
         foreach (var method in type.Members)
         {
@@ -90,7 +91,13 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 
         #region GenMethod
 
-        SrcGen.Entities.VersionInfo GenMethod(string kind, bool isProducer, SrcGen.Entities.VersionInfo versionInfo, StringBuilder builder, MethodDeclarationSyntax mds, SrcGen.Entities.OperationVersionInfo opVersionInfo)
+        VersionInstructions GenMethod(
+            string kind,
+            bool isProducer,
+            VersionInstructions versionInfo,
+            StringBuilder builder,
+            MethodDeclarationSyntax mds,
+            OperatioVersionInstructions opVersionInfo)
         {
             var sb = new StringBuilder();
             CopyDocumentation(sb, kind, mds, opVersionInfo);

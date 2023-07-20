@@ -213,23 +213,6 @@ namespace EventSourcing.Backbone
 
         #endregion // OnGenerate
 
-        #region GetInterfaceConvention
-
-        [Obsolete("deprecate", true)]
-        protected virtual string GetInterfaceConvention(
-            string? name,
-            string generateFrom,
-            string kind,
-            string? suffix)
-        {
-            string interfaceName = name ?? Convert(generateFrom, kind);
-            if (name == null && !string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
-                interfaceName = $"{interfaceName}{suffix}";
-            return interfaceName;
-        }
-
-        #endregion // GetInterfaceConvention
-
         #region AttributePredicate
 
         /// <summary>
