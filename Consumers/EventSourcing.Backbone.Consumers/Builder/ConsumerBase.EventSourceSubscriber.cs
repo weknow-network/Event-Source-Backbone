@@ -187,7 +187,11 @@ public partial class ConsumerBase
                                                 announcement,
                                                 this,
                                                 ack);
-                            if (_fallbacks.Count != 0)
+                            if (_fallbacks.Count == 1)
+                            {
+                                await _fallbacks[0](handle);
+                            }
+                            else if (_fallbacks.Count != 0)
                             {
                                 var tasks = _fallbacks.Select(f => f(handle));
                                 await Task.WhenAll(tasks).ThrowAll();
