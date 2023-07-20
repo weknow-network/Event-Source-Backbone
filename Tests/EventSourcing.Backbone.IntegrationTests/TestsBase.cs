@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.Tasks.Dataflow;
 
 using EventSourcing.Backbone.IntegrationTests.HelloWorld;
@@ -120,5 +121,22 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Dispose pattern
+
+
+        #region GetCancellationToken
+
+        /// <summary>
+        /// Gets the cancellation token.
+        /// </summary>
+        /// <returns></returns>
+        protected static CancellationToken GetCancellationToken(int prodSec = 10)
+        {
+            return new CancellationTokenSource(Debugger.IsAttached
+                                ? TimeSpan.FromMinutes(10)
+                                : TimeSpan.FromSeconds(prodSec)).Token;
+        }
+
+        #endregion // GetCancellationToken
+
     }
 }

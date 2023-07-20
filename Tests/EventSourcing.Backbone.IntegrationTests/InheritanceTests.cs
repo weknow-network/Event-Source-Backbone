@@ -6,7 +6,7 @@ using System.Diagnostics;
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Enums;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 

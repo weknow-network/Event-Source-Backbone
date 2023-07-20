@@ -21,8 +21,10 @@
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
+#pragma warning disable S1133 
         [Obsolete("Reflection", true)]
-        public ProducerPipeline(ref IProducerPlanBuilder plan)
+#pragma warning restore S1133 
+        protected ProducerPipeline(ref IProducerPlanBuilder plan)
         {
             _plan = plan.Build();
         }
@@ -31,14 +33,14 @@
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        public ProducerPipeline(IProducerPlan plan)
+        protected ProducerPipeline(IProducerPlan plan)
         {
             _plan = plan;
         }
 
         #endregion // Ctor
 
-        #region CreateClassificationAdaptor
+        #region CreateClassificationAdapter
 
         /// <summary>
         /// Classify the operation payload from method arguments.
@@ -51,11 +53,12 @@
         /// <remarks>
         /// MUST BE PROTECTED, called from the generated code
         /// </remarks>
-        protected Func<IProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdaptor<T>(
+        protected Func<IProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdapter<T>(
                                             string operation,
                                             string argumentName,
                                             T producedData)
         {
+#pragma warning disable HAA0303 // Lambda or anonymous method in a generic method allocates a delegate instance
             return (IProducerPlan plan, Bucket payload) =>
                                  ClassifyArgumentAsync(
                                                  plan,
@@ -63,9 +66,10 @@
                                                  operation,
                                                  argumentName,
                                                  producedData);
+#pragma warning restore HAA0303 
         }
 
-        #endregion // CreateClassificationAdaptor
+        #endregion // CreateClassificationAdapter
 
         #region ClassifyArgumentAsync
 
@@ -266,7 +270,6 @@
 
             if (plan.ForwardPlans.Count == 0) // merged
             {
-                var strategies = plan.StorageStrategies;
                 var ch = plan.Channel;
                 EventKey k = await ch.SendAsync(plan, announcement);
                 return new EventKeys(k);

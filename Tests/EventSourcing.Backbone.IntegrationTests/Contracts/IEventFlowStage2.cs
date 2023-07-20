@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace EventSourcing.Backbone.UnitTests.Entities;
+namespace EventSourcing.Backbone.Tests.Entities;
 
 /// <summary>
 /// use to test consumer which have partial operation from IEventFlow

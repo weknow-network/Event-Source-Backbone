@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EventSourcing.Backbone.Channels.RedisProvider.Common;
+
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -53,8 +55,8 @@ internal class RedisHashStorageStrategy : IConsumerStorageStrategy
         Func<string, string> getProperty,
         CancellationToken cancellation)
     {
-        string operation = meta.Operation;
-        string key = $"{meta.FullUri()}:{type}:{operation}:{meta.MessageId}";
+        string propKey = $"{RedisChannelConstants.STORE_KEY}:{type}";
+        string key = getProperty(propKey);
 
         IConnectionMultiplexer conn = await _connFactory.GetAsync(cancellation);
         IDatabaseAsync db = conn.GetDatabase();

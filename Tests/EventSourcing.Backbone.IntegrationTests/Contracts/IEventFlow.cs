@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace EventSourcing.Backbone.UnitTests.Entities;
+namespace EventSourcing.Backbone.Tests.Entities;
 
 [EventsContract(EventsContractType.Producer)]
 [EventsContract(EventsContractType.Consumer)]

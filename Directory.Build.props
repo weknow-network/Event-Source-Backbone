@@ -20,6 +20,7 @@
 			# 1.2.151
 			Breaking changes:
 			- Version awareness
+			- Changes of URI and storage path
 			- Fix type: IConsumerSubscribtionHubBuilder -> IConsumerSubscriptionHubBuilder
 		</PackageReleaseNotes>
 	</PropertyGroup>

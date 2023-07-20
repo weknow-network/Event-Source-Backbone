@@ -7,9 +7,9 @@ namespace EventSourcing.Backbone.Tests
     public class S3StoreSplittingStrategyTests : EndToEndTests
     {
         private readonly static ImmutableHashSet<string> _gdrpFilter = ImmutableHashSet.CreateRange(new[] {
-            nameof(UnitTests.Entities.ISequenceOperationsProducer.LoginAsync),
-            nameof(UnitTests.Entities.ISequenceOperationsProducer.RegisterAsync),
-            nameof(UnitTests.Entities.ISequenceOperationsProducer.UpdateAsync)
+            nameof(Entities.ISequenceOperationsProducer.LoginAsync),
+            nameof(Entities.ISequenceOperationsProducer.RegisterAsync),
+            nameof(Entities.ISequenceOperationsProducer.UpdateAsync)
         });
         private static readonly S3ConsumerOptions OPTIONS = new S3ConsumerOptions
         {

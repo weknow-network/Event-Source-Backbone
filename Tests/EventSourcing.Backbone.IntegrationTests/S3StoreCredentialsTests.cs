@@ -1,7 +1,7 @@
 using Amazon.S3;
 
 using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 

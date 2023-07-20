@@ -79,7 +79,6 @@ namespace EventSourcing.Backbone
             A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _producerStorageStrategy.SaveBucketAsync(
-                                                        A<string>.Ignored,
                                                         A<Bucket>.Ignored,
                                                         A<EventBucketCategories>.Ignored,
                                                         A<Metadata>.Ignored,

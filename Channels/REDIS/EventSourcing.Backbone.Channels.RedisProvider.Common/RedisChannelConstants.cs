@@ -8,6 +8,8 @@ public static class RedisChannelConstants
     public const string END_POINT_KEY = "REDIS_EVENT_SOURCE_ENDPOINT";
     public const string PASSWORD_KEY = "REDIS_EVENT_SOURCE_PASS";
 
+    public const string STORE_KEY = "__REDIS_STORE__";
+
     /// <summary>
     /// a work around used to release messages back to the stream (consumer)
     /// </summary>

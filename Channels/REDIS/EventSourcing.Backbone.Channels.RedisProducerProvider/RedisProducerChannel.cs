@@ -95,7 +95,9 @@ internal class RedisProducerChannel : ProducerChannelBase
         var telemetryBuilder = commonEntries.ToBuilder();
         foreach (var item in storageMeta)
         {
-            telemetryBuilder.Add(KV(item.Key, item.Value));
+            var kv = KV(item.Key, item.Value);
+            telemetryBuilder.Add(kv);
+            commonEntries = commonEntries.Add(kv);
         }
         Activity.Current?.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
         var entries = telemetryBuilder.ToArray();

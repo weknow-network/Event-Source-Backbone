@@ -1,5 +1,5 @@
 using EventSourcing.Backbone.Tests;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 

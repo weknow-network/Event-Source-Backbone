@@ -79,7 +79,6 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions (after filtering).</param>
         /// <param name="type">The type.</param>
         /// <param name="meta">The metadata.</param>
@@ -88,7 +87,6 @@ namespace EventSourcing.Backbone.Channels
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         protected override async ValueTask<IImmutableDictionary<string, string>> OnSaveBucketAsync(
-                                string id,
                                 IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket,
                                 EventBucketCategories type,
                                 Metadata meta,
@@ -96,7 +94,7 @@ namespace EventSourcing.Backbone.Channels
         {
             var date = DateTime.UtcNow;
             int index = Interlocked.Increment(ref _index);
-            string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/{id}/{index}/{type}";
+            string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/v{meta.Version}/{meta.MessageId}/{index}/{type}";
             var tasks = bucket.Select(SaveAsync);
             KeyValuePair<string, string>[] propKeyToS3Key = await Task.WhenAll(tasks);
             string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);

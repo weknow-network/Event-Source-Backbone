@@ -447,7 +447,7 @@ namespace EventSourcing.Backbone
                                   let pName = p.Name
                                   select pName)
             {
-                builder.AppendLine($"\t\t\tvar classification_{i}_ = CreateClassificationAdaptor(operation_, nameof({pName}), {pName});");
+                builder.AppendLine($"\t\t\tvar classification_{i}_ = CreateClassificationAdapter(operation_, nameof({pName}), {pName});");
                 i++;
             }
 

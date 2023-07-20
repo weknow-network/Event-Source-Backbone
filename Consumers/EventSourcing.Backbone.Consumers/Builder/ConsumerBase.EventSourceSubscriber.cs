@@ -34,7 +34,7 @@ public partial class ConsumerBase
         // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
         private long _consumeCounter;
         private readonly ConcurrentQueue<Handler> _handlers;
-        private IImmutableList<Func<IConsumerFallback, Task>> _fallbacks;
+        private readonly IImmutableList<Func<IConsumerFallback, Task>> _fallbacks;
 
         #region Ctor
 
@@ -174,29 +174,19 @@ public partial class ConsumerBase
                         {
                             var tasks = _handlers.AsParallel().Select(h => h.Invoke(announcement, this));
                             var results = await Task.WhenAll(tasks);
-                            return results?.Any(m => m) ?? false;
+                            var processed = results?.Any(m => m) ?? false;
+                            if (processed)
+                                return processed;
+
+                            await OnFallback(announcement, ack);
+                            return false;
                         }
                         foreach (Handler handler in _handlers)
                         {
                             if (await handler.Invoke(announcement, this))
                                 return true;
                         }
-                        if (_fallbacks.Count != 0)
-                        {
-                            var handle = new FallbackHandle(
-                                                announcement,
-                                                this,
-                                                ack);
-                            if (_fallbacks.Count == 1)
-                            {
-                                await _fallbacks[0](handle);
-                            }
-                            else if (_fallbacks.Count != 0)
-                            {
-                                var tasks = _fallbacks.Select(f => f(handle));
-                                await Task.WhenAll(tasks).ThrowAll();
-                            }
-                        }
+                        await OnFallback(announcement, ack);
                         return false;
                     }, cancellation);
 
@@ -207,10 +197,9 @@ public partial class ConsumerBase
                         Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.FullUri(), meta.Operation, meta.MessageId);
                         throw new InvalidOperationException($"No handler is matching event: {meta.FullUri()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
                     }
-                    if (hasProcessed)
+                    if (hasProcessed && behavior == AckBehavior.OnSucceed)
                     {
-                        if (behavior == AckBehavior.OnSucceed)
-                            await ack.AckAsync(AckBehavior.OnSucceed);
+                        await ack.AckAsync(AckBehavior.OnSucceed);
                     }
                 }
             }
@@ -257,6 +246,35 @@ public partial class ConsumerBase
         }
 
         #endregion // ConsumingAsync
+
+        #region OnFallback
+
+        /// <summary>
+        /// Called when [fallback].
+        /// </summary>
+        /// <param name="announcement">The announcement.</param>
+        /// <param name="ack">The ack.</param>
+        private async Task OnFallback(Announcement announcement, IAck ack)
+        {
+            if (_fallbacks.Count != 0)
+            {
+                var handle = new FallbackHandle(
+                                    announcement,
+                                    this,
+                                    ack);
+                if (_fallbacks.Count == 1)
+                {
+                    await _fallbacks[0](handle);
+                }
+                else
+                {
+                    var tasks = _fallbacks.Select(f => f(handle));
+                    await Task.WhenAll(tasks).ThrowAll();
+                }
+            }
+        }
+
+        #endregion // OnFallback
 
         #region Subscribe
 

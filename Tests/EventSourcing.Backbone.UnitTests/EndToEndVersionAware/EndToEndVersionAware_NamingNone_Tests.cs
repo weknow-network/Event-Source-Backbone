@@ -35,8 +35,6 @@ public class EndToEndVersionAware_NamingNone_Tests
 
     #endregion // Ctor
 
-    #region End2End_VersionAware_None_Test
-
     [Fact]
     public async Task End2End_VersionAware_None_Test()
     {
@@ -75,6 +73,4 @@ public class EndToEndVersionAware_NamingNone_Tests
         A.CallTo(() => _subscriber.ExecuteAsync(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }
-
-    #endregion // End2End_VersionAware_None_Test
 }

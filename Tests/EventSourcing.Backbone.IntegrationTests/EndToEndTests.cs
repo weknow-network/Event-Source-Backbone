@@ -4,7 +4,7 @@ using System.Text.Json;
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Enums;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 
@@ -926,7 +926,7 @@ namespace EventSourcing.Backbone.Tests
                          .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .BuildIterator()
-                         .Specialize(UnitTests.Entities.SequenceOperationsConsumerEntityMapper.Default);
+                         .Specialize(SequenceOperationsConsumerEntityMapper.Default);
 
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
@@ -1400,20 +1400,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // SendSequenceAsync
-
-        #region GetCancellationToken
-
-        /// <summary>
-        /// Gets the cancellation token.
-        /// </summary>
-        /// <returns></returns>
-        private static CancellationToken GetCancellationToken()
-        {
-            return new CancellationTokenSource(Debugger.IsAttached
-                                ? TimeSpan.FromMinutes(10)
-                                : TimeSpan.FromSeconds(10)).Token;
-        }
-
-        #endregion // GetCancellationToken
     }
 }

@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Building;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 
@@ -11,36 +12,37 @@ using Xunit.Abstractions;
 
 
 
-namespace EventSourcing.Backbone.UnitTests;
+namespace EventSourcing.Backbone.Tests;
 
-public class EndToEndVersionAware_NamingAppend_Tests
+public class EndToEndVersionAware_NamingAppend_Tests: EndToEndVersionAwareBase
 {
-    private readonly ITestOutputHelper _outputHelper;
-    private readonly IProducerBuilder _producerBuilder = ProducerBuilder.Empty;
-    private readonly IConsumerBuilder _consumerBuilder = ConsumerBuilder.Empty;
-    private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
-    private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
-    private readonly Channel<Announcement> ch;
     private readonly IVersionAwareAppendConsumer _subscriber = A.Fake<IVersionAwareAppendConsumer>();
 
     #region Ctor
 
-    public EndToEndVersionAware_NamingAppend_Tests(ITestOutputHelper outputHelper)
+    public EndToEndVersionAware_NamingAppend_Tests(
+            ITestOutputHelper outputHelper,
+            Func<IProducerStoreStrategyBuilder, ILogger, IProducerStoreStrategyBuilder>? producerChannelBuilder = null,
+             Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
+            : base(outputHelper, producerChannelBuilder, consumerChannelBuilder)
     {
-        _outputHelper = outputHelper;
-        ch = Channel.CreateUnbounded<Announcement>();
-        _producerChannel = _ => new ProducerTestChannel(ch);
-        _consumerChannel = _ => new ConsumerTestChannel(ch);
+        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+               .ReturnsLazily(() => ValueTask.CompletedTask);
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+                .ReturnsLazily(() => ValueTask.CompletedTask);
+        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerMetadata>.Ignored, A<TimeSpan>.Ignored))
+                .ReturnsLazily(() => ValueTask.CompletedTask);
     }
 
     #endregion // Ctor
 
+    protected override string Name { get; } = "append";
+
     [Fact]
     public async Task End2End_VersionAware_Append_Test()
     {
-        string URI = "testing:version:aware";
         IVersionAwareAppendProducer producer =
-            _producerBuilder.UseChannel(_producerChannel)
+            _producerBuilder
                     //.WithOptions(producerOption)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
@@ -52,17 +54,15 @@ public class EndToEndVersionAware_NamingAppend_Tests
         await producer.Execute1Async(11);
 
         var cts = new CancellationTokenSource();
-        IAsyncDisposable subscription =
-             _consumerBuilder.UseChannel(_consumerChannel)
-                     //.WithOptions(consumerOptions)
+        var subscription =
+             _consumerBuilder
+                     .WithOptions(cfg => cfg with { MaxMessages = 3 })
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
                      .SubscribeVersionAwareAppendConsumer(_subscriber);
 
-        ch.Writer.Complete();
-        await subscription.DisposeAsync();
-        await ch.Reader.Completion;
+        await subscription.Completion;
 
         A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();

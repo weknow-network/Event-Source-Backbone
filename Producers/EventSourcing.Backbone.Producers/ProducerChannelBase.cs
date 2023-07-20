@@ -199,7 +199,7 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
                 using (plan.StartTraceDebug($"producer.{storage.Name}-storage.{storageType}.set"))
                 {
                     IImmutableDictionary<string, string> metaItems =
-                        await storage.SaveBucketAsync(id, bucket, storageType, meta);
+                        await storage.SaveBucketAsync(bucket, storageType, meta);
                     return metaItems;
                 }
             }
