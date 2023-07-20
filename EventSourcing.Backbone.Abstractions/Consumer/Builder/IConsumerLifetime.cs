@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Backbone
 {
-    public interface IConsumerLifetime : IConsumerSubscribtionHubBuilder, IAsyncDisposable
+    public interface IConsumerLifetime : IConsumerSubscriptionHubBuilder, IAsyncDisposable
     {
         /// <summary>
         /// Represent the consuming completion..

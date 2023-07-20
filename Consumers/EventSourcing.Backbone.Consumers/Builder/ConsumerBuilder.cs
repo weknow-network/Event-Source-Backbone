@@ -470,10 +470,10 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge handler)
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge handler)
 
         {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handler.ToEnumerable());
+            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handler.ToEnumerable());
         }
 
         /// <summary>
@@ -483,10 +483,10 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
 
         {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
+            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
         }
 
         /// <summary>
@@ -496,7 +496,7 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
             IEnumerable<ISubscriptionBridge> handlers)
 
         {
@@ -524,11 +524,11 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
             params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
 
         {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
+            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
         }
 
         /// <summary>
@@ -538,7 +538,7 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
             IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
 
         {
@@ -559,6 +559,23 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // Subscribe
+
+        #region Fallback
+
+        /// <summary>
+        /// Fallback the specified action.
+        /// </summary>
+        /// <param name="onFallback">The fallback's action.</param>
+        /// <returns></returns>
+        IConsumerSubscriptionHubBuilder IConsumerSubscribeBuilder.Fallback(
+            Func<IConsumerFallback, Task> onFallback)
+        {
+            var prms = _plan.WithFallback(onFallback);
+            var result = new ConsumerBuilder(prms);
+            return result;
+        }
+
+        #endregion // Fallback
 
         #region WithGroupIfEmpty
 

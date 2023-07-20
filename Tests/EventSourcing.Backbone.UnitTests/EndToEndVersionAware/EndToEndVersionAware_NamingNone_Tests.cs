@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 
 
-namespace EventSourcing.Backbone;
+namespace EventSourcing.Backbone.UnitTests;
 
 public class EndToEndVersionAware_NamingNone_Tests
 {

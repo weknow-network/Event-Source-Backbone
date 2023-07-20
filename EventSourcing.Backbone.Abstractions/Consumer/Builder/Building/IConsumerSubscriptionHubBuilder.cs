@@ -1,6 +1,6 @@
 ﻿namespace EventSourcing.Backbone.Building
 {
-    public interface IConsumerSubscribtionHubBuilder
+    public interface IConsumerSubscriptionHubBuilder
     {
         /// <summary>
         /// Subscribe consumer.
@@ -58,6 +58,5 @@
         /// </returns>
         IConsumerLifetime Subscribe(
             IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers);
-
     }
 }

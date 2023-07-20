@@ -20,6 +20,7 @@
 			# 1.2.151
 			Breaking changes:
 			- Version awareness
+			- Fix type: IConsumerSubscribtionHubBuilder -> IConsumerSubscriptionHubBuilder
 		</PackageReleaseNotes>
 	</PropertyGroup>
 	

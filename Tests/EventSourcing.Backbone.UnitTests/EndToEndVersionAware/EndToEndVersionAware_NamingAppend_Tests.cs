@@ -11,9 +11,9 @@ using Xunit.Abstractions;
 
 
 
-namespace EventSourcing.Backbone;
+namespace EventSourcing.Backbone.UnitTests;
 
-public class EndToEndVersionAware_MixNaming_Tests
+public class EndToEndVersionAware_NamingAppend_Tests
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly IProducerBuilder _producerBuilder = ProducerBuilder.Empty;
@@ -21,11 +21,11 @@ public class EndToEndVersionAware_MixNaming_Tests
     private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
     private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
     private readonly Channel<Announcement> ch;
-    private readonly IVersionAwareMixConsumer _subscriber = A.Fake<IVersionAwareMixConsumer>();
+    private readonly IVersionAwareAppendConsumer _subscriber = A.Fake<IVersionAwareAppendConsumer>();
 
     #region Ctor
 
-    public EndToEndVersionAware_MixNaming_Tests(ITestOutputHelper outputHelper)
+    public EndToEndVersionAware_NamingAppend_Tests(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
         ch = Channel.CreateUnbounded<Announcement>();
@@ -35,18 +35,18 @@ public class EndToEndVersionAware_MixNaming_Tests
 
     #endregion // Ctor
 
-    #region End2End_VersionAware_Mix_Test
+    #region End2End_VersionAware_Append_Test
 
     [Fact]
-    public async Task End2End_VersionAware_Mix_Test()
+    public async Task End2End_VersionAware_Append_Test()
     {
         string URI = "testing:version:aware";
-        IVersionAwareMixProducer producer =
+        IVersionAwareAppendProducer producer =
             _producerBuilder.UseChannel(_producerChannel)
                     //.WithOptions(producerOption)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
-                    .BuildVersionAwareMixProducer();
+                    .BuildVersionAwareAppendProducer();
 
         var ts = TimeSpan.FromSeconds(1);
         await producer.Execute4Async(ts);
@@ -60,21 +60,21 @@ public class EndToEndVersionAware_MixNaming_Tests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .SubscribeVersionAwareMixConsumer(_subscriber);
+                     .SubscribeVersionAwareAppendConsumer(_subscriber);
 
         ch.Writer.Complete();
         await subscription.DisposeAsync();
         await ch.Reader.Completion;
 
-        A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerMetadata>.Ignored, 10))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 10))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerMetadata>.Ignored, 11))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 11))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
+        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }
 
-    #endregion // End2End_VersionAware_Mix_Test
+    #endregion // End2End_VersionAware_Append_Test
 }

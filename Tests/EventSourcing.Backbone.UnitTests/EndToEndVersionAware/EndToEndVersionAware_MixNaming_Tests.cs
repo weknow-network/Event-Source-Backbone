@@ -11,9 +11,9 @@ using Xunit.Abstractions;
 
 
 
-namespace EventSourcing.Backbone;
+namespace EventSourcing.Backbone.UnitTests;
 
-public class EndToEndVersionAware_NamingAppendUnderscore_Tests
+public class EndToEndVersionAware_MixNaming_Tests
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly IProducerBuilder _producerBuilder = ProducerBuilder.Empty;
@@ -21,11 +21,11 @@ public class EndToEndVersionAware_NamingAppendUnderscore_Tests
     private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
     private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
     private readonly Channel<Announcement> ch;
-    private readonly IVersionAwareAppendUnderscoreConsumer _subscriber = A.Fake<IVersionAwareAppendUnderscoreConsumer>();
+    private readonly IVersionAwareMixConsumer _subscriber = A.Fake<IVersionAwareMixConsumer>();
 
     #region Ctor
 
-    public EndToEndVersionAware_NamingAppendUnderscore_Tests(ITestOutputHelper outputHelper)
+    public EndToEndVersionAware_MixNaming_Tests(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
         ch = Channel.CreateUnbounded<Announcement>();
@@ -35,23 +35,23 @@ public class EndToEndVersionAware_NamingAppendUnderscore_Tests
 
     #endregion // Ctor
 
-    #region End2End_VersionAware_AppendUnderscore_Test
+    #region End2End_VersionAware_Mix_Test
 
     [Fact]
-    public async Task End2End_VersionAware_AppendUnderscore_Test()
+    public async Task End2End_VersionAware_Mix_Test()
     {
         string URI = "testing:version:aware";
-        IVersionAwareAppendUnderscoreProducer producer =
+        IVersionAwareMixProducer producer =
             _producerBuilder.UseChannel(_producerChannel)
                     //.WithOptions(producerOption)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
-                    .BuildVersionAwareAppendUnderscoreProducer();
+                    .BuildVersionAwareMixProducer();
 
         var ts = TimeSpan.FromSeconds(1);
-        await producer.Execute_4Async(ts);
-        await producer.Execute_1Async(10);
-        await producer.Execute_1Async(11);
+        await producer.Execute4Async(ts);
+        await producer.Execute1Async(10);
+        await producer.Execute1Async(11);
 
         var cts = new CancellationTokenSource();
         IAsyncDisposable subscription =
@@ -60,7 +60,7 @@ public class EndToEndVersionAware_NamingAppendUnderscore_Tests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .SubscribeVersionAwareAppendUnderscoreConsumer(_subscriber);
+                     .SubscribeVersionAwareMixConsumer(_subscriber);
 
         ch.Writer.Complete();
         await subscription.DisposeAsync();
@@ -76,5 +76,5 @@ public class EndToEndVersionAware_NamingAppendUnderscore_Tests
             .MustHaveHappenedOnceExactly();
     }
 
-    #endregion // End2End_VersionAware_AppendUnderscore_Test
+    #endregion // End2End_VersionAware_Mix_Test
 }

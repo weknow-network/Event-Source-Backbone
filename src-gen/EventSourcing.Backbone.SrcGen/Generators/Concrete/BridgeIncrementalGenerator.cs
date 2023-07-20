@@ -100,7 +100,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
             builder.AppendLine($"\t\t\t\t{interfaceName} target)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
@@ -114,7 +114,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
             builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
@@ -128,7 +128,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
             builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscribtionHubBuilder source,");
+            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
             builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
