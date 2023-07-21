@@ -3,6 +3,8 @@
 [![NuGet](https://img.shields.io/nuget/v/EventSourcing.Backbone.SrcGen.svg)](https://www.nuget.org/packages/EventSourcing.Backbone.SrcGen/) 
 [![NuGet](https://img.shields.io/nuget/v/EventSourcing.Backbone.Abstractions.svg)](https://www.nuget.org/packages/EventSourcing.Backbone.Abstractions/)  
 
+*Framework Status: Beta (Graduating to RC soon; API subject to change).*  
+
 # Event-Source-Backbone 
 
 ## Understanding Event Sourcing
