@@ -183,7 +183,7 @@ namespace EventSourcing.Backbone.Tests
 
         #region PartialConsumer_Strict_Succeed_Test
 
-        [Fact(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT, Skip = "Pending feature https://github.com/users/bnayae/projects/8/views/1?query=is%3Aopen+sort%3Aupdated-desc&pane=issue&itemId=34366135")]
         public async Task PartialConsumer_Strict_Succeed_Test()
         {
             #region ISequenceOperations producer = ...
@@ -289,7 +289,7 @@ namespace EventSourcing.Backbone.Tests
 
         #region PartialConsumer_Allow_Test
 
-        [Fact(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT, Skip = "Pending feature https://github.com/users/bnayae/projects/8/views/1?query=is%3Aopen+sort%3Aupdated-desc&pane=issue&itemId=34366135")]
         public async Task PartialConsumer_Allow_Test()
         {
             uint times = 20;
