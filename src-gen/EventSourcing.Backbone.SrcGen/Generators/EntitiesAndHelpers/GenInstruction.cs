@@ -7,7 +7,7 @@
             File = file;
             Content = content;
             NS = ns;
-            UsingAddition = usingAddition;
+            UsingAddition = usingAddition.Select(m => m.StartsWith("using") ? m : $"using {m};").ToArray();
         }
 
         public string File { get; }

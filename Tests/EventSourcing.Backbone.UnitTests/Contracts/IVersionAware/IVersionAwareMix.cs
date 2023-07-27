@@ -4,14 +4,14 @@
     /// <summary>
     /// Test contract
     /// </summary>
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append, IgnoreVersion = new[] { 3 })]
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.AppendUnderscore, IgnoreVersion = new[] { 3 })]
+    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.AppendUnderscore)]
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IVersionAwareMix// : IVersionAwareBase
     {
         //[EventSourceVersion(Retired = 4)]
         ValueTask ExecuteAsync(string key, int value);
-        [EventSourceVersion(1, Retired = 2)]
+        [EventSourceVersion(1)]
         ValueTask ExecuteAsync(int value);
         [EventSourceVersion(2)]
         ValueTask ExecuteAsync(DateTime value);

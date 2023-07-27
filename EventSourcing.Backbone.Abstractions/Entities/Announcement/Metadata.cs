@@ -127,6 +127,15 @@ namespace EventSourcing.Backbone
 
         #endregion // StorageTypes
 
+        #region ParamsSignature
+
+        /// <summary>
+        /// Gets the signature of the method's parameters.
+        /// </summary>
+        public required string ParamsSignature { get; init; }
+
+        #endregion // ParamsSignature
+
         #region Version
 
         /// <summary>
@@ -156,7 +165,7 @@ namespace EventSourcing.Backbone
     {
         private const string EMPTY_KEY = "~EMPTY~";
 
-        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, Version = -1, ChannelType = "NONE", EventKey = string.Empty, Operation = "NONE", Uri = string.Empty };
+        public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, Version = -1, ChannelType = "NONE", EventKey = string.Empty, Operation = "NONE", Uri = string.Empty, ParamsSignature = string.Empty };
 
         #region Duration
 

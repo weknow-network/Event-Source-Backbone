@@ -86,7 +86,7 @@ namespace EventSourcing.Backbone
 
         #endregion // AckAsync
 
-        #region AckAsync
+        #region CancelAsync
 
         /// <summary>
         /// Cancel acknowledge (will happen on error in order to avoid ack on succeed)
@@ -96,7 +96,6 @@ namespace EventSourcing.Backbone
         /// Must be execute from a consuming scope (i.e. method call invoked by the consumer's event processing).
         public ValueTask CancelAsync(AckBehavior cause = AckBehavior.Manual) => Ack.Current.CancelAsync(cause);
 
-        #endregion // AckAsync
-
+        #endregion // CancelAsync
     }
 }

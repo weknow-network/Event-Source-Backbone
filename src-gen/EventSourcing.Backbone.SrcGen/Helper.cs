@@ -3,6 +3,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 using EventSourcing.Backbone.SrcGen.Entities;
+using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -75,33 +76,44 @@ internal static class Helper
     /// <param name="versionInfo">The version information.</param>
     /// <param name="indent">The indent.</param>
     public static void CopyDocumentation(
+        Compilation compilation,
         StringBuilder source,
         string kind,
         CSharpSyntaxNode mds,
-        OperatioVersionInstructions? versionInfo,
+        int? version,
         string indent = "\t\t")
     {
         var trivia = mds.GetLeadingTrivia()
                         .Where(t =>
                                 t.IsKind(SyntaxKind.MultiLineDocumentationCommentTrivia) ||
                                 t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia));
-        StringBuilder local = versionInfo == null ? source : new StringBuilder();
+        StringBuilder local = version == null ? source : new StringBuilder();
         foreach (var doc in trivia)
         {
             local.AppendLine($"{indent}/// {Convert(doc.ToString(), kind)}");
         }
-        if (versionInfo == null)
+
+        if (mds is not MethodDeclarationSyntax mtd)
+            return;
+
+        string prmSig = mtd.GetParamsSignature(compilation);
+        if (version == null && prmSig == null)
             return;
 
         string content = local.ToString();
+
         int at = content.IndexOf("</remarks>");
+        string remark = $@"{indent}/// Event Version {version}
+{indent}/// Parameter Signature:  {prmSig}";
         if (at == -1)
         {
-            local.AppendLine($"{indent}/// <remarks>Event Version {versionInfo?.Version}</remarks>");
+            local.AppendLine($"{indent}/// <remarks>");
+            local.AppendLine(remark);
+            local.AppendLine($"{indent}/// </remarks>");
         }
         else
         {
-            local.Insert(at, $"Event Version {versionInfo?.Version}\r\n{indent}/// </remarks>");
+            local.Insert(at, $"\r\n{remark} ");
         }
 
         source.AppendLine(local.ToString());
@@ -149,7 +161,7 @@ internal static class Helper
             ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToImmutableHashSet()
             : ImmutableHashSet<int>.Empty;
 
-        EventsContractType knd = kind == nameof(EventsContractType.Producer) ? EventsContractType.Producer : EventsContractType.Consumer;   
+        EventsContractType knd = kind == nameof(EventsContractType.Producer) ? EventsContractType.Producer : EventsContractType.Consumer;
         var result = new VersionInstructions(knd) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
         return result;
     }
@@ -162,14 +174,15 @@ internal static class Helper
                                     this MethodDeclarationSyntax method,
                                     Compilation compilation)
     {
-        var attData = method.AttributeLists.GetAttributesData(
+        var query = method.AttributeLists.GetAttributesData(
                                     compilation,
                                     a =>
                                     {
-                                        var name = a.Name.ToFullString();
+                                        var name = a.AttributeClass?.Name ?? string.Empty;
                                         return name.EndsWith("EventSourceVersionAttribute") ||
                                                 name.EndsWith("EventSourceVersion");
-                                    }).FirstOrDefault();
+                                    });
+        var attData = query.FirstOrDefault();
         return GetOperationVersionInfo(attData);
     }
 
@@ -191,14 +204,72 @@ internal static class Helper
 
         var versionRaw = attData.ConstructorArguments.First();
         var version = (int)versionRaw.Value!;
-        var retiredRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioVersionInstructions.Retired));
-        var retired = (int?)retiredRaw.Value.Value;
+        var remarkRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioVersionInstructions.Remark));
+        var remark = (string?)remarkRaw.Value.Value;
+        var dateRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioVersionInstructions.Date));
+        var date = (string?)dateRaw.Value.Value;
 
-        var result = new OperatioVersionInstructions { Version = version, Retired = retired };
+        var result = new OperatioVersionInstructions { Version = version, Remark = remark, Date = date };
         return result;
     }
 
     #endregion // GetOperationVersionInfo
+
+    #region GetOperationDeprecationInfo
+
+#pragma warning disable HAA0102 // Non-overridden virtual method call on value type
+    public static OperatioDeprecationInstructions? GetOperationDeprecationInfo(
+                                    this MethodDeclarationSyntax method,
+                                    string? type,
+                                    Compilation compilation)
+    {
+        var query = method.AttributeLists.GetAttributesData(
+                                    compilation,
+                                    a =>
+                                    {
+                                        var name = a.AttributeClass?.Name ?? string.Empty;
+                                        var result = name.EndsWith("EventSourceDeprecationAttribute") ||
+                                                name.EndsWith("EventSourceDeprecation");
+                                        if (!result)
+                                            return false;
+                                        result = a.ConstructorArguments.First().Value == type;
+                                        return result;
+                                    });
+        var attData = query.FirstOrDefault();
+        return GetOperationDeprecationInfo(attData);
+    }
+#pragma warning restore HAA0102 
+
+    public static OperatioDeprecationInstructions? GetOperationDeprecationInfo(this IMethodSymbol method,
+                                    EventsContractType type,
+                                    Predicate<AttributeData>? predicate = null)
+    {
+        predicate = predicate ?? DEFAULT_VERSION_PREDICATE;
+        AttributeData? opAtt = method.GetAttributes().Where(
+                            a =>
+                                        predicate?.Invoke(a) ?? true).FirstOrDefault();
+
+        var result = opAtt.GetOperationDeprecationInfo();
+        return result;
+    }
+
+    private static OperatioDeprecationInstructions? GetOperationDeprecationInfo(this AttributeData? attData)
+    {
+        if (attData == null)
+            return null;
+
+        var versionRaw = attData.ConstructorArguments.First();
+        var version = (int)versionRaw.Value!;
+        var remarkRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Remark));
+        var remark = (string?)remarkRaw.Value.Value;
+        var dateRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Date));
+        var date = (string?)dateRaw.Value.Value;
+
+        var result = new OperatioDeprecationInstructions { Version = version, Remark = remark, Date = date };
+        return result;
+    }
+
+    #endregion // GetOperationDeprecationInfo
 
     #region GetAttributesData
 
@@ -214,11 +285,41 @@ internal static class Helper
     public static AttributeData[] GetAttributesData(
                                     this SyntaxList<AttributeListSyntax> attributes,
                                     Compilation compilation,
-                                    Predicate<AttributeSyntax>? predicate)
+                                    Predicate<AttributeData>? predicate)
     {
         var list = attributes.SelectMany(m => m.GetAttributesData(compilation, predicate));
         return list.ToArray();
     }
+
+    ///// <summary>
+    ///// Gets the attributes data.
+    ///// </summary>
+    ///// <param name="attributes">The attributes.</param>
+    ///// <param name="compilation">The compilation.</param>
+    ///// <returns></returns>
+    ///// <remarks>
+    ///// Credits: https://stackoverflow.com/questions/28947456/how-do-i-get-attributedata-from-attributesyntax-in-roslyn
+    ///// </remarks>
+    //public static IEnumerable<AttributeData> GetAttributesData(
+    //                            this AttributeListSyntax attributes,
+    //                            Compilation compilation,
+    //                            Predicate<AttributeSyntax>? predicate)
+    //{
+    //    // Collect pertinent syntax trees from these attributes
+    //    var acceptedTrees = new HashSet<SyntaxTree>();
+    //    foreach (AttributeSyntax attribute in attributes.Attributes)
+    //    {
+    //        if (predicate?.Invoke(attribute) ?? true)
+    //            acceptedTrees.Add(attribute.SyntaxTree);
+    //    }
+
+    //    var parentSymbol = attributes.Parent!.GetDeclaredSymbol(compilation)!;
+    //    var parentAttributes = parentSymbol.GetAttributes();
+    //    var query = from attribute in parentAttributes
+    //                where acceptedTrees.Contains(attribute.ApplicationSyntaxReference!.SyntaxTree)
+    //                select attribute;
+    //    return query.Where(attribute => predicate?.Invoke(attribute) ?? true);
+    //}
 
     /// <summary>
     /// Gets the attributes data.
@@ -232,21 +333,11 @@ internal static class Helper
     public static IEnumerable<AttributeData> GetAttributesData(
                                 this AttributeListSyntax attributes,
                                 Compilation compilation,
-                                Predicate<AttributeSyntax>? predicate)
+                                Predicate<AttributeData>? predicate)
     {
-        // Collect pertinent syntax trees from these attributes
-        var acceptedTrees = new HashSet<SyntaxTree>();
-        foreach (AttributeSyntax attribute in attributes.Attributes)
-        {
-            if (predicate?.Invoke(attribute) ?? true)
-                acceptedTrees.Add(attribute.SyntaxTree);
-        }
-
         var parentSymbol = attributes.Parent!.GetDeclaredSymbol(compilation)!;
         var parentAttributes = parentSymbol.GetAttributes();
-        var query = from attribute in parentAttributes
-                    where acceptedTrees.Contains(attribute.ApplicationSyntaxReference!.SyntaxTree)
-                    select attribute;
+        var query = parentAttributes.Where(attribute => predicate?.Invoke(attribute) ?? true);
         return query;
     }
 
@@ -307,4 +398,58 @@ internal static class Helper
     }
 
     #endregion // GetDeclaredSymbol
+
+    public static string GetParamsSignature(this MemberDeclarationSyntax method, Compilation compilation)
+    {
+        ISymbol? mtdSymbol = method.GetDeclaredSymbol(compilation);
+        var result = mtdSymbol.GetParamsSignature();
+        return result;
+    }
+    public static string GetParamsSignature(this ISymbol? method)
+    {
+        if (method is not IMethodSymbol mtdSymbol)
+            return string.Empty;
+        var result = mtdSymbol.Parameters.Select(p => p.Type.Name);
+        if (result == null)
+            return string.Empty;
+        return string.Join(",", result);
+    }
+
+    public static MethodBundle[] ToBundle(
+                            this SyntaxReceiverResult info,
+                            Compilation compilation) 
+    {
+        TypeDeclarationSyntax item = info.Type;
+        var kind = info.Kind;
+        var versionInfo = info.Att.GetVersionInfo(compilation, kind);
+        MethodBundle[] items = item.Members.Select(method =>
+        {
+            if (method is not MethodDeclarationSyntax mds)
+                return null;
+            var opVersionInfo = mds.GetOperationVersionInfo(compilation);
+            var version = opVersionInfo.Version;
+            if (versionInfo.MinVersion > version || versionInfo.IgnoreVersion.Contains(version))
+                return null;
+
+            string mtdName = mds.ToNameConvention();
+            string mtdShortName = mtdName.EndsWith("Async")
+                        ? mtdName.Substring(0, mtdName.Length - 5)
+                        : mtdName;
+
+            string prmSig = method.GetParamsSignature(compilation);
+
+            return new MethodBundle(mds, mtdShortName, version, prmSig);
+        })
+        .Cast<MethodBundle>()
+        .Where(m => m != null)
+        .Where(m =>
+        {
+            MethodDeclarationSyntax mds = m.Method;
+
+            var deprecated = mds.GetOperationDeprecationInfo(kind, compilation);
+            return deprecated == null;
+        })
+        .ToArray();
+        return items;
+    }
 }

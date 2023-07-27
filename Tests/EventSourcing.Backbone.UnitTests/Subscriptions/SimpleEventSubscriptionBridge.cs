@@ -27,16 +27,16 @@ namespace EventSourcing.Backbone
         async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
             var meta = ConsumerMetadata.Context;
-            switch (announcement.Metadata.Operation)
+            switch (announcement.Metadata)
             {
-                case nameof(ISimpleEventConsumer.ExecuteAsync):
+                case { Operation: nameof(ISimpleEventConsumer.ExecuteAsync) }:
                     {
                         var p0 = await consumerBridge.GetParameterAsync<string>(announcement, "key");
                         var p1 = await consumerBridge.GetParameterAsync<int>(announcement, "value");
                         await _target.ExecuteAsync(meta, p0, p1);
                         return true;
                     }
-                case nameof(ISimpleEventConsumer.RunAsync):
+                case { Operation: nameof(ISimpleEventConsumer.RunAsync), ParamsSignature: "Int32,DateTime" }:
                     {
                         var p0 = await consumerBridge.GetParameterAsync<int>(announcement, "id");
                         var p1 = await consumerBridge.GetParameterAsync<DateTime>(announcement, "date");

@@ -2,66 +2,83 @@
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.Append)]
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.AppendUnderscore)]
-    public interface IEventsWithVersion// : IEventsWithVersionBase
+    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Default)] 
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Default)]
+    [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
+    public interface IEventsWithVersion
     {
-        /// <summary>
-        /// Logins the specified name.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="password">The password.</param>
-        /// <returns></returns>
-        [EventSourceVersion(1)] // same as not specifying a the attribute at all.
-        ValueTask Login(string name, string password);
+        //// [ConsumerFallback]        
+        ///// <summary>
+        ///// Consumers the fallback.
+        ///// Excellent for Migration scenario
+        ///// </summary>
+        ///// <param name="ctx">The context.</param>
+        ///// <returns></returns>
+        //public static async Task ConsumerFallback(IConsumerFallback<IEventsWithVersionConsumer> ctx)
+        //{ // wouldn't be called if handled (Ack) by the builder fallback 
+        //    Metadata meta = ctx.Metadata;
+        //    switch (meta.Operation)
+        //    {
+        //        case "ExecuteAsync" when meta.Version == 1 && meta.ParamsSignature == "TimeSpan":
+        //            int? val1 = await ctx.GetParameterAsync<int>("value");
+        //            if (val1 == null)
+        //                throw new NullReferenceException();
+        //            await ctx.Consumer.ExecuteAsync(ctx.Metadata, val1.ToString()!);
+        //            break;
+        //        case "ExecuteAsync" when meta.Version == 2:
+        //            DateTime? val2 = await ctx.GetParameterAsync<DateTime>("value");
+        //            if (val2 == null)
+        //                throw new NullReferenceException();
+        //            var consumer = ctx.Consumer;
+        //            await consumer.ExecuteAsync(ctx.Metadata, val2.ToString()!);
+        //            break;
+        //        default:
+        //            await ctx.Metadata.AckAsync(AckBehavior.OnFallback);
+        //            break;
+        //    }
+        //}
+
+        //[ProducerFallback]
+        //public static bool ProducerFallback(IProduceFallback handler)
+        //{
+        //    Metadata meta = ctx.Metadata;
+        //    switch (meta.Operation)
+        //    {
+        //        case "ExecuteAsync" when meta.Version = 1:
+        //            var val = ctx.SetParameterAsync<int>("value");
+        //            handler.Producer.ExecuteAsync(val.ToString());
+        //            // call ther overload (convertor should get the consumer interface)
+        //    }
+        //}
+
+        ValueTask ExecuteAsync(string key, int value);
+
+        //[EventSourceVersion(1, Date = "2023-06-01", Remark = "sample of deprecation")]
+        //[EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 3, Date = "2023-07-21", Remark = "sample of deprecation")]
+        //[EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 3, Date = "2023-07-21", Remark = "sample of deprecation")]
+        //ValueTask ExecuteAsync(int value);
+
+        [EventSourceVersion(1, Date = "2023-06-03", Remark = "sample of deprecation")]
+        ValueTask ExecuteAsync(TimeSpan value, int i);
+
+        [EventSourceVersion(2)]
+        ValueTask ExecuteAsync(DateTime value);
 
         /// <summary>
-        /// Stages version 0.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns></returns>
-        [EventSourcing.Backbone.EventSourceVersion(0, Retired = 3)] // same as not specifying a the attribute at all.
-        ValueTask Stage(string name);
-
-        /// <summary>
-        /// Stages version 1.
+        /// Executes the asynchronous.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        [EventSourceVersionAttribute(3, Retired = 4)] // same as not specifying a the attribute at all.
-        ValueTask Stage(int value);
+        /// <remarks>Some remarks</remarks>
+        [EventSourceVersion(2)]
+        ValueTask ExecuteAsync(Version value);
 
-        /// <summary>
-        /// Stages version 6.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        [EventSourceVersion(4)]
-        ValueTask Stage(string name, byte value);
-
-        /// <summary>
-        /// Pings the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        [EventSourceVersion(2, Retired = 5)]
-        ValueTask Ping(int value);
-
-        /// <summary>
-        /// Pings the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        [EventSourceVersion(5)]
-        ValueTask Ping(string value);
-
-        /// <summary>
-        /// Pings the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
         [EventSourceVersion(3)]
-        ValueTask ShouldIgnored(string value);
+        ValueTask ExecuteAsync(string value);
+
+        [EventSourceVersion(2)]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 3, Date = "2023-07-27", Remark = "sample of deprecation")]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 3, Date = "2023-07-28", Remark = "sample of deprecation")]
+        ValueTask NotIncludesAsync(string value);
     }
 }

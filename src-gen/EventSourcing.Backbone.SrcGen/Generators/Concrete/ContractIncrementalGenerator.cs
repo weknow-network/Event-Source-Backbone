@@ -55,7 +55,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         else
             builder.AppendLine($" : {inheritanceNames}");
         builder.AppendLine("\t{");
-        foreach (var method in type.Members)
+        foreach (MemberDeclarationSyntax method in type.Members)
         {
             if (method is MethodDeclarationSyntax mds)
             {
@@ -100,7 +100,8 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             OperatioVersionInstructions opVersionInfo)
         {
             var sb = new StringBuilder();
-            CopyDocumentation(sb, kind, mds, opVersionInfo);
+            int version = opVersionInfo.Version;
+            CopyDocumentation(compilation, sb, kind, mds, version);
             var ps = mds.ParameterList.Parameters.Select(GetParameter);
             if (sb.Length != 0 && !isProducer && ps.Any())
             {
@@ -115,7 +116,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             if (isProducer)
                 builder.Append("<EventKeys>");
             var mtdName = mds.ToNameConvention();
-            string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
+            string nameVersion = versionInfo.FormatMethodName(mtdName, version);
             builder.AppendLine($" {nameVersion}(");
 
             if (!isProducer)

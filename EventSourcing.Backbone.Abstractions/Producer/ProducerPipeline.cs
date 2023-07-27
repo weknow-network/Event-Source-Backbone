@@ -189,6 +189,7 @@
         /// </summary>
         /// <param name="operation">The operation.</param>
         /// <param name="version">The version.</param>
+        /// <param name="paramsSignature">The parameters signature.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         /// <remarks>
@@ -197,6 +198,7 @@
         protected ValueTask<EventKeys> SendAsync(
             string operation,
             int version,
+            string paramsSignature,
             params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
@@ -210,6 +212,7 @@
                         interceptorsData,
                         operation,
                         version,
+                        paramsSignature,
                         classifyAdaptors);
         }
 
@@ -222,6 +225,7 @@
         /// <param name="interceptorsData">The interceptors data.</param>
         /// <param name="operation">The operation.</param>
         /// <param name="version">The version.</param>
+        /// <param name="paramsSignature">The parameters signature.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         private async ValueTask<EventKeys> SendAsync(
@@ -231,6 +235,7 @@
             Bucket interceptorsData,
             string operation,
             int version,
+            string paramsSignature,
             Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             Metadata metadata = new Metadata
@@ -239,7 +244,8 @@
                 Environment = plan.Environment,
                 Uri = plan.Uri,
                 Operation = operation,
-                Version = version
+                Version = version,
+                ParamsSignature = paramsSignature
             };
 
             foreach (var classify in classifyAdaptors)
@@ -284,6 +290,7 @@
                              interceptorsData,
                              operation,
                              version,
+                             paramsSignature,
                              classifyAdaptors);
                 return k;
             });

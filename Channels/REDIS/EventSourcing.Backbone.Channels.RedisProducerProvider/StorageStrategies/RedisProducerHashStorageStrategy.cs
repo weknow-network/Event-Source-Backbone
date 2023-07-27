@@ -53,7 +53,6 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions (after filtering).</param>
         /// <param name="type">The type.</param>
         /// <param name="meta">The metadata.</param>

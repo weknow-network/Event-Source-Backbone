@@ -24,5 +24,15 @@ namespace EventSourcing.Backbone
         protected override ValueTask ExecuteAsync(ConsumerMetadata consumerMetadata, string key, int value) => _target.ExecuteAsync(consumerMetadata, key, value);
 
         protected override ValueTask RunAsync(ConsumerMetadata consumerMetadata, int id, DateTime date) => _target.RunAsync(consumerMetadata, id, date);
+
+        protected override ValueTask RunAsync(ConsumerMetadata consumerMetadata, int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override ValueTask RunAsync(ConsumerMetadata consumerMetadata, TimeSpan ts)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

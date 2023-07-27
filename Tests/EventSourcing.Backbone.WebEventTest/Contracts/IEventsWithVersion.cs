@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, IgnoreVersion = new[] { 3 }, VersionNaming = VersionNaming.None)]
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.None)]
     [EventsContract(EventsContractType.Producer, MinVersion = 2)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("Used for code generation, use the producer / consumer version of it", true)]
@@ -14,7 +14,7 @@ namespace EventSourcing.Backbone.WebEventTest
         /// <param name="name">The name.</param>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        [EventSourceVersion(1, Retired = 3)] // same as not specifying a the attribute at all.
+        [EventSourceVersion(1)] // same as not specifying a the attribute at all.
         ValueTask Login(string name, string password);
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace EventSourcing.Backbone.WebEventTest
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        [EventSourceVersion(0, Retired = 3)] // same as not specifying a the attribute at all.
+        [EventSourceVersion(0)] // same as not specifying a the attribute at all.
         ValueTask Stage(string name);
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace EventSourcing.Backbone.WebEventTest
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        [EventSourceVersion(3, Retired = 4)] // same as not specifying a the attribute at all.
+        [EventSourceVersion(3)] // same as not specifying a the attribute at all.
         ValueTask Stage(int value);
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace EventSourcing.Backbone.WebEventTest
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        [EventSourceVersion(2, Retired = 5)]
+        [EventSourceVersion(2)]
         ValueTask Ping(int value);
 
         /// <summary>

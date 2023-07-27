@@ -23,5 +23,7 @@
         /// <param name="date">The date.</param>
         /// <returns>A ValueTask.</returns>
         ValueTask RunAsync(int id, DateTime date);
+        ValueTask RunAsync(int i);
+        ValueTask RunAsync(TimeSpan ts);
     }
 }

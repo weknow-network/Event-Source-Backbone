@@ -2,8 +2,8 @@
 
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
-[DebuggerDisplay("Version: {Version}")]
-internal struct OperatioVersionInstructions
+[DebuggerDisplay("Deprecate Version: {Version}")]
+internal struct OperatioDeprecationInstructions
 {
     public int Version { get; set; }
     public string? Remark { get; set; }

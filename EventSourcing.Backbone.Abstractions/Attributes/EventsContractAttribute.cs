@@ -41,10 +41,5 @@
         /// Won't generate method with version lower than this value
         /// </summary>
         public int MinVersion { get; init; } = 0;
-
-        /// <summary>
-        /// Won't generate method with versions specified
-        /// </summary>
-        public int[] IgnoreVersion { get; init; } = Array.Empty<int>();
     }
 }

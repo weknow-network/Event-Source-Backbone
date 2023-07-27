@@ -231,5 +231,44 @@ namespace EventSourcing.Backbone
         }
 
         #endregion // End2End_Test
+
+        #region End2End_Overloads_Test
+
+        [Fact]
+        public async Task End2End_Overloads_Test()
+        {
+            ISimpleEventProducer producer =
+                _producerBuilder.UseChannel(_producerChannel)
+                        //.WithOptions(producerOption)
+                        .Uri("Kids#HappySocks")
+                        .WithLogger(TestLogger.Create(_outputHelper))
+                        .BuildSimpleEventProducer();
+
+            await producer.RunAsync(42, DateTime.Now);
+            await producer.RunAsync(42);
+            await producer.RunAsync(TimeSpan.FromSeconds(42));
+
+            var cts = new CancellationTokenSource();
+            IAsyncDisposable subscription =
+                 _consumerBuilder.UseChannel(_consumerChannel)
+                         //.WithOptions(consumerOptions)
+                         .WithCancellation(cts.Token)
+                         .Uri("Kids#HappySocks")
+                         .WithLogger(TestLogger.Create(_outputHelper))
+                         .SubscribeSimpleEventConsumer(_simpleEventConsumer);
+
+            ch.Writer.Complete();
+            await subscription.DisposeAsync();
+            await ch.Reader.Completion;
+
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 42))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, TimeSpan.FromSeconds(42)))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 42, A<DateTime>.Ignored))
+                .MustHaveHappenedOnceExactly();
+        }
+
+        #endregion // End2End_Overloads_Test
     }
 }

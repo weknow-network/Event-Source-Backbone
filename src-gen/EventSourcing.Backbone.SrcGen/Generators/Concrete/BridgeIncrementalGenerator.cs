@@ -94,47 +94,51 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\tpublic static class {fileName}");
             builder.AppendLine("\t{");
 
-            builder.AppendLine("\t\t/// <summary>");
-            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-            builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-            builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
-            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
-            builder.AppendLine($"\t\t\t\t{interfaceName} target)");
-            builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
-            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-            builder.AppendLine("\t\t}");
-            builder.AppendLine();
+            string[] variations = { "" }; //, $"<{interfaceName}>" };
+            foreach (var variation in variations)
+            {
+                builder.AppendLine("\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+                builder.AppendLine("\t\t/// </summary>");
+                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+                builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
+                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+                builder.AppendLine($"\t\t\t\t{interfaceName} target)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
+                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
 
-            builder.AppendLine("\t\t/// <summary>");
-            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-            builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
-            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
-            builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
-            builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
-            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-            builder.AppendLine("\t\t}");
-            builder.AppendLine();
+                builder.AppendLine("\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+                builder.AppendLine("\t\t/// </summary>");
+                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+                builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+                builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
 
-            builder.AppendLine("\t\t/// <summary>");
-            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-            builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
-            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-            builder.AppendLine("\t\t\t\tthis IConsumerSubscriptionHubBuilder source,");
-            builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
-            builder.AppendLine("\t\t{");
-            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
-            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-            builder.AppendLine("\t\t}");
-            builder.AppendLine();
+                builder.AppendLine("\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+                builder.AppendLine("\t\t/// </summary>");
+                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+                builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+                builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
+            }
 
             builder.AppendLine("\t}");
 
@@ -162,19 +166,16 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\t/// Subscription bridge for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
-            builder.AppendLine($"\tpublic sealed class {fileName}: ISubscriptionBridge");
+            builder.AppendLine($"\tpublic sealed class {fileName}: SubscriptionBridgeBase<{interfaceName}>");
             builder.AppendLine("\t{");
-
-            builder.AppendLine($"\t\tprivate readonly IEnumerable<{interfaceName}> _targets;");
 
             builder.AppendLine();
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"target\">The target.</param>");
-            builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target)");
+            builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target): base (target.ToEnumerable())");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\t_targets = target.ToEnumerable();");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine();
@@ -182,9 +183,8 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
-            builder.AppendLine($"\t\tpublic {fileName}(IEnumerable<{interfaceName}> targets)");
+            builder.AppendLine($"\t\tpublic {fileName}(IEnumerable<{interfaceName}> targets): base(targets)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\t_targets = targets;");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine();
@@ -192,9 +192,8 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
-            builder.AppendLine($"\t\tpublic {fileName}(params {interfaceName}[] targets)");
+            builder.AppendLine($"\t\tpublic {fileName}(params {interfaceName}[] targets): base(targets)");
             builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t\t_targets = targets;");
             builder.AppendLine("\t\t}");
 
             builder.AppendLine();
@@ -203,7 +202,7 @@ namespace EventSourcing.Backbone
             var allMethods = symbol.GetAllMethods().ToArray();
             if (allMethods.Length != 0)
                 builder.Append("async ");
-            builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.AppendLine("protected override Task<bool> OnBridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
             builder.AppendLine("\t\t{");
             if (allMethods.Length != 0)
             {
@@ -223,7 +222,9 @@ namespace EventSourcing.Backbone
                     string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
                     string nameOfOperetion = mtdName;
 
-                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version} }} :");
+                    var paramsSignature = method.GetParamsSignature();
+
+                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version}, ParamsSignature: \"{paramsSignature}\" }} :");
                     builder.AppendLine("\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -249,7 +250,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t}");
 
             builder.AppendLine("\t}");
-            return new GenInstruction($"{prefix}.Subscription.Bridge", builder.ToString());
+            return new GenInstruction($"{prefix}.Subscription.Bridge", builder.ToString(), usingAddition: "EventSourcing.Backbone.Private");
         }
 
         #endregion // OnGenerateConsumerBridge
@@ -276,7 +277,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\t\t/// Base Subscription class of {interfaceName}");
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
-            builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge");
+            builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge // <{interfaceName}>");
             builder.AppendLine("\t\t{");
 
             builder.Append("\t\t\t");
@@ -298,11 +299,13 @@ namespace EventSourcing.Backbone
                     if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
                         continue;
 
+                    var paramsSignature = method.GetParamsSignature();
+
                     string mtdName = method.ToNameConvention();
                     //string mtdType = method.ContainingType.Name;
                     //mtdType = info.FormatName(mtdType);
                     string nameOfOperetion = mtdName;
-                    builder.AppendLine($"\t\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version} }} :");
+                    builder.AppendLine($"\t\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version}, ParamsSignature: \"{paramsSignature}\" }} :");
                     builder.AppendLine("\t\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
@@ -432,6 +435,8 @@ namespace EventSourcing.Backbone
             builder.Append("<EventKeys>");
             builder.Append($" {interfaceNameFormatted}.{nameVersion}(");
 
+            var paramsSignature = mds.GetParamsSignature();
+
             IEnumerable<string> ps = mds.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
             builder.Append("\t\t\t");
             builder.Append(string.Join(", ", ps));
@@ -441,6 +446,7 @@ namespace EventSourcing.Backbone
             string nameOfOperetion = mtdName;
             builder.AppendLine($"\t\t\tvar operation_ = \"{nameOfOperetion}\";");
             builder.AppendLine($"\t\t\tvar version_ = {opVersionInfo.Version};");
+            builder.AppendLine($"\t\t\tvar prms_ = \"{paramsSignature}\";");
             int i = 0;
             var prms = mds.Parameters;
             foreach (var pName in from p in prms
@@ -453,7 +459,7 @@ namespace EventSourcing.Backbone
 
             var classifications = Enumerable.Range(0, prms.Length).Select(m => $"classification_{m}_");
 
-            builder.Append($"\t\t\treturn await SendAsync(operation_, version_");
+            builder.Append($"\t\t\treturn await SendAsync(operation_, version_, prms_");
             if (classifications.Any())
                 builder.AppendLine($", {string.Join(", ", classifications)});");
             else

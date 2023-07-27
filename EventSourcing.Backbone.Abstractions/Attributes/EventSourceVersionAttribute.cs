@@ -20,16 +20,6 @@
             Version = version;
         }
 
-        /// <summary>
-        /// Sets the maximum version on which the method will be retired.
-        /// Specifies the version number at which the associated functionality is considered retired.
-        /// When a version number is assigned, it indicates that the functionality becomes obsolete or
-        /// deprecated starting from that version onwards.
-        /// </summary>
-        /// <remarks>
-        /// Value of zero will be ignored
-        /// </remarks>
-        public int Retired { get; init; }
 
         /// <summary>
         /// Gets the version which will be produce.
@@ -37,5 +27,16 @@
         /// When UpTo doesn't specified this version will consider as the higher version for consume.
         /// </summary>
         public int Version { get; }
+
+
+        /// <summary>
+        /// Describe the deprecation reason
+        /// </summary>
+        public string Remark { get; set; }
+
+        /// <summary>
+        /// Document the date of deprecation, recommended format is: yyyy-MM-dd
+        /// </summary>
+        public string Date { get; set; }
     }
 }

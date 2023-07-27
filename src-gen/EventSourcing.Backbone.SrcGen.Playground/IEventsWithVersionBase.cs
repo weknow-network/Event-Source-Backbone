@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        [EventSourcing.Backbone.EventSourceVersion(0, Retired = 3)] // same as not specifying a the attribute at all.
+        [EventSourcing.Backbone.EventSourceVersion(0)] // same as not specifying a the attribute at all.
         ValueTask Stage(string name);
 
         /// <summary>
@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        [EventSourceVersionAttribute(3, Retired = 4)] // same as not specifying a the attribute at all.
+        [EventSourceVersionAttribute(3)] // same as not specifying a the attribute at all.
         ValueTask Stage(int value);
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        [EventSourceVersion(2, Retired = 5)]
+        [EventSourceVersion(2)]
         ValueTask Ping(int value);
 
         /// <summary>

@@ -8,7 +8,7 @@
     {
         //[EventSourceVersion(Retired = 4)]
         ValueTask ExecuteAsync(string key, int value);
-        [EventSourceVersion(1, Retired = 2)]
+        [EventSourceVersion(1)]
         ValueTask ExecuteAsync(int value);
         [EventSourceVersion(2)]
         ValueTask ExecuteAsync(DateTime value);

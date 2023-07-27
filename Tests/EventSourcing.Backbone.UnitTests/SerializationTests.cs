@@ -13,6 +13,7 @@ namespace EventSourcing.Backbone
             {
                 MessageId = "message1",
                 Version = 10,
+                ParamsSignature = "string",
                 Environment = "env1",
                 Uri = "uri1",
                 Operation = "operation1"
@@ -57,6 +58,7 @@ namespace EventSourcing.Backbone
                 MessageId = "message1",
                 Environment = "env1",
                 Version = 10,
+                ParamsSignature = "string",
                 Uri = "uri1",
                 Operation = "operation1"
             };
