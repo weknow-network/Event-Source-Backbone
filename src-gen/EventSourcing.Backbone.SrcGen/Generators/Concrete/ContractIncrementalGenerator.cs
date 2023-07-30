@@ -107,8 +107,8 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                 var active = bundles.Where(b => !b.Deprecated);
                 GenConstantsOperations(active, indent);
 
-                builder.AppendLine($"{indent}public Deprecated_Constants Deprecated {{ get; }} = new Deprecated_Constants();");
                 indent = $"{indent}\t";
+                builder.AppendLine($"{indent}public Deprecated_Constants Deprecated {{ get; }} = new Deprecated_Constants();");
                 builder.AppendLine($"{indent}public class Deprecated_Constants");
                 builder.AppendLine($"{indent}{{");
                 var deprecated = bundles.Where(b => b.Deprecated);
