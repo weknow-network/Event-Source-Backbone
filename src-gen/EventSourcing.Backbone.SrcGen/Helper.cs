@@ -417,7 +417,8 @@ internal static class Helper
 
     public static MethodBundle[] ToBundle(
                             this SyntaxReceiverResult info,
-                            Compilation compilation) 
+                            Compilation compilation,
+                            bool withDeprecated = false) 
     {
         TypeDeclarationSyntax item = info.Type;
         var kind = info.Kind;
@@ -428,8 +429,11 @@ internal static class Helper
                 return null;
             var opVersionInfo = mds.GetOperationVersionInfo(compilation);
             var version = opVersionInfo.Version;
-            if (versionInfo.MinVersion > version || versionInfo.IgnoreVersion.Contains(version))
+            bool excluded = versionInfo.MinVersion > version || versionInfo.IgnoreVersion.Contains(version);
+            if (excluded && !withDeprecated)
+            {
                 return null;
+            }
 
             string mtdName = mds.ToNameConvention();
             string mtdShortName = mtdName.EndsWith("Async")
@@ -438,7 +442,7 @@ internal static class Helper
 
             string prmSig = method.GetParamsSignature(compilation);
 
-            return new MethodBundle(mds, mtdShortName, version, prmSig);
+            return new MethodBundle(mds, mtdShortName, mtdName, version, prmSig, excluded);
         })
         .Cast<MethodBundle>()
         .Where(m => m != null)

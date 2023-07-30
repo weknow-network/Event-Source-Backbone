@@ -2,6 +2,7 @@
 
 using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
+using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -67,15 +68,95 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                 versionInfo = GenMethod(kind, isProducer, versionInfo, builder, mds, opVersionInfo);
             }
         }
+        if (kind == "Consumer")
+        {
+            builder.AppendLine($"\t\tpublic static {interfaceName}_Constants Constants {{ get; }} = new {interfaceName}_Constants();");
+        }
+
         builder.AppendLine("\t}");
+
 
         var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
         var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
 
         if (!contractOnly)
             _bridge.GenerateSingle(context, compilation, info);
-
+        var constants = GenVersionConstants();
+        if (constants != null)
+            return new[] { constants, new GenInstruction(interfaceName, builder.ToString()) };
         return new[] { new GenInstruction(interfaceName, builder.ToString()) };
+
+        #region GenVersionConstants
+
+        GenInstruction? GenVersionConstants()
+        {
+            if (kind != "Consumer")
+                return null;
+            var builder = new StringBuilder();
+            GenVersionConstants(builder);
+            return new GenInstruction($"{interfaceName}.Constants", builder.ToString());
+
+            void GenVersionConstants(StringBuilder builder)
+            {
+                MethodBundle[] bundles = info.ToBundle(compilation, true);
+
+                string indent = "\t";
+                builder.AppendLine($"{indent}public class {interfaceName}_Constants");
+                builder.AppendLine($"{indent}{{");
+
+                var active = bundles.Where(b => !b.Deprecated);
+                GenConstantsOperations(active, indent);
+
+                builder.AppendLine($"{indent}public Deprecated_Constants Deprecated {{ get; }} = new Deprecated_Constants();");
+                indent = $"{indent}\t";
+                builder.AppendLine($"{indent}public class Deprecated_Constants");
+                builder.AppendLine($"{indent}{{");
+                var deprecated = bundles.Where(b => b.Deprecated);
+                GenConstantsOperations(deprecated, indent);
+                builder.AppendLine($"{indent}}}");
+
+                void GenConstantsOperations(IEnumerable<MethodBundle> bundles, string indent)
+                {
+
+                    indent = $"{indent}\t";
+                    var groupd = bundles.GroupBy(b => b.FullName);
+                    foreach (var group in groupd)
+                    {
+                        builder.AppendLine($"{indent}public {group.Key}_Constants {group.Key} {{ get; }} = new {group.Key}_Constants();");
+
+                        builder.AppendLine($"{indent}public class {group.Key}_Constants");
+                        builder.AppendLine($"{indent}{{");
+
+                        indent = $"{indent}\t";
+                        var versions = group.GroupBy(b => b.Version);
+                        foreach (var version in versions)
+                        {
+                            builder.AppendLine($"{indent}public V{version.Key}_Constants V{version.Key} {{ get; }} = new V{version.Key}_Constants();");
+
+                            builder.AppendLine($"{indent}public class V{version.Key}_Constants");
+                            builder.AppendLine($"{indent}{{");
+
+                            indent = $"{indent}\t";
+                            foreach (var b in version)
+                            {
+                                string pName = b.Parameters.Replace(",", "_");
+                                builder.AppendLine($"{indent}public string P_{pName} {{ get; }} = \"{b.Parameters}\";");
+                            }
+
+                            indent = indent.Substring(1);
+                            builder.AppendLine($"{indent}}}");
+                        }
+                        indent = indent.Substring(1);
+
+                        builder.AppendLine($"{indent}}}");
+                    }
+                }
+                indent = indent.Substring(1);
+                builder.AppendLine($"{indent}}}");
+            }
+        }
+
+        #endregion // GenVersionConstants
 
         #region GetParameter
 
