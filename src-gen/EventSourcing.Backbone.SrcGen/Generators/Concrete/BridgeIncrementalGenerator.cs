@@ -418,11 +418,8 @@ namespace EventSourcing.Backbone
                             string interfaceName)
         {
             var method = bundle.Method;
-            string kind = info.Kind;
             string mtdName = method.ToNameConvention();
-            var versionInfo = method.GetVersionInfo(kind); 
             string nameVersion = bundle.FormatMethodFullName(mtdName);
-            //string interfaceName = method.ContainingType.Name;
             string interfaceNameFormatted = info.FormatName(interfaceName);
             builder.Append("\t\tasync ValueTask");
             builder.Append("<EventKeys>");
