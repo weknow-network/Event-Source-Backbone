@@ -50,21 +50,19 @@ namespace EventSourcing.Backbone
                             string[] usingStatements)
         {
             string generateFrom = info.FormatName();
-            string prefix = (info.Name ?? interfaceName).StartsWith("I") &&
-                interfaceName.Length > 1 &&
-                char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
+            string namePrefix = (info.Name ?? interfaceName).ToClassName();
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
 
-            var dtos = EntityGenerator.GenerateEntities(compilation, prefix, info, interfaceName, generateFrom, assemblyName);
+            var dtos = EntityGenerator.GenerateEntities(compilation, namePrefix, info, interfaceName, assemblyName);
             GenInstruction[] gens =
             {
-                EntityGenerator.GenerateEntityFamilyContract(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapper(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapperExtensions(compilation, prefix, info, interfaceName , generateFrom, assemblyName),
-                OnGenerateConsumerBase(compilation, prefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridge(compilation, prefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridgeExtensions(compilation, prefix, info, interfaceName, generateFrom, assemblyName)
+                EntityGenerator.GenerateEntityFamilyContract(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapper(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapperExtensions(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
+                OnGenerateConsumerBase(compilation, namePrefix, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridge(compilation, namePrefix, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridgeExtensions(compilation, namePrefix, info, interfaceName, generateFrom, assemblyName)
             };
 
             return dtos.Concat(gens).ToArray();
@@ -302,8 +300,6 @@ namespace EventSourcing.Backbone
                     var paramsSignature = method.GetParamsSignature();
 
                     string mtdName = method.ToNameConvention();
-                    //string mtdType = method.ContainingType.Name;
-                    //mtdType = info.FormatName(mtdType);
                     string nameOfOperetion = mtdName;
                     builder.AppendLine($"\t\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version}, ParamsSignature: \"{paramsSignature}\" }} :");
                     builder.AppendLine("\t\t\t\t\t{");
@@ -356,9 +352,7 @@ namespace EventSourcing.Backbone
                             string interfaceName,
                             string[] usingStatements)
         {
-            var symbol = info.Symbol;
             var kind = info.Kind;
-            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
 
             string prefix = interfaceName.StartsWith("I") &&
                 interfaceName.Length > 1 &&
@@ -384,14 +378,11 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// </summary>");
             builder.AppendLine($"\t\tprivate {fileName}(IProducerPlan plan) : base(plan){{}}");
             builder.AppendLine();
-            foreach (IMethodSymbol method in symbol.GetAllMethods())
-            {
-                var opVersionInfo = method.GetOperationVersionInfo();
-                var v = opVersionInfo.Version;
-                if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
-                    continue;
 
-                GenerateProducerMethods(builder, info, method, versionInfo, opVersionInfo);
+            var bundles = info.ToBundle(compilation);
+            foreach (var bundle in bundles)
+            {
+                GenerateProducerMethods(bundle, info, builder, interfaceName);
             }
             builder.AppendLine("\t}");
 
@@ -421,23 +412,25 @@ namespace EventSourcing.Backbone
         #region GenerateProducerMethods
 
         private static void GenerateProducerMethods(
-                            StringBuilder builder,
+                            MethodBundle bundle,
                             SyntaxReceiverResult info,
-                            IMethodSymbol mds,
-                            VersionInstructions versionInfo,
-                            OperatioVersionInstructions opVersionInfo)
+                            StringBuilder builder,
+                            string interfaceName)
         {
-            string mtdName = mds.ToNameConvention();
-            string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
-            string interfaceName = mds.ContainingType.Name;
+            var method = bundle.Method;
+            string kind = info.Kind;
+            string mtdName = method.ToNameConvention();
+            var versionInfo = method.GetVersionInfo(kind); 
+            string nameVersion = bundle.FormatMethodFullName(mtdName);
+            //string interfaceName = method.ContainingType.Name;
             string interfaceNameFormatted = info.FormatName(interfaceName);
             builder.Append("\t\tasync ValueTask");
             builder.Append("<EventKeys>");
             builder.Append($" {interfaceNameFormatted}.{nameVersion}(");
 
-            var paramsSignature = mds.GetParamsSignature();
+            var paramsSignature = method.GetParamsSignature();
 
-            IEnumerable<string> ps = mds.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
+            IEnumerable<string> ps = method.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
             builder.Append("\t\t\t");
             builder.Append(string.Join(", ", ps));
             builder.AppendLine(")");
@@ -445,10 +438,10 @@ namespace EventSourcing.Backbone
 
             string nameOfOperetion = mtdName;
             builder.AppendLine($"\t\t\tvar operation_ = \"{nameOfOperetion}\";");
-            builder.AppendLine($"\t\t\tvar version_ = {opVersionInfo.Version};");
+            builder.AppendLine($"\t\t\tvar version_ = {bundle.Version};");
             builder.AppendLine($"\t\t\tvar prms_ = \"{paramsSignature}\";");
             int i = 0;
-            var prms = mds.Parameters;
+            var prms = method.Parameters;
             foreach (var pName in from p in prms
                                   let pName = p.Name
                                   select pName)

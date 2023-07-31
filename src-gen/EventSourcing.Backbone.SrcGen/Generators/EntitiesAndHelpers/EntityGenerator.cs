@@ -32,19 +32,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             string friendlyName,
                             SyntaxReceiverResult info,
                             string interfaceName,
-                            string generateFrom,
                             AssemblyName assemblyName)
         {
-
-            var (item, att, symbol, kind, ns, usingStatements) = info;
-            var versionInfo = att.GetVersionInfo(compilation, info.Kind);
-
             var bundles = info.ToBundle(compilation);
 
             var results = new List<GenInstruction>();
             foreach (var bundle in bundles)
             {
-                MethodDeclarationSyntax mds = bundle.Method;
+                IMethodSymbol method = bundle.Method;
                 int version = bundle.Version;
                 string mtdName = bundle.Name;
                 string mtdShortName = mtdName.EndsWith("Async")
@@ -54,7 +49,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 string prmSig = bundle.Parameters;
 
                 var builder = new StringBuilder();
-                CopyDocumentation(compilation, builder, kind, mds, version, "\t");
+                method.CopyDocumentation(builder, version, "\t");
 
                 string recordPrefix = friendlyName;
                 if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
@@ -63,7 +58,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.Append("\tpublic record");
                 builder.Append($" {recordPrefix}_{bundle}(");
 
-                var ps = mds.ParameterList.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Identifier.ValueText}");
+                var ps = method.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
                 builder.Append("\t\t");
                 builder.Append(string.Join(", ", ps));
                 builder.AppendLine($"): {interfaceName}_EntityFamily;");
@@ -116,7 +111,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var (item, att, symbol, kind, ns, @using) = info;
+            var item = info.Type;
 
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
@@ -139,6 +134,8 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             string recordPrefix = friendlyName;
             if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
                 recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
+            
+            var bundles = info.ToBundle(compilation);
 
             builder.AppendLine("\t\t\t/// <summary>");
             builder.AppendLine($"\t\t\t///  Try to map announcement");
@@ -146,7 +143,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t\t/// <typeparam name=\"TCast\">Cast target</typeparam>");
             builder.AppendLine("\t\t\t/// <param name=\"announcement\">The announcement.</param>");
             builder.AppendLine("\t\t\t/// <param name=\"consumerPlan\">The consumer plan.</param>");
-            if (item.Members.Count == 0)
+            if (bundles.Length == 0)
                 builder.Append($"\t\t\t public ");
             else
                 builder.Append($"\t\t\t public async ");
@@ -159,7 +156,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
             builder.AppendLine("\t\t\t\tvar version_ = announcement.Metadata.Version;");
 
-            var bundles = info.ToBundle(compilation);
 
             int j = 0;
             foreach (var bundle in bundles)
@@ -172,21 +168,21 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t\t\t\t\t version_ == {bundle.Version} &&");
                 builder.AppendLine($"\t\t\t\t\t\t typeof(TCast) == typeof({fullRecordName}))");
                 builder.AppendLine("\t\t\t\t{");
-                var prms = bundle.Method.ParameterList.Parameters;
+                var prms = bundle.Method.Parameters;
                 int i = 0;
                 foreach (var p in prms)
                 {
-                    var pName = p.Identifier.ValueText;
+                    var pName = p.Name;
                     builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerPlan.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                     i++;
                 }
-                var ps = Enumerable.Range(0, prms.Count).Select(m => $"p{m}");
+                var ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
 
                 builder.AppendLine($"\t\t\t\t\t\t{interfaceName}_EntityFamily rec = new {fullRecordName}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
                 builder.AppendLine("\t\t\t\t}");
             }
-            if (item.Members.Count == 0)
+            if (bundles.Length == 0)
                 builder.AppendLine($"\t\t\t\treturn Task.FromResult<(TCast? value, bool succeed)>((default, false));");
             else
                 builder.AppendLine($"\t\t\t\treturn (default, false);");

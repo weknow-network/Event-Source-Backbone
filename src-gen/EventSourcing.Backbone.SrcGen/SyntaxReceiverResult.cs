@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿// Ignore Spelling: Att
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace EventSourcing.Backbone;
@@ -33,7 +35,7 @@ internal class SyntaxReceiverResult
     /// <param name="name">The name.</param>
     /// <param name="ns">The namespace.</param>
     /// <param name="kind">The kind.</param>
-    /// <param name="att">The attribute.</param>
+    /// <param name="attribute">The attribute.</param>
     /// <exception cref="System.NullReferenceException">symbol</exception>
     public SyntaxReceiverResult(
         TypeDeclarationSyntax type,
@@ -41,16 +43,16 @@ internal class SyntaxReceiverResult
         string? name,
         string? ns,
         string kind,
-        AttributeSyntax att)
+        AttributeSyntax attribute)
     {
         Type = type;
         Kind = kind;
         Name = name;
         Namespace = ns ?? symbol?.ContainingNamespace?.ToDisplayString();
-        Att = att;
+        Att = attribute;
         Symbol = symbol ?? throw new NullReferenceException(nameof(symbol));
         GenerateFrom = type.Identifier.ValueText;
-        Using = att.GetUsing().ToArray();
+        Using = attribute.GetUsing().ToArray();
     }
 
     /// <summary>

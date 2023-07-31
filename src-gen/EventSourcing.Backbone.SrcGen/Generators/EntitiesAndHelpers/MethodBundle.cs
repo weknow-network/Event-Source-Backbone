@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 
+using EventSourcing.Backbone.SrcGen.Entities;
+
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
@@ -10,20 +13,29 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 [DebuggerDisplay("{Name}, {Version}, {Parameters}")]
 internal sealed class MethodBundle : IFormattable
 {
-    public MethodBundle(MethodDeclarationSyntax method, string name, string fullName, int version, string parameters, bool excluded)
+    public MethodBundle(
+        IMethodSymbol method,
+        string name,
+        string fullName,
+        int version,
+        VersionNaming versionNaming,
+        string parameters,
+        bool deprecated)
     {
         Method = method;
         Name = name;
         FullName = fullName;
         Version = version;
+        VersionNaming = versionNaming;
         Parameters = parameters;
-        Deprecated = excluded;
+        Deprecated = deprecated;
     }
 
-    public MethodDeclarationSyntax Method { get; }
+    public IMethodSymbol Method { get; }
     public string Name { get; }
     public string FullName { get; }
     public int Version { get; }
+    public VersionNaming VersionNaming { get; }
     public string Parameters { get; }
     public bool Deprecated { get; }
 
@@ -34,5 +46,23 @@ internal sealed class MethodBundle : IFormattable
         string fmt = format ?? "_";
         string ex = Deprecated ? "X " : string.Empty;
         return $"{ex}{Name}{fmt}{Version}{fmt}{Parameters.Replace(",", fmt)}";
+    }
+
+    public string FormatMethodFullName(string? nameOverride = null)
+    {
+        string name = nameOverride ?? FullName;
+        string versionSuffix = VersionNaming switch
+        {
+            SrcGen.Entities.VersionNaming.Append => Version.ToString(),
+            SrcGen.Entities.VersionNaming.AppendUnderscore => $"_{Version}",
+            _ => string.Empty
+        };
+
+        if (name.EndsWith("Async"))
+        {
+            var prefix = name.Substring(0, name.Length - 5);
+            return $"{prefix}{versionSuffix}Async";
+        }
+        return $"{name}{versionSuffix}";
     }
 }
