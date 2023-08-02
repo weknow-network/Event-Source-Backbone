@@ -109,7 +109,7 @@ namespace EventSourcing.Backbone
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
-                         .Subscribe(_simpleBridgeSubscription.BridgeAsync);
+                         .Subscribe(_simpleBridgeSubscription);
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();
@@ -183,7 +183,7 @@ namespace EventSourcing.Backbone
                          //.WithOptions(consumerOptions)
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
-                         .Subscribe(_simpleGenBridgeSubscription.BridgeAsync);
+                         .Subscribe(_simpleGenBridgeSubscription);
 
             ch.Writer.Complete();
             await subscription.DisposeAsync();
@@ -318,19 +318,21 @@ namespace EventSourcing.Backbone
             await producer.EarseAsync(4335);
 
             var cts = new CancellationTokenSource();
-            IAsyncDisposable subscription =
-                 _consumerBuilder.UseChannel(_consumerChannel)
+            var consumerBuilder = _consumerBuilder.UseChannel(_consumerChannel)
                          //.WithOptions(consumerOptions)
                          .WithOptions(c => c with { MultiConsumerBehavior = multiConsumerBehavior })
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
-                         .WithLogger(TestLogger.Create(_outputHelper))
-                         .Subscribe(new SequenceOfConsumerBridge(_subscriber1))
-                         .SubscribeSequenceOfConsumer(_subscriber2, _subscriber3);
+                         .WithLogger(TestLogger.Create(_outputHelper));
+            IAsyncDisposable subscription1 =
+                         consumerBuilder.Subscribe(new SequenceOfConsumerBridge(_subscriber1));
+            IAsyncDisposable subscription2 =
+                         consumerBuilder.SubscribeSequenceOfConsumer(_subscriber2, _subscriber3);
 
             ch.Writer.Complete();
             await Task.Delay(3000);
-            await subscription.DisposeAsync();
+            await subscription1.DisposeAsync();
+            await subscription2.DisposeAsync();
             await ch.Reader.Completion;
 
             A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))

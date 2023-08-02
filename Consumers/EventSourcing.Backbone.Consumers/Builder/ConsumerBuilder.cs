@@ -25,7 +25,7 @@ namespace EventSourcing.Backbone
         IConsumerStoreStrategyBuilder,
         IConsumerIocStoreStrategyBuilder
     {
-        private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
+        internal readonly ConsumerPlan _plan = ConsumerPlan.Empty;
 
         /// <summary>
         /// Event Source consumer builder.
@@ -466,80 +466,11 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
-        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
+        /// <param name="bridge">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge handler)
-
-        {
-            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handler.ToEnumerable());
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
-
-        {
-            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
-            IEnumerable<ISubscriptionBridge> handlers)
-
-        {
-            #region Validation
-
-            if (_plan == null)
-                throw new EventSourcingException(nameof(_plan));
-
-            #endregion // Validation
-
-
-            ConsumerPlan plan = WithGroupIfEmpty(_plan);
-            if (plan.SegmentationStrategies.Count == 0)
-                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handlers);
-            var subscription = consumer.Subscribe();
-            return subscription;
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
-            params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
-
-        {
-            return ((IConsumerSubscriptionHubBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(
-            IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge bridge)
 
         {
             #region Validation
@@ -552,10 +483,10 @@ namespace EventSourcing.Backbone
             ConsumerPlan plan = WithGroupIfEmpty(_plan);
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handlers);
-            var subscription = consumer.Subscribe();
-            return subscription;
+            IConsumerPlanBuilder pln = plan;
+            IConsumerPlan consumerPlan = pln.Build();
+            var consumer = new EventSourceSubscriber(consumerPlan, bridge);
+            return consumer;
         }
 
         #endregion // Subscribe

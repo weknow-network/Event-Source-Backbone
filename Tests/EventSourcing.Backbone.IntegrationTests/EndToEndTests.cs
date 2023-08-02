@@ -308,27 +308,31 @@ namespace EventSourcing.Backbone.Tests
 
             #endregion // ISequenceOperations producer = ...
 
-            await SendSequenceAsync(producer);
-
             CancellationToken cancellation = GetCancellationToken();
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _consumerBuilder
+            var consumerBuilder = _consumerBuilder 
                          .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with { MultiConsumerBehavior = multiConsumerBehavior })
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .SubscribeSequenceOperationsConsumer(_subscriber1)
-                         .SubscribeSequenceOperationsConsumer(_subscriber2, _subscriber3);
+                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}");
+            await using IConsumerLifetime subscription1 =
+                         consumerBuilder.SubscribeSequenceOperationsConsumer(_subscriber1);
+            await using IConsumerLifetime subscription2 = 
+                         consumerBuilder.Group("Other-Group")
+                                        .SubscribeSequenceOperationsConsumer(_subscriber2, _subscriber3);
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
+            await SendSequenceAsync(producer);
+
             var sw = Stopwatch.StartNew();
-            await subscription.Completion;
+            await subscription1.Completion;
+            await subscription2.Completion;
             sw.Stop();
             _outputHelper.WriteLine($"Consume Duration = {sw.Elapsed:mm\\:ss\\.ff}");
 
@@ -402,20 +406,23 @@ namespace EventSourcing.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _consumerBuilder
+            var consumerBuilder = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o, 2, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Uri(URI)
                          .WithLogger(_fakeLogger)
                          .Group("CONSUMER_GROUP_X_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .SubscribeEventFlowStage1Consumer(_stage1Consumer)
-                         .SubscribeEventFlowStage2Consumer(_stage2Consumer);
+                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}");
+            await using IConsumerLifetime subscription1 =
+                         consumerBuilder.SubscribeEventFlowStage1Consumer(_stage1Consumer);
+            await using IConsumerLifetime subscription2 = 
+                         consumerBuilder.SubscribeEventFlowStage2Consumer(_stage2Consumer);
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await subscription.Completion;
+            await subscription1.Completion;
+            await subscription2.Completion;
 
             snapshot = sw.Elapsed - snapshot;
             _outputHelper.WriteLine($"Consumed = {snapshot:mm\\:ss\\.ff}");
