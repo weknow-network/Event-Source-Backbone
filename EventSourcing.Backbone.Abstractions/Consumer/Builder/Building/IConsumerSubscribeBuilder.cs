@@ -31,12 +31,12 @@
         IConsumerSubscribeBuilder Name(string consumerName);
 
 
-        /// <summary>
-        /// Fallback the specified action.
-        /// </summary>
-        /// <param name="onFallback">The fallback's action.</param>
-        /// <returns></returns>
-        IConsumerSubscriptionHubBuilder Fallback(Func<IConsumerFallback, Task> onFallback);
+        ///// <summary>
+        ///// Fallback the specified action.
+        ///// </summary>
+        ///// <param name="onFallback">The fallback's action.</param>
+        ///// <returns></returns>
+        //IConsumerSubscriptionHubBuilder Fallback(Func<IConsumerFallback, Task> onFallback);
 
 
         /// <summary>

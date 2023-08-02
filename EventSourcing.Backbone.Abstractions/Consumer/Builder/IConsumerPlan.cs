@@ -43,9 +43,9 @@ namespace EventSourcing.Backbone
         /// <exception cref="NotSupportedException"></exception>
         ValueTask<TParam> GetParameterAsync<TParam>(Announcement arg, string argumentName);
 
-        /// <summary>
-        /// Gets the fallback handlers.
-        /// </summary>
-        IImmutableList<Func<IConsumerFallback, Task>> Fallbacks { get; }
+        ///// <summary>
+        ///// Gets the fallback handlers.
+        ///// </summary>
+        //IImmutableList<Func<IConsumerFallback, Task>> Fallbacks { get; }
     }
 }

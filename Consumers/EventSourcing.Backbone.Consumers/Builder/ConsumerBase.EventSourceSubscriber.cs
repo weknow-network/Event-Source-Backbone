@@ -34,7 +34,7 @@ public partial class ConsumerBase
         // counter of consuming attempt (either successful or faulted) not includes Polly retry policy
         private long _consumeCounter;
         private readonly ConcurrentQueue<Handler> _handlers;
-        private readonly IImmutableList<Func<IConsumerFallback, Task>> _fallbacks;
+        //private readonly IImmutableList<Func<IConsumerFallback, Task>> _fallbacks;
 
         #region Ctor
 
@@ -47,12 +47,12 @@ public partial class ConsumerBase
 
         public EventSourceSubscriber(
             IConsumer consumer,
-            IImmutableList<Func<IConsumerFallback, Task>> fallbacks,
+            //IImmutableList<Func<IConsumerFallback, Task>> fallbacks,
             IEnumerable<Handler> handlers)
         {
             var plan = consumer.Plan;
             var channel = plan.Channel;
-            _fallbacks = fallbacks;
+            //_fallbacks = fallbacks;
             _consumer = consumer;
             if (plan.Options.KeepAlive)
                 _keepAlive.TryAdd(this, null);
@@ -177,7 +177,7 @@ public partial class ConsumerBase
                             if (processed)
                                 return processed;
 
-                            await OnFallback(announcement, ack);
+                            //await OnFallback(announcement, ack);
                             return false;
                         }
                         foreach (Handler handler in _handlers)
@@ -185,7 +185,7 @@ public partial class ConsumerBase
                             if (await handler.Invoke(announcement, this))
                                 return true;
                         }
-                        await OnFallback(announcement, ack);
+                        //await OnFallback(announcement, ack);
                         return false;
                     }, cancellation);
 
@@ -246,32 +246,32 @@ public partial class ConsumerBase
 
         #endregion // ConsumingAsync
 
-        #region OnFallback
+        #region // OnFallback
 
-        /// <summary>
-        /// Called when [fallback].
-        /// </summary>
-        /// <param name="announcement">The announcement.</param>
-        /// <param name="ack">The ack.</param>
-        private async Task OnFallback(Announcement announcement, IAck ack)
-        {
-            if (_fallbacks.Count != 0)
-            {
-                var handle = new FallbackHandle(
-                                    announcement,
-                                    this,
-                                    ack);
-                if (_fallbacks.Count == 1)
-                {
-                    await _fallbacks[0](handle);
-                }
-                else
-                {
-                    var tasks = _fallbacks.Select(f => f(handle));
-                    await Task.WhenAll(tasks).ThrowAll();
-                }
-            }
-        }
+        ///// <summary>
+        ///// Called when [fallback].
+        ///// </summary>
+        ///// <param name="announcement">The announcement.</param>
+        ///// <param name="ack">The ack.</param>
+        //private async Task OnFallback(Announcement announcement, IAck ack)
+        //{
+        //    if (_fallbacks.Count != 0)
+        //    {
+        //        var handle = new FallbackHandle(
+        //                            announcement,
+        //                            this,
+        //                            ack);
+        //        if (_fallbacks.Count == 1)
+        //        {
+        //            await _fallbacks[0](handle);
+        //        }
+        //        else
+        //        {
+        //            var tasks = _fallbacks.Select(f => f(handle));
+        //            await Task.WhenAll(tasks).ThrowAll();
+        //        }
+        //    }
+        //}
 
         #endregion // OnFallback
 

@@ -46,7 +46,10 @@
         /// <returns></returns>
         public IConsumerLifetime Subscribe()
         {
-            var subscription = new EventSourceSubscriber(this, _plan.Fallbacks, _handlers);
+            var subscription = new EventSourceSubscriber(
+                this,
+                //_plan.Fallbacks, 
+                _handlers);
             return subscription;
         }
 

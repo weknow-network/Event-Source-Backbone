@@ -62,13 +62,13 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .Fallback(ctx =>
-                     {
-                         Metadata meta = ctx.Metadata;
-                         dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
-                         ctx.AckAsync(AckBehavior.OnFallback);
-                         return Task.CompletedTask;
-                     })
+                     //.Fallback(ctx =>
+                     //{
+                     //    Metadata meta = ctx.Metadata;
+                     //    dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
+                     //    ctx.AckAsync(AckBehavior.OnFallback);
+                     //    return Task.CompletedTask;
+                     //})
                      .SubscribeVersionAwareFallbackConsumer(_subscriber);
 
         await subscription.Completion;
@@ -77,6 +77,6 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
             .MustNotHaveHappened();
         A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
-        Assert.Equal(2, dic["ExecuteAsync:1"]);
+        //Assert.Equal(2, dic["ExecuteAsync:1"]);
     }
 }

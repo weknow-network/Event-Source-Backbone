@@ -61,13 +61,13 @@ public class EndToEndVersionAware_Fallback_Tests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .Fallback(ctx =>
-                     {
-                         Metadata meta = ctx.Metadata;
-                         dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
-                         ctx.AckAsync(AckBehavior.OnFallback);
-                         return Task.CompletedTask;
-                     })
+                     //.Fallback(ctx =>
+                     //{
+                     //    Metadata meta = ctx.Metadata;
+                     //    dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
+                     //    ctx.AckAsync(AckBehavior.OnFallback);
+                     //    return Task.CompletedTask;
+                     //})
                      .SubscribeVersionAwareFallbackConsumer(_subscriber);
 
         ch.Writer.Complete();
@@ -76,7 +76,7 @@ public class EndToEndVersionAware_Fallback_Tests
 
         A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        Assert.Equal(2, dic["ExecuteAsync:1"]);
+        //Assert.Equal(2, dic["ExecuteAsync:1"]);
         A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }

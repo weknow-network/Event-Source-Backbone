@@ -560,20 +560,20 @@ namespace EventSourcing.Backbone
 
         #endregion // Subscribe
 
-        #region Fallback
+        #region // Fallback
 
-        /// <summary>
-        /// Fallback the specified action.
-        /// </summary>
-        /// <param name="onFallback">The fallback's action.</param>
-        /// <returns></returns>
-        IConsumerSubscriptionHubBuilder IConsumerSubscribeBuilder.Fallback(
-            Func<IConsumerFallback, Task> onFallback)
-        {
-            var prms = _plan.WithFallback(onFallback);
-            var result = new ConsumerBuilder(prms);
-            return result;
-        }
+        ///// <summary>
+        ///// Fallback the specified action.
+        ///// </summary>
+        ///// <param name="onFallback">The fallback's action.</param>
+        ///// <returns></returns>
+        //IConsumerSubscriptionHubBuilder IConsumerSubscribeBuilder.Fallback(
+        //    Func<IConsumerFallback, Task> onFallback)
+        //{
+        //    var prms = _plan.WithFallback(onFallback);
+        //    var result = new ConsumerBuilder(prms);
+        //    return result;
+        //}
 
         #endregion // Fallback
 

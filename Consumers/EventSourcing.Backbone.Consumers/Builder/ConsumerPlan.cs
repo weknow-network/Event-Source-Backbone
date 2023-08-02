@@ -75,8 +75,8 @@ namespace EventSourcing.Backbone
             string? consumerName = null,
             AsyncPolicy? resiliencePolicy = null,
             Func<ILogger, IConsumerStorageStrategyWithFilter>? storageStrategyFactories = null,
-            IServiceProvider? serviceProvider = null,
-            Func<IConsumerFallback, Task>? fallback = null)
+            IServiceProvider? serviceProvider = null)
+            //,           Func<IConsumerFallback, Task>? fallback = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -94,9 +94,9 @@ namespace EventSourcing.Backbone
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
-            Fallbacks = fallback == null
-                  ? copyFrom.Fallbacks
-                  : copyFrom.Fallbacks.Add(fallback);
+            //Fallbacks = fallback == null
+            //      ? copyFrom.Fallbacks
+            //      : copyFrom.Fallbacks.Add(fallback);
             StorageStrategies = copyFrom.StorageStrategies;
             if (cancellation == null)
                 Cancellation = copyFrom.Cancellation;
@@ -308,12 +308,12 @@ namespace EventSourcing.Backbone
 
         #endregion // ServiceProvider
 
-        #region Fallbacks
+        #region // Fallbacks
 
-        /// <summary>
-        /// Gets the fallback handlers.
-        /// </summary>
-        public IImmutableList<Func<IConsumerFallback, Task>> Fallbacks { get; } = ImmutableList<Func<IConsumerFallback, Task>>.Empty;
+        ///// <summary>
+        ///// Gets the fallback handlers.
+        ///// </summary>
+        //public IImmutableList<Func<IConsumerFallback, Task>> Fallbacks { get; } = ImmutableList<Func<IConsumerFallback, Task>>.Empty;
 
         #endregion // Fallbacks
 
@@ -575,13 +575,13 @@ namespace EventSourcing.Backbone
 
         #endregion // WithConsumerName
 
-        #region WithFallback
+        #region // WithFallback
 
-        internal ConsumerPlan WithFallback(Func<IConsumerFallback, Task> fallback)
-        {
+        //internal ConsumerPlan WithFallback(Func<IConsumerFallback, Task> fallback)
+        //{
 
-            return new ConsumerPlan(this, fallback: fallback);
-        }
+        //    return new ConsumerPlan(this, fallback: fallback);
+        //}
 
         #endregion // WithFallback
 

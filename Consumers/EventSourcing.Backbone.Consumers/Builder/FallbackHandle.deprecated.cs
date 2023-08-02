@@ -6,6 +6,7 @@ public partial class ConsumerBase
     /// <summary>
     /// Fallback handle
     /// </summary>
+    [Obsolete("deprecated", true)]
     internal sealed class FallbackHandle : IConsumerFallback
     {
         private readonly Announcement _announcement;

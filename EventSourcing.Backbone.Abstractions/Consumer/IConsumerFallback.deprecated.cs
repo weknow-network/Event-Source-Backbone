@@ -3,6 +3,7 @@
 /// <summary>
 /// Responsible for fallback scenario when the message wasn't consumed
 /// </summary>
+[Obsolete("deprecated", true)]
 public interface IConsumerFallback: IAckOperations
 {
     /// <summary>
