@@ -3,7 +3,7 @@
 /// <summary>
 /// Subscription Bridge convention
 /// </summary>
-public interface ISubscriptionBridge<out T>: ISubscriptionBridge
+public interface ISubscriptionBridge<out T> : ISubscriptionBridge
     where T : class
 {
     /// <summary>

@@ -11,7 +11,7 @@ namespace EventSourcing.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="target">The channel.</param>
-        public SimpleEventSubscriptionFromGen(ISimpleEventConsumer target): base(target)
+        public SimpleEventSubscriptionFromGen(ISimpleEventConsumer target) : base(target)
         {
         }
 

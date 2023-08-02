@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Backbone.WebEventTest;
+
 using FakeItEasy;
 
 namespace EventSourcing.Backbone.SrcGen.Playground
@@ -27,12 +28,12 @@ namespace EventSourcing.Backbone.SrcGen.Playground
                                      //    }
                                      //    return Task.CompletedTask;
                                      //})
-                                     .SubscribeEventsWithVersionConsumer(_subscriber); 
+                                     .SubscribeEventsWithVersionConsumer(_subscriber);
             IConsumerLifetime subscription1 = ConsumerBuilder.Empty
                                     .UseChannel(l => _channel)
                                      .Uri("sample")
-                                     .SubscribeEventsWithVersionConsumer(_subscriber); 
-        
+                                     .SubscribeEventsWithVersionConsumer(_subscriber);
+
             Console.WriteLine("Hello World!");
         }
     }

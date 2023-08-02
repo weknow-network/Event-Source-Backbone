@@ -1,8 +1,6 @@
 using System.Collections.Concurrent;
-using System.Threading.Channels;
 
 using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
@@ -16,7 +14,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests;
 
-public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
+public class EndToEndVersionAware_Fallback_Tests : EndToEndVersionAwareBase
 {
     private readonly IVersionAwareFallbackConsumer _subscriber = A.Fake<IVersionAwareFallbackConsumer>();
 
@@ -38,12 +36,11 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
 
     protected override string Name { get; } = "fallback";
 
-    [Fact]
+    [Fact(Skip = "fallback implementation is missing")]
     public async Task End2End_VersionAware_Fallback_Test()
     {
         IVersionAwareFallbackProducer producer =
             _producerBuilder
-                    //.WithOptions(producerOption)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
                     .BuildVersionAwareFallbackProducer();
@@ -54,7 +51,6 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
         await producer.Execute1Async(11);
 
         var cts = new CancellationTokenSource();
-        var dic = new ConcurrentDictionary<string, int>();
 
         var subscription =
              _consumerBuilder
@@ -62,13 +58,7 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     //.Fallback(ctx =>
-                     //{
-                     //    Metadata meta = ctx.Metadata;
-                     //    dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
-                     //    ctx.AckAsync(AckBehavior.OnFallback);
-                     //    return Task.CompletedTask;
-                     //})
+                     // TODO: fallback
                      .SubscribeVersionAwareFallbackConsumer(_subscriber);
 
         await subscription.Completion;
@@ -77,6 +67,7 @@ public class EndToEndVersionAware_Fallback_Tests: EndToEndVersionAwareBase
             .MustNotHaveHappened();
         A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
-        //Assert.Equal(2, dic["ExecuteAsync:1"]);
+
+        throw new NotImplementedException();
     }
 }

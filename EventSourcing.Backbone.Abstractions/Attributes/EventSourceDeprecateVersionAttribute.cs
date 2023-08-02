@@ -38,11 +38,11 @@
         /// <summary>
         /// Describe the deprecation reason
         /// </summary>
-        public string Remark { get; set; }
+        public string Remark { get; set; } = string.Empty;
 
         /// <summary>
         /// Document the date of deprecation, recommended format is: yyyy-MM-dd
         /// </summary>
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
     }
 }

@@ -122,7 +122,6 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // Dispose pattern
 
-
         #region GetCancellationToken
 
         /// <summary>

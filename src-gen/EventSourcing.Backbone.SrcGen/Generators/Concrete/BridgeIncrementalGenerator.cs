@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
 
-using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
@@ -226,7 +225,7 @@ namespace EventSourcing.Backbone
 
         #endregion // OnGenerateConsumerBridge
 
-            #region OnGenerateConsumerBase
+        #region OnGenerateConsumerBase
 
         protected GenInstruction OnGenerateConsumerBase(
                             Compilation compilation,

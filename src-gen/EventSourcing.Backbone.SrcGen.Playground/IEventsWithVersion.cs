@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-
-namespace EventSourcing.Backbone.WebEventTest
+﻿namespace EventSourcing.Backbone.WebEventTest
 {
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)] 
+    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
     [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IEventsWithVersion

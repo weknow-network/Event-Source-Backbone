@@ -58,7 +58,6 @@ namespace EventSourcing.Backbone
         /// <param name="resiliencePolicy">The resilience policy.</param>
         /// <param name="storageStrategyFactories">The storage strategy.</param>
         /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="fallback">The fallback handler.</param>
         private ConsumerPlan(
             ConsumerPlan copyFrom,
             Func<ILogger, IConsumerChannelProvider>? channelFactory = null,
@@ -76,7 +75,6 @@ namespace EventSourcing.Backbone
             AsyncPolicy? resiliencePolicy = null,
             Func<ILogger, IConsumerStorageStrategyWithFilter>? storageStrategyFactories = null,
             IServiceProvider? serviceProvider = null)
-            //,           Func<IConsumerFallback, Task>? fallback = null)
         {
             ChannelFactory = channelFactory ?? copyFrom.ChannelFactory;
             _channel = channel ?? copyFrom._channel;
@@ -94,9 +92,6 @@ namespace EventSourcing.Backbone
             StorageStrategyFactories = storageStrategyFactories == null
                   ? copyFrom.StorageStrategyFactories
                   : copyFrom.StorageStrategyFactories.Add(storageStrategyFactories);
-            //Fallbacks = fallback == null
-            //      ? copyFrom.Fallbacks
-            //      : copyFrom.Fallbacks.Add(fallback);
             StorageStrategies = copyFrom.StorageStrategies;
             if (cancellation == null)
                 Cancellation = copyFrom.Cancellation;
@@ -574,16 +569,6 @@ namespace EventSourcing.Backbone
                                                 consumerName: consumerName);
 
         #endregion // WithConsumerName
-
-        #region // WithFallback
-
-        //internal ConsumerPlan WithFallback(Func<IConsumerFallback, Task> fallback)
-        //{
-
-        //    return new ConsumerPlan(this, fallback: fallback);
-        //}
-
-        #endregion // WithFallback
 
         // --------------------------------------------------------
 

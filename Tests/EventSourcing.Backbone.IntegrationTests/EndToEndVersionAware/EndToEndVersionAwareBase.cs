@@ -1,15 +1,8 @@
-using System.Collections.Concurrent;
-using System.Threading.Channels;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
-using EventSourcing.Backbone.Tests.Entities;
-
-using FakeItEasy;
 
 using Microsoft.Extensions.Logging;
 
-using Xunit;
 using Xunit.Abstractions;
 
 
@@ -45,7 +38,7 @@ public abstract class EndToEndVersionAwareBase : TestsBase
 
     #endregion // Ctor
 
-    private readonly string URI_DYNAMIC  = $"{DateTime.UtcNow:HH_mm_ss}:{Environment.TickCount}";
-    protected sealed override string URI  => $"version-aware-{Name}:{URI_DYNAMIC}";
+    private readonly string URI_DYNAMIC = $"{DateTime.UtcNow:HH_mm_ss}:{Environment.TickCount}";
+    protected sealed override string URI => $"version-aware-{Name}:{URI_DYNAMIC}";
     protected abstract string Name { get; }
 }

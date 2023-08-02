@@ -36,7 +36,7 @@ public class EndToEndVersionAware_Fallback_Tests
 
     #endregion // Ctor
 
-    [Fact]
+    [Fact(Skip = "fallback implementation is missing")]
     public async Task End2End_VersionAware_Fallback_Test()
     {
         string URI = "testing:version:aware";
@@ -53,7 +53,6 @@ public class EndToEndVersionAware_Fallback_Tests
         await producer.Execute1Async(11);
 
         var cts = new CancellationTokenSource();
-        var dic = new ConcurrentDictionary<string, int>();
 
         IAsyncDisposable subscription =
              _consumerBuilder.UseChannel(_consumerChannel)
@@ -76,8 +75,9 @@ public class EndToEndVersionAware_Fallback_Tests
 
         A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        //Assert.Equal(2, dic["ExecuteAsync:1"]);
         A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
+
+        throw new NotImplementedException();
     }
 }

@@ -87,10 +87,8 @@ namespace EventSourcing.Backbone.Tests
 
         #region Inheritance_PartialConsumer_Strict_Succeed_Test
 
-        [Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task Inheritance_PartialConsumer_Strict_Succeed_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Inheritance_PartialConsumer_Strict_Succeed_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -127,10 +125,7 @@ namespace EventSourcing.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             var consumerBuilder = _consumerBuilder
-                             .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with
-                             {
-                                 MultiConsumerBehavior = multiConsumerBehavior
-                             })
+                             .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                              .WithCancellation(cancellation)
                              .Environment(ENV)
                              .Uri(URI)
@@ -155,22 +150,17 @@ namespace EventSourcing.Backbone.Tests
 
 
             Assert.Equal(3, hash.Count);
-            if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            {
-                Assert.True(hash.All(m => m.Value >= 1));
-                A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
-                   .MustHaveHappenedOnceExactly();
-            }
-            else
-                Assert.True(hash.All(m => m.Value == 1));
+            Assert.True(hash.All(m => m.Value >= 1));
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+               .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
 
@@ -181,7 +171,7 @@ namespace EventSourcing.Backbone.Tests
         #region Inheritance_ConsumerCooperation_Succeed_Test
 
         // TODO: [bnaya 2023-02-16] check why `MaxMessages` don't take effect (ended by cancellation)
-        [Fact]//(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Inheritance_ConsumerCooperation_Succeed_Test()
         {
             #region ISequenceOperations producer = ...
@@ -285,20 +275,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Inheritance_ConsumerCooperation_Succeed_Test
-
-        #region GetCancellationToken
-
-        /// <summary>
-        /// Gets the cancellation token.
-        /// </summary>
-        /// <returns></returns>
-        private static CancellationToken GetCancellationToken(int duration = 10)
-        {
-            return new CancellationTokenSource(Debugger.IsAttached
-                                ? TimeSpan.FromMinutes(duration)
-                                : TimeSpan.FromSeconds(duration)).Token;
-        }
-
-        #endregion // GetCancellationToken
     }
 }

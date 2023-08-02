@@ -1,13 +1,11 @@
-﻿using Newtonsoft.Json;
-
-namespace EventSourcing.Backbone.Tests.Entities
+﻿namespace EventSourcing.Backbone.Tests.Entities
 {
 
     /// <summary>
     /// Test contract
     /// </summary>
-    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Default)] 
-    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Default)] 
+    [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Default)]
+    [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Default)]
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IVersionAwareNone //: IVersionAwareBase
     {
@@ -56,7 +54,7 @@ namespace EventSourcing.Backbone.Tests.Entities
         //}
 
         ValueTask ExecuteAsync(string key, int value);
-        [EventSourceVersion(1, Date = "2023-06-01", Remark = "sample of deprecation")] 
+        [EventSourceVersion(1, Date = "2023-06-01", Remark = "sample of deprecation")]
         [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 2, Date = "2023-07-21", Remark = "sample of deprecation")]
         [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 2, Date = "2023-07-21", Remark = "sample of deprecation")]
         ValueTask ExecuteAsync(int value);

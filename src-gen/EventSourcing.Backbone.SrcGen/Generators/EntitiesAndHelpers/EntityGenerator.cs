@@ -1,14 +1,9 @@
 ﻿using System.Reflection;
-using System.Reflection.Metadata;
-using System.Security.Cryptography;
 using System.Text;
 
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using static EventSourcing.Backbone.Helper;
 
 namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 {
@@ -134,7 +129,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             string recordPrefix = friendlyName;
             if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
                 recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
-            
+
             var bundles = info.ToBundle(compilation);
 
             builder.AppendLine("\t\t\t/// <summary>");

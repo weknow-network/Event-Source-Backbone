@@ -93,27 +93,6 @@ public record ConsumerOptions :
 
     #endregion // PartialBehavior
 
-    #region MultiConsumerBehavior
-
-    /// <summary>
-    /// Collaborate behavior of multi consumers registered via common subscription object.
-    /// </summary>
-    /// <example>
-    /// <![CDATA[
-    /// await using IConsumerLifetime subscription = _consumerBuilder
-    ///           .Environment(ENV)
-    ///           .Uri(URI)
-    ///           .Group("CONSUMER_GROUP_X_1")
-    ///           .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-    ///           .SubscribeFlowAConsumer(_subscriberA)
-    ///           .SubscribeFlowBConsumer(_subscriberB)
-    ///           .SubscribeFlowABConsumer(_subscriberAB);
-    /// ]]>
-    /// </example>
-    public MultiConsumerBehavior MultiConsumerBehavior { get; init; } = MultiConsumerBehavior.All;
-
-    #endregion // MultiConsumerBehavior
-
     #region MaxMessages
 
     /// <summary>

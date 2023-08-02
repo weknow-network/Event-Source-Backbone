@@ -1,7 +1,5 @@
-using System.Threading;
 using System.Threading.Channels;
 
-using EventSourcing.Backbone.Enums;
 using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;
@@ -51,7 +49,7 @@ namespace EventSourcing.Backbone
 
         #region End2End_CustomBaseSubscription_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task End2End_CustomBaseSubscription_Test()
         {
             ISimpleEventProducer producer =
@@ -90,7 +88,7 @@ namespace EventSourcing.Backbone
 
         #region End2End_CustomSubscriptionBridge_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task End2End_CustomSubscriptionBridge_Test()
         {
             ISimpleEventProducer producer =
@@ -127,7 +125,7 @@ namespace EventSourcing.Backbone
 
         #region End2End_GenBaseSubscription_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task End2End_GenBaseSubscription_Test()
         {
             ISimpleEventProducer producer =
@@ -164,7 +162,7 @@ namespace EventSourcing.Backbone
 
         #region End2End_GenSubscriptionBridge_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task End2End_GenSubscriptionBridge_Test()
         {
             ISimpleEventProducer producer =
@@ -201,10 +199,8 @@ namespace EventSourcing.Backbone
 
         #region End2End_Test
 
-        [Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task End2End_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task End2End_Test()
         {
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
@@ -220,8 +216,6 @@ namespace EventSourcing.Backbone
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
-                         //.WithOptions(consumerOptions)
-                         .WithOptions(c => c with { MultiConsumerBehavior = multiConsumerBehavior })
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
                          .WithLogger(TestLogger.Create(_outputHelper))
@@ -243,10 +237,8 @@ namespace EventSourcing.Backbone
 
         #region End2End_MultiTargets_Test
 
-        [Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task End2End_MultiTargets_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task End2End_MultiTargets_Test()
         {
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
@@ -262,8 +254,6 @@ namespace EventSourcing.Backbone
             var cts = new CancellationTokenSource();
             IAsyncDisposable subscription =
                  _consumerBuilder.UseChannel(_consumerChannel)
-                         //.WithOptions(consumerOptions)
-                         .WithOptions(c => c with { MultiConsumerBehavior = multiConsumerBehavior })
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
                          .WithLogger(TestLogger.Create(_outputHelper))
@@ -300,11 +290,8 @@ namespace EventSourcing.Backbone
 
         #region End2End_MultiSubscribersTargets_Test
 
-        [Theory(Skip = "Testing bug' deadlock", Timeout = TIMEOUT)]
-        //[Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task End2End_MultiSubscribersTargets_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Skip = "Testing bug' deadlock", Timeout = TIMEOUT)]
+        public async Task End2End_MultiSubscribersTargets_Test()
         {
             ISequenceOperationsProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
@@ -319,8 +306,6 @@ namespace EventSourcing.Backbone
 
             var cts = new CancellationTokenSource();
             var consumerBuilder = _consumerBuilder.UseChannel(_consumerChannel)
-                         //.WithOptions(consumerOptions)
-                         .WithOptions(c => c with { MultiConsumerBehavior = multiConsumerBehavior })
                          .WithCancellation(cts.Token)
                          .Uri("Kids#HappySocks")
                          .WithLogger(TestLogger.Create(_outputHelper));
@@ -349,31 +334,19 @@ namespace EventSourcing.Backbone
             A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustHaveHappenedOnceExactly();
-            }
-            else
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustNotHaveHappened();
-            }
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
         }
 
         #endregion // End2End_MultiSubscribersTargets_Test
 
         #region End2End_Overloads_Test
 
-        [Fact]
+        [Fact(Timeout = TIMEOUT)]
         public async Task End2End_Overloads_Test()
         {
             ISimpleEventProducer producer =

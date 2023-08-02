@@ -211,10 +211,8 @@ namespace EventSourcing.Backbone.Tests
 
         #region MultiTargets_Test
 
-        [Theory] //(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task MultiTargets_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task MultiTargets_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -234,7 +232,7 @@ namespace EventSourcing.Backbone.Tests
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
             await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with { MultiConsumerBehavior = multiConsumerBehavior })
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Uri(URI)
@@ -266,24 +264,12 @@ namespace EventSourcing.Backbone.Tests
             A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustHaveHappenedOnceExactly();
-            }
-            else 
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustNotHaveHappened();
-            }
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
         }
@@ -292,10 +278,8 @@ namespace EventSourcing.Backbone.Tests
 
         #region MultiSubscriber_MultiTargets_Test
 
-        [Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task MultiSubscriber_MultiTargets_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task MultiSubscriber_MultiTargets_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -312,8 +296,8 @@ namespace EventSourcing.Backbone.Tests
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            var consumerBuilder = _consumerBuilder 
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with { MultiConsumerBehavior = multiConsumerBehavior })
+            var consumerBuilder = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
                          .Uri(URI)
@@ -322,7 +306,7 @@ namespace EventSourcing.Backbone.Tests
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}");
             await using IConsumerLifetime subscription1 =
                          consumerBuilder.SubscribeSequenceOperationsConsumer(_subscriber1);
-            await using IConsumerLifetime subscription2 = 
+            await using IConsumerLifetime subscription2 =
                          consumerBuilder.Group("Other-Group")
                                         .SubscribeSequenceOperationsConsumer(_subscriber2, _subscriber3);
 
@@ -352,24 +336,12 @@ namespace EventSourcing.Backbone.Tests
             A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustHaveHappenedOnceExactly();
-            }
-            else 
-            {
-                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                    .MustNotHaveHappened();
-                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                    .MustNotHaveHappened();
-            }
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
         }
@@ -416,7 +388,7 @@ namespace EventSourcing.Backbone.Tests
                          .Name($"TEST {DateTime.UtcNow:HH:mm:ss}");
             await using IConsumerLifetime subscription1 =
                          consumerBuilder.SubscribeEventFlowStage1Consumer(_stage1Consumer);
-            await using IConsumerLifetime subscription2 = 
+            await using IConsumerLifetime subscription2 =
                          consumerBuilder.SubscribeEventFlowStage2Consumer(_stage2Consumer);
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)

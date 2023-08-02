@@ -21,7 +21,7 @@
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-#pragma warning disable S1133 
+#pragma warning disable S1133
         [Obsolete("Reflection", true)]
 #pragma warning restore S1133 
         protected ProducerPipeline(ref IProducerPlanBuilder plan)

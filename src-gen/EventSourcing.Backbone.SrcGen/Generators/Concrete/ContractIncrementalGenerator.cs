@@ -6,9 +6,6 @@ using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using static EventSourcing.Backbone.Helper;
 
 namespace EventSourcing.Backbone;
 
@@ -53,12 +50,6 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         var asm = GetType().Assembly.GetName();
         builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
         builder.AppendLine($"\tpublic interface {interfaceName}");
-        //var baseTypesFormats = symbol.Interfaces.Select(m => info.FormatName(m.Name));
-        //string inheritanceNames = string.Join(", ", baseTypesFormats);
-        //if (string.IsNullOrEmpty(inheritanceNames))
-        //    builder.AppendLine();
-        //else
-        //    builder.AppendLine($" : {inheritanceNames}");
         builder.AppendLine("\t{");
 
         foreach (var bundle in bundles)
@@ -185,11 +176,11 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         {
             var sb = new StringBuilder();
             int version = opVersionInfo.Version;
-            method.CopyDocumentation(builder, version, "\t\t");
+            method.CopyDocumentation(sb, version, "\t\t");
             var ps = method.Parameters.Select(GetParameter);
             if (sb.Length != 0 && !isProducer && ps.Any())
             {
-                string summaryEnds = "/// </summary>";
+                string summaryEnds = "</summary>";
                 int idxRet = sb.ToString().IndexOf(summaryEnds);
                 if (idxRet != -1)
                     sb.Insert(idxRet + summaryEnds.Length, "\r\n\t\t/// <param name=\"consumerMetadata\">The consumer metadata.</param>");

@@ -1,13 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Immutable;
+﻿using System.Collections.Concurrent;
 
-using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Enums;
 
 using Microsoft.Extensions.Logging;
-
-using Handler = System.Func<EventSourcing.Backbone.Announcement, EventSourcing.Backbone.IConsumerBridge, System.Threading.Tasks.Task<bool>>;
 
 namespace EventSourcing.Backbone;
 
@@ -78,7 +73,7 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
     /// <param name="argumentName">Name of the argument.</param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
-    ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName) => 
+    ValueTask<TParam> IConsumerBridge.GetParameterAsync<TParam>(Announcement arg, string argumentName) =>
                                                             _plan.GetParameterAsync<TParam>(arg, argumentName);
 
     #endregion // GetParameterAsync
@@ -120,7 +115,7 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
 
         #endregion // Increment & Validation Max Messages Limit
 
-        var consumerMeta = new ConsumerMetadata(meta, cancellation);
+        var consumerMeta = new ConsumerMetadata(meta, _plan.Options, cancellation);
 
         var logger = Logger;
 

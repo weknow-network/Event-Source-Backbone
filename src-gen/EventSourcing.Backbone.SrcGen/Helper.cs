@@ -1,6 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Xml.Linq;
 
@@ -80,8 +78,8 @@ internal static class Helper
             return;
         }
 
-        string remark = prmSig == null 
-                            ? $"{indent}/// Event Version {version}" 
+        string remark = prmSig == null
+                            ? $"{indent}/// Event Version {version}"
                             : $@"{indent}/// Event Version {version}
 {indent}/// Parameter Signature:  {prmSig}";
         if (string.IsNullOrEmpty(xmlRaw))
@@ -157,8 +155,8 @@ internal static class Helper
 
     public static VersionInstructions GetVersionInfo(this AttributeData? attributeData, string kind)
     {
-        if(attributeData == null) 
-            return default;   
+        if (attributeData == null)
+            return default;
 
         var minVersionRaw = attributeData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.MinVersion));
         var minVersion = (int?)minVersionRaw.Value.Value;
@@ -271,7 +269,7 @@ internal static class Helper
 
         var kindRaw = attData.ConstructorArguments[0];
         var kind = kindRaw.Value!.ToString();
-        if(kind != type)
+        if (kind != type)
             return null;
 
         var versionRaw = attData.ConstructorArguments[1];
@@ -350,7 +348,7 @@ internal static class Helper
         var query = from att in parentAttributes
                     where acceptedTrees.Contains(att.ApplicationSyntaxReference!.SyntaxTree)
                     select att;
-        if(string.IsNullOrEmpty(kind))
+        if (string.IsNullOrEmpty(kind))
             return query.First();
         return query.First(m =>
         {
@@ -412,7 +410,7 @@ internal static class Helper
     public static MethodBundle[] ToBundle(
                             this SyntaxReceiverResult info,
                             Compilation compilation,
-                            bool withDeprecated = false) 
+                            bool withDeprecated = false)
     {
         var kind = info.Kind;
         VersionInstructions versionInfo = info.Att.GetVersionInfo(compilation, kind);

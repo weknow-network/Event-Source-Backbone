@@ -27,13 +27,16 @@ namespace EventSourcing.Backbone
         /// Initializes a new instance.
         /// </summary>
         /// <param name="metadata">The metadata.</param>
+        /// <param name="options">The consumer execution's options.</param>
         /// <param name="consumingCancellation">The consuming cancellation
         /// (stop consuming call-back on cancellation).</param>
         public ConsumerMetadata(
             Metadata metadata,
+            ConsumerOptions options,
             CancellationToken consumingCancellation)
         {
             Metadata = metadata;
+            Options = options;
             ConsumingCancellation = consumingCancellation;
         }
 
@@ -47,6 +50,17 @@ namespace EventSourcing.Backbone
         public Metadata Metadata { get; }
 
         #endregion // Metadata
+
+
+        #region Options
+
+        /// <summary>
+        /// Gets the options.
+        /// </summary>
+        public ConsumerOptions Options { get; }
+
+        #endregion // Options
+
 
         #region ConsumingCancellation
 

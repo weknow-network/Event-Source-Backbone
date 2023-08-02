@@ -1,5 +1,3 @@
-using System.Threading.Channels;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Tests.Entities;
 
@@ -14,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests;
 
-public class EndToEndVersionAware_NamingAppendUnderscore_Tests: EndToEndVersionAwareBase
+public class EndToEndVersionAware_NamingAppendUnderscore_Tests : EndToEndVersionAwareBase
 {
     private readonly IVersionAwareAppendUnderscoreConsumer _subscriber = A.Fake<IVersionAwareAppendUnderscoreConsumer>();
 
