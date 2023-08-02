@@ -12,7 +12,7 @@ namespace EventSourcing.Backbone
      /// Unlike the segments, this part can be flow with
      /// message & will be set as async-context.]]> 
      /// </summary>
-    [DebuggerDisplay("{Operation} [{MessageId}]: Origin={Origin}, Target={Environment}={Uri}, EventKey={EventKey}, StorageTypes={StorageTypes}")]
+    [DebuggerDisplay("{Operation}, V{Version}, P_{ParamsSignature}: Origin={Origin}, Env={Environment}, URI={Uri}, StorageTypes={StorageTypes}")]
     public record Metadata
     {
         #region MessageId

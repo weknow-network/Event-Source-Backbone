@@ -7,6 +7,8 @@ using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
 
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
+
 namespace EventSourcing.Backbone
 {
     //[Generator]
@@ -155,8 +157,6 @@ namespace EventSourcing.Backbone
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var symbol = info.Symbol;
-            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
 
             string fileName = $"{prefix}Bridge";
 
@@ -164,15 +164,15 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\t/// Subscription bridge for {interfaceName}");
             builder.AppendLine("\t/// </summary>");
             builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
-            builder.AppendLine($"\tpublic sealed class {fileName}: SubscriptionBridgeBase<{interfaceName}>");
+            builder.AppendLine($"\tpublic sealed class {fileName}: {fileName}Base");
             builder.AppendLine("\t{");
 
             builder.AppendLine();
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"target\">The target.</param>");
-            builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target): base (target.ToEnumerable())");
+            builder.AppendLine("\t\t/// <param name=\"target\">The target is consumer implementation.</param>");
+            builder.AppendLine($"\t\tpublic {fileName}({interfaceName} target): this (target.ToEnumerable())");
             builder.AppendLine("\t\t{");
             builder.AppendLine("\t\t}");
 
@@ -180,8 +180,8 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
-            builder.AppendLine($"\t\tpublic {fileName}(IEnumerable<{interfaceName}> targets): base(targets)");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets are consumer implementations (when having multiple implementation on a single subscription).</param>");
+            builder.AppendLine($"\t\tpublic {fileName}(IEnumerable<{interfaceName}> targets): this(targets.ToArray())");
             builder.AppendLine("\t\t{");
             builder.AppendLine("\t\t}");
 
@@ -189,71 +189,44 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine("\t\t/// Initializes a new instance.");
             builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets are consumer implementations (when having multiple implementation on a single subscription).</param>");
             builder.AppendLine($"\t\tpublic {fileName}(params {interfaceName}[] targets): base(targets)");
             builder.AppendLine("\t\t{");
             builder.AppendLine("\t\t}");
-
             builder.AppendLine();
 
-            builder.Append("\t\t");
-            var allMethods = symbol.GetAllMethods().ToArray();
-            if (allMethods.Length != 0)
-                builder.Append("async ");
-            builder.AppendLine("protected override Task<bool> OnBridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
-            builder.AppendLine("\t\t{");
-            if (allMethods.Length != 0)
+            MethodBundle[] bundles = info.ToBundle(compilation);
+            foreach (var bundle in bundles)
             {
-                builder.AppendLine("\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
-                builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
-                builder.AppendLine("\t\t\tswitch (meta)");
+                var method = bundle.Method;
+                string nameVersion = bundle.FormatMethodFullName();
+
+                var prms = method.Parameters;
+                IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
+                IEnumerable<string> psName = prms.Select(p => p.Name);
+                string metaParam = ps.Any() ? "ConsumerMetadata consumerMetadata, " : "ConsumerMetadata consumerMetadata";
+                string metaParamName = ps.Any() ? "consumerMetadata, " : "consumerMetadata";
+                builder.AppendLine($"\t\tpublic async override ValueTask {nameVersion}({metaParam}{string.Join(", ", ps)})");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tif(_targets.Length == 1)");
                 builder.AppendLine("\t\t\t{");
-
-                foreach (var method in allMethods)
-                {
-                    var opVersionInfo = method.GetOperationVersionInfo();
-                    var v = opVersionInfo.Version;
-                    if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
-                        continue;
-
-                    string mtdName = method.ToNameConvention();
-                    string nameVersion = versionInfo.FormatMethodName(mtdName, opVersionInfo.Version);
-                    string nameOfOperetion = mtdName;
-
-                    var paramsSignature = method.GetParamsSignature();
-
-                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version}, ParamsSignature: \"{paramsSignature}\" }} :");
-                    builder.AppendLine("\t\t\t\t{");
-                    var prms = method.Parameters;
-                    int i = 0;
-                    foreach (var p in prms)
-                    {
-                        var pName = p.Name;
-                        builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
-                        i++;
-                    }
-                    IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
-                    string metaParam = ps.Any() ? "consumerMetadata, " : "consumerMetadata";
-                    builder.AppendLine($"\t\t\t\t\tvar tasks = _targets.Select(async target => await target.{nameVersion}({metaParam}{string.Join(", ", ps)}));");
-                    builder.AppendLine("\t\t\t\t\tawait Task.WhenAll(tasks);");
-                    builder.AppendLine("\t\t\t\t\treturn true;");
-                    builder.AppendLine("\t\t\t\t}");
-                }
+                builder.AppendLine($"\t\t\t\tawait _targets[0].{nameVersion}({metaParamName}{string.Join(", ", psName)});");
+                builder.AppendLine($"\t\t\t\treturn;");
                 builder.AppendLine("\t\t\t}");
+                builder.AppendLine("\t\t\tvar tasks = ");
+                builder.AppendLine($"\t\t\t\t\t_targets.Select(async t => await t.{nameVersion}({metaParamName}{string.Join(", ", psName)}));");
+                builder.AppendLine("\t\t\tawait Task.WhenAll(tasks).ThrowAll();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
             }
-            if (allMethods.Length == 0)
-                builder.AppendLine("\t\t\treturn Task.FromResult(false);");
-            else
-                builder.AppendLine("\t\t\treturn false;");
-            builder.AppendLine("\t\t}");
-
             builder.AppendLine("\t}");
+
             return new GenInstruction($"{prefix}.Subscription.Bridge", builder.ToString(), usingAddition: "EventSourcing.Backbone.Private");
         }
 
         #endregion // OnGenerateConsumerBridge
 
-        #region OnGenerateConsumerBase
+            #region OnGenerateConsumerBase
 
         protected GenInstruction OnGenerateConsumerBase(
                             Compilation compilation,
@@ -263,79 +236,88 @@ namespace EventSourcing.Backbone
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var symbol = info.Symbol;
 
-            var versionInfo = info.Att.GetVersionInfo(compilation, info.Kind);
+            string fileName = $"{prefix}BridgeBase";
 
-            string fileName = $"{prefix}Base";
-
-            builder.AppendLine("\tnamespace Hidden");
+            builder.AppendLine("\t/// <summary>");
+            builder.AppendLine($"\t/// Base Subscription class of {interfaceName}");
+            builder.AppendLine("\t/// </summary>");
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
+            builder.AppendLine($"\tpublic abstract class {fileName}: ISubscriptionBridge<{interfaceName}>, {interfaceName}");
             builder.AppendLine("\t{");
-            builder.AppendLine("\t\t/// <summary>");
-            builder.AppendLine($"\t\t/// Base Subscription class of {interfaceName}");
-            builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
-            builder.AppendLine($"\t\tpublic abstract class {fileName}: ISubscriptionBridge // <{interfaceName}>");
-            builder.AppendLine("\t\t{");
 
-            builder.Append("\t\t\t");
-            var allMethods = symbol.GetAllMethods().ToArray();
-            if (allMethods.Length != 0)
+            builder.AppendLine();
+            builder.AppendLine($"\t\tprotected readonly {interfaceName}[] _targets;");
+
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine("\t\t/// Initializes a new instance.");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The target.</param>");
+            builder.AppendLine($"\t\tpublic {fileName}(params {interfaceName}[] targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\t_targets = targets;");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
+
+            builder.AppendLine($"\t\t{interfaceName} ISubscriptionBridge<{interfaceName}>.Consumer => this;");
+            builder.AppendLine();
+
+            builder.Append("\t\t");
+            MethodBundle[] bundles = info.ToBundle(compilation);
+            if (bundles.Length != 0)
                 builder.Append("async ");
             builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
-            builder.AppendLine("\t\t\t{");
-            if (allMethods.Length != 0)
+            builder.AppendLine("\t\t{");
+            if (bundles.Length != 0)
             {
-                builder.AppendLine("\t\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
-                builder.AppendLine("\t\t\t\tMetadata meta = announcement.Metadata;");
-                builder.AppendLine("\t\t\t\tswitch (meta)");
-                builder.AppendLine("\t\t\t\t{");
-                foreach (var method in allMethods)
+                builder.AppendLine("\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
+                builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
+                builder.AppendLine("\t\t\tswitch (meta)");
+                builder.AppendLine("\t\t\t{");
+                foreach (var bundle in bundles)
                 {
-                    var opVersionInfo = method.GetOperationVersionInfo();
-                    var v = opVersionInfo.Version;
-                    if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
-                        continue;
-
+                    var method = bundle.Method;
+                    var v = bundle.Version;
                     var paramsSignature = method.GetParamsSignature();
 
-                    string mtdName = method.ToNameConvention();
-                    string nameOfOperetion = mtdName;
-                    builder.AppendLine($"\t\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {opVersionInfo.Version}, ParamsSignature: \"{paramsSignature}\" }} :");
-                    builder.AppendLine("\t\t\t\t\t{");
+                    string mtdName = bundle.FormatMethodFullName();
+
+                    string nameOfOperetion = bundle.FullName;
+                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {v}, ParamsSignature: \"{paramsSignature}\" }} :");
+                    builder.AppendLine("\t\t\t\t{");
                     var prms = method.Parameters;
                     int i = 0;
                     foreach (var p in prms)
                     {
                         var pName = p.Name;
-                        builder.AppendLine($"\t\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                        builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                         i++;
                     }
                     string metaParam = prms.Any() ? "consumerMetadata, " : "consumerMetadata";
                     IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
-                    builder.AppendLine($"\t\t\t\t\t\tawait {mtdName}({metaParam}{string.Join(", ", ps)});");
-                    builder.AppendLine("\t\t\t\t\t\treturn true;");
-                    builder.AppendLine("\t\t\t\t\t}");
+                    builder.AppendLine($"\t\t\t\t\tawait {mtdName}({metaParam}{string.Join(", ", ps)});");
+                    builder.AppendLine("\t\t\t\t\treturn true;");
+                    builder.AppendLine("\t\t\t\t}");
                 }
-                builder.AppendLine("\t\t\t\t}");
-                builder.AppendLine("\t\t\t\treturn false;");
+                builder.AppendLine("\t\t\t}");
+                builder.AppendLine("\t\t\treturn false;");
             }
             else
-                builder.AppendLine("\t\t\t\treturn Task.FromResult(false);");
-            builder.AppendLine("\t\t\t}");
+                builder.AppendLine("\t\t\treturn Task.FromResult(false);");
+            builder.AppendLine("\t\t}");
 
             builder.AppendLine();
-            foreach (var method in allMethods)
+            foreach (var bundle in bundles)
             {
-                string mtdName = method.ToNameConvention();
+                var method = bundle.Method;
+                string mtdName = bundle.FormatMethodFullName();
 
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
                 string metaParam = ps.Any() ? "ConsumerMetadata consumerMetadata, " : "ConsumerMetadata consumerMetadata";
-                builder.AppendLine($"\t\t\tprotected abstract ValueTask {mtdName}({metaParam}{string.Join(", ", ps)});");
+                builder.AppendLine($"\t\tpublic abstract ValueTask {mtdName}({metaParam}{string.Join(", ", ps)});");
                 builder.AppendLine();
             }
-            builder.AppendLine("\t\t}");
             builder.AppendLine("\t}");
 
             return new GenInstruction($"{prefix}.Subscription.Bridge.Base", builder.ToString());

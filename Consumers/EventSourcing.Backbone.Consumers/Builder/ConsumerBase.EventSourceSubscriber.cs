@@ -162,7 +162,6 @@ public partial class ConsumerBase
             bool hasProcessed = false;
             try
             {
-
                 await using (Ack.Set(ack))
                 {
                     hasProcessed = await Plan.ResiliencePolicy.ExecuteAsync<bool>(async (ct) =>
