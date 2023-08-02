@@ -347,24 +347,24 @@ namespace EventSourcing.Backbone
             A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            //if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            //{
-            //    A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-            //        .MustHaveHappenedOnceExactly();
-            //    A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-            //        .MustHaveHappenedOnceExactly();
-            //    A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-            //        .MustHaveHappenedOnceExactly();
-            //}
-            //else
-            //{
-            //    A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-            //        .MustNotHaveHappened();
-            //    A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-            //        .MustNotHaveHappened();
-            //    A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-            //        .MustNotHaveHappened();
-            //}
+            if (multiConsumerBehavior == MultiConsumerBehavior.All)
+            {
+                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                    .MustHaveHappenedOnceExactly();
+                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                    .MustHaveHappenedOnceExactly();
+                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                    .MustHaveHappenedOnceExactly();
+            }
+            else
+            {
+                A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                    .MustNotHaveHappened();
+                A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                    .MustNotHaveHappened();
+                A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                    .MustNotHaveHappened();
+            }
         }
 
         #endregion // End2End_MultiSubscribersTargets_Test

@@ -28,7 +28,9 @@ namespace EventSourcing.Backbone.Tests
     /// </summary>
     public class EndToEndTests : TestsBase
     {
-        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriber1 = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriber2 = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOperationsConsumer _subscriber3 = A.Fake<ISequenceOperationsConsumer>();
         private readonly SequenceOperationsConsumerBridge _subscriberBridge;
         private readonly ISequenceOperationsConsumer _autoSubscriber = A.Fake<ISequenceOperationsConsumer>();
         private readonly ISequenceOperationsConsumer _subscriberPrefix = A.Fake<ISequenceOperationsConsumer>();
@@ -73,7 +75,7 @@ namespace EventSourcing.Backbone.Tests
             var consumerBuilder = stg.CreateRedisConsumerBuilder();
             _consumerBuilder = consumerChannelBuilder?.Invoke(consumerBuilder, _fakeLogger) ?? consumerBuilder;
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() =>
                     {
                         Metadata meta = ConsumerMetadata.Context;
@@ -81,9 +83,35 @@ namespace EventSourcing.Backbone.Tests
                             return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
                         return ValueTask.CompletedTask;
                     });
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+                    .ReturnsLazily(() => Delay());
+
+            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                    .ReturnsLazily(() =>
+                    {
+                        Metadata meta = ConsumerMetadata.Context;
+                        if (string.IsNullOrEmpty(meta.EventKey))
+                            return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
+                        return ValueTask.CompletedTask;
+                    });
+            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+                    .ReturnsLazily(() => Delay());
+            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+                    .ReturnsLazily(() => Delay());
+
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                    .ReturnsLazily(() =>
+                    {
+                        Metadata meta = ConsumerMetadata.Context;
+                        if (string.IsNullOrEmpty(meta.EventKey))
+                            return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
+                        return ValueTask.CompletedTask;
+                    });
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+                    .ReturnsLazily(() => Delay());
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Delay());
 
             #region  A.CallTo(() => _fakeLogger...)
@@ -103,7 +131,7 @@ namespace EventSourcing.Backbone.Tests
 
             async ValueTask Delay() => await Task.Delay(200);
 
-            _subscriberBridge = new SequenceOperationsConsumerBridge(_subscriber);
+            _subscriberBridge = new SequenceOperationsConsumerBridge(_subscriber1);
         }
 
         #endregion // Ctor
@@ -128,7 +156,7 @@ namespace EventSourcing.Backbone.Tests
 
         #endregion // DefaultOptions
 
-        #region EnvironmetEnvironment_Test_Test
+        #region Environment_Test
 
         [Fact(Timeout = TIMEOUT)]
         public async Task Environment_Test()
@@ -169,17 +197,85 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
         }
 
         #endregion // Environment_Test
+
+        #region MultiSubscriber_MultiTargets_Test
+
+        [Fact(Timeout = TIMEOUT)]
+        public async Task MultiSubscriber_MultiTargets_Test()
+        {
+            #region ISequenceOperations producer = ...
+
+            ISequenceOperationsProducer producer = _producerBuilder
+                                            //.WithOptions(producerOption)
+                                            .Environment(ENV)
+                                            .Uri(URI)
+                                            .WithLogger(_fakeLogger)
+                                            .BuildSequenceOperationsProducer();
+
+            #endregion // ISequenceOperations producer = ...
+
+            await SendSequenceAsync(producer);
+
+            CancellationToken cancellation = GetCancellationToken();
+
+            #region await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            await using IConsumerLifetime subscription = _consumerBuilder
+                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
+                         .WithCancellation(cancellation)
+                         .Environment(ENV)
+                         .Uri(URI)
+                         .WithLogger(_fakeLogger)
+                         .Group("CONSUMER_GROUP_1")
+                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
+                         .SubscribeSequenceOperationsConsumer(_subscriber1)
+                         .SubscribeSequenceOperationsConsumer(_subscriber2, _subscriber3);
+
+            #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
+
+            var sw = Stopwatch.StartNew();
+            await subscription.Completion;
+            sw.Stop();
+            _outputHelper.WriteLine($"Consume Duration = {sw.Elapsed:mm\\:ss\\.ff}");
+
+            #region Validation
+
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
+
+            #endregion // Validation
+        }
+
+        #endregion // MultiSubscriber_MultiTargets_Test
 
         #region PartialConsumer_Strict_Succeed_Test
 
@@ -987,11 +1083,11 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -1078,9 +1174,9 @@ namespace EventSourcing.Backbone.Tests
             #endregion // ISequenceOperations producer = ...
 
             int tryNumber = 0;
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
                 .ReturnsLazily<ValueTask>(async () =>
                 {
                     if (Interlocked.Increment(ref tryNumber) == 1)
@@ -1088,7 +1184,7 @@ namespace EventSourcing.Backbone.Tests
 
                     await Ack.Current.AckAsync();
                 });
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Ack.Current.AckAsync());
 
 
@@ -1115,11 +1211,11 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                         .MustHaveHappenedTwiceExactly(); /* 1 Polly, 1 succeed */
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                         .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -1246,11 +1342,11 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _subscriberPrefix.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
@@ -1358,7 +1454,7 @@ namespace EventSourcing.Backbone.Tests
                             })
                              .Group(CONSUMER_GROUP)
                              .Name($"TEST OK {DateTime.UtcNow:HH:mm:ss}")
-                             .Subscribe(new SequenceOperationsConsumerBridge(_subscriber));
+                             .Subscribe(new SequenceOperationsConsumerBridge(_subscriber1));
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
@@ -1370,11 +1466,11 @@ namespace EventSourcing.Backbone.Tests
                         .MustHaveHappened(
                                     (3 /* Polly retry */),
                                     Times.OrMore);
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
                         .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
