@@ -64,13 +64,13 @@ public class EndToEndVersionAware_MixNaming_Tests
         await subscription.DisposeAsync();
         await ch.Reader.Completion;
 
-        A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+        A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerContext>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerMetadata>.Ignored, 10))
+        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerContext>.Ignored, 10))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerMetadata>.Ignored, 11))
+        A.CallTo(() => _subscriber.Execute_1Async(A<ConsumerContext>.Ignored, 11))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerMetadata>.Ignored, ts))
+        A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerContext>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }
 }

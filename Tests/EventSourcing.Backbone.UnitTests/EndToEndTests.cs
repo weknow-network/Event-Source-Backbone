@@ -76,11 +76,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored, "Id", 1))
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerContext>.Ignored, "Id", 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 1, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 1, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 2, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 2, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -113,11 +113,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored, "Id", 1))
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerContext>.Ignored, "Id", 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 1, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 1, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 2, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 2, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -150,11 +150,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored, "Id", 1))
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerContext>.Ignored, "Id", 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 1, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 1, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 2, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 2, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -187,11 +187,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerMetadata>.Ignored, "Id", 1))
+            A.CallTo(() => _simpleEventConsumer.ExecuteAsync(A<ConsumerContext>.Ignored, "Id", 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 1, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 1, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 2, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 2, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -225,11 +225,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -264,25 +264,25 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                .MustHaveHappenedOnceExactly();
-
-            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerContext>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -320,25 +320,25 @@ namespace EventSourcing.Backbone
             await subscription2.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber1.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber1.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
-                .MustHaveHappenedOnceExactly();
-
-            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber1.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber2.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber2.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber2.EarseAsync(A<ConsumerContext>.Ignored, 4335))
+                .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _subscriber3.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriber3.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -373,11 +373,11 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await ch.Reader.Completion;
 
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 42))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 42))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, TimeSpan.FromSeconds(42)))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, TimeSpan.FromSeconds(42)))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerMetadata>.Ignored, 42, A<DateTime>.Ignored))
+            A.CallTo(() => _simpleEventConsumer.RunAsync(A<ConsumerContext>.Ignored, 42, A<DateTime>.Ignored))
                 .MustHaveHappenedOnceExactly();
         }
 

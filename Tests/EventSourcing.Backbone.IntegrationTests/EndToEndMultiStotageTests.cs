@@ -57,9 +57,9 @@ namespace EventSourcing.Backbone.Tests
         {
             _outputHelper = outputHelper;
 
-            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerMetadata>.Ignored, A<Person>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerContext>.Ignored, A<Person>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => ValueTask.CompletedTask);
-            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerMetadata>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
+            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerContext>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
                     .ReturnsLazily(() => Delay());
 
             #region  A.CallTo(() => _fakeLogger...)
@@ -157,9 +157,9 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerMetadata>.Ignored, A<Person>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerContext>.Ignored, A<Person>.Ignored, A<string>.Ignored))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerMetadata>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
+            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerContext>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
                         .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
@@ -258,9 +258,9 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerMetadata>.Ignored, A<Person>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.Stage1Async(A<ConsumerContext>.Ignored, A<Person>.Ignored, A<string>.Ignored))
                         .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerMetadata>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
+            A.CallTo(() => _subscriber.Stage2Async(A<ConsumerContext>.Ignored, A<JsonElement>.Ignored, A<JsonElement>.Ignored))
                         .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeStorageFirst.LoadBucketAsync(
                                     A<Metadata>.Ignored,

@@ -115,7 +115,7 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
 
         #endregion // Increment & Validation Max Messages Limit
 
-        var consumerMeta = new ConsumerMetadata(meta, _plan.Options, cancellation);
+        var consumerMeta = new ConsumerContext(meta, _plan.Options, cancellation);
 
         var logger = Logger;
 
@@ -146,7 +146,7 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
                 {
                     if (ct.IsCancellationRequested) return false;
 
-                    ConsumerMetadata._metaContext.Value = consumerMeta;
+                    ConsumerContext._metaContext.Value = consumerMeta;
                     if (await _bridge.BridgeAsync(announcement, this))
                         return true;
                     return false;

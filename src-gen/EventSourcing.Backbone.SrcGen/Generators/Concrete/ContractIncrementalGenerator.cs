@@ -52,6 +52,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         builder.AppendLine($"\tpublic interface {interfaceName}");
         builder.AppendLine("\t{");
 
+        builder.AddInterceptors(symbol, interfaceName);
         foreach (var bundle in bundles)
         {
             IMethodSymbol method = bundle.Method;
@@ -197,7 +198,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             if (!isProducer)
             {
                 builder.Append("\t\t\t");
-                builder.Append("ConsumerMetadata consumerMetadata");
+                builder.Append("ConsumerContext consumerMetadata");
                 if (ps.Any())
                     builder.Append(',');
             }

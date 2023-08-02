@@ -3,13 +3,12 @@
 /// <summary>
 /// Responsible for fallback scenario when the message wasn't consumed
 /// </summary>
-[Obsolete("deprecated", true)]
-public interface IConsumerFallback : IAckOperations
+public interface IConsumerFallbackHandle : IAckOperations
 {
     /// <summary>
     /// Gets the metadata.
     /// </summary>
-    Metadata Metadata { get; }
+    ConsumerContext Context { get; }
 
     /// <summary>
     /// Gets the parameter value from the message.

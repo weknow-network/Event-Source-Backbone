@@ -12,7 +12,7 @@ namespace EventSourcing.Backbone
 
         async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
-            ConsumerMetadata consumerMetadata = ConsumerMetadata.Context;
+            ConsumerContext consumerMetadata = ConsumerContext.Context;
             switch (announcement.Metadata.Operation)
             {
                 case nameof(ISimpleEventConsumer.ExecuteAsync):
@@ -42,7 +42,7 @@ namespace EventSourcing.Backbone
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        protected abstract ValueTask ExecuteAsync(ConsumerMetadata consumerMetadata, string key, int value);
+        protected abstract ValueTask ExecuteAsync(ConsumerContext consumerMetadata, string key, int value);
 
         /// <summary>
         /// Runs the asynchronous.
@@ -51,6 +51,6 @@ namespace EventSourcing.Backbone
         /// <param name="id">The identifier.</param>
         /// <param name="date">The date.</param>
         /// <returns></returns>
-        protected abstract ValueTask RunAsync(ConsumerMetadata consumerMetadata, int id, DateTime date);
+        protected abstract ValueTask RunAsync(ConsumerContext consumerMetadata, int id, DateTime date);
     }
 }

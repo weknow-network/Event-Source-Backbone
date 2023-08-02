@@ -50,17 +50,17 @@ namespace EventSourcing.Backbone.Tests
             };
             _consumerBuilder = stg.CreateRedisConsumerBuilder();
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                     .ReturnsLazily(() =>
                     {
-                        Metadata meta = ConsumerMetadata.Context;
+                        Metadata meta = ConsumerContext.Context;
                         if (string.IsNullOrEmpty(meta.EventKey))
                             return ValueTask.FromException(new EventSourcingException("Event Key is missing"));
                         return ValueTask.CompletedTask;
                     });
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, A<string>.Ignored, A<string>.Ignored))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerContext>.Ignored, A<string>.Ignored, A<string>.Ignored))
                     .ReturnsLazily(() => Delay());
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerContext>.Ignored, A<int>.Ignored))
                     .ReturnsLazily(() => Delay());
 
             #region  A.CallTo(() => _fakeLogger...)
@@ -192,14 +192,14 @@ namespace EventSourcing.Backbone.Tests
 
             #region Validation
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => emptySubscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => emptySubscriber.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustNotHaveHappened();
 
             #endregion // Validation

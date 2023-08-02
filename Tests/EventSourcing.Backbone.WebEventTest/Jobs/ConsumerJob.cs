@@ -77,7 +77,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
 
     // TODO: enrich telemetry
 
-    async ValueTask IProductCycleConsumer.IdeaAsync(ConsumerMetadata consumerMetadata, string title, string describe)
+    async ValueTask IProductCycleConsumer.IdeaAsync(ConsumerContext consumerMetadata, string title, string describe)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -91,7 +91,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.PlanedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string doc)
+    async ValueTask IProductCycleConsumer.PlanedAsync(ConsumerContext consumerMetadata, string id, Version version, string doc)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -114,7 +114,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.ReviewedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string[] notes)
+    async ValueTask IProductCycleConsumer.ReviewedAsync(ConsumerContext consumerMetadata, string id, Version version, string[] notes)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -132,7 +132,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.ImplementedAsync(ConsumerMetadata consumerMetadata, string id, Version version)
+    async ValueTask IProductCycleConsumer.ImplementedAsync(ConsumerContext consumerMetadata, string id, Version version)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -151,7 +151,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.TestedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string[] notes)
+    async ValueTask IProductCycleConsumer.TestedAsync(ConsumerContext consumerMetadata, string id, Version version, string[] notes)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -176,7 +176,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.DeployedAsync(ConsumerMetadata consumerMetadata, string id, Version version)
+    async ValueTask IProductCycleConsumer.DeployedAsync(ConsumerContext consumerMetadata, string id, Version version)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -190,7 +190,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         }
     }
 
-    async ValueTask IProductCycleConsumer.RejectedAsync(ConsumerMetadata consumerMetadata,
+    async ValueTask IProductCycleConsumer.RejectedAsync(ConsumerContext consumerMetadata,
                                                         string id,
                                                         System.Version version,
                                                         string operation,

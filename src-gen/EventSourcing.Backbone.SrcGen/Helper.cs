@@ -9,6 +9,7 @@ using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace EventSourcing.Backbone;
 
@@ -447,6 +448,40 @@ internal static class Helper
 
     #endregion // ToBundle
 
+    #region AddInterceptors
+
+    public static void AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName) 
+    {
+        var interceptions = type.GetMembers()
+                      .Select(m => m as IMethodSymbol)
+                      .Where(m => m != null && m.IsStatic)
+                      .Where(m => m.Parameters.Length == 2 &&
+                                             m.Parameters[0].Type.Name == "IConsumerFallbackHandle" &&
+                                             m.Parameters[1].Type.Name == interfaceName)
+                      .ToArray();
+        foreach ( IMethodSymbol interception in interceptions) 
+        {
+            var methodDeclaration = interception?.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+
+            if (methodDeclaration == null)
+            {
+                continue;
+            }
+            var methodSyntaxRoot = methodDeclaration.SyntaxTree.GetRoot();
+            var start = methodDeclaration.Span.Start;
+            var end = methodDeclaration.Span.End;
+            var methodContent = methodSyntaxRoot.GetText().GetSubText(new TextSpan(start, end - start)).ToString();
+
+            builder.Append("\t\t");
+            builder.AppendLine(methodContent);
+            builder.AppendLine();
+        }
+    }
+
+    #endregion // AddInterceptors
+
+    #region ToClassName
+
     public static string ToClassName(this string interfaceName)
     {
         string result = interfaceName.StartsWith("I") &&
@@ -454,4 +489,6 @@ internal static class Helper
         char.IsUpper(interfaceName[1]) ? interfaceName.Substring(1) : interfaceName;
         return result;
     }
+
+    #endregion // ToClassName
 }

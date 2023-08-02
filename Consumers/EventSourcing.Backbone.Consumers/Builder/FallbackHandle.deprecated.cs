@@ -4,24 +4,23 @@
 /// <summary>
 /// Fallback handle
 /// </summary>
-[Obsolete("deprecated", true)]
-internal sealed class FallbackHandle : IConsumerFallback
+internal sealed class FallbackHandle : IConsumerFallbackHandle
 {
     private readonly Announcement _announcement;
     private readonly IConsumerBridge _consumerBridge;
-    private readonly IAck _ack;
+    private readonly IAckOperations _ack;
 
     #region Ctor
 
     public FallbackHandle(
         Announcement announcement,
         IConsumerBridge consumerBridge,
-        IAck ack)
+        ConsumerContext context)
     {
         _announcement = announcement;
-        Metadata = announcement.Metadata;
+        Context = context;
         _consumerBridge = consumerBridge;
-        _ack = ack;
+        _ack = context;
     }
 
     #endregion // Ctor
@@ -29,7 +28,7 @@ internal sealed class FallbackHandle : IConsumerFallback
     /// <summary>
     /// Gets the metadata.
     /// </summary>
-    public Metadata Metadata { get; }
+    public ConsumerContext Context { get; }
 
     /// <summary>
     /// Preform acknowledge (which should prevent the
@@ -54,7 +53,7 @@ internal sealed class FallbackHandle : IConsumerFallback
     /// <typeparam name="TParam">The type of the parameter.</typeparam>
     /// <param name="argumentName">Name of the argument.</param>
     /// <returns></returns>
-    ValueTask<TParam> IConsumerFallback.GetParameterAsync<TParam>(string argumentName)
+    ValueTask<TParam> IConsumerFallbackHandle.GetParameterAsync<TParam>(string argumentName)
     {
         var result = _consumerBridge.GetParameterAsync<TParam>(_announcement, argumentName);
         return result;

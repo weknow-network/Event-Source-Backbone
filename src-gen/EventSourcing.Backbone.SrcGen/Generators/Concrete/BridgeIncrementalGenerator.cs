@@ -203,8 +203,8 @@ namespace EventSourcing.Backbone
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
                 IEnumerable<string> psName = prms.Select(p => p.Name);
-                string metaParam = ps.Any() ? "ConsumerMetadata consumerMetadata, " : "ConsumerMetadata consumerMetadata";
-                string metaParamName = ps.Any() ? "consumerMetadata, " : "consumerMetadata";
+                string metaParam = ps.Any() ? "ConsumerContext consumerContext, " : "ConsumerContext consumerContext";
+                string metaParamName = ps.Any() ? "consumerContext, " : "consumerContext";
                 builder.AppendLine($"\t\tpublic async override ValueTask {nameVersion}({metaParam}{string.Join(", ", ps)})");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tif(_targets.Length == 1)");
@@ -269,7 +269,7 @@ namespace EventSourcing.Backbone
             builder.AppendLine("\t\t{");
             if (bundles.Length != 0)
             {
-                builder.AppendLine("\t\t\tConsumerMetadata consumerMetadata = ConsumerMetadata.Context;");
+                builder.AppendLine("\t\t\tConsumerContext consumerContext = ConsumerContext.Context;");
                 builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
                 builder.AppendLine("\t\t\tswitch (meta)");
                 builder.AppendLine("\t\t\t{");
@@ -292,7 +292,7 @@ namespace EventSourcing.Backbone
                         builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
                         i++;
                     }
-                    string metaParam = prms.Any() ? "consumerMetadata, " : "consumerMetadata";
+                    string metaParam = prms.Any() ? "consumerContext, " : "consumerContext";
                     IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
                     builder.AppendLine($"\t\t\t\t\tawait {mtdName}({metaParam}{string.Join(", ", ps)});");
                     builder.AppendLine("\t\t\t\t\treturn true;");
@@ -313,7 +313,7 @@ namespace EventSourcing.Backbone
 
                 var prms = method.Parameters;
                 IEnumerable<string> ps = prms.Select(p => $"{p.Type} {p.Name}");
-                string metaParam = ps.Any() ? "ConsumerMetadata consumerMetadata, " : "ConsumerMetadata consumerMetadata";
+                string metaParam = ps.Any() ? "ConsumerContext consumerContext, " : "ConsumerContext consumerContext";
                 builder.AppendLine($"\t\tpublic abstract ValueTask {mtdName}({metaParam}{string.Join(", ", ps)});");
                 builder.AppendLine();
             }

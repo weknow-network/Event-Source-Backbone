@@ -26,7 +26,7 @@ namespace EventSourcing.Backbone
 
         async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
         {
-            var meta = ConsumerMetadata.Context;
+            var meta = ConsumerContext.Context;
             switch (announcement.Metadata)
             {
                 case { Operation: nameof(ISimpleEventConsumer.ExecuteAsync) }:

@@ -17,16 +17,16 @@ namespace EventSourcing.Backbone
 
         #endregion // Ctor
 
-        public override ValueTask ExecuteAsync(ConsumerMetadata consumerMetadata, string key, int value) => _targets[0].ExecuteAsync(consumerMetadata, key, value);
+        public override ValueTask ExecuteAsync(ConsumerContext consumerMetadata, string key, int value) => _targets[0].ExecuteAsync(consumerMetadata, key, value);
 
-        public override ValueTask RunAsync(ConsumerMetadata consumerMetadata, int id, DateTime date) => _targets[0].RunAsync(consumerMetadata, id, date);
+        public override ValueTask RunAsync(ConsumerContext consumerMetadata, int id, DateTime date) => _targets[0].RunAsync(consumerMetadata, id, date);
 
-        public override ValueTask RunAsync(ConsumerMetadata consumerMetadata, int i)
+        public override ValueTask RunAsync(ConsumerContext consumerMetadata, int i)
         {
             throw new NotImplementedException();
         }
 
-        public override ValueTask RunAsync(ConsumerMetadata consumerMetadata, TimeSpan ts)
+        public override ValueTask RunAsync(ConsumerContext consumerMetadata, TimeSpan ts)
         {
             throw new NotImplementedException();
         }

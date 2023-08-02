@@ -8,14 +8,14 @@ namespace EventSourcing.Backbone
     /// It represent the operation's intent or represent event.
     /// </summary>
     [DebuggerDisplay("{Metadata.Uri} [{Metadata.MessageId} at {Metadata.ProducedAt}]")]
-    public sealed class ConsumerMetadata : IAckOperations
+    public sealed class ConsumerContext : IAckOperations
     {
-        internal static readonly AsyncLocal<ConsumerMetadata> _metaContext = new AsyncLocal<ConsumerMetadata>();
+        internal static readonly AsyncLocal<ConsumerContext> _metaContext = new AsyncLocal<ConsumerContext>();
 
         /// <summary>
         /// Get the metadata context
         /// </summary>
-        public static ConsumerMetadata Context => _metaContext.Value ?? throw new EventSourcingException(
+        public static ConsumerContext Context => _metaContext.Value ?? throw new EventSourcingException(
                         """
                         Consumer metadata doesn't available on the current context 
                         (make sure you try to consume it within a scope of a consuming method call)");
@@ -30,7 +30,7 @@ namespace EventSourcing.Backbone
         /// <param name="options">The consumer execution's options.</param>
         /// <param name="consumingCancellation">The consuming cancellation
         /// (stop consuming call-back on cancellation).</param>
-        public ConsumerMetadata(
+        public ConsumerContext(
             Metadata metadata,
             ConsumerOptions options,
             CancellationToken consumingCancellation)
@@ -80,7 +80,7 @@ namespace EventSourcing.Backbone
         /// <returns>
         /// The result of the conversion.
         /// </returns>
-        public static implicit operator Metadata(ConsumerMetadata? instance)
+        public static implicit operator Metadata(ConsumerContext? instance)
         {
             return instance?.Metadata ?? MetadataExtensions.Empty;
         }

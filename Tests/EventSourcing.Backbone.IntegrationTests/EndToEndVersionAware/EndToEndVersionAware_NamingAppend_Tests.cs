@@ -24,11 +24,11 @@ public class EndToEndVersionAware_NamingAppend_Tests : EndToEndVersionAwareBase
              Func<IConsumerStoreStrategyBuilder, ILogger, IConsumerStoreStrategyBuilder>? consumerChannelBuilder = null)
             : base(outputHelper, producerChannelBuilder, consumerChannelBuilder)
     {
-        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerContext>.Ignored, A<DateTime>.Ignored))
                .ReturnsLazily(() => ValueTask.CompletedTask);
-        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerContext>.Ignored, A<int>.Ignored))
                 .ReturnsLazily(() => ValueTask.CompletedTask);
-        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerMetadata>.Ignored, A<TimeSpan>.Ignored))
+        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerContext>.Ignored, A<TimeSpan>.Ignored))
                 .ReturnsLazily(() => ValueTask.CompletedTask);
     }
 
@@ -62,13 +62,13 @@ public class EndToEndVersionAware_NamingAppend_Tests : EndToEndVersionAwareBase
 
         await subscription.Completion;
 
-        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerMetadata>.Ignored, A<DateTime>.Ignored))
+        A.CallTo(() => _subscriber.Execute2Async(A<ConsumerContext>.Ignored, A<DateTime>.Ignored))
             .MustNotHaveHappened();
-        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 10))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerContext>.Ignored, 10))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerMetadata>.Ignored, 11))
+        A.CallTo(() => _subscriber.Execute1Async(A<ConsumerContext>.Ignored, 11))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerMetadata>.Ignored, ts))
+        A.CallTo(() => _subscriber.Execute4Async(A<ConsumerContext>.Ignored, ts))
             .MustHaveHappenedOnceExactly();
     }
 }

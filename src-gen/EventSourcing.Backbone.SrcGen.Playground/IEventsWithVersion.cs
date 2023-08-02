@@ -5,36 +5,37 @@
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IEventsWithVersion
     {
-        //// [ConsumerFallback]        
-        ///// <summary>
-        ///// Consumers the fallback.
-        ///// Excellent for Migration scenario
-        ///// </summary>
-        ///// <param name="ctx">The context.</param>
-        ///// <returns></returns>
-        //public static async Task ConsumerFallback(IConsumerFallback<IEventsWithVersionConsumer> ctx)
-        //{ // wouldn't be called if handled (Ack) by the builder fallback 
-        //    Metadata meta = ctx.Metadata;
-        //    switch (meta.Operation)
-        //    {
-        //        case "ExecuteAsync" when meta.Version == 1 && meta.ParamsSignature == "TimeSpan":
-        //            int? val1 = await ctx.GetParameterAsync<int>("value");
-        //            if (val1 == null)
-        //                throw new NullReferenceException();
-        //            await ctx.Consumer.ExecuteAsync(ctx.Metadata, val1.ToString()!);
-        //            break;
-        //        case "ExecuteAsync" when meta.Version == 2:
-        //            DateTime? val2 = await ctx.GetParameterAsync<DateTime>("value");
-        //            if (val2 == null)
-        //                throw new NullReferenceException();
-        //            var consumer = ctx.Consumer;
-        //            await consumer.ExecuteAsync(ctx.Metadata, val2.ToString()!);
-        //            break;
-        //        default:
-        //            await ctx.Metadata.AckAsync(AckBehavior.OnFallback);
-        //            break;
-        //    }
-        //}
+        // [ConsumerFallback]        
+        /// <summary>
+        /// Consumers the fallback.
+        /// Excellent for Migration scenario
+        /// </summary>
+        /// <param name="ctx">The context.</param>
+        /// <param name="target">The target.</param>
+        /// <returns></returns>
+        public static async Task<bool> Fallback(IConsumerFallbackHandle ctx, IEventsWithVersionConsumer target)
+        { 
+            Metadata meta = ctx.Context;
+            switch (meta)
+            {
+                case { Operation: "ExecuteAsync", Version: 1,  ParamsSignature: "TimeSpan" }:
+                    int? val1 = await ctx.GetParameterAsync<int>("value");
+                    if (val1 == null)
+                        throw new NullReferenceException();
+                    await target.Execute3Async(ctx.Context, val1.ToString()!);
+                    return true;
+                case { Operation: "ExecuteAsync", Version: 2 }:
+                    DateTime? val2 = await ctx.GetParameterAsync<DateTime>("value");
+                    if (val2 == null)
+                        throw new NullReferenceException();
+                    await target.Execute3Async(ctx.Context, val2.ToString()!);
+                    return true;
+                //default:
+                //    await ctx.Context.AckAsync(AckBehavior.OnFallback);
+                //    return true;
+            }
+            return false;
+        }
 
         //[ProducerFallback]
         //public static bool ProducerFallback(IProduceFallback handler)
