@@ -43,8 +43,7 @@ internal sealed class MethodBundle : IFormattable
     string IFormattable.ToString(string format, IFormatProvider formatProvider)
     {
         string fmt = format ?? "_";
-        string ex = Deprecated ? "X " : string.Empty;
-        return $"{ex}{Name}{fmt}{Version}{fmt}{Parameters.Replace(",", fmt)}";
+        return $"{FullName}{fmt}{Version}{fmt}{Parameters.Replace(",", fmt)}";
     }
 
     public string FormatMethodFullName(string? nameOverride = null)

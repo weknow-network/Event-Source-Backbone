@@ -49,7 +49,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         symbol.CopyDocumentation(builder, maxVersion, "\t");
         var asm = GetType().Assembly.GetName();
         builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
-        builder.AppendLine($"\tpublic interface {interfaceName}");
+        builder.AppendLine($"\tpublic partial interface {interfaceName}");
         builder.AppendLine("\t{");
 
         builder.AddInterceptors(symbol, interfaceName);
@@ -63,13 +63,8 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 
             versionInfo = GenMethod(method, isProducer, versionInfo, builder, opVersionInfo);
         }
-        if (kind == "Consumer")
-        {
-            builder.AppendLine($"\t\tpublic static {clsPrefix}_Constants Constants {{ get; }} = new {clsPrefix}_Constants();");
-        }
 
         builder.AppendLine("\t}");
-
 
         var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
         var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
@@ -96,15 +91,22 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                 MethodBundle[] bundles = info.ToBundle(compilation, true);
 
                 string indent = "\t";
-                builder.AppendLine($"{indent}public class {clsPrefix}_Constants");
+                builder.AppendLine($"{indent}partial interface {interfaceName}");
+                builder.AppendLine($"{indent}{{");
+                indent = $"{indent}\t";
+
+                builder.AppendLine($"{indent}public static class CONSTANTS");
+                builder.AppendLine($"{indent}{{");
+                indent = $"{indent}\t";
+
+                builder.AppendLine($"{indent}public static class ACTIVE");
                 builder.AppendLine($"{indent}{{");
 
                 var active = bundles.Where(b => !b.Deprecated);
                 GenConstantsOperations(active, indent);
+                builder.AppendLine($"{indent}}}");
 
-                indent = $"{indent}\t";
-                builder.AppendLine($"{indent}public Deprecated_Constants Deprecated {{ get; }} = new Deprecated_Constants();");
-                builder.AppendLine($"{indent}public class Deprecated_Constants");
+                builder.AppendLine($"{indent}public static class DEPRECATED");
                 builder.AppendLine($"{indent}{{");
                 var deprecated = bundles.Where(b => b.Deprecated);
                 GenConstantsOperations(deprecated, indent);
@@ -117,25 +119,21 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                     var groupd = bundles.GroupBy(b => b.FullName);
                     foreach (var group in groupd)
                     {
-                        builder.AppendLine($"{indent}public {group.Key}_Constants {group.Key} {{ get; }} = new {group.Key}_Constants();");
-
-                        builder.AppendLine($"{indent}public class {group.Key}_Constants");
+                        builder.AppendLine($"{indent}public static class {group.Key}");
                         builder.AppendLine($"{indent}{{");
 
                         indent = $"{indent}\t";
                         var versions = group.GroupBy(b => b.Version);
                         foreach (var version in versions)
                         {
-                            builder.AppendLine($"{indent}public V{version.Key}_Constants V{version.Key} {{ get; }} = new V{version.Key}_Constants();");
-
-                            builder.AppendLine($"{indent}public class V{version.Key}_Constants");
+                            builder.AppendLine($"{indent}public class V{version.Key}");
                             builder.AppendLine($"{indent}{{");
 
                             indent = $"{indent}\t";
                             foreach (var b in version)
                             {
                                 string pName = b.Parameters.Replace(",", "_");
-                                builder.AppendLine($"{indent}public string P_{pName} {{ get; }} = \"{b.Parameters}\";");
+                                builder.AppendLine($"{indent}public const string P_{pName} = \"{b.Parameters}\";");
                             }
 
                             indent = indent.Substring(1);
@@ -146,6 +144,9 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
                         builder.AppendLine($"{indent}}}");
                     }
                 }
+
+                indent = indent.Substring(1);
+                builder.AppendLine($"{indent}}}");
                 indent = indent.Substring(1);
                 builder.AppendLine($"{indent}}}");
             }

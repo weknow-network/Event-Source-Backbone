@@ -33,7 +33,6 @@ namespace EventSourcing.Backbone.SrcGen.Playground
                                     .UseChannel(l => _channel)
                                      .Uri("sample")
                                      .SubscribeEventsWithVersionConsumer(_subscriber);
-
             Console.WriteLine("Hello World!");
         }
     }

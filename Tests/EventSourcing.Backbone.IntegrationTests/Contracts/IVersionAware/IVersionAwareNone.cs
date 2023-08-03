@@ -55,8 +55,8 @@
 
         ValueTask ExecuteAsync(string key, int value);
         [EventSourceVersion(1, Date = "2023-06-01", Remark = "sample of deprecation")]
-        [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 2, Date = "2023-07-21", Remark = "sample of deprecation")]
-        [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 2, Date = "2023-07-21", Remark = "sample of deprecation")]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Producer,  Date = "2023-07-21", Remark = "sample of deprecation")]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, Date = "2023-07-21", Remark = "sample of deprecation")]
         ValueTask ExecuteAsync(int value);
 
         [EventSourceVersion(2)]

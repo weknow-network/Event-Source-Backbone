@@ -4,7 +4,7 @@
 /// <summary>
 /// Fallback handle
 /// </summary>
-internal sealed class FallbackHandle : IConsumerFallbackHandle
+public sealed class ConsumerInterceptionContext : IConsumerInterceptionContext
 {
     private readonly Announcement _announcement;
     private readonly IConsumerBridge _consumerBridge;
@@ -12,7 +12,7 @@ internal sealed class FallbackHandle : IConsumerFallbackHandle
 
     #region Ctor
 
-    public FallbackHandle(
+    public ConsumerInterceptionContext(
         Announcement announcement,
         IConsumerBridge consumerBridge,
         ConsumerContext context)
@@ -53,7 +53,7 @@ internal sealed class FallbackHandle : IConsumerFallbackHandle
     /// <typeparam name="TParam">The type of the parameter.</typeparam>
     /// <param name="argumentName">Name of the argument.</param>
     /// <returns></returns>
-    ValueTask<TParam> IConsumerFallbackHandle.GetParameterAsync<TParam>(string argumentName)
+    ValueTask<TParam> IConsumerInterceptionContext.GetParameterAsync<TParam>(string argumentName)
     {
         var result = _consumerBridge.GetParameterAsync<TParam>(_announcement, argumentName);
         return result;

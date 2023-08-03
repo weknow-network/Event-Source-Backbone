@@ -273,14 +273,12 @@ internal static class Helper
         if (kind != type)
             return null;
 
-        var versionRaw = attData.ConstructorArguments[1];
-        var version = (int)versionRaw.Value!;
         var remarkRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Remark));
         var remark = (string?)remarkRaw.Value.Value;
         var dateRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Date));
         var date = (string?)dateRaw.Value.Value;
 
-        var result = new OperatioDeprecationInstructions { Version = version, Remark = remark, Date = date };
+        var result = new OperatioDeprecationInstructions { Remark = remark, Date = date };
         return result;
     }
 
@@ -448,17 +446,55 @@ internal static class Helper
 
     #endregion // ToBundle
 
-    #region AddInterceptors
+    #region GetInterceptorsMethods
 
-    public static void AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName) 
+    public static IMethodSymbol[] GetInterceptorsMethods(this ITypeSymbol type, string interfaceName)
     {
-        var interceptions = type.GetMembers()
+        IMethodSymbol[] interceptions = type.GetMembers()
                       .Select(m => m as IMethodSymbol)
                       .Where(m => m != null && m.IsStatic)
+                      .Cast<IMethodSymbol>()
                       .Where(m => m.Parameters.Length == 2 &&
-                                             m.Parameters[0].Type.Name == "IConsumerFallbackHandle" &&
-                                             m.Parameters[1].Type.Name == interfaceName)
+                                             m.Parameters[0].Type.Name == "IConsumerInterceptionContext" &&
+                                             m.Parameters[1].Type.Name == interfaceName &&
+                                             (m.ReturnType.ToString() == "System.Threading.Tasks.Task<bool>" ||
+                                              m.ReturnType.ToString() == "System.Threading.Tasks.ValueTask<bool>"))
                       .ToArray();
+
+        return interceptions;
+    }
+
+    #endregion // GetInterceptorsMethods
+
+    #region GetInterceptors
+
+    public static IEnumerable<string> GetInterceptors(this ITypeSymbol type, string interfaceName) 
+    {
+        var interceptions = type.GetInterceptorsMethods(interfaceName);
+
+        var list = new List<string>();
+        foreach ( IMethodSymbol interception in interceptions) 
+        {
+            var methodDeclaration = interception?.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+
+            if (methodDeclaration == null)
+            {
+                continue;
+            }
+            list.Add(interception.Name);
+        }
+        return list;
+    }
+
+    #endregion // GetInterceptors
+
+    #region AddInterceptors
+
+    public static IEnumerable<string> AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName) 
+    {
+        var interceptions = type.GetInterceptorsMethods(interfaceName);
+
+        var list = new List<string>();
         foreach ( IMethodSymbol interception in interceptions) 
         {
             var methodDeclaration = interception?.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
@@ -475,7 +511,9 @@ internal static class Helper
             builder.Append("\t\t");
             builder.AppendLine(methodContent);
             builder.AppendLine();
+            list.Add(interception.Name);
         }
+        return list;
     }
 
     #endregion // AddInterceptors

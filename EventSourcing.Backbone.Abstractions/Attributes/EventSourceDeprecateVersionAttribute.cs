@@ -12,23 +12,10 @@
         /// </summary>
         /// <param name="type">The event target type.</param>
         /// <param name="versionOfDeprecation">The version in which the method was deprecated</param>
-        public EventSourceDeprecateVersionAttribute(EventsContractType type, int versionOfDeprecation)
+        public EventSourceDeprecateVersionAttribute(EventsContractType type)
         {
             Type = type;
-            Version = versionOfDeprecation;
         }
-
-        /// <summary>
-        /// Document when on which version the method had considered deprecated.
-        /// It doesn't affect the deprecation itself, when having a deprecation attribute on a method it become deprecated no matters the version number.
-        /// </summary>
-        /// <summary>
-        /// Indicates the version in which the method was considered deprecated (as a structured documentation).
-        /// The deprecation itself is not affected by this documentation; 
-        /// once a deprecation attribute is added to a method, 
-        /// it becomes deprecated regardless of the version number specified.
-        /// </summary>
-        public int Version { get; }
 
         /// <summary>
         /// Gets the target type.

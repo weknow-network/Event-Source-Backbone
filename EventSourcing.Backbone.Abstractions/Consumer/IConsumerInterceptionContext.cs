@@ -3,7 +3,7 @@
 /// <summary>
 /// Responsible for fallback scenario when the message wasn't consumed
 /// </summary>
-public interface IConsumerFallbackHandle : IAckOperations
+public interface IConsumerInterceptionContext : IAckOperations
 {
     /// <summary>
     /// Gets the metadata.

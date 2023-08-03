@@ -5,7 +5,6 @@
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IEventsWithVersion
     {
-        // [ConsumerFallback]        
         /// <summary>
         /// Consumers the fallback.
         /// Excellent for Migration scenario
@@ -13,7 +12,7 @@
         /// <param name="ctx">The context.</param>
         /// <param name="target">The target.</param>
         /// <returns></returns>
-        public static async Task<bool> Fallback(IConsumerFallbackHandle ctx, IEventsWithVersionConsumer target)
+        public static async Task<bool> Fallback(IConsumerInterceptionContext ctx, IEventsWithVersionConsumer target)
         { 
             Metadata meta = ctx.Context;
             switch (meta)
@@ -76,8 +75,8 @@
         ValueTask ExecuteAsync(string value);
 
         [EventSourceVersion(2)]
-        [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 3, Date = "2023-07-27", Remark = "sample of deprecation")]
-        [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 3, Date = "2023-07-28", Remark = "sample of deprecation")]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, Date = "2023-07-27", Remark = "sample of deprecation")]
+        [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
         ValueTask NotIncludesAsync(string value);
     }
 }

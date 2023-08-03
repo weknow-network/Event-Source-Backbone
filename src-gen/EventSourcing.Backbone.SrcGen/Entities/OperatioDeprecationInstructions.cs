@@ -2,11 +2,9 @@
 
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
-[DebuggerDisplay("Deprecate Version: {Version}")]
+[DebuggerDisplay("Deprecate Version: {Date}")]
 internal struct OperatioDeprecationInstructions
 {
-    public int Version { get; set; }
     public string? Remark { get; set; }
     public string? Date { get; set; }
-    public override string ToString() => $"v{Version}";
 }

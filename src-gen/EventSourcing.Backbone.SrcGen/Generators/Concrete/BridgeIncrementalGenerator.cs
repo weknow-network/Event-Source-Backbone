@@ -58,7 +58,6 @@ namespace EventSourcing.Backbone
             var dtos = EntityGenerator.GenerateEntities(compilation, namePrefix, info, interfaceName, assemblyName);
             GenInstruction[] gens =
             {
-                EntityGenerator.GenerateEntityFamilyContract(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapper(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapperExtensions(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 OnGenerateConsumerBase(compilation, namePrefix, info, interfaceName, assemblyName),
@@ -262,6 +261,9 @@ namespace EventSourcing.Backbone
             builder.AppendLine();
 
             builder.Append("\t\t");
+
+            var fallbackNames = info.Symbol.GetInterceptors(interfaceName);
+
             MethodBundle[] bundles = info.ToBundle(compilation);
             if (bundles.Length != 0)
                 builder.Append("async ");
@@ -299,7 +301,15 @@ namespace EventSourcing.Backbone
                     builder.AppendLine("\t\t\t\t}");
                 }
                 builder.AppendLine("\t\t\t}");
-                builder.AppendLine("\t\t\treturn false;");
+                builder.AppendLine();
+                builder.AppendLine("\t\t\tvar fallbackHandle = new ConsumerInterceptionContext(announcement, consumerBridge, consumerContext);");
+                builder.AppendLine("\t\t\tbool result = false;");
+                foreach (string fallbackName in fallbackNames)
+                { 
+                    builder.AppendLine($"\t\t\tresult = await {interfaceName}.{fallbackName}(fallbackHandle, this);");
+                }
+                builder.AppendLine();
+                builder.AppendLine("\t\t\treturn result;");
             }
             else
                 builder.AppendLine("\t\t\treturn Task.FromResult(false);");

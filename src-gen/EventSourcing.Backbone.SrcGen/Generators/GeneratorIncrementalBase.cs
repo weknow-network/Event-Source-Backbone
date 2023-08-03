@@ -166,8 +166,8 @@ namespace EventSourcing.Backbone
             foreach (var (fileName, content, dynamicNs, usn) in codes)
             {
                 var builder = new StringBuilder();
+                var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString() ?? "EventSourcing.Backbone";
                 var usingSet = new HashSet<string>(DEFAULT_USING);
-
                 builder.AppendLine();
                 builder.AppendLine("#nullable enable");
 
@@ -177,12 +177,11 @@ namespace EventSourcing.Backbone
                         usingSet.Add(u);
                 }
 
-                var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString();
                 foreach (var u in usingSet.OrderBy(m => m))
                 {
                     builder.AppendLine(u);
                 }
-                builder.AppendLine($"namespace {overrideNS ?? "EventSourcing.Backbone"}");
+                builder.AppendLine($"namespace {overrideNS}");
                 builder.AppendLine("{");
                 builder.AppendLine(content);
                 builder.AppendLine("}");
