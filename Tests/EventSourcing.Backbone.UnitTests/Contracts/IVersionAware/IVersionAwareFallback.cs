@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 
 
-namespace EventSourcing.Backbone.UnitTests.Entities;
+namespace EventSourcing.Backbone.UnitTests;
 
 using static IVersionAwareFallbackConsumer.CONSTANTS;
+using Entities.Generated;
+using static Generated.Entities.VersionAwareFallback;
 
 /// <summary>
 /// Test contract
@@ -25,26 +27,26 @@ public interface IVersionAwareFallback// : IVersionAwareBase
         Metadata meta = ctx.Context;
         switch (meta)
         {
-            case { Operation: "ExecuteAsync", Version: 0, ParamsSignature: DEPRECATED.ExecuteAsync.V0.P_String_Int32 }:
+            case { Operation: nameof(ExecuteAsync), Version: 0, ParamsSignature: DEPRECATED.ExecuteAsync.V0.P_String_Int32 }:
                 int? key = await ctx.GetParameterAsync<int>("key");
                 int? val = await ctx.GetParameterAsync<int>("value");
-                var entity = new VersionAwareFallback_Execute_3_String()
                 if (val == null)
                     throw new NullReferenceException();
-                await target.(ctx.Context, val.ToString()!);
+                var entity = new ExecuteAsync_3_String($"{key}:{val}");
+                await target.Execute_3Async(ctx.Context, val.ToString()!);
                 return true;
-            case { Operation: "ExecuteAsync", Version: 1, ParamsSignature: DEPRECATED.ExecuteAsync.V1.P_Int32 }:
+            case { Operation: nameof(ExecuteAsync), Version: 1, ParamsSignature: DEPRECATED.ExecuteAsync.V1.P_Int32 }:
                 int? val1 = await ctx.GetParameterAsync<int>("value");
                 if (val1 == null)
                     throw new NullReferenceException();
-                await target.(ctx.Context, val1.ToString()!);
+                await target.Execute_3Async(ctx.Context, val1.ToString()!);
                 return true;
-            case { Operation: "ExecuteAsync", Version: 4, ParamsSignature: DEPRECATED.ExecuteAsync.V4.P_TimeSpan }:
-                int? val2 = await ctx.GetParameterAsync<TimeSpan>("value");
-                if (val2 == null)
-                    throw new NullReferenceException();
-                await target.(ctx.Context, val2.ToString()!);
-                return true;
+            //case { Operation: nameof(ExecuteAsync), Version: 4, ParamsSignature: DEPRECATED.ExecuteAsync.V3.P_ }:
+            //    TimeSpan? val2 = await ctx.GetParameterAsync<TimeSpan>("value");
+            //    if (val2 == null)
+            //        throw new NullReferenceException();
+            //    await target.Execute_3Async(ctx.Context, val2.ToString()!);
+            //    return true;
                 //default:
                 //    await ctx.Context.AckAsync(AckBehavior.OnFallback);
                 //    return true;

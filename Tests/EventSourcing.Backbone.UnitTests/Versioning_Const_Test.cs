@@ -20,10 +20,10 @@ namespace EventSourcing.Backbone
         [Fact]
         public void Consumer_Const_Test()
         {
-            _outputHelper.WriteLine(IVersionAwareMixConsumer.Constants.Deprecated.ExecuteAsync.V0.P_String_Int32);
-            Assert.Equal("String,Int32", IVersionAwareMixConsumer.Constants.Deprecated.ExecuteAsync.V0.P_String_Int32);
-            _outputHelper.WriteLine(IVersionAwareMixConsumer.Constants.ExecuteAsync.V2.P_DateTime);
-            Assert.Equal("DateTime", IVersionAwareMixConsumer.Constants.ExecuteAsync.V2.P_DateTime);
+            _outputHelper.WriteLine(IVersionAwareMixConsumer.CONSTANTS.DEPRECATED.ExecuteAsync.V0.P_String_Int32);
+            Assert.Equal("String,Int32", IVersionAwareMixConsumer.CONSTANTS.DEPRECATED.ExecuteAsync.V0.P_String_Int32);
+            _outputHelper.WriteLine(IVersionAwareMixConsumer.CONSTANTS.ACTIVE.ExecuteAsync.V2.P_DateTime);
+            Assert.Equal("DateTime", IVersionAwareMixConsumer.CONSTANTS.ACTIVE.ExecuteAsync.V2.P_DateTime);
         }
 
     }

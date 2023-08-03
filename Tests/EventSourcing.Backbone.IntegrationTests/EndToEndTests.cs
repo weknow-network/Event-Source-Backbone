@@ -15,6 +15,8 @@ using Polly;
 using Xunit;
 using Xunit.Abstractions;
 
+using EventSourcing.Backbone;
+using EventSourcing.Backbone.Tests.Entities.Generated.Entities;
 using static EventSourcing.Backbone.EventSourceConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
@@ -23,6 +25,7 @@ using static EventSourcing.Backbone.EventSourceConstants;
 
 namespace EventSourcing.Backbone.Tests
 {
+
     /// <summary>
     /// The end to end tests.
     /// </summary>
@@ -1043,7 +1046,7 @@ namespace EventSourcing.Backbone.Tests
 
             #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
-            IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+            IConsumerIterator<SequenceOperations.IEntityFamily> iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
@@ -1055,7 +1058,9 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
             int i = 0;
-            await foreach (SequenceOperations_Login_0_String_String item in iterator.GetAsyncEnumerable<SequenceOperations_Login_0_String_String>().WithCancellation(cancellation))
+            await foreach (var item in
+                                iterator.GetAsyncEnumerable<SequenceOperations.LoginAsync_0_String_String>()
+                                    .WithCancellation(cancellation))
             {
                 Assert.True(i < 1);
                 Assert.Equal("admin", item.email);
@@ -1089,7 +1094,7 @@ namespace EventSourcing.Backbone.Tests
 
             #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
-            IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = _consumerBuilder
+            IConsumerIterator<SequenceOperations.IEntityFamily> iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
@@ -1101,7 +1106,8 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
             int i = 0;
-            await foreach (SequenceOperations_Login_0_String_String item in iterator.GetAsyncEnumerable<SequenceOperations_Login_0_String_String>().WithCancellation(cancellation))
+            await foreach (var item in iterator.GetAsyncEnumerable<SequenceOperations.LoginAsync_0_String_String>()
+                            .WithCancellation(cancellation))
             {
                 Assert.True(i < 1);
                 Assert.Equal("admin", item.email);
