@@ -56,8 +56,9 @@ namespace EventSourcing.Backbone
             AssemblyName assemblyName = GetType().Assembly.GetName();
 
             var dtos = EntityGenerator.GenerateEntities(compilation, namePrefix, info, interfaceName, assemblyName);
-            GenInstruction[] gens =
+            GenInstruction?[] gens =
             {
+                ConstantsGenerator.GenVersionConstants(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapper(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 EntityGenerator.GenerateEntityMapperExtensions(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
                 OnGenerateConsumerBase(compilation, namePrefix, info, interfaceName, assemblyName),
@@ -65,7 +66,10 @@ namespace EventSourcing.Backbone
                 OnGenerateConsumerBridgeExtensions(compilation, namePrefix, info, interfaceName, generateFrom, assemblyName)
             };
 
-            return dtos.Concat(gens).ToArray();
+            return dtos.Concat(
+                            gens.Where(m => m!= null)
+                                .Cast<GenInstruction>())
+                        .ToArray();
         }
 
         #endregion // OnGenerateConsumers

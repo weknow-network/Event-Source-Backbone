@@ -28,7 +28,7 @@ namespace EventSourcing.Backbone
 
         #region Ctor
 
-        public GeneratorIncrementalBase(
+        protected GeneratorIncrementalBase(
             string targetAttribute)
         {
             _targetAttribute = _targetAttribute.Add(targetAttribute);
@@ -170,6 +170,7 @@ namespace EventSourcing.Backbone
                 var usingSet = new HashSet<string>(DEFAULT_USING);
                 builder.AppendLine();
                 builder.AppendLine("#nullable enable");
+                builder.AppendLine("#pragma warning disable CS1573 // Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do)");
 
                 foreach (var u in usingStatements.Concat(usn))
                 {

@@ -41,18 +41,12 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\tpublic static class {simpleName}");
+            builder.AppendLine($"\tpublic static partial class {simpleName}");
             builder.AppendLine("\t{");
             foreach (var bundle in bundles)
             {
                 IMethodSymbol method = bundle.Method;
                 int version = bundle.Version;
-                string mtdName = bundle.Name;
-                string mtdShortName = mtdName.EndsWith("Async")
-                            ? mtdName.Substring(0, mtdName.Length - 5)
-                            : mtdName;
-                string nameVersion = $"{mtdShortName}_{version}";
-                string prmSig = bundle.Parameters;
 
                 method.CopyDocumentation(builder, version, "\t\t");
 
@@ -71,7 +65,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
             builder.AppendLine("\t}");
 
-            results.Add(new GenInstruction($"{simpleName}.Entities", builder.ToString(), $"{info.Namespace}.Generated.Entities"));
+            results.Add(new GenInstruction($"{simpleName}.Entities", builder.ToString(), $"{info.Namespace}.Generated"));
 
             return results.ToArray();
         }
@@ -87,10 +81,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             string interfaceName,
                             AssemblyName assemblyName)
         {
-            string simpleName = friendlyName;
-            if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
-                simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
-
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Marker interface for entity mapper FAMILY contract generated from {interfaceName}");
             builder.AppendLine("\t\t/// </summary>");
@@ -113,14 +103,13 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
-            var item = info.Type;
             string simpleName = friendlyName;
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\t\tusing static Generated.Entities.{simpleName};");
+            builder.AppendLine($"\t\tusing static Generated.{simpleName};");
             builder.AppendLine();
-            builder.AppendLine($"\t\tusing Generated.Entities;");
+            builder.AppendLine($"\t\tusing Generated;");
             builder.AppendLine();
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");
@@ -139,10 +128,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine();
             builder.AppendLine($"\t\t\tprivate {friendlyName}EntityMapper() {{}}");
             builder.AppendLine();
-
-            string recordPrefix = friendlyName;
-            if (recordPrefix.EndsWith(nameof(KindFilter.Consumer)))
-                recordPrefix = recordPrefix.Substring(0, recordPrefix.Length - nameof(KindFilter.Consumer).Length);
 
             var bundles = info.ToBundle(compilation);
 
@@ -223,7 +208,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\t\tusing static Generated.Entities.{simpleName};");
+            builder.AppendLine($"\t\tusing static Generated.{simpleName};");
             builder.AppendLine();
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");

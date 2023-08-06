@@ -9,7 +9,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 /// <summary>
 /// Method Bundle
 /// </summary>
-[DebuggerDisplay("{Name}, {Version}, {Parameters}")]
+[DebuggerDisplay("{Name}, {Version}, {Parameters}, Deprecated: {Deprecated}")]
 internal sealed class MethodBundle : IFormattable
 {
     public MethodBundle(

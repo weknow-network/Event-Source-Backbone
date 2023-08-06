@@ -11,7 +11,6 @@
         /// Initializes a new instance of the <see cref="EventsContractAttribute" /> class.
         /// </summary>
         /// <param name="type">The event target type.</param>
-        /// <param name="versionOfDeprecation">The version in which the method was deprecated</param>
         public EventSourceDeprecateVersionAttribute(EventsContractType type)
         {
             Type = type;

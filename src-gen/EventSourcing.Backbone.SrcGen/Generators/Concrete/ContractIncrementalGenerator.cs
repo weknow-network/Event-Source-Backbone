@@ -39,9 +39,6 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         var (type, att, symbol, kind, ns, isProducer, @using) = info;
 #pragma warning restore S1481 // Unused local variables should be removed
         string interfaceName = info.FormatName();
-        string clsPrefix = interfaceName.ToClassName();
-
-        VersionInstructions versionInfo = att.GetVersionInfo(compilation, info.Kind);
 
         var bundles = info.ToBundle(compilation);
         int? maxVersion = bundles.Max(m => m.Version);
@@ -49,19 +46,16 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         symbol.CopyDocumentation(builder, maxVersion, "\t");
         var asm = GetType().Assembly.GetName();
         builder.AppendLine($"\t[GeneratedCode(\"{asm.Name}\",\"{asm.Version}\")]");
-        builder.AppendLine($"\tpublic partial interface {interfaceName}");
+        builder.AppendLine($"\tpublic interface {interfaceName}");
         builder.AppendLine("\t{");
 
         builder.AddInterceptors(symbol, interfaceName);
-        foreach (var bundle in bundles)
+        foreach (MethodBundle bundle in bundles)
         {
-            IMethodSymbol method = bundle.Method;
-            var opVersionInfo = method.GetOperationVersionInfo();
-            var v = opVersionInfo.Version;
-            if (versionInfo.MinVersion > v || versionInfo.IgnoreVersion.Contains(v))
+            if (bundle.Deprecated)
                 continue;
 
-            versionInfo = GenMethod(method, isProducer, versionInfo, builder, opVersionInfo);
+            GenMethod(builder, bundle);
         }
 
         builder.AppendLine("\t}");
@@ -71,88 +65,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 
         if (!contractOnly)
             _bridge.GenerateSingle(context, compilation, info);
-        var constants = GenVersionConstants();
-        if (constants != null)
-            return new[] { constants, new GenInstruction(interfaceName, builder.ToString()) };
         return new[] { new GenInstruction(interfaceName, builder.ToString()) };
-
-        #region GenVersionConstants
-
-        GenInstruction? GenVersionConstants()
-        {
-            if (kind != "Consumer")
-                return null;
-            var builder = new StringBuilder();
-            GenVersionConstants(builder);
-            return new GenInstruction($"{interfaceName}.Constants", builder.ToString());
-
-            void GenVersionConstants(StringBuilder builder)
-            {
-                MethodBundle[] bundles = info.ToBundle(compilation, true);
-
-                string indent = "\t";
-                builder.AppendLine($"{indent}partial interface {interfaceName}");
-                builder.AppendLine($"{indent}{{");
-                indent = $"{indent}\t";
-
-                builder.AppendLine($"{indent}public static class CONSTANTS");
-                builder.AppendLine($"{indent}{{");
-                indent = $"{indent}\t";
-
-                builder.AppendLine($"{indent}public static class ACTIVE");
-                builder.AppendLine($"{indent}{{");
-
-                var active = bundles.Where(b => !b.Deprecated);
-                GenConstantsOperations(active, indent);
-                builder.AppendLine($"{indent}}}");
-
-                builder.AppendLine($"{indent}public static class DEPRECATED");
-                builder.AppendLine($"{indent}{{");
-                var deprecated = bundles.Where(b => b.Deprecated);
-                GenConstantsOperations(deprecated, indent);
-                builder.AppendLine($"{indent}}}");
-
-                void GenConstantsOperations(IEnumerable<MethodBundle> bundles, string indent)
-                {
-
-                    indent = $"{indent}\t";
-                    var groupd = bundles.GroupBy(b => b.FullName);
-                    foreach (var group in groupd)
-                    {
-                        builder.AppendLine($"{indent}public static class {group.Key}");
-                        builder.AppendLine($"{indent}{{");
-
-                        indent = $"{indent}\t";
-                        var versions = group.GroupBy(b => b.Version);
-                        foreach (var version in versions)
-                        {
-                            builder.AppendLine($"{indent}public class V{version.Key}");
-                            builder.AppendLine($"{indent}{{");
-
-                            indent = $"{indent}\t";
-                            foreach (var b in version)
-                            {
-                                string pName = b.Parameters.Replace(",", "_");
-                                builder.AppendLine($"{indent}public const string P_{pName} = \"{b.Parameters}\";");
-                            }
-
-                            indent = indent.Substring(1);
-                            builder.AppendLine($"{indent}}}");
-                        }
-                        indent = indent.Substring(1);
-
-                        builder.AppendLine($"{indent}}}");
-                    }
-                }
-
-                indent = indent.Substring(1);
-                builder.AppendLine($"{indent}}}");
-                indent = indent.Substring(1);
-                builder.AppendLine($"{indent}}}");
-            }
-        }
-
-        #endregion // GenVersionConstants
 
         #region GetParameter
 
@@ -169,15 +82,13 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 
         #region GenMethod
 
-        VersionInstructions GenMethod(
-            IMethodSymbol method,
-            bool isProducer,
-            VersionInstructions versionInfo,
+        void GenMethod(
             StringBuilder builder,
-            OperatioVersionInstructions opVersionInfo)
+            MethodBundle bundle)
         {
             var sb = new StringBuilder();
-            int version = opVersionInfo.Version;
+            var method = bundle.Method;
+            int version = bundle.Version;
             method.CopyDocumentation(sb, version, "\t\t");
             var ps = method.Parameters.Select(GetParameter);
             if (sb.Length != 0 && !isProducer && ps.Any())
@@ -193,7 +104,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
             if (isProducer)
                 builder.Append("<EventKeys>");
             var mtdName = method.ToNameConvention();
-            string nameVersion = versionInfo.FormatMethodName(mtdName, version);
+            string nameVersion = bundle.FormatMethodFullName(mtdName);
             builder.AppendLine($" {nameVersion}(");
 
             if (!isProducer)
@@ -209,7 +120,6 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
 #pragma warning restore RS1035 // Do not use APIs banned for analyzers
             builder.AppendLine(");");
             builder.AppendLine();
-            return versionInfo;
         }
 
         #endregion // GenMethod

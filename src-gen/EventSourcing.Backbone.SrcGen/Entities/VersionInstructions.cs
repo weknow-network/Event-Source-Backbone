@@ -3,18 +3,14 @@ using System.Diagnostics;
 
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
-[DebuggerDisplay("{Type}, Min: {MinVersion}, naming: {VersionNaming}")]
+[DebuggerDisplay("Min: {MinVersion}, naming: {VersionNaming}")]
 internal struct VersionInstructions
 {
-    public VersionInstructions(EventsContractType type)
+    public VersionInstructions()
     {
-        Type = type;
         VersionNaming = VersionNaming.Default;
         MinVersion = 0;
-        IgnoreVersion = ImmutableHashSet<int>.Empty;
     }
-
-    public EventsContractType Type { get; private set; }
 
     /// <summary>
     /// Version naming convention.
@@ -25,11 +21,6 @@ internal struct VersionInstructions
     /// Won't generate method with version lower than this value
     /// </summary>
     public int MinVersion { get; set; }
-
-    /// <summary>
-    /// Won't generate method with versions specified
-    /// </summary>
-    public IImmutableSet<int> IgnoreVersion { get; set; }
 
     public string FormatMethodName(string name, int version)
     {

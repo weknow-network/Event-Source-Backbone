@@ -5,7 +5,7 @@ namespace EventSourcing.Backbone.UnitTests;
 
 using static IVersionAwareFallbackConsumer.CONSTANTS;
 using Entities.Generated;
-using static Generated.Entities.VersionAwareFallback;
+using static Generated.VersionAwareFallback;
 
 /// <summary>
 /// Test contract

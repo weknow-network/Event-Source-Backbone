@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Xml.Linq;
 
@@ -21,6 +22,13 @@ internal static class Helper
                                     var name = a.AttributeClass!.Name;
                                     return name.EndsWith("EventSourceVersionAttribute") ||
                                             name.EndsWith("EventSourceVersion");
+                                };
+    private static readonly Predicate<AttributeData> DEFAULT_VERSION_DEPRECATION_PREDICATE =
+                                a =>
+                                {
+                                    var name = a.AttributeClass!.Name;
+                                    return name.EndsWith("EventSourceDeprecateVersionAttribute") ||
+                                            name.EndsWith("EventSourceDeprecateVersion");
                                 };
 
     #region Convert
@@ -85,6 +93,10 @@ internal static class Helper
 {indent}/// Parameter Signature:  {prmSig}";
         if (string.IsNullOrEmpty(xmlRaw))
         {
+
+            source.AppendLine($"{indent}/// <summary>");
+            source.AppendLine($"{indent}/// Generated documentation");
+            source.AppendLine($"{indent}/// </summary>");
             source.AppendLine($"{indent}/// <remarks>");
             source.AppendLine(remark);
             source.AppendLine($"{indent}/// </remarks>");
@@ -95,6 +107,13 @@ internal static class Helper
             foreach (var comment in xml.Root.Elements().Where(m => m.Name != "remarks"))
             {
                 source.AddpendComment(comment, indent);
+            }
+
+            if (source.Length == 0)
+            { 
+                source.AppendLine($"{indent}/// <summary>");
+                source.AppendLine($"{indent}/// Generated documentation");
+                source.AppendLine($"{indent}/// </summary>");
             }
             var remarkXml = xml.Root.Element("remarks");
             if (remarkXml != null)
@@ -132,29 +151,27 @@ internal static class Helper
     #region GetVersionInfo
 
     public static VersionInstructions GetVersionInfo(
+                                    this SyntaxReceiverResult info,
+                                    Compilation compilation,
+                                    string kind)
+    {
+        return info.Att.GetVersionInfo(compilation, kind);
+    }
+
+    public static VersionInstructions GetVersionInfo(
                                     this AttributeSyntax attribute,
                                     Compilation compilation,
                                     string kind)
     {
         var attData = attribute.GetAttributesData(
                                     compilation, kind);
-        if (attData == null)
-            return default;
 
-        return attData.GetVersionInfo(kind);
+        return attData.GetVersionInfo();
 
     }
 
-    public static VersionInstructions GetVersionInfo(this IMethodSymbol method, string kind)
-    {
-        var predicate = DEFAULT_VERSION_PREDICATE;
-        AttributeData? attData = method.GetAttributes().Where(
-                            a => predicate(a)).FirstOrDefault();
-
-        return attData.GetVersionInfo(kind);
-    }
-
-    public static VersionInstructions GetVersionInfo(this AttributeData? attributeData, string kind)
+    public static VersionInstructions GetVersionInfo(
+                        this AttributeData? attributeData)
     {
         if (attributeData == null)
             return default;
@@ -164,14 +181,8 @@ internal static class Helper
         var versionNamingRaw = attributeData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.VersionNaming));
         var versionNamingRawValue = (int?)versionNamingRaw.Value.Value;
         var versionNaming = versionNamingRawValue == null ? VersionNaming.Default : (VersionNaming)versionNamingRawValue;
-        var ignoreVersionRaw = attributeData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.IgnoreVersion));
 
-        IImmutableSet<int> ignoreVersion = ignoreVersionRaw.Value.Kind == TypedConstantKind.Array
-            ? ignoreVersionRaw.Value.Values.Select(m => (int)(m.Value ?? -1)).Where(m => m >= 0).ToImmutableHashSet()
-            : ImmutableHashSet<int>.Empty;
-
-        EventsContractType knd = kind == nameof(EventsContractType.Producer) ? EventsContractType.Producer : EventsContractType.Consumer;
-        var result = new VersionInstructions(knd) { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, IgnoreVersion = ignoreVersion };
+        var result = new VersionInstructions { MinVersion = minVersion ?? 0, VersionNaming = versionNaming };
         return result;
     }
 
@@ -226,65 +237,46 @@ internal static class Helper
 
     #region GetOperationDeprecationInfo
 
-#pragma warning disable HAA0102 // Non-overridden virtual method call on value type
     public static OperatioDeprecationInstructions? GetOperationDeprecationInfo(
-                                    this MethodDeclarationSyntax method,
-                                    string? type,
-                                    Compilation compilation)
+                                    this IMethodSymbol method,
+                                    string type)
     {
-        var query = method.AttributeLists.GetAttributesData(
-                                    compilation,
-                                    a =>
-                                    {
-                                        var name = a.AttributeClass?.Name ?? string.Empty;
-                                        var result = name.EndsWith("EventSourceDeprecationAttribute") ||
-                                                name.EndsWith("EventSourceDeprecation");
-                                        if (!result)
-                                            return false;
-                                        result = a.ConstructorArguments.First().Value?.ToString() == type;
-                                        return result;
-                                    });
-        var result = query.Select(attData => attData.GetOperationDeprecationInfo(type))
-                            .FirstOrDefault(m => m != null);
-        return result;
-    }
-#pragma warning restore HAA0102 
-
-    public static OperatioDeprecationInstructions? GetOperationDeprecationInfo(this IMethodSymbol method,
-                                    string type,
-                                    Predicate<AttributeData>? predicate = null)
-    {
-        predicate = predicate ?? DEFAULT_VERSION_PREDICATE;
-        AttributeData? opAtt = method.GetAttributes().Where(
-                            a =>
-                                        predicate?.Invoke(a) ?? true).FirstOrDefault();
-
-        var result = opAtt.GetOperationDeprecationInfo(type);
+        AttributeData? opAtt = method.GetAttributesData(type, DEFAULT_VERSION_DEPRECATION_PREDICATE);
+        var result = opAtt.GetOperationDeprecationInfo();
         return result;
     }
 
-    private static OperatioDeprecationInstructions? GetOperationDeprecationInfo(this AttributeData? attData, string? type)
+    private static OperatioDeprecationInstructions? GetOperationDeprecationInfo(
+                                this AttributeData? attData)
     {
         if (attData == null)
             return null;
 
         var kindRaw = attData.ConstructorArguments[0];
-        var kind = kindRaw.Value!.ToString();
-        if (kind != type)
-            return null;
-
+        var kind = CastKind(kindRaw.Value);
         var remarkRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Remark));
         var remark = (string?)remarkRaw.Value.Value;
         var dateRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Date));
         var date = (string?)dateRaw.Value.Value;
 
-        var result = new OperatioDeprecationInstructions { Remark = remark, Date = date };
+        var result = new OperatioDeprecationInstructions (kind, remark, date );
         return result;
     }
 
     #endregion // GetOperationDeprecationInfo
 
     #region GetAttributesData
+
+    public static AttributeData? GetAttributesData(
+                                    this IMethodSymbol method,
+                                    string kind,
+                                    Predicate<AttributeData> predicate)
+    {
+        AttributeData? attData = method.GetAttributes()
+                                        .FirstOrDefault(a => a.IsOfKind(kind) && predicate(a));
+        return attData;
+    }
+
 
     /// <summary>
     /// Gets the attributes data.
@@ -351,18 +343,68 @@ internal static class Helper
             return query.First();
         return query.First(m =>
         {
-            var val = m.ConstructorArguments.FirstOrDefault().Value;
+            var val = m.ConstructorArguments[0].Value;
 
-            return val switch
-            {
-                0 when kind == nameof(EventsContractType.Producer) => true,
-                1 when kind == nameof(EventsContractType.Consumer) => true,
-                _ => false
-            };
+            return IsOfKind(val , kind);
         });
     }
 
     #endregion // GetAttributesData
+
+    #region IsOfKind
+
+    private static bool IsOfKind(this AttributeData attData, string kind)
+    {
+        var valueRaw = attData.ConstructorArguments[0];
+        var value = valueRaw.Value;
+        return IsOfKind(value, kind);
+    }
+
+    private static bool IsOfKind(object? value, string kind)
+    {
+        return value switch
+        {
+            0 when kind == nameof(EventsContractType.Producer) => true,
+            1 when kind == nameof(EventsContractType.Consumer) => true,
+            _ => false
+        };
+    }
+
+    private static bool IsOfKind(int value, string kind)
+    {
+        return value switch
+        {
+            0 when kind == nameof(EventsContractType.Producer) => true,
+            1 when kind == nameof(EventsContractType.Consumer) => true,
+            _ => false
+        };
+    }
+
+    #endregion // IsOfKind
+
+    #region CastKind
+
+    private static string CastKind(object? value)
+    {
+        return value switch
+        {
+            0 => nameof(EventsContractType.Producer),
+            1 => nameof(EventsContractType.Consumer),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static string CastKind(int value)
+    {
+        return value switch
+        {
+            0 => nameof(EventsContractType.Producer),
+            1 => nameof(EventsContractType.Consumer),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    #endregion // CastKind
 
     #region GetDeclaredSymbol
 
@@ -412,14 +454,15 @@ internal static class Helper
                             bool withDeprecated = false)
     {
         var kind = info.Kind;
-        VersionInstructions versionInfo = info.Att.GetVersionInfo(compilation, kind);
+        VersionInstructions versionInfo = info.GetVersionInfo(compilation, kind);
         var methods = info.Symbol.GetAllMethods();
         MethodBundle[] items = methods.Select(method =>
         {
             OperatioVersionInstructions opVersionInfo = method.GetOperationVersionInfo();
             var version = opVersionInfo.Version;
-            bool excluded = versionInfo.MinVersion > version || versionInfo.IgnoreVersion.Contains(version);
-            if (excluded && !withDeprecated)
+            var deprecatedInfo = method.GetOperationDeprecationInfo(kind);
+            bool deprecated = versionInfo.MinVersion > version || deprecatedInfo != null;
+            if (deprecated && !withDeprecated)
             {
                 return null;
             }
@@ -431,15 +474,17 @@ internal static class Helper
 
             string prmSig = method.GetParamsSignature();
 
-            return new MethodBundle(method, mtdShortName, mtdName, version, versionInfo.VersionNaming, prmSig, excluded);
+            var res = new MethodBundle(method,
+                                    mtdShortName,
+                                    mtdName,
+                                    version,
+                                    versionInfo.VersionNaming,
+                                    prmSig,
+                                    deprecated);
+            return res;
         })
-        .Cast<MethodBundle>()
         .Where(m => m != null)
-        .Where(m =>
-        {
-            var deprecated = m.Method.GetOperationDeprecationInfo(kind);
-            return deprecated == null;
-        })
+        .Cast<MethodBundle>()
         .ToArray();
         return items;
     }
@@ -448,6 +493,13 @@ internal static class Helper
 
     #region GetInterceptorsMethods
 
+    /// <summary>
+    /// Gets the interceptors methods.
+    /// Useful for version migration.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="interfaceName">Name of the interface.</param>
+    /// <returns></returns>
     public static IMethodSymbol[] GetInterceptorsMethods(this ITypeSymbol type, string interfaceName)
     {
         IMethodSymbol[] interceptions = type.GetMembers()
@@ -468,6 +520,13 @@ internal static class Helper
 
     #region GetInterceptors
 
+    /// <summary>
+    /// Gets the interceptors methods names.
+    /// Useful for version migration.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="interfaceName">Name of the interface.</param>
+    /// <returns></returns>
     public static IEnumerable<string> GetInterceptors(this ITypeSymbol type, string interfaceName) 
     {
         var interceptions = type.GetInterceptorsMethods(interfaceName);
@@ -475,7 +534,7 @@ internal static class Helper
         var list = new List<string>();
         foreach ( IMethodSymbol interception in interceptions) 
         {
-            var methodDeclaration = interception?.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+            var methodDeclaration = interception.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
 
             if (methodDeclaration == null)
             {
@@ -490,6 +549,14 @@ internal static class Helper
 
     #region AddInterceptors
 
+    /// <summary>
+    /// Useful for version migration.
+    /// Adds the interceptors.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="type">The type.</param>
+    /// <param name="interfaceName">Name of the interface.</param>
+    /// <returns></returns>
     public static IEnumerable<string> AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName) 
     {
         var interceptions = type.GetInterceptorsMethods(interfaceName);
@@ -497,7 +564,7 @@ internal static class Helper
         var list = new List<string>();
         foreach ( IMethodSymbol interception in interceptions) 
         {
-            var methodDeclaration = interception?.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
+            var methodDeclaration = interception.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
 
             if (methodDeclaration == null)
             {
