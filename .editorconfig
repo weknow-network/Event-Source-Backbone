@@ -1,4 +1,19 @@
 ﻿[*.cs]
 
-# IDE0008: Use explicit type
-csharp_style_var_elsewhere = true
+# HAA0101: Array allocation for params parameter
+dotnet_diagnostic.HAA0101.severity = none
+
+# HAA0601: Value type to reference type conversion causing boxing allocation
+dotnet_diagnostic.HAA0601.severity = none
+
+# HAA0603: Delegate allocation from a method group
+dotnet_diagnostic.HAA0603.severity = none
+
+# HAA0301: Closure Allocation Source
+dotnet_diagnostic.HAA0301.severity = none
+
+# HAA0302: Display class allocation to capture closure
+dotnet_diagnostic.HAA0302.severity = none
+
+# HAA0401: Possible allocation of reference type enumerator
+dotnet_diagnostic.HAA0401.severity = none

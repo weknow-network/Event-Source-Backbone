@@ -1,0 +1,29 @@
+{
+  "profiles": {
+    "Primary": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "FW": "4998",
+        "EVENT_SOURCE_WITH_REDIS_TRACE": "false"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "http://localhost:4999"
+    },
+    "Secondary": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EVENT_SOURCE_WITH_REDIS_TRACE": "false",
+        "FW": "4999"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "http://localhost:4998"
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}

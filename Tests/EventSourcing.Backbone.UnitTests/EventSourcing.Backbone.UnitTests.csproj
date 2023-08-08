@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Configurations>Debug;Release;Gen</Configurations>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FakeItEasy" Version="7.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProvider.Common\EventSourcing.Backbone.Channels.S3StoreProvider.Common.csproj" />
+    <ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+    <ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone\EventSourcing.Backbone.csproj" />
+    <ProjectReference Include="..\..\EventSourcing.Backbone.Abstractions\EventSourcing.Backbone.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

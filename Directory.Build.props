@@ -1,7 +1,28 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.2.18</Version>
+		<Version>1.2.153</Version>
 		<PackageReleaseNotes>
+			# 1.2.85:
+			Breaking changes: S3Strategy was renamed to S3Storage
+			# 1.2.96
+			Breaking changes: Method on the consumer interface generated with first parameter of type ConsumerContext
+			# 1.2.115
+			Breaking changes: registration extensions was re-module
+			# 1.2.121
+			Open Telemetry
+			# 1.2.146
+			Breaking changes:
+			- AddRedisStorage - renamed -> AddRedisHashStorage
+			- ResolveRedisStorage - renamed -> ResolveRedisHashStorage
+			# 1.2.147
+			Breaking changes:
+			- Redis Storage path: adding operation into the path
+			# 1.2.151
+			Breaking changes (major):
+			- Version awareness
+			- COnsumerMetadata become ConsumerContext
+			- Changes of URI and storage path
+			- Fix type: IConsumerSubscribtionHubBuilder -> IConsumerSubscriptionHubBuilder
 		</PackageReleaseNotes>
 	</PropertyGroup>
 	
@@ -16,9 +37,9 @@
 
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
-		<PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+		<PackageTags>event-source, event-driven, event-sourcing, producer, consumer, pub, sub, pub-sub, messaging, reliable, redis, bnaya</PackageTags>
+		<PackageProjectUrl>https://medium.com/@bnayae</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bnayae/Event-Source-Backbone</RepositoryUrl>
 		<RepositoryType>GitHub</RepositoryType>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,22 +55,12 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReleaseNotes>
-			1.1.276: [BREAKING CHANGES] Consumer options / consumer channel setting had changed
-			1.2.19: 
-			  Support Inheritance
-			  [BREAKING CHANGES] Renaming of Enum
-			  
-		</PackageReleaseNotes>
-	</PropertyGroup>
-
-	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.86" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.128" PrivateAssets="All" />
 	</ItemGroup>
 	
 	<ItemGroup>

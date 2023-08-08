@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
+		<Configurations>Debug;Release;Gen</Configurations>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.1.0" />
+		<PackageReference Include="OpenTelemetry" Version="1.5.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.5.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.5.1" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.5.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.5.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.0-beta.1" />
+		<PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.10" />
+	</ItemGroup>
+
+	<!-- Prometheus -->
+	<ItemGroup>
+		<PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.5.0-rc.1" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisConsumerProvider\EventSourcing.Backbone.Channels.RedisConsumerProvider.csproj" />
+		<ProjectReference Include="..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />
+		<ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreConsumerProvider\EventSourcing.Backbone.Channels.S3StoreConsumerProvider.csproj" />
+		<ProjectReference Include="..\..\Channels\S3\EventSourcing.Backbone.Channels.S3StoreProducerProvider\EventSourcing.Backbone.Channels.S3StoreProducerProvider.csproj" />
+		<ProjectReference Include="..\..\Consumers\EventSourcing.Backbone.Consumers\EventSourcing.Backbone.Consumers.csproj" />
+		<ProjectReference Include="..\..\Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions\EventSourcing.Backbone.OpenTelemetry.Extensions.csproj" />
+		<ProjectReference Include="..\..\Producers\EventSourcing.Backbone.Producers\EventSourcing.Backbone.Producers.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src-gen\EventSourcing.Backbone.SrcGen\EventSourcing.Backbone.SrcGen.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+	</ItemGroup>
+
+</Project>

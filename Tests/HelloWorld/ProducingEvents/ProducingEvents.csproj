@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Channels\REDIS\EventSourcing.Backbone.Channels.RedisProducerProvider\EventSourcing.Backbone.Channels.RedisProducerProvider.csproj" />
+		<ProjectReference Include="..\ConsumingEvents\ConsumingEvents.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="icon.png">
+			<PackagePath></PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+	</ItemGroup>
+</Project>
