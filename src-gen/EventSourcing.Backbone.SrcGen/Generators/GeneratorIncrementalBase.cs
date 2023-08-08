@@ -89,7 +89,7 @@ namespace EventSourcing.Backbone
             /// <param name="syntaxNode">The current <see cref="T:Microsoft.CodeAnalysis.SyntaxNode" /> being visited</param>
             IEnumerable<SyntaxReceiverResult> ToGenerationInput(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
             {
-                cancellationToken.ThrowIfCancellationRequested();   
+                cancellationToken.ThrowIfCancellationRequested();
 
                 SyntaxNode syntaxNode = ctx.Node;
                 if (syntaxNode is not TypeDeclarationSyntax tds)

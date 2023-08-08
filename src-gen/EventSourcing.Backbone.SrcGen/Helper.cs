@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Linq;
 
 
@@ -110,7 +108,7 @@ internal static class Helper
             }
 
             if (source.Length == 0)
-            { 
+            {
                 source.AppendLine($"{indent}/// <summary>");
                 source.AppendLine($"{indent}/// Generated documentation");
                 source.AppendLine($"{indent}/// </summary>");
@@ -181,8 +179,11 @@ internal static class Helper
         var versionNamingRaw = attributeData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.VersionNaming));
         var versionNamingRawValue = (int?)versionNamingRaw.Value.Value;
         var versionNaming = versionNamingRawValue == null ? VersionNaming.Default : (VersionNaming)versionNamingRawValue;
+        var entityConventionRaw = attributeData.NamedArguments.FirstOrDefault(m => m.Key == nameof(VersionInstructions.EntityConvention));
+        var entityConventionRawValue = (int?)entityConventionRaw.Value.Value;
+        var entityConvention = entityConventionRawValue == null ? EntityConvention.Default : (EntityConvention)entityConventionRawValue;
 
-        var result = new VersionInstructions { MinVersion = minVersion ?? 0, VersionNaming = versionNaming };
+        var result = new VersionInstructions { MinVersion = minVersion ?? 0, VersionNaming = versionNaming, EntityConvention = entityConvention };
         return result;
     }
 
@@ -259,7 +260,7 @@ internal static class Helper
         var dateRaw = attData.NamedArguments.FirstOrDefault(m => m.Key == nameof(OperatioDeprecationInstructions.Date));
         var date = (string?)dateRaw.Value.Value;
 
-        var result = new OperatioDeprecationInstructions (kind, remark, date );
+        var result = new OperatioDeprecationInstructions(kind, remark, date);
         return result;
     }
 
@@ -345,7 +346,7 @@ internal static class Helper
         {
             var val = m.ConstructorArguments[0].Value;
 
-            return IsOfKind(val , kind);
+            return IsOfKind(val, kind);
         });
     }
 
@@ -478,7 +479,7 @@ internal static class Helper
                                     mtdShortName,
                                     mtdName,
                                     version,
-                                    versionInfo.VersionNaming,
+                                    versionInfo,
                                     prmSig,
                                     deprecated);
             return res;
@@ -527,12 +528,12 @@ internal static class Helper
     /// <param name="type">The type.</param>
     /// <param name="interfaceName">Name of the interface.</param>
     /// <returns></returns>
-    public static IEnumerable<string> GetInterceptors(this ITypeSymbol type, string interfaceName) 
+    public static IEnumerable<string> GetInterceptors(this ITypeSymbol type, string interfaceName)
     {
         var interceptions = type.GetInterceptorsMethods(interfaceName);
 
         var list = new List<string>();
-        foreach ( IMethodSymbol interception in interceptions) 
+        foreach (IMethodSymbol interception in interceptions)
         {
             var methodDeclaration = interception.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
 
@@ -557,12 +558,12 @@ internal static class Helper
     /// <param name="type">The type.</param>
     /// <param name="interfaceName">Name of the interface.</param>
     /// <returns></returns>
-    public static IEnumerable<string> AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName) 
+    public static IEnumerable<string> AddInterceptors(this StringBuilder builder, ITypeSymbol type, string interfaceName)
     {
         var interceptions = type.GetInterceptorsMethods(interfaceName);
 
         var list = new List<string>();
-        foreach ( IMethodSymbol interception in interceptions) 
+        foreach (IMethodSymbol interception in interceptions)
         {
             var methodDeclaration = interception.DeclaringSyntaxReferences[0].GetSyntax() as MethodDeclarationSyntax;
 

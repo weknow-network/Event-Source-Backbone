@@ -1,6 +1,5 @@
 ﻿using System.Text;
 
-using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 

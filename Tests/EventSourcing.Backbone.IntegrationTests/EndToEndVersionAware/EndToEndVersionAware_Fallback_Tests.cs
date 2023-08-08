@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Tests.Entities;
 

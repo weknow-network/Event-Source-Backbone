@@ -46,10 +46,12 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 int version = bundle.Version;
                 string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
 
+                string entityName = $"{bundle:entity}{deprecateAddition}";
+
                 method.CopyDocumentation(builder, version, "\t\t");
                 builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
                 builder.Append("\tpublic record");
-                builder.Append($" {bundle}{deprecateAddition}(");
+                builder.Append($" {entityName}(");
 
                 var psRaw = bundle.Method.Parameters;
                 var ps = psRaw.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
@@ -68,29 +70,29 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
                 var prms = Enumerable.Range(0, psRaw.Length).Select(m => $"p{m}");
                 builder.Append($"\t\tpublic ");
-                if(psRaw.Length != 0)
+                if (psRaw.Length != 0)
                     builder.Append($"async ");
-                builder.AppendLine($"static Task<(bool, {bundle}{deprecateAddition}?)> TryGetAsync(IConsumerInterceptionContext context)");
+                builder.AppendLine($"static Task<(bool, {entityName}?)> TryGetAsync(IConsumerInterceptionContext context)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tif(IsMatch(context))");
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\t\treturn (false, null);");
                 else
-                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((false, null));");
+                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {entityName}?)>((false, null));");
                 builder.AppendLine();
                 int i = 0;
                 foreach (var p in psRaw)
                 {
                     var pName = p.Name;
                     builder.AppendLine($"\t\t\tvar p{i} = await context.GetParameterAsync<{p.Type}>(\"{pName}\");");
-                    i++;    
+                    i++;
                 }
 
-                builder.AppendLine($"\t\t\tvar data = new {bundle}{deprecateAddition}({string.Join(", ", prms)});");
+                builder.AppendLine($"\t\t\tvar data = new {entityName}({string.Join(", ", prms)});");
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\treturn (true, data);");
                 else
-                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((true, data));");
+                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {entityName}?)>((true, data));");
 
                 builder.AppendLine("\t\t}");
                 builder.AppendLine();
@@ -104,14 +106,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.Append($"\t\tpublic ");
                 if (psRaw.Length != 0)
                     builder.Append($"async ");
-                builder.AppendLine($"static Task<(bool, {bundle}{deprecateAddition}?)> TryGetAsync(IConsumerBridge consumerBridge, Announcement announcement)");
+                builder.AppendLine($"static Task<(bool, {entityName}?)> TryGetAsync(IConsumerBridge consumerBridge, Announcement announcement)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tif(IsMatch(announcement))");
 
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\t\treturn (false, null);");
                 else
-                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((false, null));");
+                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {entityName}?)>((false, null));");
                 builder.AppendLine();
                 i = 0;
                 foreach (var p in psRaw)
@@ -121,11 +123,11 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     i++;
                 }
 
-                builder.AppendLine($"\t\t\tvar data = new {bundle}{deprecateAddition}({string.Join(", ", prms)});");
+                builder.AppendLine($"\t\t\tvar data = new {entityName}({string.Join(", ", prms)});");
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\treturn (true, data);");
                 else
-                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((true, data));");
+                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {entityName}?)>((true, data));");
 
                 builder.AppendLine("\t\t}");
 
@@ -157,7 +159,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
         /// File name
         /// </returns>
         internal static void GenerateEntitiesExtensions(
-                            StringBuilder builder, 
+                            StringBuilder builder,
                             MethodBundle[] bundles,
                             string simpleName,
                             string interfaceName,
@@ -169,6 +171,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             foreach (var bundle in bundles)
             {
                 string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
+                string entityName = $"{bundle:entity}{deprecateAddition}";
 
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Try to get entity of event of");
@@ -176,7 +179,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Version:{bundle.Version}");
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
-                builder.AppendLine($"\t\tpublic static Task<(bool, {bundle}{deprecateAddition}?)> TryGet{bundle}{deprecateAddition}Async(this IConsumerInterceptionContext context) => {bundle}{deprecateAddition}.TryGetAsync(context);");
+                builder.AppendLine($"\t\tpublic static Task<(bool, {entityName}?)> TryGet{entityName}Async(this IConsumerInterceptionContext context) => {entityName}.TryGetAsync(context);");
                 builder.AppendLine();
 
                 builder.AppendLine($"\t\t/// <summary>");
@@ -185,7 +188,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Version:{bundle.Version}");
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
-                builder.AppendLine($"\t\tpublic static Task<(bool, {bundle}{deprecateAddition}?)> TryGet{bundle}{deprecateAddition}Async(this IConsumerBridge bridge, Announcement announcement) => {bundle}{deprecateAddition}.TryGetAsync(bridge, announcement);");
+                builder.AppendLine($"\t\tpublic static Task<(bool, {entityName}?)> TryGet{entityName}Async(this IConsumerBridge bridge, Announcement announcement) => {entityName}.TryGetAsync(bridge, announcement);");
 
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Check if match entity of event of");
@@ -193,7 +196,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Version:{bundle.Version}");
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
-                builder.AppendLine($"\t\tpublic static bool IsMatch{bundle}{deprecateAddition}(this IConsumerInterceptionContext context) => {bundle}{deprecateAddition}.IsMatch(context);");
+                builder.AppendLine($"\t\tpublic static bool IsMatch{entityName}(this IConsumerInterceptionContext context) => {entityName}.IsMatch(context);");
                 builder.AppendLine();
 
                 builder.AppendLine($"\t\t/// <summary>");
@@ -202,7 +205,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Version:{bundle.Version}");
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
-                builder.AppendLine($"\t\tpublic static bool IsMatch{bundle}{deprecateAddition}(this Announcement announcement) => {bundle}{deprecateAddition}.IsMatch(announcement);");
+                builder.AppendLine($"\t\tpublic static bool IsMatch{entityName}(this Announcement announcement) => {entityName}.IsMatch(announcement);");
             }
 
             builder.AppendLine("\t}");
@@ -292,10 +295,10 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             foreach (var bundle in bundles)
             {
                 string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
-                string fullRecordName = $"{bundle}{deprecateAddition}";
+                string entityName = $"{bundle:entity}{deprecateAddition}";
 
-                builder.AppendLine($"\t\t\t\tif (announcement.IsMatch{fullRecordName}() &&");
-                builder.AppendLine($"\t\t\t\t\t\t typeof(TCast) == typeof({fullRecordName}))");
+                builder.AppendLine($"\t\t\t\tif (announcement.IsMatch{entityName}() &&");
+                builder.AppendLine($"\t\t\t\t\t\t typeof(TCast) == typeof({entityName}))");
                 builder.AppendLine("\t\t\t\t{");
                 var prms = bundle.Method.Parameters;
                 int i = 0;
@@ -307,7 +310,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 }
                 var ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\t{FAMILY} rec = new {bundle}({string.Join(", ", ps)});");
+                builder.AppendLine($"\t\t\t\t\t{FAMILY} rec = new {entityName}({string.Join(", ", ps)});");
                 builder.AppendLine($"\t\t\t\t\treturn ((TCast?)rec, true);");
                 builder.AppendLine("\t\t\t\t}");
             }

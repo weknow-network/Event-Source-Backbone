@@ -2,16 +2,17 @@
 
 namespace EventSourcing.Backbone.WebEventTest;
 
-using Microsoft.Extensions.Logging;
+using EventSourcing.Backbone;
 
 using Generated.EventsWithVersion;
 
+using Microsoft.Extensions.Logging;
 
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
 public interface IEventsWithVersion
-{    
+{
     /// <summary>
     /// Consumers the fallback.
     /// Excellent for Migration scenario
@@ -29,21 +30,21 @@ public interface IEventsWithVersion
         //    case Generated.EventsWithVersion.CONSTANTS.ACTIVE.ExecuteAsync.V1.P_:
         //        break;
         //}
-        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(); 
+        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
         if (succeed1)
         {
             await target.Execute3Async(consumerContext, data1!.value.ToString());
             await ctx.AckAsync();
             return true;
         }
-        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V2_Boolean_DeprecatedAsync(); 
+        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V2_Boolean_DeprecatedAsync();
         if (succeed2)
         {
             await target.Execute3Async(consumerContext, data2!.value.ToString());
             await ctx.AckAsync();
             return true;
         }
-        var (succeed3, data3) = await ctx.TryGetNotIncludesAsync_V2_String_DeprecatedAsync(); 
+        var (succeed3, data3) = await ctx.TryGetNotIncludesAsync_V2_String_DeprecatedAsync();
         if (succeed3)
         {
             await target.Execute3Async(consumerContext, data3!.value);

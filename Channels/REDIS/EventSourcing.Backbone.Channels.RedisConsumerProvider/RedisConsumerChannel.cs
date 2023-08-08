@@ -334,7 +334,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                     {
                         var signature = meta.Signature;
                         execActivity = plan.StartTraceDebug($"consumer.{signature.Operation.ToDash()}.invoke", metadata: meta);
-                    }    
+                    }
                     using (execActivity)
                     {
                         succeed = await func(announcement, ack);

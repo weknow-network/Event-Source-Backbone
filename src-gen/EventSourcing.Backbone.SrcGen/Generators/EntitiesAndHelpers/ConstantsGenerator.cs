@@ -1,11 +1,9 @@
 ﻿using System.Reflection;
 using System.Text;
 
-using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.Entities;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 internal static class ConstantsGenerator
@@ -72,20 +70,20 @@ internal static class ConstantsGenerator
                     var versions = op.GroupBy(b => b.Version);
                     foreach (var version in versions)
                     {
-                        builder.AppendLine($"{indent}public class V{version.Key}");
+                        builder.AppendLine($"{indent}public static class V{version.Key}");
                         builder.AppendLine($"{indent}{{");
 
                         indent = $"{indent}\t";
                         foreach (var b in version)
                         {
                             string pName = b.Parameters.Replace(",", "_");
-                            builder.AppendLine($"{indent}public class P_{pName}");
+                            builder.AppendLine($"{indent}public static class P_{pName}");
                             builder.AppendLine($"{indent}{{");
 
                             indent = $"{indent}\t";
 
                             builder.AppendLine($"{indent}public static readonly OperationSignature Signature = new ( \"{op.Key}\", {version.Key}, \"{b.Parameters}\");");
-                            builder.AppendLine($"{indent}public const string SignatureString = \"{op.Key}_{version.Key}_{b.Parameters}\";");
+                            builder.AppendLine($"{indent}public const string SignatureString = \"{op.Key}_V{version.Key}_{b.Parameters}\";");
 
                             indent = indent.Substring(1);
                             builder.AppendLine($"{indent}}}");

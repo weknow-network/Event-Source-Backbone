@@ -1,7 +1,4 @@
-using System.Collections.Concurrent;
 using System.Threading.Channels;
-
-using EventSourcing.Backbone.UnitTests.Entities;
 
 using FakeItEasy;
 

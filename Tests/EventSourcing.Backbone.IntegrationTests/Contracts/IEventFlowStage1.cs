@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone.Tests.Entities;
+﻿
+
+namespace EventSourcing.Backbone.Tests.Entities;
 
 [EventsContract(EventsContractType.Consumer)]
 public interface IEventFlowStage1

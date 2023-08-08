@@ -12,12 +12,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 [DebuggerDisplay("{Name}, {Version}, {Parameters}, Deprecated: {Deprecated}")]
 internal sealed class MethodBundle : IFormattable
 {
+    private readonly VersionInstructions _versionInfo;
+
     public MethodBundle(
         IMethodSymbol method,
         string name,
         string fullName,
         int version,
-        VersionNaming versionNaming,
+        VersionInstructions versionInfo,
         string parameters,
         bool deprecated)
     {
@@ -25,7 +27,8 @@ internal sealed class MethodBundle : IFormattable
         Name = name;
         FullName = fullName;
         Version = version;
-        VersionNaming = versionNaming;
+        _versionInfo = versionInfo;
+        VersionNaming = versionInfo.VersionNaming;
         Parameters = parameters;
         Deprecated = deprecated;
     }
@@ -42,7 +45,20 @@ internal sealed class MethodBundle : IFormattable
 
     string IFormattable.ToString(string format, IFormatProvider formatProvider)
     {
-        string fmt = format ?? VersionNaming switch
+        string fmt = format switch
+        {
+            "entity" => _versionInfo.EntityConvention switch
+            {
+                EntityConvention.None => string.Empty,
+                _ => "_"
+            },
+            "e" => _versionInfo.EntityConvention switch
+            {
+                EntityConvention.None => string.Empty,
+                _ => "_"
+            },
+            _ => null
+        } ?? VersionNaming switch
         {
             VersionNaming.None => string.Empty,
             _ => "_"

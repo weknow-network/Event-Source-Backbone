@@ -13,7 +13,7 @@ namespace EventSourcing.Backbone;
 /// Unlike the segments, this part can be flow with
 /// message & will be set as async-context.]]> 
 /// </summary>
-[DebuggerDisplay("{Operation}, V{Version}, P_{ParamsSignature}: Origin={Origin}, Env={Environment}, URI={Uri}, StorageTypes={StorageTypes}")]
+[DebuggerDisplay("{Signature.Operation}, V{Signature.Version}, P_{Signature.Parameters}: Origin={Origin}, Env={Environment}, URI={Uri}, StorageTypes={StorageTypes}")]
 public record Metadata
 {
     #region MessageId
@@ -148,7 +148,7 @@ public static class MetadataExtensions
 {
     private const string EMPTY_KEY = "~EMPTY~";
 
-    public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Signature = new ( "NONE", -1, string.Empty), Uri = string.Empty };
+    public static readonly Metadata Empty = new Metadata { MessageId = EMPTY_KEY, ChannelType = "NONE", EventKey = string.Empty, Signature = new("NONE", -1, string.Empty), Uri = string.Empty };
 
     #region Duration
 

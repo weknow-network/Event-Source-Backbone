@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace EventSourcing.Backbone.SrcGen.Entities;
 
@@ -10,12 +9,18 @@ internal struct VersionInstructions
     {
         VersionNaming = VersionNaming.Default;
         MinVersion = 0;
+        EntityConvention = EntityConvention.Underline;
     }
 
     /// <summary>
     /// Version naming convention.
     /// </summary>
     public VersionNaming VersionNaming { get; set; }
+
+    /// <summary>
+    /// Version naming convention.
+    /// </summary>
+    public EntityConvention EntityConvention { get; set; }
 
     /// <summary>
     /// Won't generate method with version lower than this value

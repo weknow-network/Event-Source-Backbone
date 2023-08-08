@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+
 namespace EventSourcing.Backbone.Tests.Entities;
 
 /// <summary>

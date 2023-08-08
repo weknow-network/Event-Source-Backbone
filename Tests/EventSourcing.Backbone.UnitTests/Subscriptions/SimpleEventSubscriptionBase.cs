@@ -1,6 +1,4 @@
-﻿using Amazon.Runtime.Internal.Util;
-
-using EventSourcing.Backbone.UnitTests.Entities;
+﻿using EventSourcing.Backbone.UnitTests.Entities;
 
 namespace EventSourcing.Backbone
 {

@@ -20,9 +20,9 @@ public class VersionAware_Const_Test
     public void Consumer_Const_Test()
     {
         _outputHelper.WriteLine(VersionAwareMixConstants.DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString);
-        Assert.Equal("String,Int32", VersionAwareMixConstants.DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString);
+        Assert.Equal("ExecuteAsync_V0_String,Int32", VersionAwareMixConstants.DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString);
         _outputHelper.WriteLine(VersionAwareMixConstants.ACTIVE.ExecuteAsync.V2.P_DateTime.SignatureString);
-        Assert.Equal("DateTime", VersionAwareMixConstants.ACTIVE.ExecuteAsync.V2.P_DateTime.SignatureString);
+        Assert.Equal("ExecuteAsync_V2_DateTime", VersionAwareMixConstants.ACTIVE.ExecuteAsync.V2.P_DateTime.SignatureString);
     }
 
 }

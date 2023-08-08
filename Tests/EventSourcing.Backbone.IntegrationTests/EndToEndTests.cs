@@ -15,8 +15,6 @@ using Polly;
 using Xunit;
 using Xunit.Abstractions;
 
-using EventSourcing.Backbone;
-using EventSourcing.Backbone.Tests.Entities.Generated;
 using static EventSourcing.Backbone.EventSourceConstants;
 
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly

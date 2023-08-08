@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone.UnitTests.Entities
+﻿
+
+namespace EventSourcing.Backbone.UnitTests.Entities
 {
 
     /// <summary>

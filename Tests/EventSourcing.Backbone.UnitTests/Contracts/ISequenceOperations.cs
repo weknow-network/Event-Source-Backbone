@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone.UnitTests.Entities
+﻿
+
+namespace EventSourcing.Backbone.UnitTests.Entities
 {
     [EventsContract(EventsContractType.Producer, Name = "ISequenceOfProducer")]
     [EventsContract(EventsContractType.Consumer, Name = "ISequenceOfConsumer")]

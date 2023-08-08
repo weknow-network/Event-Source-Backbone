@@ -51,19 +51,19 @@ namespace EventSourcing.Backbone
                             string[] usingStatements)
         {
             string generateFrom = info.FormatName();
-            string namePrefix = (info.Name ?? interfaceName).ToClassName();
+            string name = (info.Name ?? interfaceName).ToClassName();
 
             AssemblyName assemblyName = GetType().Assembly.GetName();
 
-            var dtos = EntityGenerator.GenerateEntities(compilation, namePrefix, info, interfaceName, assemblyName);
+            var dtos = EntityGenerator.GenerateEntities(compilation, name, info, interfaceName, assemblyName);
             GenInstruction?[] gens =
             {
-                ConstantsGenerator.GenVersionConstants(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapper(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
-                EntityGenerator.GenerateEntityMapperExtensions(compilation, namePrefix, info, interfaceName , generateFrom, assemblyName),
-                OnGenerateConsumerBase(compilation, namePrefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridge(compilation, namePrefix, info, interfaceName, assemblyName),
-                OnGenerateConsumerBridgeExtensions(compilation, namePrefix, info, interfaceName, generateFrom, assemblyName)
+                ConstantsGenerator.GenVersionConstants(compilation, name, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapper(compilation, name, info, interfaceName , generateFrom, assemblyName),
+                EntityGenerator.GenerateEntityMapperExtensions(compilation, name, info, interfaceName , generateFrom, assemblyName),
+                OnGenerateConsumerBase(compilation, name, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridge(compilation, name, info, interfaceName, assemblyName),
+                OnGenerateConsumerBridgeExtensions(compilation, name, info, interfaceName, generateFrom, assemblyName)
             };
 
             return dtos.Concat(
@@ -285,6 +285,7 @@ namespace EventSourcing.Backbone
                 foreach (var bundle in bundles)
                 {
                     string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
+                    string entityName = $"{bundle:entity}{deprecateAddition}";
                     var method = bundle.Method;
                     string mtdName = bundle.FormatMethodFullName();
 
@@ -294,7 +295,7 @@ namespace EventSourcing.Backbone
                     if (hasParms)
                     {
                         metaParam = "consumerContext, ";
-                        builder.AppendLine($"\t\t\tvar (succeed{j}, data{j}) = await consumerBridge.TryGet{bundle}{deprecateAddition}Async(announcement);");
+                        builder.AppendLine($"\t\t\tvar (succeed{j}, data{j}) = await consumerBridge.TryGet{entityName}Async(announcement);");
                         builder.AppendLine($"\t\t\tif (succeed{j})");
                         builder.AppendLine("\t\t\t{");
 
@@ -315,7 +316,7 @@ namespace EventSourcing.Backbone
                     }
                     else
                     {
-                        builder.AppendLine($"\t\t\tvar succeed{j} = announcement.IsMatch{bundle}{deprecateAddition}();");
+                        builder.AppendLine($"\t\t\tvar succeed{j} = announcement.IsMatch{entityName}();");
                         builder.AppendLine($"\t\t\tif(succeed{j})");
                         builder.AppendLine("\t\t\t{");
                         builder.AppendLine($"\t\t\t\tawait {mtdName}({metaParam});");

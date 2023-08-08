@@ -17,6 +17,6 @@ internal struct OperatioDeprecationInstructions
         Date = date;
     }
     public EventsContractType Kind { get; }
-    public string? Remark { get;  }
-    public string? Date { get;  }
+    public string? Remark { get; }
+    public string? Date { get; }
 }

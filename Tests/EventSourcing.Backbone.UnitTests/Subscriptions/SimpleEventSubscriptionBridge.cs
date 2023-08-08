@@ -31,7 +31,7 @@ namespace EventSourcing.Backbone
             var meta = ConsumerContext.Context;
             switch (announcement.Metadata.Signature.ToString())
             {
-                case ExecuteAsync.V0.P_String_Int32.SignatureString :
+                case ExecuteAsync.V0.P_String_Int32.SignatureString:
                     {
                         var p0 = await consumerBridge.GetParameterAsync<string>(announcement, "key");
                         var p1 = await consumerBridge.GetParameterAsync<int>(announcement, "value");

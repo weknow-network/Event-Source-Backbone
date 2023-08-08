@@ -1,7 +1,6 @@
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
