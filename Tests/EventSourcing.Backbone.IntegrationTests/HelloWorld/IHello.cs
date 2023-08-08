@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone.UnitTests.Entities
+﻿
+
+namespace EventSourcing.Backbone.Tests.Entities
 {
     /// <summary>
     /// The sequence operations.

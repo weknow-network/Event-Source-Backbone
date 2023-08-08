@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿// Ignore Spelling: Fallbacks
+
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 using EventSourcing.Backbone.Building;
@@ -300,6 +302,15 @@ namespace EventSourcing.Backbone
         public IServiceProvider? ServiceProvider { get; }
 
         #endregion // ServiceProvider
+
+        #region // Fallbacks
+
+        ///// <summary>
+        ///// Gets the fallback handlers.
+        ///// </summary>
+        //public IImmutableList<Func<IConsumerFallback, Task>> Fallbacks { get; } = ImmutableList<Func<IConsumerFallback, Task>>.Empty;
+
+        #endregion // Fallbacks
 
         //------------------------------------------
 

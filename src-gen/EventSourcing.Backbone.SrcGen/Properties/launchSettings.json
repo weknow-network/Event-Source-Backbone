@@ -1,8 +1,16 @@
 {
   "profiles": {
-    ".EventSourcing.Backbone.SrcGen": {
+    "Unit Test": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Tests\\EventSourcing.Backbone.UnitTests\\EventSourcing.Backbone.UnitTests.csproj"
+    },
+    "Src Gen Playgound": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\EventSourcing.Backbone.SrcGen.Playground\\EventSourcing.Backbone.SrcGen.Playground.csproj"
+    },
+    "WebEventTest": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Tests\\EventSourcing.Backbone.WebEventTest\\EventSourcing.Backbone.WebEventTest.csproj"
     }
   }
 }

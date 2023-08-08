@@ -1,5 +1,4 @@
 ﻿using EventSourcing.Backbone;
-
 namespace EventsAbstractions;
 
 

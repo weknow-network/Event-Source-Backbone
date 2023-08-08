@@ -76,11 +76,11 @@ internal class Worker : BackgroundService
 
         try
         {
-            A.CallTo(() => Subscriber.Event1Async(A<ConsumerMetadata>.Ignored))
+            A.CallTo(() => Subscriber.Event1Async(A<ConsumerContext>.Ignored))
                         .MustHaveHappened(MAX, Times.Exactly);
-            A.CallTo(() => Subscriber.Event2Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+            A.CallTo(() => Subscriber.Event2Async(A<ConsumerContext>.Ignored, A<int>.Ignored))
                         .MustHaveHappened(MAX, Times.Exactly);
-            A.CallTo(() => Subscriber.Event3Async(A<ConsumerMetadata>.Ignored, A<string>.Ignored))
+            A.CallTo(() => Subscriber.Event3Async(A<ConsumerContext>.Ignored, A<string>.Ignored))
                         .MustHaveHappened(MAX, Times.Exactly);
         }
         catch (Exception ex)
@@ -97,11 +97,11 @@ internal class Worker : BackgroundService
 
     static void Prepare(IFooConsumer subscriber)
     {
-        A.CallTo(() => subscriber.Event1Async(A<ConsumerMetadata>.Ignored))
+        A.CallTo(() => subscriber.Event1Async(A<ConsumerContext>.Ignored))
                 .ReturnsLazily(() => ValueTask.CompletedTask);
-        A.CallTo(() => subscriber.Event2Async(A<ConsumerMetadata>.Ignored, A<int>.Ignored))
+        A.CallTo(() => subscriber.Event2Async(A<ConsumerContext>.Ignored, A<int>.Ignored))
                 .ReturnsLazily(() => ValueTask.CompletedTask);
-        A.CallTo(() => subscriber.Event3Async(A<ConsumerMetadata>.Ignored, A<string>.Ignored))
+        A.CallTo(() => subscriber.Event3Async(A<ConsumerContext>.Ignored, A<string>.Ignored))
                 .ReturnsLazily(() => ValueTask.CompletedTask);
     }
 }

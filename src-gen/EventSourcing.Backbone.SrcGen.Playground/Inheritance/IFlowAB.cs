@@ -4,4 +4,5 @@
 [EventsContract(EventsContractType.Consumer)]
 public interface IFlowAB : IFlowA, IFlowB
 {
+    ValueTask CAsync();
 }

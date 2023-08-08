@@ -28,7 +28,7 @@ namespace EventSourcing.Backbone
 
         #region Ctor
 
-        public GeneratorIncrementalBase(
+        protected GeneratorIncrementalBase(
             string targetAttribute)
         {
             _targetAttribute = _targetAttribute.Add(targetAttribute);
@@ -64,6 +64,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             bool ShouldTriggerGeneration(SyntaxNode node, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (node is not TypeDeclarationSyntax t) return false;
 
                 if (node is not TypeDeclarationSyntax tds ||
@@ -75,7 +76,6 @@ namespace EventSourcing.Backbone
                 bool hasAttributes = t.AttributeLists.Any(m => m.Attributes.Any(m1 =>
                         AttributePredicate(m1, _targetAttribute)));
 
-                //if (_kindFilter == nameof(KindFilter.Any) || info.Kind == _kindFilter)
                 return hasAttributes;
             }
 
@@ -89,6 +89,8 @@ namespace EventSourcing.Backbone
             /// <param name="syntaxNode">The current <see cref="T:Microsoft.CodeAnalysis.SyntaxNode" /> being visited</param>
             IEnumerable<SyntaxReceiverResult> ToGenerationInput(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 SyntaxNode syntaxNode = ctx.Node;
                 if (syntaxNode is not TypeDeclarationSyntax tds)
                     throw new InvalidCastException("Expecting TypeDeclarationSyntax");
@@ -149,13 +151,13 @@ namespace EventSourcing.Backbone
                             Compilation compilation,
                             SyntaxReceiverResult info)
         {
-            var (item, symbol, kind, ns, usingStatements) = info;
+            var (typeDeclaration, symbol, kind, ns, usingStatements) = info;
 
             #region Validation
 
             if (kind == "NONE")
             {
-                context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
+                context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {typeDeclaration}");
                 return;
             }
 
@@ -166,10 +168,14 @@ namespace EventSourcing.Backbone
             foreach (var (fileName, content, dynamicNs, usn) in codes)
             {
                 var builder = new StringBuilder();
+                var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString() ?? "EventSourcing.Backbone";
                 var usingSet = new HashSet<string>(DEFAULT_USING);
-
                 builder.AppendLine();
                 builder.AppendLine("#nullable enable");
+                builder.AppendLine("#pragma warning disable CS1573 // Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do)");
+                builder.AppendLine("#pragma warning disable CS1529 // duplicate using");
+                builder.AppendLine("#pragma warning disable IDE0005 // Remove unnecessary using directives");
+                builder.AppendLine("#pragma warning disable CS0105 // The using directive for 'namespace' appeared previously in this namespace.");
 
                 foreach (var u in usingStatements.Concat(usn))
                 {
@@ -177,27 +183,23 @@ namespace EventSourcing.Backbone
                         usingSet.Add(u);
                 }
 
-                var overrideNS = dynamicNs ?? ns ?? symbol.ContainingNamespace.ToDisplayString();
-                //if (overrideNS == null && item.Parent is BaseNamespaceDeclarationSyntax ns_)
-                //{
-                //    foreach (var c in ns_?.Parent?.ChildNodes() ?? Array.Empty<SyntaxNode>())
-                //    {
-                //        if (c is UsingDirectiveSyntax use)
-                //        {
-                //            var u = use.ToFullString().Trim();
-                //            if (!usingSet.Contains(u))
-                //                usingSet.Add(u);
-                //        }
-                //    }
-                //    builder.AppendLine();
-                //    overrideNS = ns_?.Name?.ToString();
-                //}
                 foreach (var u in usingSet.OrderBy(m => m))
                 {
                     builder.AppendLine(u);
                 }
-                builder.AppendLine($"namespace {overrideNS ?? "EventSourcing.Backbone"}");
+                builder.AppendLine($"namespace {overrideNS}");
                 builder.AppendLine("{");
+
+                var fileScope = typeDeclaration.Parent! as FileScopedNamespaceDeclarationSyntax;
+                if (fileScope != null)
+                {
+                    foreach (var u in fileScope.Usings)
+                    {
+                        builder.AppendLine($"\t{u}");
+                    }
+                    builder.AppendLine();
+                }
+
                 builder.AppendLine(content);
                 builder.AppendLine("}");
 
@@ -226,23 +228,6 @@ namespace EventSourcing.Backbone
                             string[] usingStatements);
 
         #endregion // OnGenerate
-
-        #region GetInterfaceConvention
-
-        [Obsolete("deprecate", true)]
-        protected virtual string GetInterfaceConvention(
-            string? name,
-            string generateFrom,
-            string kind,
-            string? suffix)
-        {
-            string interfaceName = name ?? Convert(generateFrom, kind);
-            if (name == null && !string.IsNullOrEmpty(interfaceName) && !interfaceName.EndsWith(suffix))
-                interfaceName = $"{interfaceName}{suffix}";
-            return interfaceName;
-        }
-
-        #endregion // GetInterfaceConvention
 
         #region AttributePredicate
 

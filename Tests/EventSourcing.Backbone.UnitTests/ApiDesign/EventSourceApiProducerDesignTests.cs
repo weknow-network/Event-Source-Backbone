@@ -55,12 +55,12 @@ namespace EventSourcing.Backbone
                         .UseSegmentation(_otherSegmentationStrategy);
 
 
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                                     _builder
                                         .Merge(producerA, producerB, producerC)
                                         .UseSegmentation(_postSegmentationStrategy)
                                         .WithLogger(_logger)
-                                        .BuildCustomSequenceOperationsProducer();
+                                        .BuildCustomSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -76,12 +76,12 @@ namespace EventSourcing.Backbone
         {
             var option = new EventSourceOptions { Serializer = _serializer };
 
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _builder.UseChannel(_channel)
                         .WithOptions(option)
                         .Uri("Kids:HappySocks")
                         .WithLogger(_logger)
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -95,7 +95,7 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task Build_API_Interceptor_Producer_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _builder.UseChannel(_channel)
                         .Uri("Kids:HappySocks")
                         .AddInterceptor(_rawInterceptor)
@@ -103,7 +103,7 @@ namespace EventSourcing.Backbone
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
                         .WithLogger(_logger)
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

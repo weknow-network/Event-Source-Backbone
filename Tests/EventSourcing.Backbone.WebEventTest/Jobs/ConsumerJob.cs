@@ -77,21 +77,21 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
 
     // TODO: enrich telemetry
 
-    async ValueTask IProductCycleConsumer.IdeaAsync(ConsumerMetadata consumerMetadata, string title, string describe)
+    async ValueTask IProductCycleConsumer.IdeaAsync(ConsumerContext consumerMetadata, string title, string describe)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
         _logger.Log(level, """
                                     handling {event} [{id}]: {title}
                                     Let's build a plan..... 
-                                    """, meta.Operation, meta.MessageId, title);
+                                    """, meta.Signature, meta.MessageId, title);
         await Task.Delay(Environment.TickCount % 1000 + 100);
 
         await _producer.PlanedAsync(meta.MessageId, new Version(0, 0, 1, 0), "Just do it this way....");
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.PlanedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string doc)
+    async ValueTask IProductCycleConsumer.PlanedAsync(ConsumerContext consumerMetadata, string id, Version version, string doc)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -101,20 +101,20 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    {doc}
                                    ---
                                    Now we'll review it than, either approve or reject the plan.
-                                   """, meta.Operation, id, version, doc);
+                                   """, meta.Signature, id, version, doc);
 
         int delay = Environment.TickCount % 2_000 + 500;
         await Task.Delay(delay);
         if (delay < 550)
-            await _producer.RejectedAsync(id, version, meta.Operation, NextStage.Abandon, "Seems to complex");
+            await _producer.RejectedAsync(id, version, meta.Signature.Operation, NextStage.Abandon, "Seems to complex");
         else if (delay < 600)
-            await _producer.RejectedAsync(id, version, meta.Operation, NextStage.Reject, "Need some refinement about ...");
+            await _producer.RejectedAsync(id, version, meta.Signature.Operation, NextStage.Reject, "Need some refinement about ...");
         else
             await _producer.ReviewedAsync(id, version, "Great plan");
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.ReviewedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string[] notes)
+    async ValueTask IProductCycleConsumer.ReviewedAsync(ConsumerContext consumerMetadata, string id, Version version, string[] notes)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -124,7 +124,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    {notes}
                                    ---
                                    Let's implement it!
-                                   """, meta.Operation, id, version, string.Join("\r\n- ", notes));
+                                   """, meta.Signature.Operation, id, version, string.Join("\r\n- ", notes));
 
         int delay = Environment.TickCount % 5_000 + 1_500;
         await Task.Delay(delay);
@@ -132,7 +132,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.ImplementedAsync(ConsumerMetadata consumerMetadata, string id, Version version)
+    async ValueTask IProductCycleConsumer.ImplementedAsync(ConsumerContext consumerMetadata, string id, Version version)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -140,18 +140,18 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    handling {event} [{id}]: {version}
                                    ---
                                    Now it's time for QA.
-                                   """, meta.Operation, id, version);
+                                   """, meta.Signature, id, version);
 
         int delay = Environment.TickCount % 3_000 + 100;
         await Task.Delay(delay);
         if (delay < 600)
-            await _producer.RejectedAsync(id, version, meta.Operation, NextStage.Reject, "Performance doesn't meet our SLA...");
+            await _producer.RejectedAsync(id, version, meta.Signature.Operation, NextStage.Reject, "Performance doesn't meet our SLA...");
         else
             await _producer.TestedAsync(id, version, "Ready for deployment");
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.TestedAsync(ConsumerMetadata consumerMetadata, string id, Version version, string[] notes)
+    async ValueTask IProductCycleConsumer.TestedAsync(ConsumerContext consumerMetadata, string id, Version version, string[] notes)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
@@ -161,7 +161,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    {notes}
                                    ---
                                    Start deploying
-                                   """, meta.Operation, id, version, string.Join("\r\n- ", notes));
+                                   """, meta.Signature, id, version, string.Join("\r\n- ", notes));
 
         int delay = Environment.TickCount % 2_000 + 100;
         await Task.Delay(delay);
@@ -176,11 +176,11 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         await consumerMetadata.AckAsync(); // not required when configuring the consumer to Ack on success.
     }
 
-    async ValueTask IProductCycleConsumer.DeployedAsync(ConsumerMetadata consumerMetadata, string id, Version version)
+    async ValueTask IProductCycleConsumer.DeployedAsync(ConsumerContext consumerMetadata, string id, Version version)
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
-        _logger.Log(level, "handling {event} [{id}]: {version}", meta.Operation, id, version);
+        _logger.Log(level, "handling {event} [{id}]: {version}", meta.Signature, id, version);
         int delay = Environment.TickCount % 2_000 + 100;
         if (delay > 600)
         {
@@ -190,7 +190,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         }
     }
 
-    async ValueTask IProductCycleConsumer.RejectedAsync(ConsumerMetadata consumerMetadata,
+    async ValueTask IProductCycleConsumer.RejectedAsync(ConsumerContext consumerMetadata,
                                                         string id,
                                                         System.Version version,
                                                         string operation,
@@ -206,7 +206,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
 
                                    {notes}
                                    ---
-                                   """, meta.Operation, id, version, operation, string.Join("\r\n- ", notes));
+                                   """, meta.Signature, id, version, operation, string.Join("\r\n- ", notes));
 
         if (nextStage != NextStage.Abandon)
         {

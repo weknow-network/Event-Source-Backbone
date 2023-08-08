@@ -66,11 +66,12 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
         /// </summary>
         public void Dispose()
         {
+            _client.Dispose();
         }
 
         #endregion Dispose
 
-        private class SubscriptionBridge : ISubscriptionBridge
+        private sealed class SubscriptionBridge : ISubscriptionBridge
         {
             private readonly IEventsMigration _fw;
 
@@ -79,7 +80,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
                 _fw = fw;
             }
 
-            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge, IPlanBase plan)
             {
                 Metadata meta = announcement.Metadata;
                 if ((meta.Origin & MessageOrigin.Original) == MessageOrigin.None)

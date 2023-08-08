@@ -1,7 +1,7 @@
 using Amazon.S3;
 
 using EventSourcing.Backbone.Building;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 
@@ -92,9 +92,9 @@ namespace EventSourcing.Backbone.Tests
 
             await consumer.Completion;
 
-            A.CallTo(() => _subscriber.Step1Async(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriber.Step1Async(A<ConsumerContext>.Ignored, 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.Step2Async(A<ConsumerMetadata>.Ignored, 2))
+            A.CallTo(() => _subscriber.Step2Async(A<ConsumerContext>.Ignored, 2))
                 .MustHaveHappenedOnceExactly();
         }
 
@@ -121,9 +121,9 @@ namespace EventSourcing.Backbone.Tests
 
             await consumer.Completion;
 
-            A.CallTo(() => _subscriber.Step1Async(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriber.Step1Async(A<ConsumerContext>.Ignored, 1))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.Step2Async(A<ConsumerMetadata>.Ignored, 2))
+            A.CallTo(() => _subscriber.Step2Async(A<ConsumerContext>.Ignored, 2))
                 .MustHaveHappenedOnceExactly();
         }
 

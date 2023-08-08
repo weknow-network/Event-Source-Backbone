@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Text.Json;
 
 using EventSourcing.Backbone.Producers;
@@ -12,8 +11,6 @@ using Polly;
 using StackExchange.Redis;
 
 using static EventSourcing.Backbone.Channels.RedisProvider.Common.RedisChannelConstants;
-
-using static EventSourcing.Backbone.Private.EventSourceTelemetry;
 
 namespace EventSourcing.Backbone.Channels.RedisProvider;
 
@@ -98,7 +95,9 @@ internal class RedisProducerChannel : ProducerChannelBase
         var telemetryBuilder = commonEntries.ToBuilder();
         foreach (var item in storageMeta)
         {
-            telemetryBuilder.Add(KV(item.Key, item.Value));
+            var kv = KV(item.Key, item.Value);
+            telemetryBuilder.Add(kv);
+            commonEntries = commonEntries.Add(kv);
         }
         Activity.Current?.InjectSpan(telemetryBuilder, LocalInjectTelemetry);
         var entries = telemetryBuilder.ToArray();
@@ -119,13 +118,13 @@ internal class RedisProducerChannel : ProducerChannelBase
         catch (RedisConnectionException ex)
         {
             _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                meta.MessageId, env, uri, meta.Operation);
+                meta.MessageId, env, uri, meta.Signature);
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Fail to push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                meta.MessageId, env, uri, meta.Operation);
+                meta.MessageId, env, uri, meta.Signature);
             throw;
         }
 

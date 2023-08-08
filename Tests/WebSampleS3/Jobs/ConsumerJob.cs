@@ -99,7 +99,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// </summary>
         /// <param name="logger">The logger.</param>
         public Subscriber(
-            //ConsumerMetadata metadata,
+            //ConsumerContext metadata,
             ILogger logger)
         {
             _logger = logger;
@@ -113,7 +113,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <param name="product">The product.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OrderPlacedAsync(ConsumerMetadata consumerMeta, User user, Product product, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OrderPlacedAsync(ConsumerContext consumerMeta, User user, Product product, DateTimeOffset time)
         {
             // get the current event metadata
             Metadata meta = consumerMeta;
@@ -130,7 +130,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.PackingAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.PackingAsync(ConsumerContext consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
             Metadata meta = consumerMeta;
@@ -147,7 +147,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OnDeliveryAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OnDeliveryAsync(ConsumerContext consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
             Metadata meta = consumerMeta;
@@ -164,7 +164,7 @@ public sealed class ConsumerJob : IHostedService, IAsyncDisposable
         /// <param name="productId">The product identifier.</param>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        ValueTask IShipmentTrackingConsumer.OnReceivedAsync(ConsumerMetadata consumerMeta, string email, int productId, DateTimeOffset time)
+        ValueTask IShipmentTrackingConsumer.OnReceivedAsync(ConsumerContext consumerMeta, string email, int productId, DateTimeOffset time)
         {
             // get the current event metadata
             Metadata meta = consumerMeta;

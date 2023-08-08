@@ -5,7 +5,7 @@ using EventSourcing.Backbone;
 class Subscription : IHelloEventsConsumer
 {
     public static readonly Subscription Instance = new Subscription();
-    public ValueTask NameAsync(ConsumerMetadata meta, string name)
+    public ValueTask NameAsync(ConsumerContext meta, string name)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine();
@@ -13,13 +13,13 @@ class Subscription : IHelloEventsConsumer
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask ColorAsync(ConsumerMetadata meta, ConsoleColor color)
+    public ValueTask ColorAsync(ConsumerContext meta, ConsoleColor color)
     {
         Console.ForegroundColor = color;
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask StarAsync(ConsumerMetadata meta)
+    public ValueTask StarAsync(ConsumerContext meta)
     {
         Console.Write("✱");
         return ValueTask.CompletedTask;

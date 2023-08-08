@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Collections;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +24,7 @@ namespace EventSourcing.Backbone
         IConsumerStoreStrategyBuilder,
         IConsumerIocStoreStrategyBuilder
     {
-        private readonly ConsumerPlan _plan = ConsumerPlan.Empty;
+        internal readonly ConsumerPlan _plan = ConsumerPlan.Empty;
 
         /// <summary>
         /// Event Source consumer builder.
@@ -466,80 +465,11 @@ namespace EventSourcing.Backbone
         /// <summary>
         /// Subscribe consumer.
         /// </summary>
-        /// <param name="handler">Per operation invocation handler, handle methods calls.</param>
+        /// <param name="bridge">Per operation invocation handler, handle methods calls.</param>
         /// <returns>
         /// The subscription lifetime (dispose to remove the subscription)
         /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge handler)
-
-        {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handler.ToEnumerable());
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(ISubscriptionBridge[] handlers)
-
-        {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<ISubscriptionBridge>);
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
-            IEnumerable<ISubscriptionBridge> handlers)
-
-        {
-            #region Validation
-
-            if (_plan == null)
-                throw new EventSourcingException(nameof(_plan));
-
-            #endregion // Validation
-
-
-            ConsumerPlan plan = WithGroupIfEmpty(_plan);
-            if (plan.SegmentationStrategies.Count == 0)
-                plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handlers);
-            var subscription = consumer.Subscribe();
-            return subscription;
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
-            params Func<Announcement, IConsumerBridge, Task<bool>>[] handlers)
-
-        {
-            return ((IConsumerSubscribtionHubBuilder)this).Subscribe(handlers as IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>>);
-        }
-
-        /// <summary>
-        /// Subscribe consumer.
-        /// </summary>
-        /// <param name="handlers">Per operation invocation handler, handle methods calls.</param>
-        /// <returns>
-        /// The subscription lifetime (dispose to remove the subscription)
-        /// </returns>
-        IConsumerLifetime IConsumerSubscribtionHubBuilder.Subscribe(
-            IEnumerable<Func<Announcement, IConsumerBridge, Task<bool>>> handlers)
+        IConsumerLifetime IConsumerSubscriptionHubBuilder.Subscribe(ISubscriptionBridge bridge)
 
         {
             #region Validation
@@ -552,13 +482,30 @@ namespace EventSourcing.Backbone
             ConsumerPlan plan = WithGroupIfEmpty(_plan);
             if (plan.SegmentationStrategies.Count == 0)
                 plan = plan.AddSegmentation(new ConsumerDefaultSegmentationStrategy());
-
-            var consumer = new ConsumerBase(plan, handlers);
-            var subscription = consumer.Subscribe();
-            return subscription;
+            IConsumerPlanBuilder pln = plan;
+            IConsumerPlan consumerPlan = pln.Build();
+            var consumer = new EventSourceSubscriber(consumerPlan, bridge);
+            return consumer;
         }
 
         #endregion // Subscribe
+
+        #region // Fallback
+
+        ///// <summary>
+        ///// Fallback the specified action.
+        ///// </summary>
+        ///// <param name="onFallback">The fallback's action.</param>
+        ///// <returns></returns>
+        //IConsumerSubscriptionHubBuilder IConsumerSubscribeBuilder.Fallback(
+        //    Func<IConsumerFallback, Task> onFallback)
+        //{
+        //    var prms = _plan.WithFallback(onFallback);
+        //    var result = new ConsumerBuilder(prms);
+        //    return result;
+        //}
+
+        #endregion // Fallback
 
         #region WithGroupIfEmpty
 
@@ -670,8 +617,13 @@ namespace EventSourcing.Backbone
                     w.WritePropertyName("__uri__");
                     w.WriteStringValue(announcement.Uri);
 
+                    var signature = announcement.Signature;
                     w.WritePropertyName("__operation__");
-                    w.WriteStringValue(announcement.Operation);
+                    w.WriteStringValue(signature.Operation);
+                    w.WritePropertyName("__version__");
+                    w.WriteStringValue(signature.Version.ToString());
+                    w.WritePropertyName("__params__");
+                    w.WriteStringValue(signature.Parameters);
                 }
 
                 foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Data)

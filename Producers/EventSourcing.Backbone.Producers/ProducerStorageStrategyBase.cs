@@ -53,7 +53,6 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions.</param>
         /// <param name="type">The type.</param>
         /// <param name="meta">The metadata.</param>
@@ -62,7 +61,6 @@ namespace EventSourcing.Backbone.Channels
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         async ValueTask<IImmutableDictionary<string, string>> IProducerStorageStrategy.SaveBucketAsync(
-                                                                    string id,
                                                                     Bucket bucket,
                                                                     EventBucketCategories type,
                                                                     Metadata meta,
@@ -76,13 +74,13 @@ namespace EventSourcing.Backbone.Channels
                 if (_filter != null)
                     query = query.Where(kv => _filter(meta, kv.Key));
 
-                var result = await OnSaveBucketAsync(id, query, type, meta, cancellation);
+                var result = await OnSaveBucketAsync(query, type, meta, cancellation);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{URI}] stream: {operation}",
-                    id, type, meta.Uri, meta.Operation);
+                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{URI}], stream: {signature}",
+                    meta.MessageId, type, meta.Uri, meta.Signature);
                 throw;
             }
         }
@@ -94,7 +92,6 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions (after filtering).</param>
         /// <param name="type">The type.</param>
         /// <param name="meta">The metadata.</param>
@@ -103,7 +100,6 @@ namespace EventSourcing.Backbone.Channels
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         protected abstract ValueTask<IImmutableDictionary<string, string>> OnSaveBucketAsync(
-                                                            string id,
                                                             IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket,
                                                             EventBucketCategories type,
                                                             Metadata meta,

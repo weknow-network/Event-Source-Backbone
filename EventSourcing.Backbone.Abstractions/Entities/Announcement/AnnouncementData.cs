@@ -6,7 +6,7 @@ namespace EventSourcing.Backbone
     /// Non-generics form of announcement representation,
     /// used to transfer data via channels.
     /// </summary>
-    [DebuggerDisplay("{Operation} [{MessageId}]: Origin:{Origin}, Target:{Environment}:{Uri}, EventKey:{EventKey}")]
+    [DebuggerDisplay("{Signature.Operation} [{MessageId}]: Origin:{Origin}, Target:{Environment}:{Uri}, EventKey:{EventKey}")]
     public record AnnouncementData : Metadata
     {
         #region Data
@@ -39,7 +39,7 @@ namespace EventSourcing.Backbone
             Environment = this.Environment,
             EventKey = this.EventKey,
             MessageId = this.MessageId,
-            Operation = this.Operation,
+            Signature = this.Signature,
             Uri = this.Uri,
             ProducedAt = this.ProducedAt,
         };
@@ -67,7 +67,7 @@ namespace EventSourcing.Backbone
                 EventKey = meta.EventKey,
                 MessageId = meta.MessageId,
                 ProducedAt = meta.ProducedAt,
-                Operation = meta.Operation,
+                Signature = meta.Signature,
                 Uri = meta.Uri,
             };
         }

@@ -7,7 +7,6 @@ namespace EventSourcing.Backbone
 {
     public partial class ConsumerBuilder
     {
-
         /// <summary>
         /// Receive data (on demand data query).
         /// </summary>

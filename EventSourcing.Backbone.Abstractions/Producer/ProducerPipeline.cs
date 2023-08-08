@@ -21,8 +21,10 @@
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
+#pragma warning disable S1133
         [Obsolete("Reflection", true)]
-        public ProducerPipeline(ref IProducerPlanBuilder plan)
+#pragma warning restore S1133 
+        protected ProducerPipeline(ref IProducerPlanBuilder plan)
         {
             _plan = plan.Build();
         }
@@ -31,14 +33,14 @@
         /// Initializes a new instance.
         /// </summary>
         /// <param name="plan">The plan.</param>
-        public ProducerPipeline(IProducerPlan plan)
+        protected ProducerPipeline(IProducerPlan plan)
         {
             _plan = plan;
         }
 
         #endregion // Ctor
 
-        #region CreateClassificationAdaptor
+        #region CreateClassificationAdapter
 
         /// <summary>
         /// Classify the operation payload from method arguments.
@@ -51,11 +53,12 @@
         /// <remarks>
         /// MUST BE PROTECTED, called from the generated code
         /// </remarks>
-        protected Func<IProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdaptor<T>(
+        protected Func<IProducerPlan, Bucket, ValueTask<Bucket>> CreateClassificationAdapter<T>(
                                             string operation,
                                             string argumentName,
                                             T producedData)
         {
+#pragma warning disable HAA0303 // Lambda or anonymous method in a generic method allocates a delegate instance
             return (IProducerPlan plan, Bucket payload) =>
                                  ClassifyArgumentAsync(
                                                  plan,
@@ -63,9 +66,10 @@
                                                  operation,
                                                  argumentName,
                                                  producedData);
+#pragma warning restore HAA0303 
         }
 
-        #endregion // CreateClassificationAdaptor
+        #endregion // CreateClassificationAdapter
 
         #region ClassifyArgumentAsync
 
@@ -184,6 +188,8 @@
         /// Sends the produced data via the channel.
         /// </summary>
         /// <param name="operation">The operation.</param>
+        /// <param name="version">The version.</param>
+        /// <param name="paramsSignature">The parameters signature.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         /// <remarks>
@@ -191,6 +197,8 @@
         /// </remarks>
         protected ValueTask<EventKeys> SendAsync(
             string operation,
+            int version,
+            string paramsSignature,
             params Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             string id = Guid.NewGuid().ToString();
@@ -203,6 +211,8 @@
                         payload,
                         interceptorsData,
                         operation,
+                        version,
+                        paramsSignature,
                         classifyAdaptors);
         }
 
@@ -214,6 +224,8 @@
         /// <param name="payload">The payload.</param>
         /// <param name="interceptorsData">The interceptors data.</param>
         /// <param name="operation">The operation.</param>
+        /// <param name="version">The version.</param>
+        /// <param name="paramsSignature">The parameters signature.</param>
         /// <param name="classifyAdaptors">The classify strategy adaptors.</param>
         /// <returns></returns>
         private async ValueTask<EventKeys> SendAsync(
@@ -222,6 +234,8 @@
             Bucket payload,
             Bucket interceptorsData,
             string operation,
+            int version,
+            string paramsSignature,
             Func<IProducerPlan, Bucket, ValueTask<Bucket>>[] classifyAdaptors)
         {
             Metadata metadata = new Metadata
@@ -229,7 +243,7 @@
                 MessageId = id,
                 Environment = plan.Environment,
                 Uri = plan.Uri,
-                Operation = operation
+                Signature = new(operation, version, paramsSignature)
             };
 
             foreach (var classify in classifyAdaptors)
@@ -260,7 +274,6 @@
 
             if (plan.ForwardPlans.Count == 0) // merged
             {
-                var strategies = plan.StorageStrategies;
                 var ch = plan.Channel;
                 EventKey k = await ch.SendAsync(plan, announcement);
                 return new EventKeys(k);
@@ -274,6 +287,8 @@
                              payload,
                              interceptorsData,
                              operation,
+                             version,
+                             paramsSignature,
                              classifyAdaptors);
                 return k;
             });

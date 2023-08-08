@@ -5,7 +5,7 @@
     /// Event Source producer builder.
     /// </summary>
     public interface IConsumerSubscribeBuilder :
-        IConsumerSubscribtionHubBuilder,
+        IConsumerSubscriptionHubBuilder,
         IConsumerEnvironmentOfBuilder<IConsumerSubscribeBuilder>,
         IConsumerUriBuilder<IConsumerSubscribeBuilder>,
         IWithCancellation<IConsumerSubscribeBuilder>
@@ -30,6 +30,15 @@
         /// </summary>
         IConsumerSubscribeBuilder Name(string consumerName);
 
+
+        ///// <summary>
+        ///// Fallback the specified action.
+        ///// </summary>
+        ///// <param name="onFallback">The fallback's action.</param>
+        ///// <returns></returns>
+        //IConsumerSubscriptionHubBuilder Fallback(Func<IConsumerFallback, Task> onFallback);
+
+
         /// <summary>
         /// The routing information attached to this builder
         /// </summary>
@@ -46,5 +55,12 @@
         /// </summary>
         /// <returns></returns>
         IConsumerIterator BuildIterator();
+
+        ///// <summary>
+        ///// Casts to a specific interface.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <returns></returns>
+        //IConsumerSubscribeBuilder<T> Cast<T>();
     }
 }

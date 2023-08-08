@@ -14,5 +14,9 @@
         /// Ignored expected to be handle elsewhere.
         /// </summary>
         Manual,
+        /// <summary>
+        /// Manual acknowledge with fallback state indication.
+        /// </summary>
+        OnFallback,
     }
 }

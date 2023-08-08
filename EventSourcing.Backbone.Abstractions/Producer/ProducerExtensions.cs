@@ -69,7 +69,6 @@ namespace EventSourcing.Backbone
             /// <summary>
             /// Saves the bucket information.
             /// </summary>
-            /// <param name="id">The identifier.</param>
             /// <param name="bucket">Either Segments or Interceptions.</param>
             /// <param name="type">The type.</param>
             /// <param name="meta">The metadata.</param>
@@ -78,7 +77,6 @@ namespace EventSourcing.Backbone
             /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
             /// </returns>
             ValueTask<IImmutableDictionary<string, string>> IProducerStorageStrategy.SaveBucketAsync(
-                string id,
                 Bucket bucket,
                 EventBucketCategories type,
                 Metadata meta,

@@ -84,7 +84,7 @@ namespace EventSourcing.Backbone
             Announcement a1 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
-            Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
+            Assert.Equal("ExecuteAsync", a1.Metadata.Signature.Operation);
             Assert.Equal("Kids:HappySocks", a1.Metadata.Uri);
             Assert.Equal("Kids:HappySocks", a1.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
@@ -156,7 +156,7 @@ namespace EventSourcing.Backbone
             Announcement a1 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a1.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a1.Metadata.Linked.Origin);
-            Assert.Equal("ExecuteAsync", a1.Metadata.Operation);
+            Assert.Equal("ExecuteAsync", a1.Metadata.Signature.Operation);
             Assert.Equal("Man:Socks", a1.Metadata.Uri);
             Assert.Equal("Kids:HappySocks", a1.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
@@ -168,7 +168,7 @@ namespace EventSourcing.Backbone
             Announcement a2 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a2.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a2.Metadata.Linked.Origin);
-            Assert.Equal("RunAsync", a2.Metadata.Operation);
+            Assert.Equal("RunAsync", a2.Metadata.Signature.Operation);
             Assert.Equal("Man:Socks", a2.Metadata.Uri);
             Assert.Equal("Kids:HappySocks", a2.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());
@@ -179,7 +179,7 @@ namespace EventSourcing.Backbone
             Announcement a3 = await _chOfMigration.Reader.ReadAsync();
             Assert.Equal(MessageOrigin.Copy, a3.Metadata.Origin);
             Assert.Equal(MessageOrigin.Original, a3.Metadata.Linked.Origin);
-            Assert.Equal("RunAsync", a3.Metadata.Operation);
+            Assert.Equal("RunAsync", a3.Metadata.Signature.Operation);
             Assert.Equal("Man:Socks", a3.Metadata.Uri);
             Assert.Equal("Kids:HappySocks", a3.Metadata.Linked.Uri);
             Assert.Equal(2, a1.Segments.Count());

@@ -1,8 +1,6 @@
-﻿using EventSourcing.Backbone.Building;
-
-namespace EventSourcing.Backbone
+﻿namespace EventSourcing.Backbone
 {
-    public interface IConsumerLifetime : IConsumerSubscribtionHubBuilder, IAsyncDisposable
+    public interface IConsumerLifetime : IAsyncDisposable
     {
         /// <summary>
         /// Represent the consuming completion..

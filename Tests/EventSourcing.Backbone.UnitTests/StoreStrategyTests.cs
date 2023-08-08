@@ -45,11 +45,11 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task StorageStrategy_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         .AddStorageStrategy(l => _producerStorageStrategy)
                         .Uri("Kids:HappySocks")
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -72,14 +72,13 @@ namespace EventSourcing.Backbone
             await subscription.DisposeAsync();
             await _ch.Reader.Completion;
 
-            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerMetadata>.Ignored, A<User>.Ignored))
+            A.CallTo(() => _subscriber.RegisterAsync(A<ConsumerContext>.Ignored, A<User>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerMetadata>.Ignored, "admin", "1234"))
+            A.CallTo(() => _subscriber.LoginAsync(A<ConsumerContext>.Ignored, "admin", "1234"))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerMetadata>.Ignored, 4335))
+            A.CallTo(() => _subscriber.EarseAsync(A<ConsumerContext>.Ignored, 4335))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => _producerStorageStrategy.SaveBucketAsync(
-                                                        A<string>.Ignored,
                                                         A<Bucket>.Ignored,
                                                         A<EventBucketCategories>.Ignored,
                                                         A<Metadata>.Ignored,

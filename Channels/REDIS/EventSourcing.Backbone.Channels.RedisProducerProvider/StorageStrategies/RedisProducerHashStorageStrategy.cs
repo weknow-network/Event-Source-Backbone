@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+using EventSourcing.Backbone.Channels.RedisProvider.Common;
+
 using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
@@ -51,7 +53,6 @@ namespace EventSourcing.Backbone.Channels
         /// <summary>
         /// Saves the bucket information.
         /// </summary>
-        /// <param name="id">The identifier.</param>
         /// <param name="bucket">Either Segments or Interceptions (after filtering).</param>
         /// <param name="type">The type.</param>
         /// <param name="meta">The metadata.</param>
@@ -60,7 +61,6 @@ namespace EventSourcing.Backbone.Channels
         /// Array of metadata entries which can be used by the consumer side storage strategy, in order to fetch the data.
         /// </returns>
         protected override async ValueTask<IImmutableDictionary<string, string>> OnSaveBucketAsync(
-                                                                    string id,
                                                                     IEnumerable<KeyValuePair<string, ReadOnlyMemory<byte>>> bucket,
                                                                     EventBucketCategories type,
                                                                     Metadata meta,
@@ -73,13 +73,14 @@ namespace EventSourcing.Backbone.Channels
             var segmentsEntities = bucket.Select(sgm =>
                                                     new HashEntry(sgm.Key, sgm.Value))
                                         .ToArray();
-            string operation = meta.Operation;
-            string key = $"{meta.FullUri()}:{type}:{operation}:{id}";
+            var signature = meta.Signature;
+            string key = $"{meta.FullUri()}:{signature}:{type}:{meta.MessageId:N}";
             await db.HashSetAsync(key, segmentsEntities);
             if (_timeToLive != null)
                 await db.KeyExpireAsync(key, _timeToLive);
 
-            return ImmutableDictionary<string, string>.Empty;
+            string propKey = $"{RedisChannelConstants.STORE_KEY}:{type}";
+            return ImmutableDictionary<string, string>.Empty.Add(propKey, key);
         }
 
         #endregion // OnSaveBucketAsync

@@ -306,7 +306,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                         Ack.Set(ack);
                         #region Log
 
-                        _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Operation, meta.FullUri());
+                        _logger.LogInformation("Event Source skip consuming of event [{event-key}] because if origin is [{origin}] while the origin filter is sets to [{origin-filter}], Operation:[{operation}], Stream:[{stream}]", meta.EventKey, meta.Origin, originFilter, meta.Signature, meta.FullUri());
 
                         #endregion // Log
                         continue;
@@ -331,7 +331,10 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
                     ConcumeEventsOperationCounter.WithEnvUriOperation(meta).Add(1);
                     Activity? execActivity = null;
                     if (ETracer.HasListeners())
-                        execActivity = plan.StartTraceDebug($"consumer.{meta.Operation.ToDash()}.invoke", metadata: meta);
+                    {
+                        var signature = meta.Signature;
+                        execActivity = plan.StartTraceDebug($"consumer.{signature.Operation.ToDash()}.invoke", metadata: meta);
+                    }
                     using (execActivity)
                     {
                         succeed = await func(announcement, ack);
@@ -987,7 +990,7 @@ internal class RedisConsumerChannel : ConsumerChannelBase, IConsumerChannelProvi
         Metadata meta;
         channelMeta = result.Values.ToDictionary(m => m.Name, m => m.Value);
         string? metaJson = channelMeta?[META_SLOT];
-        if(metaJson == null)
+        if (metaJson == null)
             throw new EventSourcingException("Couldn't find the metadata slot");
         string eventKey = ((string?)result.Id) ?? throw new ArgumentException(nameof(MetadataExtensions.Empty.EventKey));
         meta = JsonSerializer.Deserialize<Metadata>(metaJson, EventSourceOptions.SerializerOptions) ?? throw new EventSourcingException(nameof(Metadata));

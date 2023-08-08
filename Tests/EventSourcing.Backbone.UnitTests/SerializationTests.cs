@@ -14,7 +14,7 @@ namespace EventSourcing.Backbone
                 MessageId = "message1",
                 Environment = "env1",
                 Uri = "uri1",
-                Operation = "operation1"
+                Signature = new("operation1", 10, "String")
             };
 
             var serializer = new EventSourceOptions().Serializer;
@@ -56,7 +56,7 @@ namespace EventSourcing.Backbone
                 MessageId = "message1",
                 Environment = "env1",
                 Uri = "uri1",
-                Operation = "operation1"
+                Signature = new("operation1", 10, "String")
             };
             meta = meta with { Linked = meta, Origin = MessageOrigin.Copy };
             var announcement = new Announcement

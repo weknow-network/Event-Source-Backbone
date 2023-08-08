@@ -92,11 +92,11 @@ namespace EventSourcing.Backbone
         {
             //var option = new EventSourceOptions(_serializer);
 
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _builder.UseChannel(_channel)
                         //.WithOptions(option)
                         .Uri("Kids:HappySocks")
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -185,13 +185,13 @@ namespace EventSourcing.Backbone
         {
             //var option = new EventSourceOptions(_serializer);
 
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _builder.UseChannel(_channel)
                         //.WithOptions(option)
                         .Uri("Kids:HappySocks")
-                        .Specialize<ISequenceOperationsProducer>()
+                        .Specialize<ISequenceOfProducer>()
                         .Environment("QA")
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -207,14 +207,14 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task Build_Interceptor_Producer_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _builder.UseChannel(_channel)
                         .Uri("Kids:HappySocks")
                         .AddInterceptor(_rawInterceptor)
                         .AddInterceptor(_rawAsyncInterceptor)
                         .UseSegmentation(_segmentationStrategy)
                         .UseSegmentation(_otherSegmentationStrategy)
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

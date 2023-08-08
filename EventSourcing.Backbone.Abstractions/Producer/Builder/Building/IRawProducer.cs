@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone
+﻿using Microsoft.Extensions.Logging;
+
+namespace EventSourcing.Backbone
 {
     /// <summary>
     /// Event Source raw producer.
@@ -9,8 +11,10 @@
         /// <![CDATA[Producer proxy for raw events sequence.
         /// Useful for data migration at the raw data level.]]>
         /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="logger">The logger.</param>
         /// <returns></returns>
-        ValueTask Produce(Announcement data);
+        ValueTask Produce(Announcement data, ILogger logger);
 
         /// <summary>
         /// Converts to a subscription bridge which will forward the data into the producer when attached to a subscriber.
@@ -36,11 +40,10 @@
                 _fw = fw;
             }
 
-            public async Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+            async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge, IPlanBase plan)
             {
-                await _fw.Produce(announcement);
+                await _fw.Produce(announcement, plan.Logger);
                 return true;
-
             }
         }
 

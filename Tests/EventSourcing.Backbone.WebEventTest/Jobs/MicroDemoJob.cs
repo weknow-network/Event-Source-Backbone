@@ -71,7 +71,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
             private readonly IEventFlowProducer _producer;
 
             public Subscriber(
-                //ConsumerMetadata metadata,
+                //ConsumerContext metadata,
                 ILogger logger,
                 IEventFlowProducer producer)
             {
@@ -79,7 +79,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
                 _producer = producer;
             }
 
-            async ValueTask IEventFlowConsumer.Stage1Async(ConsumerMetadata consumerMeta, Person PII, string payload)
+            async ValueTask IEventFlowConsumer.Stage1Async(ConsumerContext consumerMeta, Person PII, string payload)
             {
                 Metadata meta = consumerMeta.Metadata;
 
@@ -91,7 +91,7 @@ namespace EventSourcing.Backbone.WebEventTest.Jobs
                     JsonDocument.Parse("{\"data\":10}").RootElement);
             }
 
-            ValueTask IEventFlowConsumer.Stage2Async(ConsumerMetadata consumerMeta, JsonElement PII, JsonElement data)
+            ValueTask IEventFlowConsumer.Stage2Async(ConsumerContext consumerMeta, JsonElement PII, JsonElement data)
             {
                 Metadata meta = consumerMeta.Metadata;
                 _logger.LogInformation("Consume 2 Stage {uri} {PII} {data}",

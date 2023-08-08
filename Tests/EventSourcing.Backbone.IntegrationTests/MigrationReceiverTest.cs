@@ -79,7 +79,7 @@ namespace EventSourcing.Backbone.Tests
             await foreach (var announcement in announcements.WithCancellation(cancellation))
             {
                 _fakeLogger.LogInformation(announcement.ToString());
-                await rawProducer.Produce(announcement);
+                await rawProducer.Produce(announcement, _fakeLogger);
                 count++;
                 _outputHelper.WriteLine($"{count} events processed");
             }

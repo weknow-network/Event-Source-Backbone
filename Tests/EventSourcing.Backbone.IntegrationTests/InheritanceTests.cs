@@ -1,12 +1,11 @@
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 using EventSourcing.Backbone.Building;
 using EventSourcing.Backbone.Channels.RedisProvider;
 using EventSourcing.Backbone.Enums;
-using EventSourcing.Backbone.UnitTests.Entities;
+using EventSourcing.Backbone.Tests.Entities;
 
 using FakeItEasy;
 
@@ -87,10 +86,8 @@ namespace EventSourcing.Backbone.Tests
 
         #region Inheritance_PartialConsumer_Strict_Succeed_Test
 
-        [Theory(Timeout = TIMEOUT)]
-        [InlineData(MultiConsumerBehavior.All)]
-        [InlineData(MultiConsumerBehavior.Once)]
-        public async Task Inheritance_PartialConsumer_Strict_Succeed_Test(MultiConsumerBehavior multiConsumerBehavior)
+        [Fact(Timeout = TIMEOUT)]
+        public async Task Inheritance_PartialConsumer_Strict_Succeed_Test()
         {
             #region ISequenceOperations producer = ...
 
@@ -111,59 +108,58 @@ namespace EventSourcing.Backbone.Tests
             #region Prepare
 
             var hash = new ConcurrentDictionary<string, int>();
-            A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerContext>.Ignored, 1))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
             .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerContext>.Ignored, "Hi"))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerContext>.Ignored, 1))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
-            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c => { hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1); });
 
             #endregion // Prepare
 
             #region await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await using IConsumerLifetime subscription = _consumerBuilder
-                         .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed) with
-                         {
-                             MultiConsumerBehavior = multiConsumerBehavior
-                         })
-                         .WithCancellation(cancellation)
-                         .Environment(ENV)
-                         .Uri(URI)
-                         .Group("CONSUMER_GROUP_X_1")
-                         .Name($"TEST {DateTime.UtcNow:HH:mm:ss}")
-                         .SubscribeFlowAConsumer(_subscriberA)
-                         .SubscribeFlowBConsumer(_subscriberB)
-                         .SubscribeFlowABConsumer(_subscriberAB);
+            var consumerBuilder = _consumerBuilder
+                             .WithOptions(o => DefaultOptions(o, 3, AckBehavior.OnSucceed))
+                             .WithCancellation(cancellation)
+                             .Environment(ENV)
+                             .Uri(URI)
+                             .Name($"TEST {DateTime.UtcNow:HH:mm:ss}");
+            await using IConsumerLifetime subscription1 = consumerBuilder
+                            .Group("CONSUMER_GROUP_X_1")
+                            .SubscribeFlowAConsumer(_subscriberA);
+            await using IConsumerLifetime subscription2 = consumerBuilder
+                            .Group("CONSUMER_GROUP_X_2")
+                            .SubscribeFlowBConsumer(_subscriberB);
+            await using IConsumerLifetime subscription3 = consumerBuilder
+                            .Group("CONSUMER_GROUP_X_3")
+                            .SubscribeFlowABConsumer(_subscriberAB);
 
             #endregion // await using IConsumerLifetime subscription = ...Subscribe(...)
 
-            await subscription.Completion;
+            await subscription1.Completion;
+            await subscription2.Completion;
+            await subscription3.Completion;
 
             #region Validation
 
 
             Assert.Equal(3, hash.Count);
-            if (multiConsumerBehavior == MultiConsumerBehavior.All)
-            {
-                Assert.True(hash.All(m => m.Value >= 1));
-                A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
-                   .MustHaveHappenedOnceExactly();
-                A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
-                   .MustHaveHappenedOnceExactly();
-            }
-            else
-                Assert.True(hash.All(m => m.Value == 1));
+            Assert.True(hash.All(m => m.Value >= 1));
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerContext>.Ignored, 1))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerContext>.Ignored, "Hi"))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerContext>.Ignored, 1))
+               .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
+               .MustHaveHappenedOnceExactly();
 
             #endregion // Validation
 
@@ -174,7 +170,7 @@ namespace EventSourcing.Backbone.Tests
         #region Inheritance_ConsumerCooperation_Succeed_Test
 
         // TODO: [bnaya 2023-02-16] check why `MaxMessages` don't take effect (ended by cancellation)
-        [Fact]//(Timeout = TIMEOUT)]
+        [Fact(Timeout = TIMEOUT)]
         public async Task Inheritance_ConsumerCooperation_Succeed_Test()
         {
             #region ISequenceOperations producer = ...
@@ -197,35 +193,35 @@ namespace EventSourcing.Backbone.Tests
             #region Prepare
 
             var hash = new ConcurrentDictionary<string, int>();
-            A.CallTo(() => _subscriberA.AAsync(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriberA.AAsync(A<ConsumerContext>.Ignored, 1))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerMetadata>.Ignored, "Hi"))
+            A.CallTo(() => _subscriberAB.DerivedAsync(A<ConsumerContext>.Ignored, "Hi"))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerMetadata>.Ignored, 1))
+            A.CallTo(() => _subscriberAB.AAsync(A<ConsumerContext>.Ignored, 1))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
                     if (Interlocked.Increment(ref i) == 3)
                         tcs.SetResult(i);
                 });
-            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerMetadata>.Ignored, A<DateTimeOffset>.Ignored))
+            A.CallTo(() => _subscriberAB.BAsync(A<ConsumerContext>.Ignored, A<DateTimeOffset>.Ignored))
                 .Invokes(c =>
                 {
                     hash.AddOrUpdate(c.Method.Name, 1, (k, v) => v + 1);
@@ -278,20 +274,5 @@ namespace EventSourcing.Backbone.Tests
         }
 
         #endregion // Inheritance_ConsumerCooperation_Succeed_Test
-
-        #region GetCancellationToken
-
-        /// <summary>
-        /// Gets the cancellation token.
-        /// </summary>
-        /// <returns></returns>
-        private static CancellationToken GetCancellationToken(int duration = 10)
-        {
-            return new CancellationTokenSource(Debugger.IsAttached
-                                ? TimeSpan.FromMinutes(duration)
-                                : TimeSpan.FromSeconds(duration)).Token;
-        }
-
-        #endregion // GetCancellationToken
     }
 }
