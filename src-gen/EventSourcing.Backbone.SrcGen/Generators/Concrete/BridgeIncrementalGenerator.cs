@@ -312,7 +312,7 @@ namespace EventSourcing.Backbone
                             builder.AppendLine($"\t\t\t\tawait {mtdName}({metaParam}{prmsSep});");
                         }
                         builder.AppendLine("\t\t\t\t\treturn true;");
-                        builder.AppendLine("\t\t\t\t}");
+                        builder.AppendLine("\t\t\t}");
                     }
                     else
                     {
