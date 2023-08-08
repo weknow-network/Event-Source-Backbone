@@ -51,6 +51,7 @@ public class EndToEndVersionAware_Fallback_Tests
         await producer.Execute4Async(ts);
         await producer.Execute1Async(10);
         await producer.Execute1Async(11);
+        await producer.Execute2Async(DateTime.Now);
 
         var cts = new CancellationTokenSource();
 
@@ -60,13 +61,6 @@ public class EndToEndVersionAware_Fallback_Tests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     //.Fallback(ctx =>
-                     //{
-                     //    Metadata meta = ctx.Metadata;
-                     //    dic.AddOrUpdate($"{meta.Operation}:{meta.Version}", 1, (k,i) => i + 1);
-                     //    ctx.AckAsync(AckBehavior.OnFallback);
-                     //    return Task.CompletedTask;
-                     //})
                      .SubscribeVersionAwareFallbackConsumer(_subscriber);
 
         ch.Writer.Complete();
@@ -74,9 +68,13 @@ public class EndToEndVersionAware_Fallback_Tests
         await ch.Reader.Completion;
 
         A.CallTo(() => _subscriber.Execute_2Async(A<ConsumerContext>.Ignored, A<DateTime>.Ignored))
-            .MustNotHaveHappened();
-        A.CallTo(() => _subscriber.Execute_4Async(A<ConsumerContext>.Ignored, ts))
-            .MustHaveHappenedOnceExactly();
+            .MustHaveHappened();
+        A.CallTo(() => _subscriber.Execute_3Async(A<ConsumerContext>.Ignored, "1"))
+            .MustHaveHappened();
+        A.CallTo(() => _subscriber.Execute_3Async(A<ConsumerContext>.Ignored, "10"))
+            .MustHaveHappened();
+        A.CallTo(() => _subscriber.Execute_3Async(A<ConsumerContext>.Ignored, "11"))
+            .MustHaveHappened();
 
         throw new NotImplementedException();
     }

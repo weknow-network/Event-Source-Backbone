@@ -2,7 +2,7 @@
 
 namespace EventSourcing.Backbone.UnitTests.Entities
 {
-    public class SequenceOperationsConsumer : ISequenceOperationsConsumer
+    public class SequenceOperationsConsumer : ISequenceOfConsumer
     {
         private readonly ActionBlock<User> _block = new ActionBlock<User>(
                             u => Console.WriteLine(u.Details.Id),

@@ -39,11 +39,9 @@ namespace EventSourcing.Backbone
             Environment = this.Environment,
             EventKey = this.EventKey,
             MessageId = this.MessageId,
-            Operation = this.Operation,
+            Signature = this.Signature,
             Uri = this.Uri,
             ProducedAt = this.ProducedAt,
-            Version = this.Version,
-            ParamsSignature = this.ParamsSignature,
         };
 
         #endregion // ExtractMeta
@@ -69,10 +67,8 @@ namespace EventSourcing.Backbone
                 EventKey = meta.EventKey,
                 MessageId = meta.MessageId,
                 ProducedAt = meta.ProducedAt,
-                Operation = meta.Operation,
+                Signature = meta.Signature,
                 Uri = meta.Uri,
-                Version = meta.Version,
-                ParamsSignature = meta.ParamsSignature,
             };
         }
 

@@ -40,11 +40,8 @@ internal static class ConstantsGenerator
             MethodBundle[] bundles = info.ToBundle(compilation, true);
 
             string indent = "\t";
-            builder.AppendLine($"{indent}partial class {simpleName}");
-            builder.AppendLine($"{indent}{{");
-            indent = $"{indent}\t";
 
-            builder.AppendLine($"{indent}public static class CONSTANTS");
+            builder.AppendLine($"{indent}public static class {simpleName}Constants");
             builder.AppendLine($"{indent}{{");
             indent = $"{indent}\t";
 
@@ -65,14 +62,14 @@ internal static class ConstantsGenerator
             {
 
                 indent = $"{indent}\t";
-                var groupd = bundles.GroupBy(b => b.FullName);
-                foreach (var group in groupd)
+                var ops = bundles.GroupBy(b => b.FullName);
+                foreach (var op in ops)
                 {
-                    builder.AppendLine($"{indent}public static class {group.Key}");
+                    builder.AppendLine($"{indent}public static class {op.Key}");
                     builder.AppendLine($"{indent}{{");
 
                     indent = $"{indent}\t";
-                    var versions = group.GroupBy(b => b.Version);
+                    var versions = op.GroupBy(b => b.Version);
                     foreach (var version in versions)
                     {
                         builder.AppendLine($"{indent}public class V{version.Key}");
@@ -82,7 +79,16 @@ internal static class ConstantsGenerator
                         foreach (var b in version)
                         {
                             string pName = b.Parameters.Replace(",", "_");
-                            builder.AppendLine($"{indent}public const string P_{pName} = \"{b.Parameters}\";");
+                            builder.AppendLine($"{indent}public class P_{pName}");
+                            builder.AppendLine($"{indent}{{");
+
+                            indent = $"{indent}\t";
+
+                            builder.AppendLine($"{indent}public static readonly OperationSignature Signature = new ( \"{op.Key}\", {version.Key}, \"{b.Parameters}\");");
+                            builder.AppendLine($"{indent}public const string SignatureString = \"{op.Key}_{version.Key}_{b.Parameters}\";");
+
+                            indent = indent.Substring(1);
+                            builder.AppendLine($"{indent}}}");
                         }
 
                         indent = indent.Substring(1);
@@ -94,8 +100,6 @@ internal static class ConstantsGenerator
                 }
             }
 
-            indent = indent.Substring(1);
-            builder.AppendLine($"{indent}}}");
             indent = indent.Substring(1);
             builder.AppendLine($"{indent}}}");
         }

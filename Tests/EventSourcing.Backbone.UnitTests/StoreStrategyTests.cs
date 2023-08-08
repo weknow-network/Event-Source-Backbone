@@ -45,11 +45,11 @@ namespace EventSourcing.Backbone
         [Fact]
         public async Task StorageStrategy_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         .AddStorageStrategy(l => _producerStorageStrategy)
                         .Uri("Kids:HappySocks")
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

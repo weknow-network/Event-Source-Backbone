@@ -147,7 +147,7 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
                     if (ct.IsCancellationRequested) return false;
 
                     ConsumerContext._metaContext.Value = consumerMeta;
-                    if (await _bridge.BridgeAsync(announcement, this))
+                    if (await _bridge.BridgeAsync(announcement, this, _plan))
                         return true;
                     return false;
                 }, cancellation);
@@ -156,8 +156,8 @@ internal sealed class EventSourceSubscriber : IConsumerLifetime, IConsumerBridge
                 var behavior = options.AckBehavior;
                 if (partialBehavior == PartialConsumerBehavior.ThrowIfNotHandled && !hasProcessed)
                 {
-                    Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.FullUri(), meta.Operation, meta.MessageId);
-                    throw new InvalidOperationException($"No handler is matching event: {meta.FullUri()}, operation{meta.Operation}, MessageId:{meta.MessageId}");
+                    Logger.LogCritical("No handler is matching event: {stream}, operation{operation}, MessageId:{id}", meta.FullUri(), meta.Signature, meta.MessageId);
+                    throw new InvalidOperationException($"No handler is matching event: {meta.FullUri()}, operation{meta.Signature}, MessageId:{meta.MessageId}");
                 }
                 if (hasProcessed && behavior == AckBehavior.OnSucceed)
                 {

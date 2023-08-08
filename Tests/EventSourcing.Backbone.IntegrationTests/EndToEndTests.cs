@@ -25,7 +25,6 @@ using static EventSourcing.Backbone.EventSourceConstants;
 
 namespace EventSourcing.Backbone.Tests
 {
-
     /// <summary>
     /// The end to end tests.
     /// </summary>
@@ -1000,7 +999,7 @@ namespace EventSourcing.Backbone.Tests
             int i = 0;
             var options = new ConsumerAsyncEnumerableJsonOptions
             {
-                OperationFilter = meta => meta.Operation is (nameof(ISequenceOperationsConsumer.LoginAsync)) or
+                OperationFilter = meta => meta.Signature.Operation is (nameof(ISequenceOperationsConsumer.LoginAsync)) or
                                           (nameof(ISequenceOperationsConsumer.EarseAsync))
             };
             await foreach (JsonElement json in iterator.GetJsonAsyncEnumerable(options).WithCancellation(cancellation))
@@ -1046,7 +1045,7 @@ namespace EventSourcing.Backbone.Tests
 
             #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator
 
-            IConsumerIterator<SequenceOperations.IEntityFamily> iterator = _consumerBuilder
+            var iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
@@ -1059,7 +1058,7 @@ namespace EventSourcing.Backbone.Tests
 
             int i = 0;
             await foreach (var item in
-                                iterator.GetAsyncEnumerable<SequenceOperations.LoginAsync_0_String_String>()
+                                iterator.GetAsyncEnumerable<Entities.Generated.SequenceOperations.LoginAsync_V0_String_String>()
                                     .WithCancellation(cancellation))
             {
                 Assert.True(i < 1);
@@ -1094,7 +1093,7 @@ namespace EventSourcing.Backbone.Tests
 
             #region IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
-            IConsumerIterator<SequenceOperations.IEntityFamily> iterator = _consumerBuilder
+            var iterator = _consumerBuilder
                          .WithOptions(o => DefaultOptions(o))
                          .WithCancellation(cancellation)
                          .Environment(ENV)
@@ -1106,7 +1105,7 @@ namespace EventSourcing.Backbone.Tests
             #endregion // IConsumerIterator<ISequenceOperationsConsumer_EntityFamily> iterator = ...
 
             int i = 0;
-            await foreach (var item in iterator.GetAsyncEnumerable<SequenceOperations.LoginAsync_0_String_String>()
+            await foreach (var item in iterator.GetAsyncEnumerable<Entities.Generated.SequenceOperations.LoginAsync_V0_String_String>()
                             .WithCancellation(cancellation))
             {
                 Assert.True(i < 1);

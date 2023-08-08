@@ -4,10 +4,10 @@ namespace EventSourcing.Backbone.UnitTests.Entities
 {
     public static class SequenceOperationsProducerFactoryExtensions
     {
-        public static ISequenceOperationsProducer BuildCustomSequenceOperationsProducer(
+        public static ISequenceOfProducer BuildCustomSequenceOfProducer(
             this IProducerSpecializeBuilder builder)
         {
-            return builder.Build<ISequenceOperationsProducer>(plan => new SequenceOperationsProducerFactory(plan));
+            return builder.Build<ISequenceOfProducer>(plan => new SequenceOperationsProducerFactory(plan));
         }
     }
 }

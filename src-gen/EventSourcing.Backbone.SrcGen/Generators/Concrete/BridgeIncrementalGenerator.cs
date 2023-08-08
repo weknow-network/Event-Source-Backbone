@@ -67,7 +67,7 @@ namespace EventSourcing.Backbone
             };
 
             return dtos.Concat(
-                            gens.Where(m => m!= null)
+                            gens.Where(m => m != null)
                                 .Cast<GenInstruction>())
                         .ToArray();
         }
@@ -96,51 +96,48 @@ namespace EventSourcing.Backbone
             builder.AppendLine($"\tpublic static class {fileName}");
             builder.AppendLine("\t{");
 
-            string[] variations = { "" }; //, $"<{interfaceName}>" };
-            foreach (var variation in variations)
-            {
-                builder.AppendLine("\t\t/// <summary>");
-                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-                builder.AppendLine("\t\t/// </summary>");
-                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-                builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
-                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
-                builder.AppendLine($"\t\t\t\t{interfaceName} target)");
-                builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
-                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-                builder.AppendLine("\t\t}");
-                builder.AppendLine();
+            var variation = string.Empty;
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+            builder.AppendLine("\t\t/// <param name=\"target\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+            builder.AppendLine($"\t\t\t\t{interfaceName} target)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(target);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
 
-                builder.AppendLine("\t\t/// <summary>");
-                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-                builder.AppendLine("\t\t/// </summary>");
-                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-                builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
-                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
-                builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
-                builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
-                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-                builder.AppendLine("\t\t}");
-                builder.AppendLine();
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+            builder.AppendLine($"\t\t\t\tparams {interfaceName}[] targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
 
-                builder.AppendLine("\t\t/// <summary>");
-                builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
-                builder.AppendLine("\t\t/// </summary>");
-                builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
-                builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
-                builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
-                builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
-                builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
-                builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
-                builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
-                builder.AppendLine("\t\t}");
-                builder.AppendLine();
-            }
+            builder.AppendLine("\t\t/// <summary>");
+            builder.AppendLine($"\t\t/// Subscribe to {interfaceName}");
+            builder.AppendLine("\t\t/// </summary>");
+            builder.AppendLine("\t\t/// <param name=\"source\">The builder.</param>");
+            builder.AppendLine("\t\t/// <param name=\"targets\">The targets handler.</param>");
+            builder.AppendLine($"\t\tpublic static IConsumerLifetime Subscribe{prefix}(");
+            builder.AppendLine($"\t\t\t\tthis IConsumerSubscriptionHubBuilder{variation} source,");
+            builder.AppendLine($"\t\t\t\tIEnumerable<{interfaceName}> targets)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine($"\t\t\tvar bridge = new {bridge}(targets);");
+            builder.AppendLine("\t\t\treturn source.Subscribe(bridge);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine();
 
             builder.AppendLine("\t}");
 
@@ -241,6 +238,12 @@ namespace EventSourcing.Backbone
 
             string fileName = $"{prefix}BridgeBase";
 
+            string simpleName = prefix;
+            if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
+                simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
+
+            builder.AppendLine($"\tusing Generated.{simpleName};");
+            builder.AppendLine();
             builder.AppendLine("\t/// <summary>");
             builder.AppendLine($"\t/// Base Subscription class of {interfaceName}");
             builder.AppendLine("\t/// </summary>");
@@ -271,45 +274,61 @@ namespace EventSourcing.Backbone
             MethodBundle[] bundles = info.ToBundle(compilation);
             if (bundles.Length != 0)
                 builder.Append("async ");
-            builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)");
+            builder.AppendLine("Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge, IPlanBase plan)");
             builder.AppendLine("\t\t{");
             if (bundles.Length != 0)
             {
                 builder.AppendLine("\t\t\tConsumerContext consumerContext = ConsumerContext.Context;");
                 builder.AppendLine("\t\t\tMetadata meta = announcement.Metadata;");
-                builder.AppendLine("\t\t\tswitch (meta)");
-                builder.AppendLine("\t\t\t{");
+
+                int j = 0;
                 foreach (var bundle in bundles)
                 {
+                    string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
                     var method = bundle.Method;
-                    var v = bundle.Version;
-                    var paramsSignature = method.GetParamsSignature();
-
                     string mtdName = bundle.FormatMethodFullName();
 
-                    string nameOfOperetion = bundle.FullName;
-                    builder.AppendLine($"\t\t\t\tcase {{ Operation: \"{nameOfOperetion}\", Version: {v}, ParamsSignature: \"{paramsSignature}\" }} :");
-                    builder.AppendLine("\t\t\t\t{");
-                    var prms = method.Parameters;
-                    int i = 0;
-                    foreach (var p in prms)
+                    var prms = method.Parameters.Select(m => m.Name).ToArray();
+                    bool hasParms = prms.Length != 0;
+                    string metaParam = "consumerContext";
+                    if (hasParms)
                     {
-                        var pName = p.Name;
-                        builder.AppendLine($"\t\t\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
-                        i++;
+                        metaParam = "consumerContext, ";
+                        builder.AppendLine($"\t\t\tvar (succeed{j}, data{j}) = await consumerBridge.TryGet{bundle}{deprecateAddition}Async(announcement);");
+                        builder.AppendLine($"\t\t\tif (succeed{j})");
+                        builder.AppendLine("\t\t\t{");
+
+                        string[] ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}").ToArray();
+                        if (ps.Length == 1)
+                        {
+                            builder.AppendLine($"\t\t\t\tvar v = data{j}!.{prms[0]};");
+                            builder.AppendLine($"\t\t\t\tawait {mtdName}({metaParam}v);");
+                        }
+                        else
+                        {
+                            string prmsSep = string.Join(", ", ps);
+                            builder.AppendLine($"\t\t\t\tvar ({prmsSep}) = data{j}!;");
+                            builder.AppendLine($"\t\t\t\tawait {mtdName}({metaParam}{prmsSep});");
+                        }
+                        builder.AppendLine("\t\t\t\t\treturn true;");
+                        builder.AppendLine("\t\t\t\t}");
                     }
-                    string metaParam = prms.Any() ? "consumerContext, " : "consumerContext";
-                    IEnumerable<string> ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
-                    builder.AppendLine($"\t\t\t\t\tawait {mtdName}({metaParam}{string.Join(", ", ps)});");
-                    builder.AppendLine("\t\t\t\t\treturn true;");
-                    builder.AppendLine("\t\t\t\t}");
+                    else
+                    {
+                        builder.AppendLine($"\t\t\tvar succeed{j} = announcement.IsMatch{bundle}{deprecateAddition}();");
+                        builder.AppendLine($"\t\t\tif(succeed{j})");
+                        builder.AppendLine("\t\t\t{");
+                        builder.AppendLine($"\t\t\t\tawait {mtdName}({metaParam});");
+                        builder.AppendLine("\t\t\t\t\treturn true;");
+                        builder.AppendLine("\t\t\t}");
+                    }
+                    j++;
                 }
-                builder.AppendLine("\t\t\t}");
-                builder.AppendLine();
-                builder.AppendLine("\t\t\tvar fallbackHandle = new ConsumerInterceptionContext(announcement, consumerBridge, consumerContext);");
+
+                builder.AppendLine("\t\t\tvar fallbackHandle = new ConsumerInterceptionContext(announcement, consumerBridge, consumerContext, plan);");
                 builder.AppendLine("\t\t\tbool result = false;");
                 foreach (string fallbackName in fallbackNames)
-                { 
+                {
                     builder.AppendLine($"\t\t\tresult = await {interfaceName}.{fallbackName}(fallbackHandle, this);");
                 }
                 builder.AppendLine();

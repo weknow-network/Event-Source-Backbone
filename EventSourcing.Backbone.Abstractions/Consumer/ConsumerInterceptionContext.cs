@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone;
+﻿using Microsoft.Extensions.Logging;
+
+namespace EventSourcing.Backbone;
 
 
 /// <summary>
@@ -8,27 +10,36 @@ public sealed class ConsumerInterceptionContext : IConsumerInterceptionContext
 {
     private readonly Announcement _announcement;
     private readonly IConsumerBridge _consumerBridge;
+    private readonly IPlanBase _plan;
     private readonly IAckOperations _ack;
+    private readonly ConsumerContext _context;
 
     #region Ctor
 
     public ConsumerInterceptionContext(
         Announcement announcement,
         IConsumerBridge consumerBridge,
-        ConsumerContext context)
+        ConsumerContext context,
+        IPlanBase plan)
     {
         _announcement = announcement;
-        Context = context;
+        _plan = plan;
         _consumerBridge = consumerBridge;
         _ack = context;
+        _context = context;
     }
 
     #endregion // Ctor
 
     /// <summary>
+    /// Gets the logger.
+    /// </summary>
+    ILogger IConsumerInterceptionContext.Logger => _plan.Logger;
+
+    /// <summary>
     /// Gets the metadata.
     /// </summary>
-    public ConsumerContext Context { get; }
+    ConsumerContext IConsumerInterceptionContext.Context => _context;
 
     /// <summary>
     /// Preform acknowledge (which should prevent the

@@ -73,8 +73,8 @@ namespace EventSourcing.Backbone.Channels
             var segmentsEntities = bucket.Select(sgm =>
                                                     new HashEntry(sgm.Key, sgm.Value))
                                         .ToArray();
-            string operation = meta.Operation;
-            string key = $"{meta.FullUri()}:{operation}:v{meta.Version}:{type}:{meta.MessageId:N}";
+            var signature = meta.Signature;
+            string key = $"{meta.FullUri()}:{signature}:{type}:{meta.MessageId:N}";
             await db.HashSetAsync(key, segmentsEntities);
             if (_timeToLive != null)
                 await db.KeyExpireAsync(key, _timeToLive);

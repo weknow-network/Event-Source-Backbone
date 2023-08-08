@@ -19,7 +19,7 @@ namespace EventSourcing.Backbone
         private readonly IConsumerInterceptor _rawInterceptor = A.Fake<IConsumerInterceptor>();
         private readonly IConsumerAsyncInterceptor _rawAsyncInterceptor = A.Fake<IConsumerAsyncInterceptor>();
         private readonly ConsumerOptions _options = new ConsumerOptions();
-        private readonly ISequenceOperationsConsumer _subscriber = A.Fake<ISequenceOperationsConsumer>();
+        private readonly ISequenceOfConsumer _subscriber = A.Fake<ISequenceOfConsumer>();
 
         public EventSourceConsumerApiDesignTests(ITestOutputHelper outputHelper)
         {
@@ -38,9 +38,8 @@ namespace EventSourcing.Backbone
                          .RegisterInterceptor(_rawInterceptor)
                          .RegisterSegmentationStrategy(_segmentation)
                          .Uri("ORDERS")
-                         // .Shard("ORDER-AHS7821X")
                          .WithLogger(_logger)
-                         .SubscribeSequenceOperationsConsumer(_subscriber);
+                         .SubscribeSequenceOfConsumer(_subscriber);
 
         }
 

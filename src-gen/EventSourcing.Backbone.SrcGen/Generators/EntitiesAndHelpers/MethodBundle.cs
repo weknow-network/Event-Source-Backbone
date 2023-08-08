@@ -38,12 +38,19 @@ internal sealed class MethodBundle : IFormattable
     public string Parameters { get; }
     public bool Deprecated { get; }
 
-    public override string ToString() => $"{Name}_{Version}_{Parameters.Replace(",", "_")}";
+    public override string ToString() => $"{Name}_{Version}_V{Parameters.Replace(",", "_")}";
 
     string IFormattable.ToString(string format, IFormatProvider formatProvider)
     {
-        string fmt = format ?? "_";
-        return $"{FullName}{fmt}{Version}{fmt}{Parameters.Replace(",", fmt)}";
+        string fmt = format ?? VersionNaming switch
+        {
+            VersionNaming.None => string.Empty,
+            _ => "_"
+        };
+        if (string.IsNullOrEmpty(Parameters))
+            return $"{FullName}{fmt}V{Version}";
+        else
+            return $"{FullName}{fmt}V{Version}{fmt}{Parameters.Replace(",", fmt)}";
     }
 
     public string FormatMethodFullName(string? nameOverride = null)

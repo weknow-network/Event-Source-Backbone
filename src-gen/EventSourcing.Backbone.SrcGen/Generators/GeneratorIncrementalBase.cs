@@ -64,6 +64,7 @@ namespace EventSourcing.Backbone
             /// </summary>
             bool ShouldTriggerGeneration(SyntaxNode node, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (node is not TypeDeclarationSyntax t) return false;
 
                 if (node is not TypeDeclarationSyntax tds ||
@@ -75,7 +76,6 @@ namespace EventSourcing.Backbone
                 bool hasAttributes = t.AttributeLists.Any(m => m.Attributes.Any(m1 =>
                         AttributePredicate(m1, _targetAttribute)));
 
-                //if (_kindFilter == nameof(KindFilter.Any) || info.Kind == _kindFilter)
                 return hasAttributes;
             }
 
@@ -89,6 +89,8 @@ namespace EventSourcing.Backbone
             /// <param name="syntaxNode">The current <see cref="T:Microsoft.CodeAnalysis.SyntaxNode" /> being visited</param>
             IEnumerable<SyntaxReceiverResult> ToGenerationInput(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();   
+
                 SyntaxNode syntaxNode = ctx.Node;
                 if (syntaxNode is not TypeDeclarationSyntax tds)
                     throw new InvalidCastException("Expecting TypeDeclarationSyntax");
@@ -149,13 +151,13 @@ namespace EventSourcing.Backbone
                             Compilation compilation,
                             SyntaxReceiverResult info)
         {
-            var (item, symbol, kind, ns, usingStatements) = info;
+            var (typeDeclaration, symbol, kind, ns, usingStatements) = info;
 
             #region Validation
 
             if (kind == "NONE")
             {
-                context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {item}");
+                context.AddSource($"ERROR.cs", $"// Invalid source input: kind = [{kind}], {typeDeclaration}");
                 return;
             }
 
@@ -171,6 +173,9 @@ namespace EventSourcing.Backbone
                 builder.AppendLine();
                 builder.AppendLine("#nullable enable");
                 builder.AppendLine("#pragma warning disable CS1573 // Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do)");
+                builder.AppendLine("#pragma warning disable CS1529 // duplicate using");
+                builder.AppendLine("#pragma warning disable IDE0005 // Remove unnecessary using directives");
+                builder.AppendLine("#pragma warning disable CS0105 // The using directive for 'namespace' appeared previously in this namespace.");
 
                 foreach (var u in usingStatements.Concat(usn))
                 {
@@ -184,6 +189,17 @@ namespace EventSourcing.Backbone
                 }
                 builder.AppendLine($"namespace {overrideNS}");
                 builder.AppendLine("{");
+
+                var fileScope = typeDeclaration.Parent! as FileScopedNamespaceDeclarationSyntax;
+                if (fileScope != null)
+                {
+                    foreach (var u in fileScope.Usings)
+                    {
+                        builder.AppendLine($"\t{u}");
+                    }
+                    builder.AppendLine();
+                }
+
                 builder.AppendLine(content);
                 builder.AppendLine("}");
 

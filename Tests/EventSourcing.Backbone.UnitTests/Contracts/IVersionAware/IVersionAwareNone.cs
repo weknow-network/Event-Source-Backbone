@@ -9,7 +9,6 @@
     [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
     public interface IVersionAwareNone //: IVersionAwareBase
     {
-        //[EventSourceVersion(Retired = 4)]
         ValueTask ExecuteAsync(string key, int value);
         [EventSourceVersion(1)]
         ValueTask ExecuteAsync(int value);

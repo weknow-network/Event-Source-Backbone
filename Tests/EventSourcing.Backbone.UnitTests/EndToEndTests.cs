@@ -202,12 +202,12 @@ namespace EventSourcing.Backbone
         [Fact(Timeout = TIMEOUT)]
         public async Task End2End_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
                         .Uri("Kids#HappySocks")
                         .WithLogger(TestLogger.Create(_outputHelper))
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -240,12 +240,12 @@ namespace EventSourcing.Backbone
         [Fact(Timeout = TIMEOUT)]
         public async Task End2End_MultiTargets_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
                         .Uri("Kids#HappySocks")
                         .WithLogger(TestLogger.Create(_outputHelper))
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");
@@ -293,12 +293,12 @@ namespace EventSourcing.Backbone
         [Fact(Skip = "Testing bug' deadlock", Timeout = TIMEOUT)]
         public async Task End2End_MultiSubscribersTargets_Test()
         {
-            ISequenceOperationsProducer producer =
+            ISequenceOfProducer producer =
                 _producerBuilder.UseChannel(_producerChannel)
                         //.WithOptions(producerOption)
                         .Uri("Kids#HappySocks")
                         .WithLogger(TestLogger.Create(_outputHelper))
-                        .BuildSequenceOperationsProducer();
+                        .BuildSequenceOfProducer();
 
             await producer.RegisterAsync(new User());
             await producer.LoginAsync("admin", "1234");

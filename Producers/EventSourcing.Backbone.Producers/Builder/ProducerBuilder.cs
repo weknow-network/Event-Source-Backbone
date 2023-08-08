@@ -615,9 +615,10 @@ namespace EventSourcing.Backbone
             /// <![CDATA[Producer proxy for raw events sequence.
             /// Useful for data migration at the raw data level.]]>
             /// </summary>
-            /// <param name="data"></param>
+            /// <param name="data">The data.</param>
+            /// <param name="logger">The logger.</param>
             /// <returns></returns>
-            public async ValueTask Produce(Announcement data)
+            public async ValueTask Produce(Announcement data, ILogger logger)
             {
                 Metadata metadata = data.Metadata;
                 Metadata meta = metadata;

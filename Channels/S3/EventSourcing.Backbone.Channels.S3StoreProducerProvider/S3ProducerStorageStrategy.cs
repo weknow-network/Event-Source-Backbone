@@ -94,7 +94,8 @@ namespace EventSourcing.Backbone.Channels
         {
             var date = DateTime.UtcNow;
             int index = Interlocked.Increment(ref _index);
-            string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{meta.Operation}/v{meta.Version}/{meta.MessageId}/{index}/{type}";
+            var signature = meta.Signature;
+            string basePath = $"{meta.Uri}/{date:yyyy-MM-dd/HH:mm}/{signature.Operation}/v{signature.Version}/{signature.Parameters}/{meta.MessageId}/{index}/{type}";
             var tasks = bucket.Select(SaveAsync);
             KeyValuePair<string, string>[] propKeyToS3Key = await Task.WhenAll(tasks);
             string json = JsonSerializer.Serialize(propKeyToS3Key, SerializerOptionsWithIndent);

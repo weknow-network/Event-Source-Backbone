@@ -617,8 +617,13 @@ namespace EventSourcing.Backbone
                     w.WritePropertyName("__uri__");
                     w.WriteStringValue(announcement.Uri);
 
+                    var signature = announcement.Signature;
                     w.WritePropertyName("__operation__");
-                    w.WriteStringValue(announcement.Operation);
+                    w.WriteStringValue(signature.Operation);
+                    w.WritePropertyName("__version__");
+                    w.WriteStringValue(signature.Version.ToString());
+                    w.WritePropertyName("__params__");
+                    w.WriteStringValue(signature.Parameters);
                 }
 
                 foreach (KeyValuePair<string, ReadOnlyMemory<byte>> entry in announcement.Data)

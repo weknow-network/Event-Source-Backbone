@@ -28,7 +28,7 @@ public static class ConsumerTelemetryExtensions
         activitySource = activitySource ?? ETracer;
         // Start an activity with a name following the semantic convention of the OpenTelemetry messaging specification.
         // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/messaging.md#span-name
-        var activityName = $"consumer.{meta.Operation}.process";
+        var activityName = $"consumer.{meta.Signature}.process";
 
         var tags = new ActivityTagsCollection();
         var t = new TagAddition(tags);
@@ -60,7 +60,7 @@ public static class ConsumerTelemetryExtensions
         return counter
                     .WithTag("uri", metadata.UriDash)
                     .WithTag("env", metadata.Environment.DashFormat())
-                    .WithTag("operation", metadata.Operation.ToDash());
+                    .WithTag("operation", metadata.Signature.Operation.ToDash());
     }
 
     /// <summary>
@@ -76,7 +76,8 @@ public static class ConsumerTelemetryExtensions
         return counter
                     .WithTag("uri", metadata.UriDash)
                     .WithTag("env", metadata.Environment.DashFormat())
-                    .WithTag("operation", metadata.Operation.ToDash());
+                    .WithTag("operation", metadata.Signature.Operation.ToDash())
+                    .WithTag("version", metadata.Signature.Version);
     }
 
     #endregion // WithEnvUriOperation
@@ -94,7 +95,8 @@ public static class ConsumerTelemetryExtensions
         return counter
                     .Add("uri", metadata.UriDash)
                     .Add("env", metadata.Environment.DashFormat())
-                    .Add("operation", metadata.Operation.ToDash());
+                    .Add("operation", metadata.Signature.Operation.ToDash())
+                    .Add("version", metadata.Signature.Version);
     }
 
     #endregion // AddEnvUriOperation

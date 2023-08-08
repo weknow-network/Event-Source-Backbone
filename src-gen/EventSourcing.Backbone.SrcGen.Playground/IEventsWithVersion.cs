@@ -2,13 +2,16 @@
 
 namespace EventSourcing.Backbone.WebEventTest;
 
-using static Generated.EventsWithVersion.CONSTANTS;
+using Microsoft.Extensions.Logging;
+
+using Generated.EventsWithVersion;
+
 
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
 public interface IEventsWithVersion
-{
+{    
     /// <summary>
     /// Consumers the fallback.
     /// Excellent for Migration scenario
@@ -18,25 +21,37 @@ public interface IEventsWithVersion
     /// <returns></returns>
     public static async Task<bool> Fallback(IConsumerInterceptionContext ctx, IEventsWithVersionConsumer target)
     {
-        Metadata meta = ctx.Context;
-        switch (meta)
+        ILogger logger = ctx.Logger;
+        ConsumerContext consumerContext = ctx.Context;
+        Metadata meta = consumerContext.Metadata;
+        //switch (meta.Signature.ToString())
+        //{
+        //    case Generated.EventsWithVersion.CONSTANTS.ACTIVE.ExecuteAsync.V1.P_:
+        //        break;
+        //}
+        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(); 
+        if (succeed1)
         {
-            case { Operation: "ExecuteAsync", Version: 1, ParamsSignature: DEPRECATED.ExecuteAsync.V0.P_String_Int32 }:
-                int? val1 = await ctx.GetParameterAsync<int>("value");
-                if (val1 == null)
-                    throw new NullReferenceException();
-                await target.Execute3Async(ctx.Context, val1.ToString()!);
-                return true;
-            case { Operation: nameof(ExecuteAsync), Version: 2, ParamsSignature: DEPRECATED.ExecuteAsync.V2.P_Boolean }:
-                DateTime? val2 = await ctx.GetParameterAsync<DateTime>("value");
-                if (val2 == null)
-                    throw new NullReferenceException();
-                await target.Execute3Async(ctx.Context, val2.ToString()!);
-                return true;
-                //default:
-                //    await ctx.Context.AckAsync(AckBehavior.OnFallback);
-                //    return true;
+            await target.Execute3Async(consumerContext, data1!.value.ToString());
+            await ctx.AckAsync();
+            return true;
         }
+        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V2_Boolean_DeprecatedAsync(); 
+        if (succeed2)
+        {
+            await target.Execute3Async(consumerContext, data2!.value.ToString());
+            await ctx.AckAsync();
+            return true;
+        }
+        var (succeed3, data3) = await ctx.TryGetNotIncludesAsync_V2_String_DeprecatedAsync(); 
+        if (succeed3)
+        {
+            await target.Execute3Async(consumerContext, data3!.value);
+            await ctx.AckAsync();
+            return true;
+        }
+        logger.LogWarning("Fallback didn't handle: {uri}, {signature}", meta.Uri, meta.Signature);
+        //await ctx.CancelAsync();
         return false;
     }
 
@@ -54,11 +69,6 @@ public interface IEventsWithVersion
     //}
 
     ValueTask ExecuteAsync(string key, int value);
-
-    //[EventSourceVersion(1, Date = "2023-06-01", Remark = "sample of deprecation")]
-    //[EventSourceDeprecateVersionAttribute(EventsContractType.Producer, 3, Date = "2023-07-21", Remark = "sample of deprecation")]
-    //[EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, 3, Date = "2023-07-21", Remark = "sample of deprecation")]
-    //ValueTask ExecuteAsync(int value);
 
     /// <summary>
     /// Executes the asynchronous.

@@ -51,7 +51,6 @@ namespace EventSourcing.Backbone
 
         #endregion // Metadata
 
-
         #region Options
 
         /// <summary>
@@ -60,7 +59,6 @@ namespace EventSourcing.Backbone
         public ConsumerOptions Options { get; }
 
         #endregion // Options
-
 
         #region ConsumingCancellation
 

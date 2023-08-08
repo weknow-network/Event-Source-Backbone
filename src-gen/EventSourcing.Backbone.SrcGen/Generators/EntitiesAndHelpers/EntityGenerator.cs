@@ -10,8 +10,6 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
     internal static class EntityGenerator
     {
-        public const string FAMILY = "IEntityFamily";
-
         #region GenerateEntities    
 
         /// <summary>
@@ -32,6 +30,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             AssemblyName assemblyName)
         {
             var builder = new StringBuilder();
+            string FAMILY = $"{interfaceName}_EntityFamily";
 
             var bundles = info.ToBundle(compilation, true);
 
@@ -41,36 +40,175 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\tpublic static partial class {simpleName}");
-            builder.AppendLine("\t{");
             foreach (var bundle in bundles)
             {
                 IMethodSymbol method = bundle.Method;
                 int version = bundle.Version;
+                string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
 
                 method.CopyDocumentation(builder, version, "\t\t");
+                builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
+                builder.Append("\tpublic record");
+                builder.Append($" {bundle}{deprecateAddition}(");
 
-                builder.Append("\t\tpublic record");
-                builder.Append($" {bundle}(");
+                var psRaw = bundle.Method.Parameters;
+                var ps = psRaw.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
 
-                var ps = method.Parameters.Select(p => $"\r\n\t\t\t{p.Type} {p.Name}");
-                builder.Append("\t\t\t");
+                builder.Append("\t\t");
                 builder.Append(string.Join(", ", ps));
-                builder.AppendLine($"): {FAMILY};");
+                builder.AppendLine($"): {FAMILY}");
+                builder.AppendLine("\t{");
+                builder.AppendLine($"\t\tprivate static readonly OperationSignature _signature = new (\"{bundle.FullName}\", {bundle.Version}, \"{bundle.Parameters}\");");
+                builder.AppendLine($"\t\tpublic static bool IsMatch(IConsumerInterceptionContext context)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tMetadata meta = context.Context.Metadata;");
+                builder.AppendLine($"\t\t\treturn meta.Signature != _signature;");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
+
+                var prms = Enumerable.Range(0, psRaw.Length).Select(m => $"p{m}");
+                builder.Append($"\t\tpublic ");
+                if(psRaw.Length != 0)
+                    builder.Append($"async ");
+                builder.AppendLine($"static Task<(bool, {bundle}{deprecateAddition}?)> TryGetAsync(IConsumerInterceptionContext context)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tif(IsMatch(context))");
+                if (psRaw.Length != 0)
+                    builder.AppendLine($"\t\t\t\treturn (false, null);");
+                else
+                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((false, null));");
+                builder.AppendLine();
+                int i = 0;
+                foreach (var p in psRaw)
+                {
+                    var pName = p.Name;
+                    builder.AppendLine($"\t\t\tvar p{i} = await context.GetParameterAsync<{p.Type}>(\"{pName}\");");
+                    i++;    
+                }
+
+                builder.AppendLine($"\t\t\tvar data = new {bundle}{deprecateAddition}({string.Join(", ", prms)});");
+                if (psRaw.Length != 0)
+                    builder.AppendLine($"\t\t\treturn (true, data);");
+                else
+                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((true, data));");
+
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
+
+                builder.AppendLine($"\t\tpublic static bool IsMatch(Announcement announcement)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tMetadata meta = announcement.Metadata;");
+                builder.AppendLine($"\t\t\treturn meta.Signature != _signature;");
+                builder.AppendLine("\t\t}");
+
+                builder.Append($"\t\tpublic ");
+                if (psRaw.Length != 0)
+                    builder.Append($"async ");
+                builder.AppendLine($"static Task<(bool, {bundle}{deprecateAddition}?)> TryGetAsync(IConsumerBridge consumerBridge, Announcement announcement)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tif(IsMatch(announcement))");
+
+                if (psRaw.Length != 0)
+                    builder.AppendLine($"\t\t\t\treturn (false, null);");
+                else
+                    builder.AppendLine($"\t\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((false, null));");
+                builder.AppendLine();
+                i = 0;
+                foreach (var p in psRaw)
+                {
+                    var pName = p.Name;
+                    builder.AppendLine($"\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                    i++;
+                }
+
+                builder.AppendLine($"\t\t\tvar data = new {bundle}{deprecateAddition}({string.Join(", ", prms)});");
+                if (psRaw.Length != 0)
+                    builder.AppendLine($"\t\t\treturn (true, data);");
+                else
+                    builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {bundle}{deprecateAddition}?)>((true, data));");
+
+                builder.AppendLine("\t\t}");
+
+                builder.AppendLine("\t}");
                 builder.AppendLine();
 
             }
 
             GenerateEntityFamilyContract(builder, friendlyName, info, interfaceName, assemblyName);
+            GenerateEntitiesExtensions(builder, bundles, simpleName, interfaceName, assemblyName);
 
-            builder.AppendLine("\t}");
-
-            results.Add(new GenInstruction($"{simpleName}.Entities", builder.ToString(), $"{info.Namespace}.Generated"));
+            results.Add(new GenInstruction($"{simpleName}.Entities", builder.ToString(), $"{info.Namespace}.Generated.{simpleName}"));
 
             return results.ToArray();
         }
 
         #endregion // GenerateEntities   
+
+        #region GenerateEntitiesExtensions    
+
+        /// <summary>
+        /// Called when [execute].
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="bundles">The bundles.</param>
+        /// <param name="simpleName">Name of the simple.</param>
+        /// <param name="assemblyName">Name of the assembly.</param>
+        /// <returns>
+        /// File name
+        /// </returns>
+        internal static void GenerateEntitiesExtensions(
+                            StringBuilder builder, 
+                            MethodBundle[] bundles,
+                            string simpleName,
+                            string interfaceName,
+                            AssemblyName assemblyName)
+        {
+            builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
+            builder.AppendLine($"\tpublic static class {simpleName}EntitiesExtensions");
+            builder.AppendLine("\t{");
+            foreach (var bundle in bundles)
+            {
+                string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Try to get entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static Task<(bool, {bundle}{deprecateAddition}?)> TryGet{bundle}{deprecateAddition}Async(this IConsumerInterceptionContext context) => {bundle}{deprecateAddition}.TryGetAsync(context);");
+                builder.AppendLine();
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Try to get entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static Task<(bool, {bundle}{deprecateAddition}?)> TryGet{bundle}{deprecateAddition}Async(this IConsumerBridge bridge, Announcement announcement) => {bundle}{deprecateAddition}.TryGetAsync(bridge, announcement);");
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Check if match entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static bool IsMatch{bundle}{deprecateAddition}(this IConsumerInterceptionContext context) => {bundle}{deprecateAddition}.IsMatch(context);");
+                builder.AppendLine();
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Check if match entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static bool IsMatch{bundle}{deprecateAddition}(this Announcement announcement) => {bundle}{deprecateAddition}.IsMatch(announcement);");
+            }
+
+            builder.AppendLine("\t}");
+        }
+
+        #endregion // GenerateEntitiesExtensions   
 
         #region GenerateEntityFamilyContract
 
@@ -81,13 +219,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             string interfaceName,
                             AssemblyName assemblyName)
         {
-            builder.AppendLine("\t\t/// <summary>");
-            builder.AppendLine($"\t\t/// Marker interface for entity mapper FAMILY contract generated from {interfaceName}");
-            builder.AppendLine("\t\t/// </summary>");
-            builder.AppendLine($"\t\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
-            builder.AppendLine($"\t\tpublic interface {FAMILY}");
-            builder.AppendLine("\t\t{");
-            builder.AppendLine("\t\t}");
+            string FAMILY = $"{interfaceName}_EntityFamily";
+
+            builder.AppendLine("\t/// <summary>");
+            builder.AppendLine($"\t/// Marker interface for entity mapper {interfaceName} contract generated from {interfaceName}");
+            builder.AppendLine("\t/// </summary>");
+            builder.AppendLine($"\tpublic interface {FAMILY}");
+            builder.AppendLine("\t{");
+            builder.AppendLine("\t}");
         }
 
         #endregion // GenerateEntityFamilyContract
@@ -102,12 +241,13 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             string generateFrom,
                             AssemblyName assemblyName)
         {
+            string FAMILY = $"{interfaceName}_EntityFamily";
             var builder = new StringBuilder();
             string simpleName = friendlyName;
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\t\tusing static Generated.{simpleName};");
+            builder.AppendLine($"\t\tusing Generated.{simpleName};");
             builder.AppendLine();
             builder.AppendLine($"\t\tusing Generated;");
             builder.AppendLine();
@@ -147,19 +287,14 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             builder.AppendLine($"\t\t\t\t\tIConsumerPlan consumerPlan)");
             builder.AppendLine($"\t\t\t\t\t\t where TCast : {FAMILY}");
             builder.AppendLine("\t\t\t{");
-            builder.AppendLine("\t\t\t\tvar operation_ = announcement.Metadata.Operation;");
-            builder.AppendLine("\t\t\t\tvar version_ = announcement.Metadata.Version;");
+            builder.AppendLine("\t\t\t\tvar signature_ = announcement.Metadata.Signature;");
 
-
-            int j = 0;
             foreach (var bundle in bundles)
             {
-                string fullRecordName = $"{bundle}";
+                string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
+                string fullRecordName = $"{bundle}{deprecateAddition}";
 
-                string nameOfOperetion = bundle.Name;
-                string ifOrElseIf = j++ > 0 ? "else if" : "if";
-                builder.AppendLine($"\t\t\t\t{ifOrElseIf}(operation_ == \"{nameOfOperetion}\" &&");
-                builder.AppendLine($"\t\t\t\t\t\t version_ == {bundle.Version} &&");
+                builder.AppendLine($"\t\t\t\tif (announcement.IsMatch{fullRecordName}() &&");
                 builder.AppendLine($"\t\t\t\t\t\t typeof(TCast) == typeof({fullRecordName}))");
                 builder.AppendLine("\t\t\t\t{");
                 var prms = bundle.Method.Parameters;
@@ -172,8 +307,8 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 }
                 var ps = Enumerable.Range(0, prms.Length).Select(m => $"p{m}");
 
-                builder.AppendLine($"\t\t\t\t\t\t{FAMILY} rec = new {bundle}({string.Join(", ", ps)});");
-                builder.AppendLine($"\t\t\t\t\t\treturn ((TCast?)rec, true);");
+                builder.AppendLine($"\t\t\t\t\t{FAMILY} rec = new {bundle}({string.Join(", ", ps)});");
+                builder.AppendLine($"\t\t\t\t\treturn ((TCast?)rec, true);");
                 builder.AppendLine("\t\t\t\t}");
             }
             if (bundles.Length == 0)
@@ -199,6 +334,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                             string generateFrom,
                             AssemblyName assemblyName)
         {
+            string FAMILY = $"{interfaceName}_EntityFamily";
             var builder = new StringBuilder();
 
             string bridge = $"{friendlyName}EntityMapper";
@@ -208,7 +344,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
             if (simpleName.EndsWith(nameof(KindFilter.Consumer)))
                 simpleName = simpleName.Substring(0, simpleName.Length - nameof(KindFilter.Consumer).Length);
 
-            builder.AppendLine($"\t\tusing static Generated.{simpleName};");
+            builder.AppendLine($"\t\tusing Generated.{simpleName};");
             builder.AppendLine();
             builder.AppendLine("\t\t/// <summary>");
             builder.AppendLine($"\t\t/// Entity mapper is responsible of mapping announcement to DTO generated from {friendlyName}");

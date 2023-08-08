@@ -1,4 +1,6 @@
-﻿using EventSourcing.Backbone.UnitTests.Entities;
+﻿using Amazon.Runtime.Internal.Util;
+
+using EventSourcing.Backbone.UnitTests.Entities;
 
 namespace EventSourcing.Backbone
 {
@@ -10,10 +12,10 @@ namespace EventSourcing.Backbone
     public abstract class SimpleEventSubscriptionBase : ISubscriptionBridge
     {
 
-        async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge)
+        async Task<bool> ISubscriptionBridge.BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge, IPlanBase plan)
         {
             ConsumerContext consumerMetadata = ConsumerContext.Context;
-            switch (announcement.Metadata.Operation)
+            switch (announcement.Metadata.Signature.Operation)
             {
                 case nameof(ISimpleEventConsumer.ExecuteAsync):
                     {

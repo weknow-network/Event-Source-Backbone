@@ -118,13 +118,13 @@ internal class RedisProducerChannel : ProducerChannelBase
         catch (RedisConnectionException ex)
         {
             _logger.LogError(ex, "REDIS Connection Failure: push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                meta.MessageId, env, uri, meta.Operation);
+                meta.MessageId, env, uri, meta.Signature);
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Fail to push event [{id}] into the [{env}:{URI}] stream: {operation}",
-                meta.MessageId, env, uri, meta.Operation);
+                meta.MessageId, env, uri, meta.Signature);
             throw;
         }
 

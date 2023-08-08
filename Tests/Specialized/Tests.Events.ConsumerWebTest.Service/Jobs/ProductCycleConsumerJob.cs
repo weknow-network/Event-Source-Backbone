@@ -81,7 +81,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
-        _logger.Log(level, "handling {event} [{id}]: {title}", meta.Operation, meta.MessageId, title);
+        _logger.Log(level, "handling {event} [{id}]: {title}", meta.Signature, meta.MessageId, title);
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
 
@@ -93,7 +93,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    handling {event} [{id}]: {version}
                                    ---
                                    {doc}
-                                   """, meta.Operation, id, version, doc);
+                                   """, meta.Signature, id, version, doc);
 
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
@@ -106,7 +106,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    handling {event} [{id}]: {version}
                                    ---
                                    {notes}
-                                   """, meta.Operation, id, version, string.Join("\r\n- ", notes));
+                                   """, meta.Signature, id, version, string.Join("\r\n- ", notes));
 
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
@@ -117,7 +117,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
         _logger.Log(level, """
                                    handling {event} [{id}]: {version}
-                                   """, meta.Operation, id, version);
+                                   """, meta.Signature, id, version);
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
 
@@ -129,7 +129,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
                                    handling {event} [{id}]: {version}
                                    ---
                                    {notes}
-                                   """, meta.Operation, id, version, string.Join("\r\n- ", notes));
+                                   """, meta.Signature, id, version, string.Join("\r\n- ", notes));
 
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
@@ -138,7 +138,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
     {
         var meta = consumerMetadata.Metadata;
         LogLevel level = meta.Environment == "prod" ? LogLevel.Debug : LogLevel.Information;
-        _logger.Log(level, "handling {event} [{id}]: {version}", meta.Operation, id, version);
+        _logger.Log(level, "handling {event} [{id}]: {version}", meta.Signature, id, version);
 
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }
@@ -159,7 +159,7 @@ public sealed class ConsumerJob : IHostedService, IProductCycleConsumer
 
                                    {notes}
                                    ---
-                                   """, meta.Operation, id, version, operation, string.Join("\r\n- ", notes));
+                                   """, meta.Signature, id, version, operation, string.Join("\r\n- ", notes));
 
         await consumerMetadata.AckAsync(); // not required on default setting or when configuring the consumer to Ack on success.
     }

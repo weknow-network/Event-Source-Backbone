@@ -79,8 +79,8 @@ namespace EventSourcing.Backbone.Channels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{URI}], stream: {operation}, version: {version}",
-                    meta.MessageId, type, meta.Uri, meta.Operation, meta.Version);
+                _logger.LogError(ex, "Fail to Save event's [{id}] buckets [{type}], into the [{URI}], stream: {signature}",
+                    meta.MessageId, type, meta.Uri, meta.Signature);
                 throw;
             }
         }

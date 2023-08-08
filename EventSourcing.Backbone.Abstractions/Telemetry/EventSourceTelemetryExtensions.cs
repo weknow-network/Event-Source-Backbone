@@ -85,7 +85,7 @@ public static class EventSourceTelemetryExtensions
 
         activity?.SetTag("evt-src.env", meta.Environment);
         activity?.SetTag("evt-src.uri", meta.Uri);
-        activity?.SetTag("evt-src.operation", meta.Operation);
+        activity?.SetTag("evt-src.operation", meta.Signature);
         activity?.SetTag("evt-src.message-id", meta.MessageId);
         activity?.SetTag("evt-src.channel-type", meta.ChannelType);
     }
@@ -107,7 +107,10 @@ public static class EventSourceTelemetryExtensions
 
         if (meta != null)
         {
-            activity?.SetTag("evt-src.operation", meta.Operation);
+            var signature = meta.Signature;
+            activity?.SetTag("evt-src.operation", signature.Operation);
+            activity?.SetTag("evt-src.version", signature.Version);
+            activity?.SetTag("evt-src.params", signature.Parameters);
             activity?.SetTag("evt-src.message-id", meta.MessageId);
             activity?.SetTag("evt-src.channel-type", meta.ChannelType);
         }

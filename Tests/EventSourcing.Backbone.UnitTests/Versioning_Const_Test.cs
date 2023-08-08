@@ -1,30 +1,28 @@
-using EventSourcing.Backbone.UnitTests.Entities;
-
 using Xunit;
 using Xunit.Abstractions;
 
 
+namespace EventSourcing.Backbone.UnitTests.Entities;
 
-namespace EventSourcing.Backbone
+using Generated;
+
+public class VersionAware_Const_Test
 {
-    public class Versioning_Const_Test
+    private readonly ITestOutputHelper _outputHelper;
+
+    public VersionAware_Const_Test(ITestOutputHelper outputHelper)
     {
-        private readonly ITestOutputHelper _outputHelper;
-
-        public Versioning_Const_Test(ITestOutputHelper outputHelper)
-        {
-            _outputHelper = outputHelper;
-        }
-
-
-        [Fact]
-        public void Consumer_Const_Test()
-        {
-            _outputHelper.WriteLine(IVersionAwareMixConsumer.CONSTANTS.DEPRECATED.ExecuteAsync.V0.P_String_Int32);
-            Assert.Equal("String,Int32", IVersionAwareMixConsumer.CONSTANTS.DEPRECATED.ExecuteAsync.V0.P_String_Int32);
-            _outputHelper.WriteLine(IVersionAwareMixConsumer.CONSTANTS.ACTIVE.ExecuteAsync.V2.P_DateTime);
-            Assert.Equal("DateTime", IVersionAwareMixConsumer.CONSTANTS.ACTIVE.ExecuteAsync.V2.P_DateTime);
-        }
-
+        _outputHelper = outputHelper;
     }
+
+
+    [Fact]
+    public void Consumer_Const_Test()
+    {
+        _outputHelper.WriteLine(VersionAwareMixConstants.DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString);
+        Assert.Equal("String,Int32", VersionAwareMixConstants.DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString);
+        _outputHelper.WriteLine(VersionAwareMixConstants.ACTIVE.ExecuteAsync.V2.P_DateTime.SignatureString);
+        Assert.Equal("DateTime", VersionAwareMixConstants.ACTIVE.ExecuteAsync.V2.P_DateTime.SignatureString);
+    }
+
 }

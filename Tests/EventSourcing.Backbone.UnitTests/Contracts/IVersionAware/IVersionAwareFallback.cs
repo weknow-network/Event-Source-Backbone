@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿#pragma warning disable S1133 // Deprecated code should be removed
 
 
 namespace EventSourcing.Backbone.UnitTests;
 
-using static IVersionAwareFallbackConsumer.CONSTANTS;
-using Entities.Generated;
-using static Generated.VersionAwareFallback;
+using Generated.VersionAwareFallback;
+
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Test contract
@@ -15,6 +15,8 @@ using static Generated.VersionAwareFallback;
 [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
 public interface IVersionAwareFallback// : IVersionAwareBase
 {
+    #region Fallback
+
     /// <summary>
     /// Consumers the fallback.
     /// Excellent for Migration scenario
@@ -24,35 +26,36 @@ public interface IVersionAwareFallback// : IVersionAwareBase
     /// <returns></returns>
     public static async Task<bool> Fallback(IConsumerInterceptionContext ctx, IVersionAwareFallbackConsumer target)
     {
-        Metadata meta = ctx.Context;
-        switch (meta)
+        ILogger logger = ctx.Logger;
+        ConsumerContext consumerContext = ctx.Context;
+        Metadata meta = consumerContext.Metadata;
+
+        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
+        if (succeed1)
         {
-            case { Operation: nameof(ExecuteAsync), Version: 0, ParamsSignature: DEPRECATED.ExecuteAsync.V0.P_String_Int32 }:
-                int? key = await ctx.GetParameterAsync<int>("key");
-                int? val = await ctx.GetParameterAsync<int>("value");
-                if (val == null)
-                    throw new NullReferenceException();
-                var entity = new ExecuteAsync_3_String($"{key}:{val}");
-                await target.Execute_3Async(ctx.Context, val.ToString()!);
-                return true;
-            case { Operation: nameof(ExecuteAsync), Version: 1, ParamsSignature: DEPRECATED.ExecuteAsync.V1.P_Int32 }:
-                int? val1 = await ctx.GetParameterAsync<int>("value");
-                if (val1 == null)
-                    throw new NullReferenceException();
-                await target.Execute_3Async(ctx.Context, val1.ToString()!);
-                return true;
-            //case { Operation: nameof(ExecuteAsync), Version: 4, ParamsSignature: DEPRECATED.ExecuteAsync.V3.P_ }:
-            //    TimeSpan? val2 = await ctx.GetParameterAsync<TimeSpan>("value");
-            //    if (val2 == null)
-            //        throw new NullReferenceException();
-            //    await target.Execute_3Async(ctx.Context, val2.ToString()!);
-            //    return true;
-                //default:
-                //    await ctx.Context.AckAsync(AckBehavior.OnFallback);
-                //    return true;
+            await target.Execute_3Async(consumerContext, $"{data1!.value}_{data1.key}");
+            await ctx.AckAsync();
+            return true;
         }
+        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V1_Int32_DeprecatedAsync();
+        if (succeed2)
+        {
+            await target.Execute_3Async(consumerContext, data2!.value.ToString());
+            await ctx.AckAsync();
+            return true;
+        }
+        var (succeed3, data3) = await ctx.TryGetExecuteAsync_V4_TimeSpan_DeprecatedAsync();
+        if (succeed3)
+        {
+            await target.Execute_3Async(consumerContext, data3!.value.ToString());
+            await ctx.AckAsync();
+            return true;
+        }
+        logger.LogWarning("Fallback didn't handle: {uri}, {signature}", meta.Uri, meta.Signature);
         return false;
     }
+
+    #endregion // Fallback
 
     ValueTask ExecuteAsync(string key, int value);
     [EventSourceVersion(1)]

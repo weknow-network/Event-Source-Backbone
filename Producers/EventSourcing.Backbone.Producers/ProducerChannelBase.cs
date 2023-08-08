@@ -99,7 +99,7 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
 
         try
         {
-            using var activity = plan.StartTraceInformation($"producer.{meta.Operation}.process",
+            using var activity = plan.StartTraceInformation($"producer.{meta.Signature}.process",
                                                 tagsAction: t => t.Add("env", env)
                                                                 .Add("uri", uri)
                                                                 .Add("message-id", id));
@@ -114,7 +114,7 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
         catch (Exception ex)
         {
             ProduceEventsErrorCounter.WithTag("uri", uri).WithTag("env", env).Add(1);
-            _logger.LogError(ex, "Fail to produce event: env={env}, uri={uri}, oprtation={operation}", env, meta.Uri, meta.Operation);
+            _logger.LogError(ex, "Fail to produce event: env={env}, uri={uri}, oprtation={operation}", env, meta.Uri, meta.Signature);
             throw;
         }
 
@@ -122,10 +122,13 @@ public abstract class ProducerChannelBase : IProducerChannelProvider
 
         async Task<string> LocalAsync()
         {
+            var signature = meta.Signature;
             // The storage meta information, like the bucket name in case of s3, etc.
             ImmutableDictionary<string, string>.Builder storageMeta = await SaveToStorageAsync(plan, payload);
             storageMeta.Add(nameof(meta.MessageId), id);
-            storageMeta.Add(nameof(meta.Operation), meta.Operation);
+            storageMeta.Add(nameof(signature.Operation), signature.Operation);
+            storageMeta.Add(nameof(signature.Version), signature.Version.ToString());
+            storageMeta.Add(nameof(signature.Parameters), signature.Parameters);
             storageMeta.Add(nameof(meta.ChannelType), ChannelType);
 #pragma warning disable HAA0102 
             storageMeta.Add(nameof(meta.Origin), meta.Origin.ToString());

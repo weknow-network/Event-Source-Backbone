@@ -2,8 +2,8 @@
 {
     [EventsContract(EventsContractType.Producer, Name = "ISequenceOfProducer")]
     [EventsContract(EventsContractType.Consumer, Name = "ISequenceOfConsumer")]
-    [EventsContract(EventsContractType.Producer)]
-    [EventsContract(EventsContractType.Consumer)]
+    //[EventsContract(EventsContractType.Producer)]
+    //[EventsContract(EventsContractType.Consumer)]
     //[EventsContractBridge(EventSourceGenType.Producer, Name = "ISequenceOfProducer")]
     [Obsolete("Use ISequenceOfProducer or ISequenceOfConsumer", true)]
     public interface ISequenceOperations

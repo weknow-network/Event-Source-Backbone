@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Backbone;
+﻿using Microsoft.Extensions.Logging;
+
+namespace EventSourcing.Backbone;
 
 /// <summary>
 /// Subscription Bridge convention
@@ -23,8 +25,9 @@ public interface ISubscriptionBridge
     /// </summary>
     /// <param name="announcement">The announcement.</param>
     /// <param name="consumerBridge">The consumer bridge.</param>
+    /// <param name="plan">The plan.</param>
     /// <returns>
     /// Indication whether the event had been processed or avoided.
     /// </returns>
-    Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge);
+    Task<bool> BridgeAsync(Announcement announcement, IConsumerBridge consumerBridge, IPlanBase plan);
 }

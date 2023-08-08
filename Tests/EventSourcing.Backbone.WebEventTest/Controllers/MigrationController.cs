@@ -28,7 +28,7 @@ namespace EventSourcing.Backbone.WebEventTest.Controllers
         public async Task ForwardEventAsync(Announcement announcement)
         {
             _logger.LogInformation("Processing fw message {announcement}", announcement);
-            await _forwarder.Produce(announcement);
+            await _forwarder.Produce(announcement, _logger);
         }
     }
 }

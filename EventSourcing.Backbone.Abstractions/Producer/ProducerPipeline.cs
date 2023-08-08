@@ -243,9 +243,7 @@
                 MessageId = id,
                 Environment = plan.Environment,
                 Uri = plan.Uri,
-                Operation = operation,
-                Version = version,
-                ParamsSignature = paramsSignature
+                Signature = new (operation, version, paramsSignature)
             };
 
             foreach (var classify in classifyAdaptors)
