@@ -48,7 +48,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
                 string entityName = $"{bundle:entity}{deprecateAddition}";
 
-                method.CopyDocumentation(builder, version, "\t\t");
+                method.CopyDocumentation(builder, version, "\t");
                 builder.AppendLine($"\t[GeneratedCode(\"{assemblyName.Name}\",\"{assemblyName.Version}\")]");
                 builder.Append("\tpublic record");
                 builder.Append($" {entityName}(");
@@ -64,7 +64,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\tpublic static bool IsMatch(IConsumerInterceptionContext context)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tMetadata meta = context.Context.Metadata;");
-                builder.AppendLine($"\t\t\treturn meta.Signature != _signature;");
+                builder.AppendLine($"\t\t\treturn meta.Signature == _signature;");
                 builder.AppendLine("\t\t}");
                 builder.AppendLine();
 
@@ -74,7 +74,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     builder.Append($"async ");
                 builder.AppendLine($"static Task<(bool, {entityName}?)> TryGetAsync(IConsumerInterceptionContext context)");
                 builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tif(IsMatch(context))");
+                builder.AppendLine($"\t\t\tif(!IsMatch(context))");
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\t\treturn (false, null);");
                 else
@@ -100,7 +100,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\tpublic static bool IsMatch(Announcement announcement)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tMetadata meta = announcement.Metadata;");
-                builder.AppendLine($"\t\t\treturn meta.Signature != _signature;");
+                builder.AppendLine($"\t\t\treturn meta.Signature == _signature;");
                 builder.AppendLine("\t\t}");
 
                 builder.Append($"\t\tpublic ");
@@ -108,7 +108,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     builder.Append($"async ");
                 builder.AppendLine($"static Task<(bool, {entityName}?)> TryGetAsync(IConsumerBridge consumerBridge, Announcement announcement)");
                 builder.AppendLine("\t\t{");
-                builder.AppendLine($"\t\t\tif(IsMatch(announcement))");
+                builder.AppendLine($"\t\t\tif(!IsMatch(announcement))");
 
                 if (psRaw.Length != 0)
                     builder.AppendLine($"\t\t\t\treturn (false, null);");
