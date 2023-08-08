@@ -55,5 +55,12 @@
         /// </summary>
         /// <returns></returns>
         IConsumerIterator BuildIterator();
+
+        ///// <summary>
+        ///// Casts to a specific interface.
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <returns></returns>
+        //IConsumerSubscribeBuilder<T> Cast<T>();
     }
 }
