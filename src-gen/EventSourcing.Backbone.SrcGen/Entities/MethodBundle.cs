@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 
-using EventSourcing.Backbone.SrcGen.Entities;
-
 using Microsoft.CodeAnalysis;
 
-namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
+namespace EventSourcing.Backbone.SrcGen.Entities;
 
 /// <summary>
 /// Method Bundle
@@ -74,8 +72,8 @@ internal sealed class MethodBundle : IFormattable
         string name = nameOverride ?? FullName;
         string versionSuffix = VersionNaming switch
         {
-            SrcGen.Entities.VersionNaming.Append => Version.ToString(),
-            SrcGen.Entities.VersionNaming.AppendUnderscore => $"_{Version}",
+            VersionNaming.Append => Version.ToString(),
+            VersionNaming.AppendUnderscore => $"_{Version}",
             _ => string.Empty
         };
 

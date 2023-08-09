@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
-
+using EventSourcing.Backbone.SrcGen.Entities;
 using Microsoft.CodeAnalysis;
 
 namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
@@ -31,7 +29,7 @@ internal static class ConstantsGenerator
 
         var builder = new StringBuilder();
         GenVersionConstants(builder);
-        return new GenInstruction($"{simpleName}.Constants", builder.ToString(), $"{info.Namespace}.Generated");
+        return new GenInstruction($"{simpleName}.Signatures", builder.ToString(), $"{info.Namespace}.Generated");
 
         void GenVersionConstants(StringBuilder builder)
         {
@@ -39,7 +37,7 @@ internal static class ConstantsGenerator
 
             string indent = "\t";
 
-            builder.AppendLine($"{indent}public static class {simpleName}Constants");
+            builder.AppendLine($"{indent}public static class {simpleName}Signatures");
             builder.AppendLine($"{indent}{{");
             indent = $"{indent}\t";
 

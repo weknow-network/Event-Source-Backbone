@@ -1,7 +1,5 @@
 ﻿using System.Text;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
-using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
+using EventSourcing.Backbone.SrcGen.Entities;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -48,22 +46,20 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         builder.AppendLine($"\tpublic interface {interfaceName}");
         builder.AppendLine("\t{");
 
-        builder.AddInterceptors(symbol, interfaceName);
+        // Copy Fallback handler
+        // builder.AddInterceptors(symbol, interfaceName);
+
         foreach (MethodBundle bundle in bundles)
         {
             if (bundle.Deprecated)
                 continue;
-
+            
             GenMethod(builder, bundle);
         }
 
         builder.AppendLine("\t}");
 
-        var contractOnlyArg = att.ArgumentList?.Arguments.FirstOrDefault(m => m.NameEquals?.Name.Identifier.ValueText == "ContractOnly");
-        var contractOnly = contractOnlyArg?.Expression.NormalizeWhitespace().ToString() == "true";
-
-        if (!contractOnly)
-            _bridge.GenerateSingle(context, compilation, info);
+        _bridge.GenerateSingle(context, compilation, info);
         return new[] { new GenInstruction(interfaceName, builder.ToString()) };
 
         #region GetParameter

@@ -3,7 +3,6 @@ using System.Xml.Linq;
 
 
 using EventSourcing.Backbone.SrcGen.Entities;
-using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

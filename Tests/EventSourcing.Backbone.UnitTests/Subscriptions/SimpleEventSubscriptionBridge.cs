@@ -3,7 +3,7 @@ using EventSourcing.Backbone.UnitTests.Entities.Generated;
 
 namespace EventSourcing.Backbone
 {
-    using static SimpleEventConstants.ACTIVE;
+    using static SimpleEventSignatures.ACTIVE;
 
     /// <summary>
     /// In-Memory Channel (excellent for testing)

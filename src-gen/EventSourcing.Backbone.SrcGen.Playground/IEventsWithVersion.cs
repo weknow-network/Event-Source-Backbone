@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
-[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
+[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer")]
 public interface IEventsWithVersion
 {
     /// <summary>

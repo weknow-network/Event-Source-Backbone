@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 2, VersionNaming = VersionNaming.AppendUnderscore)]
-[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
+[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer")]
 public interface IVersionAwareFallback// : IVersionAwareBase
 {
     #region Fallback

@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
-
+using EventSourcing.Backbone.SrcGen.Entities;
 using Microsoft.CodeAnalysis;
 
 namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers

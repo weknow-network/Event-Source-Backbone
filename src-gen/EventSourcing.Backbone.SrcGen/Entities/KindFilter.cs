@@ -1,4 +1,4 @@
-﻿namespace EventSourcing.Backbone.SrcGen.Generators.Entities
+﻿namespace EventSourcing.Backbone.SrcGen.Entities
 {
     internal enum KindFilter
     {
