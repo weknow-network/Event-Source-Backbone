@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.UnitTests;
 
-public class EndToEndVersionAware_Fallback_Tests
+public class EndToEndVersionAware_DerivedFallback_Tests
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly IProducerBuilder _producerBuilder = ProducerBuilder.Empty;
@@ -19,11 +19,11 @@ public class EndToEndVersionAware_Fallback_Tests
     private readonly Func<ILogger, IProducerChannelProvider> _producerChannel;
     private readonly Func<ILogger, IConsumerChannelProvider> _consumerChannel;
     private readonly Channel<Announcement> ch;
-    private readonly IVersionAwareFallbackConsumer _subscriber = A.Fake<IVersionAwareFallbackConsumer>();
+    private readonly IVersionAwareDerivedFallbackConsumer _subscriber = A.Fake<IVersionAwareDerivedFallbackConsumer>();
 
     #region Ctor
 
-    public EndToEndVersionAware_Fallback_Tests(ITestOutputHelper outputHelper)
+    public EndToEndVersionAware_DerivedFallback_Tests(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
         ch = Channel.CreateUnbounded<Announcement>();
@@ -34,14 +34,14 @@ public class EndToEndVersionAware_Fallback_Tests
     #endregion // Ctor
 
     [Fact]
-    public async Task End2End_VersionAware_Fallback_Test()
+    public async Task End2End_VersionAware_DerivedFallback_Test()
     {
         string URI = "testing:version:aware";
-        IVersionAwareFallbackProducer producer =
+        IVersionAwareDerivedFallbackProducer producer =
             _producerBuilder.UseChannel(_producerChannel)
                     .Uri(URI)
                     .WithLogger(TestLogger.Create(_outputHelper))
-                    .BuildVersionAwareFallbackProducer();
+                    .BuildVersionAwareDerivedFallbackProducer();
 
         var ts = TimeSpan.FromSeconds(1);
         await producer.Execute4Async(ts);
@@ -58,7 +58,7 @@ public class EndToEndVersionAware_Fallback_Tests
                      .WithCancellation(cts.Token)
                      .Uri(URI)
                      .WithLogger(TestLogger.Create(_outputHelper))
-                     .SubscribeVersionAwareFallbackConsumer(_subscriber);
+                     .SubscribeVersionAwareDerivedFallbackConsumer(_subscriber);
 
         ch.Writer.Complete();
         await subscription.DisposeAsync();
