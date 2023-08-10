@@ -1,16 +1,19 @@
-﻿#pragma warning disable S1133 // Obsolete
+﻿using Microsoft.Extensions.Logging;
+using EventSourcing.Backbone;
+using EventSourcing.Backbone.WebEventTest.Generated;
 
 namespace EventSourcing.Backbone.WebEventTest;
 
-using EventSourcing.Backbone;
-
 using Generated.EventsWithVersion;
+using Polly;
 
-using Microsoft.Extensions.Logging;
+using static Generated.EventsWithVersionSignatures;
+
+
 
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
-[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer", true)]
+[Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer")]
 public interface IEventsWithVersion
 {
     /// <summary>
@@ -25,15 +28,38 @@ public interface IEventsWithVersion
         ILogger logger = ctx.Logger;
         ConsumerContext consumerContext = ctx.Context;
         Metadata meta = consumerContext.Metadata;
-        //switch (meta.Signature.ToString())
-        //{
-        //    case Generated.EventsWithVersion.CONSTANTS.ACTIVE.ExecuteAsync.V1.P_:
-        //        break;
-        //}
+
+        // OPTION 1
+        switch (meta.Signature.ToString())
+        {
+            case DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString:
+                {
+                    var key = await ctx.GetParameterAsync<string>("key");
+                    var value = await ctx.GetParameterAsync<int>("value");
+                    await target.Execute3Async(consumerContext, $"{key}-{value}");
+                    await ctx.AckAsync();
+                    return true;
+                }
+
+        }
+
+        // OPTION 2
+        if (await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(async 
+                data =>
+                {
+                    await target.Execute3Async(consumerContext, $"{data!.key}-{data!.value}");
+                    await ctx.AckAsync();
+                    return true;
+                }))
+        {
+            return true;
+        }
+
+        // OPTION 3
         var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
         if (succeed1)
         {
-            await target.Execute3Async(consumerContext, data1!.value.ToString());
+            await target.Execute3Async(consumerContext, $"{data1!.key}-{data1!.value}");
             await ctx.AckAsync();
             return true;
         }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventSourcing.Backbone.UnitTests;
 
-using Generated.VersionAwareFallback;
+using Generated.VersionAwareDerivedFallback;
 
 /// <summary>
 /// Test contract
@@ -11,7 +11,7 @@ using Generated.VersionAwareFallback;
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 2, VersionNaming = VersionNaming.AppendUnderscore)]
 [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer")]
-public interface IVersionAwareFallback// : IVersionAwareBase
+public interface IVersionAwareDerivedFallback: IVersionAwareBase
 {
     #region Fallback
 
@@ -22,7 +22,7 @@ public interface IVersionAwareFallback// : IVersionAwareBase
     /// <param name="ctx">The context.</param>
     /// <param name="target">The target.</param>
     /// <returns></returns>
-    public static async Task<bool> Fallback(IConsumerInterceptionContext ctx, IVersionAwareFallbackConsumer target)
+    public static async Task<bool> Fallback(IConsumerInterceptionContext ctx, IVersionAwareDerivedFallbackConsumer target)
     {
         ILogger logger = ctx.Logger;
         ConsumerContext consumerContext = ctx.Context;
@@ -54,17 +54,4 @@ public interface IVersionAwareFallback// : IVersionAwareBase
     }
 
     #endregion // Fallback
-
-    ValueTask ExecuteAsync(string key, int value);
-    [EventSourceVersion(1)]
-    ValueTask ExecuteAsync(int value);
-    [EventSourceVersion(2)]
-    ValueTask ExecuteAsync(DateTime value);
-    [EventSourceVersion(3)]
-    ValueTask ExecuteAsync(string value);
-    [EventSourceVersion(4)]
-    [EventSourceDeprecateVersion(EventsContractType.Consumer, Date = "2023-08-02", Remark = "For testing")]
-    ValueTask ExecuteAsync(TimeSpan value);
-    [EventSourceVersion(3)]
-    ValueTask NotIncludesAsync(string value);
 }

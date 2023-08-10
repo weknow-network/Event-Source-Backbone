@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
+using EventSourcing.Backbone.SrcGen.Entities;
 using EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers;
 
 using Microsoft.CodeAnalysis;
@@ -330,7 +329,10 @@ namespace EventSourcing.Backbone
                 builder.AppendLine("\t\t\tbool result = false;");
                 foreach (string fallbackName in fallbackNames)
                 {
-                    builder.AppendLine($"\t\t\tresult = await {interfaceName}.{fallbackName}(fallbackHandle, this);");
+                    // invoke fallbacks
+                    builder.AppendLine("\t\t\t#pragma warning disable cs0618 // ignore calling obsolete member");
+                    builder.AppendLine($"\t\t\tresult = await {info.GenerateFrom}.{fallbackName}(fallbackHandle, this);");
+                    builder.AppendLine("\t\t\t#pragma warning enable cs0618");
                 }
                 builder.AppendLine();
                 builder.AppendLine("\t\t\treturn result;");

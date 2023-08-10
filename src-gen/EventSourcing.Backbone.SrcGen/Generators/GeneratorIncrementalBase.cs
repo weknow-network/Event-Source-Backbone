@@ -1,8 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
-
-using EventSourcing.Backbone.SrcGen.Generators.Entities;
-
+using EventSourcing.Backbone.SrcGen.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
