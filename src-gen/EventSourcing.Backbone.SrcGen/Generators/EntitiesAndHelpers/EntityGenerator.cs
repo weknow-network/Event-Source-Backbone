@@ -59,6 +59,9 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"): {FAMILY}");
                 builder.AppendLine("\t{");
                 builder.AppendLine($"\t\tprivate static readonly OperationSignature _signature = new (\"{bundle.FullName}\", {bundle.Version}, \"{bundle.Parameters}\");");
+ 
+                //-----------------------------Task<(succeed, entity)>  IsMatch(context) ---------------------
+                
                 builder.AppendLine($"\t\tpublic static bool IsMatch(IConsumerInterceptionContext context)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tMetadata meta = context.Context.Metadata;");
@@ -67,6 +70,9 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine();
 
                 var prms = Enumerable.Range(0, psRaw.Length).Select(m => $"p{m}");
+
+                //-----------------------------Task<(succeed, entity)>  TryGetAsync(context) ---------------------
+
                 builder.Append($"\t\tpublic ");
                 if (psRaw.Length != 0)
                     builder.Append($"async ");
@@ -95,12 +101,42 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine("\t\t}");
                 builder.AppendLine();
 
+                //-----------------------------Task<succeed>  TryGetAsync(context, Func<ENTITY, Task<bool>>) ---------------------
+
+                builder.AppendLine($"\t\tpublic async static Task<bool> TryGetAsync(IConsumerInterceptionContext context, Func<{entityName}, Task<bool>> handler)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tif(!IsMatch(context))");
+                builder.AppendLine($"\t\t\t\treturn false;");
+                builder.AppendLine();
+                i = 0;
+                foreach (var p in psRaw)
+                {
+                    var pName = p.Name;
+                    builder.AppendLine($"\t\t\tvar p{i} = await context.GetParameterAsync<{p.Type}>(\"{pName}\");");
+                    i++;
+                }
+
+                builder.AppendLine($"\t\t\tvar data = new {entityName}({string.Join(", ", prms)});");
+                
+                builder.AppendLine($"\t\t\tbool ok = await handler(data);");
+                
+                builder.AppendLine($"\t\t\treturn ok;");
+
+                builder.AppendLine("\t\t}");
+                builder.AppendLine();
+
+                //-----------------------------Task<(succeed, entity)>  IsMatch(announcement) ---------------------
+
                 builder.AppendLine($"\t\tpublic static bool IsMatch(Announcement announcement)");
                 builder.AppendLine("\t\t{");
                 builder.AppendLine($"\t\t\tMetadata meta = announcement.Metadata;");
                 builder.AppendLine($"\t\t\treturn meta.Signature == _signature;");
                 builder.AppendLine("\t\t}");
 
+                //-----------------------------Task<(succeed, entity)> TryGetAsync (bridge, announcement) ---------------------
+
+
+                //builder.Append($"\t\t[Obsolete(\"Use other overload\")]");
                 builder.Append($"\t\tpublic ");
                 if (psRaw.Length != 0)
                     builder.Append($"async ");
@@ -126,6 +162,31 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                     builder.AppendLine($"\t\t\treturn (true, data);");
                 else
                     builder.AppendLine($"\t\t\treturn Task.FromResult<(bool, {entityName}?)>((true, data));");
+
+                builder.AppendLine("\t\t}");
+
+
+                //-----------------------------Task<succeed>  TryGetAsync(bridge, announcement, Func<ENTITY, Task<bool>>) ---------------------
+
+                builder.AppendLine($"\t\tpublic async static Task<bool> TryGetAsync(IConsumerBridge consumerBridge, Announcement announcement, Func<{entityName}, Task<bool>> handler)");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine($"\t\t\tif(!IsMatch(announcement))");
+
+                builder.AppendLine($"\t\t\t\treturn false;");
+                builder.AppendLine();
+                i = 0;
+                foreach (var p in psRaw)
+                {
+                    var pName = p.Name;
+                    builder.AppendLine($"\t\t\tvar p{i} = await consumerBridge.GetParameterAsync<{p.Type}>(announcement, \"{pName}\");");
+                    i++;
+                }
+
+                builder.AppendLine($"\t\t\tvar data = new {entityName}({string.Join(", ", prms)});");
+
+
+                builder.AppendLine($"\t\t\tbool ok = await handler(data);");
+                builder.AppendLine($"\t\t\treturn ok;");
 
                 builder.AppendLine("\t\t}");
 
@@ -171,6 +232,8 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 string deprecateAddition = bundle.Deprecated ? "_Deprecated" : string.Empty;
                 string entityName = $"{bundle:entity}{deprecateAddition}";
 
+                //-----------------------------Task<(succeed, entity)> TryGetENTITYAsync (context) ---------------------
+
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Try to get entity of event of");
                 builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
@@ -180,6 +243,19 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\tpublic static Task<(bool, {entityName}?)> TryGet{entityName}Async(this IConsumerInterceptionContext context) => {entityName}.TryGetAsync(context);");
                 builder.AppendLine();
 
+                //-----------------------------Task<succeed> TryGetENTITYAsync (context, Func<entity, Task<bool>>) ---------------------
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Try to get entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static Task<bool> TryGet{entityName}Async(this IConsumerInterceptionContext context, Func<{entityName}, Task<bool>> handler) => {entityName}.TryGetAsync(context, handler);");
+                builder.AppendLine();
+
+                //-----------------------------Task<(succeed, entity)> TryGetENTITYAsync (bridge, announcement) ---------------------
+
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Try to get entity of event of");
                 builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
@@ -187,6 +263,19 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
                 builder.AppendLine($"\t\tpublic static Task<(bool, {entityName}?)> TryGet{entityName}Async(this IConsumerBridge bridge, Announcement announcement) => {entityName}.TryGetAsync(bridge, announcement);");
+
+                //-----------------------------Task<succeed> TryGetENTITYAsync (bridge, announcement, Func<entity, Task<bool>>) ---------------------
+
+                builder.AppendLine($"\t\t/// <summary>");
+                builder.AppendLine($"\t\t/// Try to get entity of event of");
+                builder.AppendLine($"\t\t///   Operation:{bundle.FullName}");
+                builder.AppendLine($"\t\t///   Version:{bundle.Version}");
+                builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
+                builder.AppendLine($"\t\t/// </summary>");
+                builder.AppendLine($"\t\tpublic static Task<bool> TryGet{entityName}Async(this IConsumerBridge bridge, Announcement announcement, Func<{entityName}, Task<bool>> handler) => {entityName}.TryGetAsync(context, handler);");
+                builder.AppendLine();
+
+                //-----------------------------Task<(succeed, entity)> IsMatchENTITYAsync (context) ---------------------
 
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Check if match entity of event of");
@@ -196,6 +285,8 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t/// </summary>");
                 builder.AppendLine($"\t\tpublic static bool IsMatch{entityName}(this IConsumerInterceptionContext context) => {entityName}.IsMatch(context);");
                 builder.AppendLine();
+
+                //-----------------------------Task<(succeed, entity)> IsMatchENTITYAsync (bridge, announcement) ---------------------
 
                 builder.AppendLine($"\t\t/// <summary>");
                 builder.AppendLine($"\t\t/// Check if match entity of event of");
@@ -272,6 +363,8 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
 
             var bundles = info.ToBundle(compilation);
 
+            //-----------------------------(cast, succeed) TryMapAsync (announcement, consumerPlan)---------------------
+           
             builder.AppendLine("\t\t\t/// <summary>");
             builder.AppendLine($"\t\t\t///  Try to map announcement");
             builder.AppendLine("\t\t\t/// </summary>");
@@ -282,6 +375,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.Append($"\t\t\t public ");
             else
                 builder.Append($"\t\t\t public async ");
+
 
             builder.AppendLine($"Task<(TCast? value, bool succeed)> TryMapAsync<TCast>(");
             builder.AppendLine($"\t\t\t\t\tAnnouncement announcement, ");
