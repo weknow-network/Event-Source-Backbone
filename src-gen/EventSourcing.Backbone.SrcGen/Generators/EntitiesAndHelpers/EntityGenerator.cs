@@ -272,7 +272,7 @@ namespace EventSourcing.Backbone.SrcGen.Generators.EntitiesAndHelpers
                 builder.AppendLine($"\t\t///   Version:{bundle.Version}");
                 builder.AppendLine($"\t\t///   Parameters:{bundle.Parameters}");
                 builder.AppendLine($"\t\t/// </summary>");
-                builder.AppendLine($"\t\tpublic static Task<bool> TryGet{entityName}Async(this IConsumerBridge bridge, Announcement announcement, Func<{entityName}, Task<bool>> handler) => {entityName}.TryGetAsync(context, handler);");
+                builder.AppendLine($"\t\tpublic static Task<bool> TryGet{entityName}Async(this IConsumerBridge bridge, Announcement announcement, Func<{entityName}, Task<bool>> handler) => {entityName}.TryGetAsync(bridge, announcement, handler);");
                 builder.AppendLine();
 
                 //-----------------------------Task<(succeed, entity)> IsMatchENTITYAsync (context) ---------------------
