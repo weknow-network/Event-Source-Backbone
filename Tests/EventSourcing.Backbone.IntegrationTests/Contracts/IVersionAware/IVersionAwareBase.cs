@@ -13,7 +13,7 @@ public interface IVersionAwareBase
     [EventSourceVersion(3)]
     ValueTask ExecuteAsync(string value);
     [EventSourceVersion(4)]
-    [EventSourceDeprecateVersion(EventsContractType.Consumer, Date = "2023-08-02", Remark = "For testing")]
+    [EventSourceDeprecate(EventsContractType.Consumer, Date = "2023-08-02", Remark = "For testing")]
     ValueTask ExecuteAsync(TimeSpan value);
     [EventSourceVersion(3)]
     ValueTask NotIncludesAsync(string value);

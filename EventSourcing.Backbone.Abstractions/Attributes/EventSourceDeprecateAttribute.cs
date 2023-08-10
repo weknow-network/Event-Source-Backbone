@@ -5,13 +5,13 @@
 /// Used to retired an API version
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class EventSourceDeprecateVersionAttribute : Attribute
+public class EventSourceDeprecateAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EventsContractAttribute" /> class.
     /// </summary>
     /// <param name="type">The event target type.</param>
-    public EventSourceDeprecateVersionAttribute(EventsContractType type)
+    public EventSourceDeprecateAttribute(EventsContractType type)
     {
         Type = type;
     }

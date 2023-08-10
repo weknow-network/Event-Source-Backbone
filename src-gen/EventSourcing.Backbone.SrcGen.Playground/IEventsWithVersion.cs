@@ -1,19 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
-using EventSourcing.Backbone;
-using EventSourcing.Backbone.WebEventTest.Generated;
 
 namespace EventSourcing.Backbone.WebEventTest;
 
 using Generated.EventsWithVersion;
-using Polly;
-
 using static Generated.EventsWithVersionSignatures;
 
 
 
 [EventsContract(EventsContractType.Producer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
 [EventsContract(EventsContractType.Consumer, MinVersion = 1, VersionNaming = VersionNaming.Append)]
+#pragma warning disable S1133 // Deprecated code should be removed
 [Obsolete("This interface is base for code generation, please use ISimpleEventProducer or ISimpleEventConsumer")]
+#pragma warning restore S1133 
 public interface IEventsWithVersion
 {
     /// <summary>
@@ -28,7 +26,6 @@ public interface IEventsWithVersion
         ILogger logger = ctx.Logger;
         ConsumerContext consumerContext = ctx.Context;
         Metadata meta = consumerContext.Metadata;
-
         // OPTION 1
         switch (meta.Signature.ToString())
         {
@@ -40,11 +37,9 @@ public interface IEventsWithVersion
                     await ctx.AckAsync();
                     return true;
                 }
-
         }
-
         // OPTION 2
-        if (await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(async 
+        if (await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(async
                 data =>
                 {
                     await target.Execute3Async(consumerContext, $"{data!.key}-{data!.value}");
@@ -54,7 +49,6 @@ public interface IEventsWithVersion
         {
             return true;
         }
-
         // OPTION 3
         var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
         if (succeed1)
@@ -125,14 +119,14 @@ public interface IEventsWithVersion
     /// <returns></returns>
     /// <remarks>Some remarks</remarks>
     [EventSourceVersion(2)]
-    [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
+    [EventSourceDeprecateAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
     ValueTask ExecuteAsync(bool value);
 
     [EventSourceVersion(3)]
     ValueTask ExecuteAsync(string value);
 
     [EventSourceVersion(2)]
-    [EventSourceDeprecateVersionAttribute(EventsContractType.Producer, Date = "2023-07-27", Remark = "sample of deprecation")]
-    [EventSourceDeprecateVersionAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
+    [EventSourceDeprecateAttribute(EventsContractType.Producer, Date = "2023-07-27", Remark = "sample of deprecation")]
+    [EventSourceDeprecateAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
     ValueTask NotIncludesAsync(string value);
 }

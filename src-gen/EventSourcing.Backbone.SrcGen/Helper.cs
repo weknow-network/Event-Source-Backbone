@@ -24,8 +24,8 @@ internal static class Helper
                                 a =>
                                 {
                                     var name = a.AttributeClass!.Name;
-                                    return name.EndsWith("EventSourceDeprecateVersionAttribute") ||
-                                            name.EndsWith("EventSourceDeprecateVersion");
+                                    return name.EndsWith("EventSourceDeprecateAttribute") ||
+                                            name.EndsWith("EventSourceDeprecate");
                                 };
 
     #region Convert
