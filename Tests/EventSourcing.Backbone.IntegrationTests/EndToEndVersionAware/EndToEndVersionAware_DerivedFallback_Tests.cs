@@ -28,7 +28,7 @@ public class EndToEndVersionAware_DerivedFallback_Tests : EndToEndVersionAwareBa
 
     #endregion // Ctor
 
-    protected override string Name { get; } = "fallback";
+    protected override string Name { get; } = "fallback-derived";
 
     [Fact]
     public async Task End2End_VersionAware_DerivedFallback_Test()

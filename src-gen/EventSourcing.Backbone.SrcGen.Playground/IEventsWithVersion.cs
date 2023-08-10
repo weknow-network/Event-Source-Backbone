@@ -2,6 +2,8 @@
 
 namespace EventSourcing.Backbone.WebEventTest;
 
+using System.Data;
+
 using Generated.EventsWithVersion;
 using static Generated.EventsWithVersionSignatures;
 
@@ -26,48 +28,25 @@ public interface IEventsWithVersion
         ILogger logger = ctx.Logger;
         ConsumerContext consumerContext = ctx.Context;
         Metadata meta = consumerContext.Metadata;
-        // OPTION 1
-        switch (meta.Signature.ToString())
+
+        if (ctx.IsMatchExecuteAsync_V0_String_Int32_Deprecated())
         {
-            case DEPRECATED.ExecuteAsync.V0.P_String_Int32.SignatureString:
-                {
-                    var key = await ctx.GetParameterAsync<string>("key");
-                    var value = await ctx.GetParameterAsync<int>("value");
-                    await target.Execute3Async(consumerContext, $"{key}-{value}");
-                    await ctx.AckAsync();
-                    return true;
-                }
-        }
-        // OPTION 2
-        if (await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync(async
-                data =>
-                {
-                    await target.Execute3Async(consumerContext, $"{data!.key}-{data!.value}");
-                    await ctx.AckAsync();
-                    return true;
-                }))
-        {
-            return true;
-        }
-        // OPTION 3
-        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
-        if (succeed1)
-        {
-            await target.Execute3Async(consumerContext, $"{data1!.key}-{data1!.value}");
+            var data = await ctx.GetExecuteAsync_V0_String_Int32_DeprecatedAsync();
+            await target.Execute3Async(consumerContext, $"{data.key}-{data.value}");
             await ctx.AckAsync();
             return true;
         }
-        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V2_Boolean_DeprecatedAsync();
-        if (succeed2)
+        if (ctx.IsMatchExecuteAsync_V2_Boolean_Deprecated())
         {
-            await target.Execute3Async(consumerContext, data2!.value.ToString());
+            var data = await ctx.GetExecuteAsync_V2_Boolean_DeprecatedAsync();
+            await target.Execute3Async(consumerContext, data.value.ToString());
             await ctx.AckAsync();
             return true;
         }
-        var (succeed3, data3) = await ctx.TryGetNotIncludesAsync_V2_String_DeprecatedAsync();
-        if (succeed3)
+        if (ctx.IsMatchNotIncludesAsync_V2_String_Deprecated())
         {
-            await target.Execute3Async(consumerContext, data3!.value);
+            var data = await ctx.GetNotIncludesAsync_V2_String_DeprecatedAsync();
+            await target.Execute3Async(consumerContext, data.value);
             await ctx.AckAsync();
             return true;
         }

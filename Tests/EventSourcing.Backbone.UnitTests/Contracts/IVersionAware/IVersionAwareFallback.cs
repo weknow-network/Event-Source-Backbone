@@ -28,24 +28,24 @@ public interface IVersionAwareFallback// : IVersionAwareBase
         ConsumerContext consumerContext = ctx.Context;
         Metadata meta = consumerContext.Metadata;
 
-        var (succeed1, data1) = await ctx.TryGetExecuteAsync_V0_String_Int32_DeprecatedAsync();
-        if (succeed1)
+        if (ctx.IsMatchExecuteAsync_V0_String_Int32_Deprecated())
         {
-            await target.Execute_3Async(consumerContext, $"{data1!.value}_{data1.key}");
+            var data = await ctx.GetExecuteAsync_V0_String_Int32_DeprecatedAsync();
+            await target.Execute_3Async(consumerContext, $"{data.key}_{data.value}");
             await ctx.AckAsync();
             return true;
         }
-        var (succeed2, data2) = await ctx.TryGetExecuteAsync_V1_Int32_DeprecatedAsync();
-        if (succeed2)
+        if (ctx.IsMatchExecuteAsync_V1_Int32_Deprecated())
         {
-            await target.Execute_3Async(consumerContext, data2!.value.ToString());
+            var data = await ctx.GetExecuteAsync_V1_Int32_DeprecatedAsync();
+            await target.Execute_3Async(consumerContext, data.value.ToString());
             await ctx.AckAsync();
             return true;
         }
-        var (succeed3, data3) = await ctx.TryGetExecuteAsync_V4_TimeSpan_DeprecatedAsync();
-        if (succeed3)
+        if (ctx.IsMatchExecuteAsync_V4_TimeSpan_Deprecated())
         {
-            await target.Execute_3Async(consumerContext, data3!.value.ToString());
+            var data = await ctx.GetExecuteAsync_V4_TimeSpan_DeprecatedAsync();
+            await target.Execute_3Async(consumerContext, data.value.ToString());
             await ctx.AckAsync();
             return true;
         }
