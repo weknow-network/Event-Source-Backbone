@@ -38,7 +38,7 @@ internal class ContractIncrementalGenerator : GeneratorIncrementalBase
         string interfaceName = info.FormatName();
 
         var bundles = info.ToBundle(compilation);
-        int? maxVersion = bundles.Max(m => m.Version);
+        int? maxVersion = bundles.Length == 0 ? 0 : bundles.Max(m => m.Version);
         var builder = new StringBuilder();
         symbol.CopyDocumentation(builder, maxVersion, "\t");
         var asm = GetType().Assembly.GetName();

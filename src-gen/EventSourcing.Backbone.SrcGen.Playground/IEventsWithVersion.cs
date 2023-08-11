@@ -108,4 +108,11 @@ public interface IEventsWithVersion
     [EventSourceDeprecateAttribute(EventsContractType.Producer, Date = "2023-07-27", Remark = "sample of deprecation")]
     [EventSourceDeprecateAttribute(EventsContractType.Consumer, Date = "2023-07-28", Remark = "sample of deprecation")]
     ValueTask NotIncludesAsync(string value);
+
+    [EventSourceVersion(4)]
+    ValueTask ExecuteAsync(params string[] values);
+    [EventSourceVersion(4)]
+    ValueTask ExecuteAsync(List<string> values);
+    [EventSourceVersion(4)]
+    ValueTask ExecuteAsync(params int[] values);
 }

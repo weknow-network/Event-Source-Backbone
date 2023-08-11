@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Xml.Linq;
-
+using Microsoft.CodeAnalysis.CSharp.Symbols;
 
 using EventSourcing.Backbone.SrcGen.Entities;
 
@@ -8,11 +8,15 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.Text.RegularExpressions;
+using System.Runtime.ConstrainedExecution;
 
 namespace EventSourcing.Backbone;
 
 internal static class Helper
 {
+    private static readonly Regex NON_WORD = new Regex(@"\W");
+
     private static readonly Predicate<AttributeData> DEFAULT_VERSION_PREDICATE =
                                 a =>
                                 {
@@ -438,10 +442,43 @@ internal static class Helper
     {
         if (method is not IMethodSymbol mtdSymbol)
             return string.Empty;
-        var result = mtdSymbol.Parameters.Select(p => p.Type.Name);
-        if (result == null)
+
+        var query = mtdSymbol.Parameters.Select(p =>
+        {
+            string res = p.Type.ToDisplayParts()
+                            .Aggregate(string.Empty, Aggregate);
+            string Aggregate(string acc, SymbolDisplayPart part)
+            {
+                if (part.Kind == SymbolDisplayPartKind.Punctuation)
+                {
+                    string item = part.ToString();
+                    return item switch
+                    {
+                        "." => string.Empty,
+                        "[" => $"{acc}_array",
+                        _ => acc
+                    };
+                }
+                string separation = string.Empty;
+                if (acc.Length != 0 && acc[acc.Length - 1] != '_')
+                    separation = "_";
+
+                var tmp = part.Symbol switch
+                {
+                    IArrayTypeSymbol ats => $"{acc}{separation}{ats.ElementType}_Array",
+                    ITypeSymbol ts => $"{acc}{separation}{ts.Name}",
+                    _ => $"{acc}{separation}{part}",
+                };
+                return tmp.Trim();
+            }
+            res = NON_WORD.Replace(res, "_");
+            return res;
+        });
+        if (query == null)
             return string.Empty;
-        return string.Join(",", result);
+        string result = string.Join(",", query);
+        return result;
+
     }
 
     #endregion // GetParamsSignature
