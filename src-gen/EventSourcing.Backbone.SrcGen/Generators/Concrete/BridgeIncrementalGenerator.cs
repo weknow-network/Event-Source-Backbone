@@ -332,7 +332,7 @@ namespace EventSourcing.Backbone
                     // invoke fallbacks
                     builder.AppendLine("\t\t\t#pragma warning disable cs0618 // ignore calling obsolete member");
                     builder.AppendLine($"\t\t\tresult = await {info.GenerateFrom}.{fallbackName}(fallbackHandle, this);");
-                    builder.AppendLine("\t\t\t#pragma warning enable cs0618");
+                    builder.AppendLine("\t\t\t#pragma warning restore cs0618");
                 }
                 builder.AppendLine();
                 builder.AppendLine("\t\t\treturn result;");
