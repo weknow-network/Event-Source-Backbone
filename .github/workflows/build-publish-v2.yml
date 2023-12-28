@@ -33,6 +33,9 @@ jobs:
         ports:
           - 6379:6379
 
+    env:
+      REDIS_EVENT_SOURCE_ENDPOINT: localhost:6379
+
     steps:
     - uses: actions/checkout@v2 
         
