@@ -1,9 +1,11 @@
 using System.Collections.Immutable;
 
+using Xunit;
 using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
 {
+    [Trait("provider", "s3")]
     public class S3StoreSplittingStrategyTests : EndToEndTests
     {
         private readonly static ImmutableHashSet<string> _gdrpFilter = ImmutableHashSet.CreateRange(new[] {

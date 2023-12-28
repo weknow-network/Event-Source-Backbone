@@ -14,6 +14,7 @@ using Xunit.Abstractions;
 
 namespace EventSourcing.Backbone.Tests
 {
+    [Trait("provider", "s3")]
     public sealed class S3StoreCredentialsTests : IDisposable
     {
         private const string TEST_URI = "testing";
@@ -72,7 +73,6 @@ namespace EventSourcing.Backbone.Tests
         #region S3_Cred
 
         [Fact(Timeout = TIMEOUT)]
-        //[Fact]
         public async Task S3_Cred()
         {
             var producerBuilder = _host.Services.GetService<IProducerHooksBuilder>() ?? throw new EventSourcingException("Producer is null");

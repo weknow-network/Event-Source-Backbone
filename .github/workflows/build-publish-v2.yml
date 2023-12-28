@@ -54,7 +54,7 @@ jobs:
       run: dotnet test Tests/EventSourcing.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
 
     - name: Integration Test
-      run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
+      run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal --filter provider!=s3
 
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH }} -s https://api.nuget.org/v3/index.json --skip-duplicate 
