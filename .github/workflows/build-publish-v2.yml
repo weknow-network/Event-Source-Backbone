@@ -65,6 +65,8 @@ jobs:
       run: dotnet test Tests/EventSourcing.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
 
     - name: Integration Test Redis
+      env:
+        REDIS_EVENT_SOURCE_ENDPOINT: localhost:6379
       run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal --filter provider!=s3
 
     - name: Configure localstack
@@ -75,8 +77,6 @@ jobs:
         aws mb s3://event-sourcing-demo --endpoint-url=http://localhost:4566
 
     - name: Integration Test S3
-      env:
-        REDIS_EVENT_SOURCE_ENDPOINT: localhost:6379
       run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal --filter provider=s3
 
     - name: Push generated package to GitHub registry
