@@ -25,6 +25,14 @@ jobs:
     name: build
     runs-on: ubuntu-latest
 
+    services:
+      mssql:
+        image: redislabs/rejson:latest
+        # env:
+        #   PASSWORD: ${{ secrets.NUGET_PUBLISH }}
+        ports:
+          - 6379:6379
+
     steps:
     - uses: actions/checkout@v2 
         
@@ -38,8 +46,12 @@ jobs:
       run: dotnet restore /property:Configuration=${{ env.BUILD_CONFIG }}
     - name: Build
       run: dotnet build  --configuration ${{ env.BUILD_CONFIG }} --no-restore 
-    - name: Test
+
+    - name: Unit Test
       run: dotnet test Tests/EventSourcing.Backbone.UnitTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
+
+    - name: Integration Test
+      run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal 
 
     - name: Push generated package to GitHub registry
       run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH }} -s https://api.nuget.org/v3/index.json --skip-duplicate 
