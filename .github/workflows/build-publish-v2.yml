@@ -38,7 +38,9 @@ jobs:
           SERVICES: s3
           DEFAULT_REGION: us-east-1
           DATA_DIR: /tmp/localstack/data
-        ports: ["4566:4566"]
+        ports: 
+          - 4566:4566
+          # - 4510-4559:4510-4559
   
     # env:
     #   REDIS_EVENT_SOURCE_ENDPOINT: localhost:6379
@@ -68,6 +70,7 @@ jobs:
       env:
         REDIS_EVENT_SOURCE_ENDPOINT: localhost:6379
       run: dotnet test Tests/EventSourcing.Backbone.IntegrationTests --configuration ${{ env.BUILD_CONFIG }} --no-restore --no-build --verbosity normal --filter provider!=s3
+
 
     # - name: Configure localstack
     #   run: |
